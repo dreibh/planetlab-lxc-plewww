@@ -1,0 +1,236 @@
+                          plot-latlong
+
+                           version 0.3
+
+                           Jun 10, 2005
+
+		  (c) 2003,2004,2005 CAIDA/UCSD
+
+  (http://www.caida.org/tools/visualization/plot-latlong/index.xml)
+
+                   plot-latlong-info@caida.org
+                   plot-latlong-bugs@caida.org
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+CHANGES
+
+ * v0.3 released Jun 10, 2005
+ 
+   - added -i option to specify location of mapinfo file.
+
+ * v0.2 released Apr 6, 2004
+
+   - added test-gd script for testing the GD installation
+
+ * v0.1 released Oct 3, 2003 -- initial release
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+DESCRIPTION
+
+plot-latlong is a small command line tool written in perl for plotting
+points on geographic maps given a list of latitude/longitude (lat/long)
+pairs.  This is aimed at situations in which
+
+  * a moderate amount of accuracy and precision is sufficient
+  * a large number of locations need to be plotted (tens of thousands of
+    locations can be easily handled)
+  * the plotting needs to be automatable (from a shell script, for example)
+  * a lightweight tool (both small and with few dependencies) that just plots
+    points is sufficient
+  * ease of modification is important (so that special requirements can be
+    met)
+
+plot-latlong can handle nonlinear map projections (currently the
+Alber/Lambert projection) and is intentionally minimalistic so that it can
+serve as a building block.  Users can build upon it in three ways: (1) add
+new maps, (2) run the output images through packages like NetPBM to add
+titles, etc., and (3) modify the source to change how points are drawn, to
+add labels, etc.  plot-latlong can also be used to simply compute the
+mapping from lat/long to pixel coordinates (for a given map).  These pixel
+coordinates can then be fed to other programs to draw more elaborate
+pictures.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+IMPLEMENTED FEATURES
+
+The list of implemented features is intentionally short:
+
+  * drawing points at a user-specified size
+  * printing out just the pixel coordinates of input lat/long pairs
+  * support for linear projections (the relationship between pixels
+    and lat/long values is linear)
+  * support for the Alber/Lambert nonlinear projection
+
+The distribution includes over two dozen maps, covering the continents
+and several country groups.  Users can also supply maps to use, so
+long as the projection type is supported and the projection parameters
+are known.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+CAVEATS
+
+plot-latlong is unsuitable for applications demanding high accuracy.
+Accuracy is likely no better than 5-10 miles--and even this is merely a
+shot in the dark, since we're not in a position to rigorously determine the
+accuracy of the generated plots.  The following factors contribute to
+increased inaccuracy:
+
+  * the relative coarseness of the supplied maps
+  * unverified projection parameters for the supplied maps
+  * the USA maps, which use the Alber/Lambert projection, have parameters
+    calibrated by eye
+  * the geodetic datum assumed by the supplied maps is unknown to us
+    (http://www.colorado.edu/geography/gcraft/notes/datum/datum_f.html)
+
+     + lat/long coordinate values are not universal; values are always
+       specified in some system, the datum, and mismatches in the assumed
+       datum can lead to the specification of physical locations that are
+       separated by as much as 1km
+
+     + to assess whether plot-latlong will be sufficient for your needs,
+       you might try comparing the results with those from the
+       Tiger Map Server (http://tiger.census.gov/cgi-bin/mapbrowse-tbl/)
+       and MapQuest (http://www.mapquest.com/maps/latlong.adp).
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+REQUIREMENTS
+
+The requirements for running plot-latlong are:
+
+  * UNIX-like operating system
+  * perl (http://www.perl.com)
+  * GD.pm (http://stein.cshl.org/WWW/software/GD/), which in turn requires
+    (see the README of GD.pm):
+
+     + the gd graphics library (http://www.boutell.com/gd/)
+     + the PNG graphics library (http://www.libpng.org/pub/png/libpng.html)
+     + the zlib compression library (http://www.gzip.org/zlib/)
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+INSTALLATION
+
+No installation, per se, is required, but for the greatest convenience,
+it is best to copy some files to your home directory, as in the following:
+
+     cp plot-latlong $HOME/bin
+     cp -R .mapinfo .mapimages $HOME
+
+Assuming $HOME/bin is in your PATH, you can now run plot-latlong from
+anywhere.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+USAGE
+
+plot-latlong reads lat/long values from stdin and writes a PNG to
+stdout.  The input should contain one pair of lat/long values per line
+with the values separated by whitespace.  Each coordinate should be a
+decimal value, with negative values indicating south or west.  Blank lines
+and lines starting with the pound character ('#') are ignored.
+
+Command line options are
+
+  -m <map-name> specifies the name of a map to use (default: the first
+     map listed in .mapinfo: 'World'); see .mapinfo for the valid map names;
+     see the file CONFIG for a description of the .mapinfo format
+
+  -s <point-size> specifies the size of the points to draw (default: 1);
+     points are filled squares, and the size is the width in pixels
+
+     (NOTE: Points drawn at the default size of 1 pixel may be hard to see
+            when only a few points are plotted.  Use '-s 10' when plotting
+            a small number of points.)
+
+  -c causes the pixel coordinates of each lat/long to be printed to stderr;
+     the coordinates (0, 0) are at the upper left corner, and values increase
+     to the right and down
+
+  -i <map-info-file> specifies an alternate location for .mapinfo (other
+     than in the current directory or $HOME).
+
+Examples:
+
+$ cat locations.txt | ./plot-latlong >plot.png
+
+$ ./plot-latlong -m USA -s 10 >plot.png <<EOF
+# san diego
+32.8155594 -117.1361008
+
+# miami, fl
+25.7707844 -80.2112045
+
+# new york, ny
+40.6691055 -73.9439468
+EOF
+
+$ cat locations.txt | ./plot-latlong -c >/dev/null 2>xy.txt
+$ head xy.txt
+33.58 -86.52 250.44 168.946555555556
+33.59 -86.96 249.12 168.916611111111
+...
+
+
+NOTE: You may safely ignore the following warning:
+
+             gd-png warning: alpha channel not supported
+
+      This warning says that the input map image had transparency information,
+      which some GD versions don't support.  None of the map images included
+      in the distribution have transparency, but maps of your own may.
+      In such cases, use an image editing tool to remove the transparency
+      information.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ACKNOWLEDGMENTS
+
+The code for handling the Alber/Lambert map projection is derived from
+GTrace v1.0.0beta (http://www.caida.org/tools/visualization/gtrace),
+which was written by Ram Periakaruppan.  The included set of maps are also
+derived from the GTrace distribution.  GTrace redistributed these maps
+with the permission of VisualRoute (http://www.visualroute.com),
+the original source of the maps.
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+LICENSE
+
+Copyright (C) 2003,2004,2005 The Regents of the University of California.
+All Rights Reserved.
+
+Permission to use, copy, modify and distribute any part of this
+plot-latlong software package for educational, research and non-profit
+purposes, without fee, and without a written agreement is hereby
+granted, provided that the above copyright notice, this paragraph
+and the following paragraphs appear in all copies.
+  
+Those desiring to incorporate this into commercial products or use
+for commercial purposes should contact the Technology Transfer
+Office, University of California, San Diego, 9500 Gilman Drive, La
+Jolla, CA 92093-0910, Ph: (858) 534-5815, FAX: (858) 534-7345.
+
+IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY
+PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
+ 
+THE SOFTWARE PROVIDED HEREIN IS ON AN "AS IS" BASIS, AND THE
+UNIVERSITY OF CALIFORNIA HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
+SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. THE UNIVERSITY
+OF CALIFORNIA MAKES NO REPRESENTATIONS AND EXTENDS NO WARRANTIES
+OF ANY KIND, EITHER IMPLIED OR EXPRESS, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A
+PARTICULAR PURPOSE, OR THAT THE USE OF THE SOFTWARE WILL NOT INFRINGE
+ANY PATENT, TRADEMARK OR OTHER RIGHTS.
+ 
+The plot-latlong software is developed by the plot-latlong Team at the
+University of California, San Diego under the Cooperative Association
+for Internet Data Analysis (CAIDA) Program.  Support for this work is
+provided by the National Communications System (NCS) via NSF grant
+ANI-0221172, entitled "Routing and Peering Analysis for Enhancing
+Internet Performance and Security."

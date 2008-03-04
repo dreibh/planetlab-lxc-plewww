@@ -1,0 +1,319 @@
+<?php // -*-php-*-
+  //
+  // PlanetLab authentication and integration with Drupal
+  //
+  // Mark Huang <mlhuang@cs.princeton.edu>
+  // Copyright (C) 2006 The Trustees of Princeton University
+  //
+  // $Id: planetlab.module 809 2007-09-03 09:47:40Z thierry $
+  //
+
+require_once 'plc_config.php';
+require_once 'plc_session.php';
+
+function planetlab_help($section)
+{
+  switch ($section) {
+  case 'admin/modules#description':
+    return t('Enables authenticated login via a PlanetLab API server.');
+  }
+}
+
+function planetlab_info($field = 0)
+{
+  $info['name'] = 'PlanetLab';
+
+  if ($field) {
+    return $info[$field];
+  }
+  else {
+    return $info;
+  }
+}
+
+function planetlab_menu($may_cache)
+{
+  $items = array();
+
+  if ($may_cache) {
+    $items[] = array(
+		     'path' => 'planetlab/logout',
+		     'title' => t('Log out of %s', array('%s' => variable_get('site_name', 'local'))),
+		     'callback' => 'planetlab_logout',
+		     'access' => TRUE,
+		     'type' => MENU_CALLBACK
+		     );
+    $items[] = array(
+		     'path' => 'db',
+		     'title' => variable_get('site_name', 'local'),
+		     'callback' => 'planetlab_page',
+		     'access' => TRUE,
+		     'type' => MENU_CALLBACK
+		     );
+  }
+
+  return $items;
+}
+
+function planetlab_block($op = 'list', $delta = 0, $edit = array())
+{
+  global $user, $plc;
+
+  if ($op == 'list') {
+    $blocks[0]['info'] = t('PlanetLab login');
+
+    return $blocks;
+  }
+  else if ($op == 'view') {
+    $block = array();
+
+    if (!$plc->person) {
+      // Force login via HTTPS
+      unset($_GET['time']);
+      $form['#action'] = "https://" . $_SERVER['HTTP_HOST'] . url($_GET['q'], drupal_get_destination());
+      $form['#id'] = 'planetlab-login-form';
+      $form['name'] = array('#type' => 'textfield',
+			    '#title' => t('E-mail'),
+			    '#maxlength' => 60,
+			    '#size' => 25,
+			    '#required' => TRUE,
+			    );
+      $form['pass'] = array('#type' => 'password',
+			    '#title' => t('Password'),
+			    '#size' => 25,
+			    '#required' => TRUE,
+			    );
+      $form['submit'] = array('#type' => 'submit',
+			      '#value' => t('Log in'),
+			      );
+
+      $block['subject'] = t('%s login', array('%s' => variable_get('site_name', 'local')));
+      $block['content'] = drupal_get_form('planetlab_login_block', $form, 'planetlab_login');
+      $block['content'] .= '<p><p><a href="/db/persons/reset_password.php">Forgot your password?</a></p>';
+      $block['content'] .= '<p><a href="/db/persons/register.php">Create an account</a></p>';
+      $block['content'] .= '<p><a href="/db/sites/register.php">File a site registration</a></p>';
+    } else {
+      $block['subject'] = $plc->person['email'];
+      $is_admin = in_array(10,$plc->person['role_ids']);
+      $is_pi =    in_array(20,$plc->person['role_ids']);
+      $is_user =  in_array(30,$plc->person['role_ids']);
+      $is_tech =  in_array(40,$plc->person['role_ids']);
+
+      $site_item = '';
+      $site_item .= '<a href="/db/sites/">Sites</a>';
+      $site_item .= '<ul>';
+      $site_item .= '<li><a href="/db/sites/index.php?id='. $plc->person['site_ids'][0] .'">My Site</a></li>';
+      if ( $is_admin ) 
+	$site_item .= "<li><a href='/db/sites/join_request.php'>Join Requests</a></li>";
+      if( $is_admin )
+	$site_item .= "<li><a href='/db/sites/peers.php'>Migration Status</a></li>";
+      $site_item .= "</ul>";
+      $items[] = $site_item;
+
+      $user_item = '';
+      $user_item .= '<a href="/db/persons/">Users</a>';
+      $user_item .= '<ul>';
+      $user_item .= '<li><a href="/db/persons/index.php?id='. $plc->person['person_id'] .'">My account</a></li>';
+      if (is_pi) 
+	$user_item .= '<li><a href="/db/persons/index.php?site_id='. $plc->person['site_ids'][0] .'">My users</a></li>';
+      if ( $plc->alt_person && $plc->alt_auth) {
+	$email = $plc->person['email']; 
+	$user_item .= "<li><a href='/db/sulogout.php'>Log out of $email </a></li>";
+      }	
+
+
+      $user_item .= '</ul>';
+      $items [] = $user_item;
+
+      $node_item = '';
+      $node_item .= '<a href="/db/nodes/">Nodes</a>';
+      $node_item .= '<ul>';
+      $node_item .= '<li><a href="/db/nodes/index.php?site_id='. $plc->person['site_ids'][0] .'">My Site Nodes</a></li>';
+      if( $is_admin || $is_pi || $is_user )
+	$node_item .= "<li><a href='/db/nodes/add_node.php'>Add Node</a></li>";
+      if ( $is_admin) 
+	$node_item .= "<li> <a href='/db/nodes/settings.php'> Setting Types </a> </li>";
+      $node_item .= '</ul>';
+      $items [] = $node_item;
+
+      $slice_item = '';
+      //if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
+      $slice_item .= '<a href="/db/slices/">Slices</a>';
+      $slice_item .= '<ul>';
+      if( $is_admin || $is_pi ) {
+	$slice_item .= "<li><a href='/db/slices/add_slice.php'>Create Slice</a></li>";
+	$slice_item .= "<li><a href='/db/slices/attributes.php'>Attribute Types</a></li>";
+      }
+      if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
+	$slice_item .= '<li><a href="/db/sirius/index.php">Sirius</a></li>';
+      $slice_item .= '</ul>';
+      $items [] = $slice_item;
+
+      if ( $is_admin )
+	$items[] = l(t('Peers'),'db/peers/');
+     
+      if ( $is_admin )
+	$items[] = l(t('Events'),'db/events/');
+      
+      $items[] = l(t('About'),'db/about.php');
+
+      if ($user->uid) {
+	// Drupal logout (destroys the session and cleans up $user)
+	$items[] = l(t('Log out of %s', array('%s' => variable_get('site_name', 'local'))), 'logout');
+      } else {
+	// PlanetLab logout (just destroy the session)
+	$items[] = l(t('Log out'), 'planetlab/logout');
+      }
+
+      $block['content'] = theme('item_list', $items);
+    }
+
+    /*
+     ob_start();
+     print '<pre>';
+     print_r($_SESSION);
+     print '</pre>';
+     $block['content'] .= ob_get_contents();
+     ob_end_clean();
+    */
+
+    return $block;
+  }
+}
+
+function planetlab_login_validate($form_id, $form_values)
+{
+  global $user, $plc;
+
+  if ($form_values['name'] && $form_values['pass']) {
+    // Drupal login succeeded
+    if (($user = user_authenticate($form_values['name'], trim($form_values['pass']))) &&
+	$user->uid) {
+      return;
+    }
+
+    $plc = new PLCSession($form_values['name'], $form_values['pass']);
+
+    // PlanetLab login failed
+    if (!$plc->person) {
+      form_set_error('login', t('Sorry. Unrecognized username or password.'));
+      watchdog('planetlab', t('Login attempt failed for %user.', array('%user' => theme('placeholder', $form_values['name']))));
+    }
+
+    // PlanetLab login succeeded
+    else {
+      // Login admins to Drupal as the superuser
+      if (in_array('admin', $plc->person['roles'])) {
+	$user = user_load(array('uid' => 1));
+      }
+    }
+  }
+}
+
+function planetlab_login_submit($form_id, $form_values)
+{
+  global $plc;
+
+  // Our referring page is encased in a query string of the form
+  // "destination=referrer".
+  parse_str(drupal_get_destination()); // => $destination
+
+  // The referrer itself is a URL path with the original query string,
+  // e.g. "referer.php?query".
+  extract(parse_url($destination)); // => $query
+
+  // Which we then have to parse again as a query string.
+  parse_str($query); // => $url
+
+  if ($plc->person) {
+    // To handle the edge case where this function is called during a
+    // bootstrap, check for the existence of t().
+    if (function_exists('t')) {
+      $message = t('Session opened for %name.', array('%name' => theme('placeholder', $plc->person['email'])));
+    }
+    else {
+      $message = "Session opened for ". check_plain($person['email']);
+    }
+    watchdog('planetlab', $message);
+
+    if (empty($url)) {
+      // Create a timestamped final URL so that browsers don't return the user to
+      // a cached page (where it would appear as if they never logged in or out).
+      return array('time='. time());
+    } else {
+      // Make sure that redirections are always local
+      $url = urldecode($url);
+      if ($url[0] != "/") {
+	$url = "/$url";
+      }
+      Header("Location: $url");
+      exit();
+    }
+  }
+}
+
+function planetlab_logout()
+{
+  global $plc;
+
+  if ($plc->person) {
+    // Invalidate PlanetLab session
+    $plc->logout();
+    watchdog('planetlab', t('Session closed for %name.', array('%name' => theme('placeholder', $plc->person['email']))));
+  }
+
+  // Destroy the current session:
+  session_destroy();
+
+  // The time prevents caching.
+  drupal_goto(NULL, 'time='. time());
+}
+
+function planetlab_user($type, &$edit, &$user, $category = NULL)
+{
+  switch ($type) {
+  case 'logout':
+    if ($plc->person) {
+      $plc->logout();
+      watchdog('planetlab', t('Session closed for %name.', array('%name' => theme('placeholder', $plc->person['email']))));
+    }
+    break;
+  }
+}
+
+function planetlab_page()
+{
+  $path = $_SERVER['DOCUMENT_ROOT'] . preg_replace('/^db\//', '/planetlab/', $_GET['q']);
+
+  // error_log("Requested " . $_GET['q'] . " -> $path");
+
+  if (is_dir($path)) {
+    foreach (array('index.php', 'index.html', 'index.htm') as $index) {
+      if (is_file($path . "/$index")) {
+	$path .= "/$index";
+	break;
+      }
+    }
+  }
+
+  if (is_file($path)) {
+    if (preg_match('/.php$/', $path)) {
+      ob_start();
+      include $path;
+      $output = ob_get_contents();
+      ob_end_clean();
+    } else {
+      $output = file_get_contents($path);
+    }
+    return $output;
+  }
+	    
+  drupal_not_found();
+}
+
+function theme_planetlab($content)
+{
+  return $content;
+}
+
+?>
