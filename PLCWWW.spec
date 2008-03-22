@@ -23,19 +23,24 @@ Packager: OneLab <support@one-lab.org>
 Distribution: PlanetLab %{version}
 URL: http://svn.one-lab.org/svn/new_plc_www/
 
+# We use set everywhere
+#Requires: httpd >= 2.0
+Requires: php >= 5.0
+Requires: postgresql >= 8.0
+Requires: bootcd >= 3.3
+Requires: PLCAPI >= 4.0
+
+# on centos5, when rebuilding the full monty, we get:
+# Error: Missing Dependency: perl(GD) is needed by package PLCWWW
+# and the perl-GD rpm is nowhere to be found
+AutoReqProv: no
+
 %description
 The plcwww packages provides the web pages that run on
 top of the PLCAPI component to provide the Web User Interface to the
 PLC installation.
 This package was formerly embedded together with MyPLC, but there
 clearly is a need for separate upgrade of this component.
-
-# on centos5, when rebuilding the full monty I am getting this time
-# Error: Missing Dependency: perl(GD) is needed by package PLCWWW
-# and the perl-GD rpm is nowhere to be found
-# this somehow must be because of plot-latlong again; let's try this
-AutoReqProv: no
-# upon failure I'd trash plot-latlong altogether
 
 %prep
 %setup -q
