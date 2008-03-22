@@ -30,13 +30,12 @@ PLC installation.
 This package was formerly embedded together with MyPLC, but there
 clearly is a need for separate upgrade of this component.
 
-# I was getting a dependency to /usr/local/bin/perl
-# I tried the following trick, to no avail
-# as per http://www.rpm.org/max-rpm/s1-rpm-depend-auto-depend.html
-# AutoReqProv: no
-# in fact it turned out plot-latlong/plot-latlong used to read
-#! /usr/local/bin/perl
-# so I just needed to fix that
+# on centos5, when rebuilding the full monty I am getting this time
+# Error: Missing Dependency: perl(GD) is needed by package PLCWWW
+# and the perl-GD rpm is nowhere to be found
+# this somehow must be because of plot-latlong again; let's try this
+AutoReqProv: no
+# upon failure I'd trash plot-latlong altogether
 
 %prep
 %setup -q
