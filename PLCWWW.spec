@@ -3,7 +3,7 @@
 #
 %define module_taglevel_varname subversion
 %define name PLCWWW
-%define version 4.2
+%define version onelab.4.2
 %define subversion 8
 
 %define release %{subversion}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
