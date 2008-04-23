@@ -233,7 +233,7 @@ switch ($action) {
    }
 
    // place the result in a random-named sub dir for clear filenames
-   $filename = $api->GetBootMedium ($node_id, $boot_action, "%d/%n-%p-%v%s");
+   $filename = $api->GetBootMedium ($node_id, $boot_action, "%d/%n-%p-%a-%v%s");
    $error=$api->error();
    // NOTE. for some reason, GetBootMedium sometimes does not report an error but the
    // file is not created - this happens e.g. when directory owmer/modes are wrong 
@@ -340,11 +340,11 @@ switch ($action) {
 	 break;
        case 'download-node-iso':
 	 $boot_action='node-iso';
-	 $location = "%d/%n-%v%s";
+	 $location = "%d/%n-%a-%v%s";
 	 break;
        case 'download-node-usb':
 	 $boot_action='node-usb';
-	 $location = "%d/%n-%v%s";
+	 $location = "%d/%n-%a-%v%s";
 	 break;
        }	 
 
