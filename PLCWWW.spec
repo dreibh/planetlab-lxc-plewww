@@ -4,7 +4,7 @@
 %define module_taglevel_varname subversion
 %define name PLCWWW
 %define version onelab.4.2
-%define subversion 8
+%define subversion 9
 
 %define release %{subversion}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
 
@@ -69,6 +69,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/httpd/conf.d/drupal.conf
 
 %changelog
+* Wed Apr 23 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-onelab.4.2-9
+- remove explicit dep to bootcd as the rpm name has changed
+
 * Mon Mar 03 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-4.2-7 PLCWWW-4.2-8
 - noarch
 
