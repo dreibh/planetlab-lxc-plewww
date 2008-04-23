@@ -27,8 +27,7 @@ URL: http://svn.one-lab.org/svn/new_plc_www/
 #Requires: httpd >= 2.0
 Requires: php >= 5.0
 Requires: postgresql >= 8.0
-Requires: bootcd >= 3.3
-Requires: PLCAPI >= 4.0
+Requires: PLCAPI >= 4.2
 
 # on centos5, when rebuilding the full monty, we get:
 # Error: Missing Dependency: perl(GD) is needed by package PLCWWW
@@ -36,11 +35,8 @@ Requires: PLCAPI >= 4.0
 AutoReqProv: no
 
 %description
-The plcwww packages provides the web pages that run on
-top of the PLCAPI component to provide the Web User Interface to the
-PLC installation.
-This package was formerly embedded together with MyPLC, but there
-clearly is a need for separate upgrade of this component.
+The PLCWWW package is made of the web pages that run on top of the 
+PLCAPI component to provide the Web Interface to MyPLC users.
 
 %prep
 %setup -q
