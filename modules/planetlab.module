@@ -129,8 +129,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array())
       $node_item .= '<a href="/db/nodes/">Nodes</a>';
       $node_item .= '<ul>';
       $node_item .= '<li><a href="/db/nodes/index.php?site_id='. $plc->person['site_ids'][0] .'">My Site Nodes</a></li>';
-      if( $is_admin || $is_pi || $is_user )
-	$node_item .= "<li><a href='/db/nodes/add_node.php'>Add Node</a></li>";
+      $node_item .= "<li><a href='/db/nodes/add_node.php'>Add Node</a></li>";
       if ( $is_admin) 
 	$node_item .= "<li> <a href='/db/nodes/settings.php'> Setting Types </a> </li>";
       $node_item .= '</ul>';
