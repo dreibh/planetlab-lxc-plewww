@@ -4,7 +4,7 @@
 %define module_taglevel_varname subversion
 %define name PLCWWW
 %define version onelab.4.2
-%define subversion 10
+%define subversion 11
 
 %define release %{subversion}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
 
@@ -69,6 +69,9 @@ rm -rf $RPM_BUILD_ROOT
 /etc/httpd/conf.d/drupal.conf
 
 %changelog
+* Fri Apr 25 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-onelab.4.2-11
+- everyone is welcome to add nodes
+
 * Thu Apr 24 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-onelab.4.2-10
 - node-specific bootcd images to include arch in their name
 
