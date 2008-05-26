@@ -272,7 +272,7 @@ switch ($action) {
    }
 
    $hostname= $node_detail['hostname'];
-   $return= $api->GetNodeNetworks( array( "node_id" => $node_id ), NULL );
+   $return= $api->GetInterfaces( array( "node_id" => $node_id ), NULL );
    
    $can_gen_config= 1;
    $has_primary= 0;
@@ -395,7 +395,7 @@ if( $has_primary ) {
   print( "<tr><th>Hostname:</th>" );
   print( "<td>" . $node_detail['hostname'] . "</td></tr>\n" );
 
-  $nn_id = $node_network_detail['nodenetwork_id'];
+  $nn_id = $node_network_detail['interface_id'];
   print( "<tr><th colspan=2><a href='node_networks.php?id=$nn_id'>Node Network Details</a></th></tr>" );
 
   print( "<tr><th>Method:</th>" );
@@ -422,10 +422,10 @@ if( $has_primary ) {
       }
     }
 
-  if (method_exists ($api,'GetNodeNetworkSettings')) {
+  if (method_exists ($api,'GetInterfaceSettings')) {
     print ("<tr><th colspan=2><a href='node_networks.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
-    $nn_id = $node_network_detail['nodenetwork_id'];
-    $settings=$api->GetNodeNetworkSettings(array("nodenetwork_id" => array($nn_id)));
+    $nn_id = $node_network_detail['interface_id'];
+    $settings=$api->GetInterfaceSettings(array("interface_id" => array($nn_id)));
     foreach ($settings as $setting) {
       $category=$setting['category'];
       $name=$setting['name'];

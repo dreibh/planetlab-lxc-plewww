@@ -28,8 +28,8 @@ $_roles= $_person['role_ids'];
 $columns = array( "node_id", "hostname", "boot_state", "peer_id" ) ;
 $filter = array();
 if ( in_array( '10', $_roles ) || in_array('20', $_roles) || in_array('40',$_roles)) {
-  // admins, PIs and techs can see nodenetwork details
-  $columns [] = "nodenetwork_ids";
+  // admins, PIs and techs can see interface details
+  $columns [] = "interface_ids";
  }
 
 //////////////////
@@ -38,9 +38,9 @@ if ( in_array( '10', $_roles ) || in_array('20', $_roles) || in_array('40',$_rol
 // performs in-place replacement, so passes a reference
 function layout_node ($node) {
 
-  // we need the 'nodenetwork_ids' field to do this
+  // we need the 'interface_ids' field to do this
   // so regular users wont run this
-  if ( ! array_key_exists ('nodenetwork_ids', $node))
+  if ( ! array_key_exists ('interface_ids', $node))
     return $node;
     
   $messages=array();
@@ -48,12 +48,12 @@ function layout_node ($node) {
   // do all this stuff on local nodes only
   if ( ! $node['peer_id'] ) {
     // check that the node has keys
-    if (count($node['nodenetwork_ids']) == 0)
-      $messages [] = "No nodenetwork";
+    if (count($node['interface_ids']) == 0)
+      $messages [] = "No interface";
     
   }
   // but always cleanup $node columns
-  unset ($node['nodenetwork_ids']);
+  unset ($node['interface_ids']);
   $node['status'] = plc_make_table('plc-warning',$messages);
   $node['comon'] = plc_comon_button("node_id",$node['node_id']);
   return $node;
@@ -216,7 +216,7 @@ if ( $_GET['id'] ) {
     // arrays of ids of node info
     $slice_ids= $node_info[0]['slice_ids'];
     $conf_file_ids= $node_info[0]['conf_file_ids'];
-    $nodenetwork_ids= $node_info[0]['nodenetwork_ids'];
+    $interface_ids= $node_info[0]['interface_ids'];
     $nodegroup_ids= $node_info[0]['nodegroup_ids'];
     $pcu_ids= $node_info[0]['pcu_ids'];
     $ports= $node_info[0]['ports'];
@@ -247,8 +247,8 @@ if ( $_GET['id'] ) {
       $conf_files= $api->GetConfFiles( $conf_file_ids );
 
     // get node network info
-    if( !empty( $nodenetwork_ids ) )
-      $node_networks= $api->GetNodeNetworks( $nodenetwork_ids );
+    if( !empty( $interface_ids ) )
+      $node_networks= $api->GetInterfaces( $interface_ids );
 
     // gets nodegroup info
     if( !empty( $nodegroup_ids ) )
@@ -392,7 +392,7 @@ if ( $_GET['id'] ) {
 	echo "<th class='list_set'>IP Address</th><th class='list_set'>Method</th><th class='list_set'>Type</th><th class='list_set'>MAC</th><th class='list_set'>Bandwidth Limit</th></tr></thead><tbody>\n";
 
 	foreach( $node_networks as $node_network ) {
-	  $nn_id= $node_network['nodenetwork_id'];
+	  $nn_id= $node_network['interface_id'];
 	  $nn_ip= $node_network['ip'];
 	  $nn_broad= $node_network['broadcast'];
 	  $nn_primary= $node_network['is_primary'];

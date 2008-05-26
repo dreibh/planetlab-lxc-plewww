@@ -126,8 +126,8 @@ if( $_POST['submitted'] )
         }
       }
 
-      $nodenetwork_id= $api->AddNodeNetwork( $node_id, $optional_vals);
-      // if AddNodeNetwork fails, we have the node created,
+      $interface_id= $api->AddInterface( $node_id, $optional_vals);
+      // if AddInterface fails, we have the node created,
       // but no primary interface is present.
       // The primary interface can be added later,
       // but take a look at the possible Methods,

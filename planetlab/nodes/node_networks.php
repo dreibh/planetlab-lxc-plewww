@@ -15,15 +15,15 @@ require_once 'plc_sorts.php';
 $_person= $plc->person;
 $_roles= $_person['role_ids'];
 
-$nodenetwork = array();
+$interface = array();
 
-// If nodenetwork_id is specified, load data
+// If interface_id is specified, load data
 if( isset( $_GET['id'] ) ) {
   $id= intval( $_GET['id'] );
-  $nodenetworks= $api->GetNodeNetworks( array( $id ) );
-  if( $nodenetworks ) {
-    $nodenetwork= $nodenetworks[0];
-    $node_id= $nodenetwork['node_id'];
+  $interfaces= $api->GetInterfaces( array( $id ) );
+  if( $interfaces ) {
+    $interface= $interfaces[0];
+    $node_id= $interface['node_id'];
   }
 }
 
@@ -34,21 +34,21 @@ if( $_GET['node_id'] )
 foreach( array( 'method', 'type', 'ip', 'gateway', 'network', 'broadcast', 'netmask', 'dns1', 'dns2', 'hostname', 'mac', 'bwlimit', 'node_id' ) as $field ) {
   if( isset( $_POST[$field] ) ) {
     if( $_POST[$field] == "" ) {
-      $nodenetwork[$field]= NULL;
+      $interface[$field]= NULL;
     } else {
-      $nodenetwork[$field]= $_POST[$field];
+      $interface[$field]= $_POST[$field];
       if( in_array( $field, array( 'bwlimit', 'node_id' ) ) ) {
-	$nodenetwork[$field]= intval( $nodenetwork[$field] );
+	$interface[$field]= intval( $interface[$field] );
       }
     }
   }
-  if( isset( $nodenetwork[$field] ) ) {
-    // E.g., $method = $nodenetwork['method'];
-    $$field= $nodenetwork[$field];
+  if( isset( $interface[$field] ) ) {
+    // E.g., $method = $interface['method'];
+    $$field= $interface[$field];
   }
 }
 
-// Either nodenetwork_id or node_id must be specified in URL
+// Either interface_id or node_id must be specified in URL
 if( !isset( $_GET['node_id'] ) && !( $nodes= $api->GetNodes( array( intval($node_id) ), array( 'node_id', 'hostname', 'site_id' ) ) ) ) {
   Header( "Location: index.php" );
   exit();
@@ -67,19 +67,19 @@ if( !in_array( 10, $_roles ) ) {
 
 if( $can_update && (isset( $_POST['submitted'] ) || isset ($_GET['submitted'])) ) {
   if( isset( $_POST['add'] ) ) {
-    $api->AddNodeNetwork( intval( $node_id ), $nodenetwork );
+    $api->AddInterface( intval( $node_id ), $interface );
   }
   elseif ( isset( $_POST['delete'] ) || isset( $_GET['delete']) || isset( $_POST['update'] ) ) {
-    // nodenetwork_id must be specified in URL
+    // interface_id must be specified in URL
     if( !isset( $id ) ) {
       Header( "Location: index.php?id=$node_id" );
       exit();
     }
     if( isset( $_POST['delete'] ) || isset ($_GET['delete']) ) {
-      $api->DeleteNodeNetwork( $id );
+      $api->DeleteInterface( $id );
     }
     elseif( isset( $_POST['update'] ) ) {
-      $api->UpdateNodeNetwork( $id, $nodenetwork );
+      $api->UpdateInterface( $id, $interface );
     }
   }
 
@@ -102,7 +102,7 @@ include 'plc_header.php';
 // Start form
 $action= "node_networks.php";
 if( isset( $id ) ) {
-  $action.= "?id=" . $nodenetwork['nodenetwork_id'];
+  $action.= "?id=" . $interface['interface_id'];
 } 
 elseif( isset($node_id)) {
   $action.= "?node_id=" . $node_id;
@@ -189,35 +189,35 @@ echo <<<EOF
 EOF;
 
 // displays related settings, if supported by the API
-if (method_exists ($api,'GetNodeNetworkSettings')) {
+if (method_exists ($api,'GetInterfaceSettings')) {
 
   $is_admin=in_array( 10, $_roles );
   $is_pi=in_array( 20, $_roles );
   print "<hr />";
 
-  if (empty ($nodenetwork['nodenetwork_setting_ids'])) {
+  if (empty ($interface['interface_setting_ids'])) {
     print "<p> This network interface has no additional setting</p>";
     if( $is_admin || $is_pi )
       echo "<p><a href='settings.php?add=$id'>Add a Network Setting</a></p>\n";
   } else {
-    $nodenetwork_settings = $api->GetNodeNetworkSettings($nodenetwork['nodenetwork_setting_ids']);
-    sort_nodenetwork_settings ($nodenetwork_settings);
+    $interface_settings = $api->GetInterfaceSettings($interface['interface_setting_ids']);
+    sort_interface_settings ($interface_settings);
     print "<table cellpadding='5' cellspacing='5' class='list_set'><caption class='list_set'>Additional Settings</caption>";
     print "<thead><tr class='list_set'>";
     // the column for the delete button
     if( $is_admin )
       print "<th></th>";
     print "<th class='list_set'>Name</th><th class='list_set'>Category</th><th class='list_set'>Description</th><th class='list_set'>Value</th></tr></thead><tbody>";
-    foreach ($nodenetwork_settings as $setting) {
+    foreach ($interface_settings as $setting) {
       echo "<tr class='list_set'>";
       if ($is_admin) {
 	echo("<td>");
-	echo plc_delete_link_button('setting_action.php?rem_id=' . $setting['nodenetwork_setting_id'],
+	echo plc_delete_link_button('setting_action.php?rem_id=' . $setting['interface_setting_id'],
 				    '\\n [ ' . $setting['name'] . ' = ' . $setting['value']);
 	echo("</td>");
     }
       if ($is_admin || $is_pi) 
-	printf ("<td class='list_set'> <a href='settings.php?id=%s'>%s </a></td>",$setting['nodenetwork_setting_id'],$setting['name']);
+	printf ("<td class='list_set'> <a href='settings.php?id=%s'>%s </a></td>",$setting['interface_setting_id'],$setting['name']);
       else
 	printf ("<td class='list_set'> %s </td>",$setting['name']);
       printf ("<td class='list_set'> %s</td><td class='list_set'> %s</td><td class='list_set'> %s </td></tr>",

@@ -29,14 +29,14 @@ $_roles= $_person['role_ids'];
 
 // attribute type updates
 if( $_POST['edit_type'] ) {
-  $setting_type_id= intval( $_POST['nodenetwork_setting_type_id'] );
+  $setting_type_id= intval( $_POST['interface_setting_type_id'] );
   $setting_type = array ('category' => $_POST['category'],
 			 'name' => $_POST['name'],
 			 'min_role_id' => intval( $_POST['min_role_id'] ),
 			 'description' => $_POST['description']);
   
   // Update it!
-  $api->UpdateNodeNetworkSettingType( $setting_type_id, $setting_type );
+  $api->UpdateInterfaceSettingType( $setting_type_id, $setting_type );
   $api_error=$api->error();
   if (!empty($api_error)) {
     print "<div class='plc-error'>" . $api_error . "</div>";
@@ -53,7 +53,7 @@ if( $_POST['add_type'] ) {
 			 'min_role_id' => intval( $_POST['min_role_id'] ),
 			 'description' => $_POST['description']);
   // add it!!
-  $api->AddNodeNetworkSettingType( $setting_type );
+  $api->AddInterfaceSettingType( $setting_type );
 
   header( "location: settings.php" );
   exit();
@@ -65,28 +65,28 @@ if( $_GET['rem_id'] ) {
   // get the id of the attrib to remove from GET
   $setting_id= intval( $_GET['rem_id'] );
 
-  // get nodenetwork_id 
-  $setting= $api->GetNodeNetworkSettings( array( $setting_id ), array( "nodenetwork_id" ) );
-  $nodenetwork_id= $setting[0]['nodenetwork_id'];
+  // get interface_id 
+  $setting= $api->GetInterfaceSettings( array( $setting_id ), array( "interface_id" ) );
+  $interface_id= $setting[0]['interface_id'];
   
   // delete the attribute
-  $api->DeleteNodeNetworkSetting( $setting_id );
+  $api->DeleteInterfaceSetting( $setting_id );
 
-  header( "location: node_networks.php?id=$nodenetwork_id" );
+  header( "location: node_networks.php?id=$interface_id" );
   exit();
 }
 
 // attribute adds
 if( $_POST['add_setting'] ) {
-  // get the nodenetwork_id, attribute_type_id, and value from POST
-  $nodenetwork_id= intval( $_POST['nodenetwork_id'] );
-  $nodenetwork_setting_type_id= intval( $_POST['nodenetwork_setting_type_id'] );
+  // get the interface_id, attribute_type_id, and value from POST
+  $interface_id= intval( $_POST['interface_id'] );
+  $interface_setting_type_id= intval( $_POST['interface_setting_type_id'] );
   $value= $_POST['value'];
 
   // add it!
-  $api->AddNodeNetworkSetting( $nodenetwork_id, $nodenetwork_setting_type_id, $value );
+  $api->AddInterfaceSetting( $interface_id, $interface_setting_type_id, $value );
 
-  header( "location: node_networks.php?id=$nodenetwork_id" );
+  header( "location: node_networks.php?id=$interface_id" );
   exit();
 }
 
@@ -95,12 +95,12 @@ if( $_POST['edit_setting'] ) {
   // get the id of the setting to update and the value from POST
   $setting_id= intval( $_POST['setting_id'] );
   $value= $_POST['value'];
-  $nodenetwork_id= $_POST['nodenetwork_id'];
+  $interface_id= $_POST['interface_id'];
 
   // update it!
-  $api->UpdateNodeNetworkSetting($setting_id, $value );
+  $api->UpdateInterfaceSetting($setting_id, $value );
 
-  header( "location: node_networks.php?id=$nodenetwork_id" );
+  header( "location: node_networks.php?id=$interface_id" );
   exit();
 }
 
@@ -115,7 +115,7 @@ if( $_GET['del_type'] ) {
   $type_id= intval( $_GET['del_type'] );
 
   // delete it!
-  $api->DeleteNodeNetworkSettingType( $type_id );
+  $api->DeleteInterfaceSettingType( $type_id );
   
   header( "location: settings.php" );
   exit();

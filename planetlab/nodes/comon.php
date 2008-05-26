@@ -44,7 +44,7 @@ function plc_comon_url_from_ips($comon_server_url, $ips) {
 // peer_id
 // from that we get a set of nodes and compute a comon URL to gather them all
 
-$fields=array("hostname","node_id","peer_id", "nodenetwork_ids");
+$fields=array("hostname","node_id","peer_id", "interface_ids");
 
 if ($_GET['node_id']) {
   $node_id=intval($_GET['node_id']);
@@ -68,16 +68,16 @@ if ($_GET['node_id']) {
  }
 
 // first pass 
-// * gather nodenetwork_ids for local nodes
+// * gather interface_ids for local nodes
 // * gather hostnames for foreign nodes
 
-$nodenetwork_ids=array();
+$interface_ids=array();
 $hostnames = array();
 
 foreach ($nodes as $node) {
   if (empty($node['peer_id'])) {
-    foreach ($node['nodenetwork_ids'] as $id=>$nnid) {
-      $nodenetwork_ids [] = $nnid;
+    foreach ($node['interface_ids'] as $id=>$nnid) {
+      $interface_ids [] = $nnid;
     }
   } else {
     $hostnames[] = $node['hostname'];
@@ -85,9 +85,9 @@ foreach ($nodes as $node) {
 }
   
 // Gather local ips from primary interfaces
-// fetch primary nodenetworks
+// fetch primary interfaces
 $local_ips=array();
-$nns = $api->GetNodeNetworks(array("is_primary"=>TRUE,"nodenetwork_id"=>$nodenetwork_ids),
+$nns = $api->GetInterfaces(array("is_primary"=>TRUE,"interface_id"=>$interface_ids),
 			     array("ip"));
 foreach ($nns as $nn) {
   $local_ips[] = $nn['ip'];
