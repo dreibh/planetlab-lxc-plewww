@@ -100,7 +100,7 @@ drupal_set_title($node['hostname']);
 include 'plc_header.php';
 
 // Start form
-$action= "node_networks.php";
+$action= "interfaces.php";
 if( isset( $id ) ) {
   $action.= "?id=" . $interface['interface_id'];
 } 

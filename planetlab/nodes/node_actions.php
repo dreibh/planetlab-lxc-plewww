@@ -278,8 +278,8 @@ switch ($action) {
    $has_primary= 0;
    
    if( count($return) > 0 ) {
-     foreach( $return as $node_network_detail ) {
-       if( $node_network_detail['is_primary'] == true ) {
+     foreach( $return as $interface_detail ) {
+       if( $interface_detail['is_primary'] == true ) {
 	 $has_primary= 1;
 	 break;
        }
@@ -296,26 +296,26 @@ switch ($action) {
      
      $fields= array("method","ip");
      foreach( $fields as $field ) {
-       if( $node_network_detail[$field] == "" ) {
+       if( $interface_detail[$field] == "" ) {
 	 $can_gen_config= 0;
-	 $node_network_detail[$field]= "<i>Missing</i>";
+	 $interface_detail[$field]= "<i>Missing</i>";
        }
      }
 
-     if( $node_network_detail['method'] == "static" ) {
+     if( $interface_detail['method'] == "static" ) {
        $fields= array("gateway","netmask","network","broadcast","dns1");
        foreach( $fields as $field ) {
-	 if( $node_network_detail[$field] == "" ) {
+	 if( $interface_detail[$field] == "" ) {
 	   $can_gen_config= 0;
-	   $node_network_detail[$field]= "<i>Missing</i>";
+	   $interface_detail[$field]= "<i>Missing</i>";
 	 }
        }
      }
 
-     if(    $node_network_detail['method'] != "static" 
-	 && $node_network_detail['method'] != "dhcp" ) {
+     if(    $interface_detail['method'] != "static" 
+	 && $interface_detail['method'] != "dhcp" ) {
        $can_gen_config= 0;
-       $node_network_detail['method']= "<i>Unknown method</i>";
+       $interface_detail['method']= "<i>Unknown method</i>";
      }
    }
 
@@ -395,36 +395,36 @@ if( $has_primary ) {
   print( "<tr><th>Hostname:</th>" );
   print( "<td>" . $node_detail['hostname'] . "</td></tr>\n" );
 
-  $nn_id = $node_network_detail['interface_id'];
-  print( "<tr><th colspan=2><a href='node_networks.php?id=$nn_id'>Node Network Details</a></th></tr>" );
+  $nn_id = $interface_detail['interface_id'];
+  print( "<tr><th colspan=2><a href='interfaces.php?id=$nn_id'>Node Network Details</a></th></tr>" );
 
   print( "<tr><th>Method:</th>" );
-  print( "<td>" . $node_network_detail['method'] . "</td></tr>\n" );
+  print( "<td>" . $interface_detail['method'] . "</td></tr>\n" );
   print( "<tr><th>IP:</th>" );
-  print( "<td>" . $node_network_detail['ip'] . "</td></tr>\n" );
+  print( "<td>" . $interface_detail['ip'] . "</td></tr>\n" );
 
-  if( $node_network_detail['method'] == "static" ) {
+  if( $interface_detail['method'] == "static" ) {
       print( "<tr><th>Gateway:</th>" );
-      print( "<td>" . $node_network_detail['gateway'] . "</td></tr>\n" );
+      print( "<td>" . $interface_detail['gateway'] . "</td></tr>\n" );
       print( "<tr><th>Network mask:</th>" );
-      print( "<td>" . $node_network_detail['netmask'] . "</td></tr>\n" );
+      print( "<td>" . $interface_detail['netmask'] . "</td></tr>\n" );
       print( "<tr><th>Network address:</th>" );
-      print( "<td>" . $node_network_detail['network'] . "</td></tr>\n" );
+      print( "<td>" . $interface_detail['network'] . "</td></tr>\n" );
       print( "<tr><th>Broadcast address:</th>" );
-      print( "<td>" . $node_network_detail['broadcast'] . "</td></tr>\n" );
+      print( "<td>" . $interface_detail['broadcast'] . "</td></tr>\n" );
       print( "<tr><th>DNS 1:</th>" );
-      print( "<td>" . $node_network_detail['dns1'] . "</td></tr>\n" );
+      print( "<td>" . $interface_detail['dns1'] . "</td></tr>\n" );
       print( "<tr><th>DNS 2:</th>" );
-      if( $node_network_detail['dns2'] == "" ) {
+      if( $interface_detail['dns2'] == "" ) {
 	print( "<td><i>Optional, missing</i></td></tr>\n" );
       } else {
-	print( "<td>" . $node_network_detail['dns2'] . "</td></tr>\n" );
+	print( "<td>" . $interface_detail['dns2'] . "</td></tr>\n" );
       }
     }
 
   if (method_exists ($api,'GetInterfaceSettings')) {
-    print ("<tr><th colspan=2><a href='node_networks.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
-    $nn_id = $node_network_detail['interface_id'];
+    print ("<tr><th colspan=2><a href='interfaces.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
+    $nn_id = $interface_detail['interface_id'];
     $settings=$api->GetInterfaceSettings(array("interface_id" => array($nn_id)));
     foreach ($settings as $setting) {
       $category=$setting['category'];

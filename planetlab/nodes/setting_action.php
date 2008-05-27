@@ -72,7 +72,7 @@ if( $_GET['rem_id'] ) {
   // delete the attribute
   $api->DeleteInterfaceSetting( $setting_id );
 
-  header( "location: node_networks.php?id=$interface_id" );
+  header( "location: interfaces.php?id=$interface_id" );
   exit();
 }
 
@@ -86,7 +86,7 @@ if( $_POST['add_setting'] ) {
   // add it!
   $api->AddInterfaceSetting( $interface_id, $interface_setting_type_id, $value );
 
-  header( "location: node_networks.php?id=$interface_id" );
+  header( "location: interfaces.php?id=$interface_id" );
   exit();
 }
 
@@ -100,7 +100,7 @@ if( $_POST['edit_setting'] ) {
   // update it!
   $api->UpdateInterfaceSetting($setting_id, $value );
 
-  header( "location: node_networks.php?id=$interface_id" );
+  header( "location: interfaces.php?id=$interface_id" );
   exit();
 }
 

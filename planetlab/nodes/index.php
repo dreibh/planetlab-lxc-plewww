@@ -248,7 +248,7 @@ if ( $_GET['id'] ) {
 
     // get node network info
     if( !empty( $interface_ids ) )
-      $node_networks= $api->GetInterfaces( $interface_ids );
+      $interfaces= $api->GetInterfaces( $interface_ids );
 
     // gets nodegroup info
     if( !empty( $nodegroup_ids ) )
@@ -381,7 +381,7 @@ if ( $_GET['id'] ) {
       echo "<hr />\n";
 
       // display node networks
-      if( $node_networks ) {
+      if( $interfaces ) {
 	echo "<p><table class='list_set' border=0 cellpadding=2>\n";
 	echo "<caption class='list_set'>Node Networks</caption>\n";
 	echo "<thead><tr class='list_set'>";
@@ -391,27 +391,27 @@ if ( $_GET['id'] ) {
 	}
 	echo "<th class='list_set'>IP Address</th><th class='list_set'>Method</th><th class='list_set'>Type</th><th class='list_set'>MAC</th><th class='list_set'>Bandwidth Limit</th></tr></thead><tbody>\n";
 
-	foreach( $node_networks as $node_network ) {
-	  $nn_id= $node_network['interface_id'];
-	  $nn_ip= $node_network['ip'];
-	  $nn_broad= $node_network['broadcast'];
-	  $nn_primary= $node_network['is_primary'];
-	  $nn_network= $node_network['network'];
-	  $nn_dns1= $node_network['dns1'];
-	  $nn_dns2= $node_network['dns2'];
-	  $nn_hostname= $node_network['hostname'];
-	  $nn_netmaks= $node_network['netmask'];
-	  $nn_gatewary= $node_network['gateway'];
-	  $nn_mac= $node_network['mac'];
-	  $nn_bwlimit= $node_network['bwlimit'];
-	  $nn_type= $node_network['type'];
-	  $nn_method= $node_network['method'];
+	foreach( $interfaces as $interface ) {
+	  $nn_id= $interface['interface_id'];
+	  $nn_ip= $interface['ip'];
+	  $nn_broad= $interface['broadcast'];
+	  $nn_primary= $interface['is_primary'];
+	  $nn_network= $interface['network'];
+	  $nn_dns1= $interface['dns1'];
+	  $nn_dns2= $interface['dns2'];
+	  $nn_hostname= $interface['hostname'];
+	  $nn_netmaks= $interface['netmask'];
+	  $nn_gatewary= $interface['gateway'];
+	  $nn_mac= $interface['mac'];
+	  $nn_bwlimit= $interface['bwlimit'];
+	  $nn_type= $interface['type'];
+	  $nn_method= $interface['method'];
 
 	  echo "<tr class='list_set'>";
 	  if ( $is_admin || ($is_pi && $in_site)) {
 	    echo "<td class='list_set'>";
 	    if (!$nn_primary) {
-	      echo plc_delete_link_button('node_networks.php?id=' . $nn_id . '&delete=1&submitted=1', '\\nNode Network ' . $nn_ip);
+	      echo plc_delete_link_button('interfaces.php?id=' . $nn_id . '&delete=1&submitted=1', '\\nNode Network ' . $nn_ip);
 	    } else {
 	      echo '<span title="This node network is primary"> P </span>';
 	    }
@@ -419,7 +419,7 @@ if ( $_GET['id'] ) {
 	  }
 	  echo "<td class='list_set'>";
 	  if( $is_admin || $is_pi || $is_tech ) {
-	    echo "<a href='node_networks.php?id=$nn_id'>$nn_ip</a>";
+	    echo "<a href='interfaces.php?id=$nn_id'>$nn_ip</a>";
 	  } else {
 	    echo "</td><td class='list_set'>$nn_ip</td>";
 	  }
@@ -432,7 +432,7 @@ if ( $_GET['id'] ) {
 	echo "<p><span class='plc-warning'>No Node Network</span>.  Please add a node network to make this a usable PLC node</p>.\n";
       }
 
-      echo "<br /><a href='node_networks.php?node_id=$node_id'>Add a node network</a>.\n";
+      echo "<br /><a href='interfaces.php?node_id=$node_id'>Add a node network</a>.\n";
       echo "<br /><hr />\n";
     }
 
