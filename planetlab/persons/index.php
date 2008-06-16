@@ -20,7 +20,7 @@ require_once 'plc_functions.php';
 require_once 'plc_sorts.php';
 
 //fix the memory limit for this page
-ini_set("memory_limit","18M");
+ini_set("memory_limit","48M");
 
 // find person roles
 $_person= $plc->person;
