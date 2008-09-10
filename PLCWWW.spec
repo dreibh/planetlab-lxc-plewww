@@ -3,8 +3,8 @@
 #
 %define module_taglevel_varname subversion
 %define name PLCWWW
-%define version onelab.4.2
-%define subversion 11
+%define version onelab.5.0
+%define subversion 0
 
 %define release %{subversion}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
 
@@ -27,7 +27,7 @@ URL: http://svn.one-lab.org/svn/new_plc_www/
 #Requires: httpd >= 2.0
 Requires: php >= 5.0
 Requires: postgresql >= 8.0
-Requires: PLCAPI >= 4.2
+Requires: PLCAPI >= 5.0
 
 # on centos5, when rebuilding the full monty, we get:
 # Error: Missing Dependency: perl(GD) is needed by package PLCWWW
