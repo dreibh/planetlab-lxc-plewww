@@ -108,7 +108,7 @@ function deliver_and_unlink ($filename) {
 function show_download_confirm_button($api, $node_id, $action, $can_gen_config, $show_details) {
 
   if( $can_gen_config ) {
-    if ($show_details && method_exists($api,"GetBootMedium")) {
+    if ($show_details) {
       $preview=$api->GetBootMedium($node_id,"node-preview","");
       print ("<hr /> <h3>Current node configuration contents</h3>");
       print ("<pre>\n$preview</pre>\n");
@@ -221,11 +221,6 @@ switch ($action) {
  case "download-generic-iso":
  case "download-generic-usb":
    
-   if ( ! method_exists($api,"GetBootMedium")) {
-     print ("<span class='plc-warning'> API lacks support for GetBootMedium </span>");
-     return;
-   }
-     
    if ($action=="download-generic-iso") {
      $boot_action="generic-iso";
    } else {
@@ -322,47 +317,34 @@ switch ($action) {
    $download= $_POST['download'];
    
    if( $can_gen_config && !empty($download) ) {
-     if (! method_exists ($api,"GetBootMedium")) {
-       $file_contents= $api->AdmGenerateNodeConfFile( $node_id );
-       header ("Content-Type: application/octet-stream");
-       header ("Content-Transfer-Encoding: binary");
-       header ("Content-Disposition: attachment; filename=plnode.txt" );
-       header ("Content-Length: " . strlen(file_contents));
-       header ("Pragma: hack");
-       header ("Cache-Control: public, must-revalidate");
-       print file_contents;
-       exit();
-     } else {
-       switch ($action) {
-       case 'download-node-floppy':
-	 $boot_action='node-floppy'; 
-	 $location = "%d/%n-%v-rename-into-plnode%s";
-	 break;
-       case 'download-node-iso':
-	 $boot_action='node-iso';
-	 $location = "%d/%n-%a-%v%s";
-	 break;
-       case 'download-node-usb':
-	 $boot_action='node-usb';
-	 $location = "%d/%n-%a-%v%s";
-	 break;
-       }	 
+     switch ($action) {
+     case 'download-node-floppy':
+       $boot_action='node-floppy'; 
+       $location = "%d/%n-%v-rename-into-plnode%s";
+       break;
+     case 'download-node-iso':
+       $boot_action='node-iso';
+       $location = "%d/%n-%a-%v%s";
+       break;
+     case 'download-node-usb':
+       $boot_action='node-usb';
+       $location = "%d/%n-%a-%v%s";
+       break;
+     }	 
 
-       $filename=$api->GetBootMedium($node_id,$boot_action,$location);
-       $error=$api->error();
-       if (empty($error) && empty($filename)) {
-	 $error="Unexpected error from GetBootMedium - probably wrong directory modes";
-       }    
-       if (! empty($error)) {
-       	 print ("<div class='plc-error'> $error </div>\n");
-       	 print ("<p><a href='/db/nodes/index.php?id=$node_id'>Back to node </a>\n");
-	 return ;
-       } else {
-	 deliver_and_unlink ($filename);
-	 exit();
-       }
+     $filename=$api->GetBootMedium($node_id,$boot_action,$location);
+     $error=$api->error();
+     if (empty($error) && empty($filename)) {
+       $error="Unexpected error from GetBootMedium - probably wrong directory modes";
+     }    
+     if (! empty($error)) {
+       print ("<div class='plc-error'> $error </div>\n");
+       print ("<p><a href='/db/nodes/index.php?id=$node_id'>Back to node </a>\n");
+       return ;
+     } else {
+       deliver_and_unlink ($filename);
+       exit();
      }
-       
    }
 
    drupal_set_title("Download boot material for $hostname");
@@ -422,16 +404,14 @@ if( $has_primary ) {
       }
     }
 
-  if (method_exists ($api,'GetInterfaceSettings')) {
-    print ("<tr><th colspan=2><a href='interfaces.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
-    $nn_id = $interface_detail['interface_id'];
-    $settings=$api->GetInterfaceSettings(array("interface_id" => array($nn_id)));
-    foreach ($settings as $setting) {
-      $category=$setting['category'];
-      $name=$setting['name'];
-      $value=$setting['value'];
-      print (" <tr><th> $category $name </th><td> $value </td></tr>\n");
-    }
+  print ("<tr><th colspan=2><a href='interfaces.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
+  $nn_id = $interface_detail['interface_id'];
+  $settings=$api->GetInterfaceSettings(array("interface_id" => array($nn_id)));
+  foreach ($settings as $setting) {
+    $category=$setting['category'];
+    $name=$setting['name'];
+    $value=$setting['value'];
+    print (" <tr><th> $category $name </th><td> $value </td></tr>\n");
   }
 
   print( "</table>\n" );
