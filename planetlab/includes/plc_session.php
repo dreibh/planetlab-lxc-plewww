@@ -47,7 +47,7 @@ class PLCSession
 
   function PLCSession($name = NULL, $pass = NULL)
   {
-		$name= strtolower( $name );
+    $name= strtolower( $name );
     // User API access
     if ($name && $pass) {
       $api = new PLCAPI(array('AuthMethod' => "password",
@@ -68,7 +68,7 @@ class PLCSession
       $this->api = $api;
 
       // Get account details
-      list($person) = $api->GetPersons(array($name));
+      list($person) = $api->GetPersons(array('email'=>$name,'peer_id'=>NULL));
       $this->person = $person;
 
       // Save session variables
