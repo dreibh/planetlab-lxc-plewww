@@ -263,8 +263,8 @@ function layout ($param){
   //  $param['<span title="object_id">oid</span>']=$param['object_id'] ; unset($param['object_id']);
   $param['<span title="object_types">otys</span>']=$param['object_types'] ; unset($param['object_types']);
   $param['<span title="object_ids">oids</span>']=$param['object_ids'] ; unset($param['object_ids']);
-  $param['<span title="node_id">nid</span>']=$param['node_id'] ; unset($param['node_id']);
-  $param['<span title="person_id">pid</span>']=$param['person_id'] ; unset($param['person_id']);
+  $param['<span title="node_id">nid</span>']=plc_node_link($param['node_id']) ; unset($param['node_id']);
+  $param['<span title="person_id">pid</span>']= plc_person_link($param['person_id']) ; unset($param['person_id']);
   if (array_key_exists('auth_type',$param)) {
     $param['<span title="auth_type">at</span>']=$param['auth_type'] ; unset($param['auth_type']);
   }

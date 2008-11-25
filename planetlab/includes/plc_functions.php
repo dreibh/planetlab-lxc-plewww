@@ -1,5 +1,21 @@
 <?php
 
+function plc_person_link ($person_id) {
+  if ( empty ($person_id)) {
+    return "";
+  } else {
+    return '<a href="/db/persons/index.php?id=' . $person_id . '">' . $person_id . '</a>';
+  }
+  }
+
+function plc_node_link ($node_id) {
+  if ( empty ($node_id)) {
+    return "";
+  } else {
+    return '<a href="/db/nodes/index.php?id=' . $node_id . '">' . $node_id . '</a>';
+  }
+  }
+
 // pagination function
 function paginate( $fn_array, $table_id, $caption, $limit, $main_field, $other_func= NULL, $fid= NULL ) {
   // get vars from call adjust them
