@@ -35,10 +35,10 @@ if( $_GET['add'] ) {
   $node_info= $api->GetNodes( array( intval( $node_id ) ), array( "hostname" ) );
 
   // get attribute types
-  $type_info= $api->GetSliceAttributeTypes( NULL, array( "attribute_type_id", "name" ) );
+  $type_info= $api->GetSliceTagTypes( NULL, array( "attribute_type_id", "name" ) );
   
   // get the slivers for this node
-  $sliver_info= $api->GetSliceAttributes( array( "node_id"=>intval( $node_id ), "slice_id"=>intval( $slice_id ) ), array( "attribute_type_id", "name" ) );
+  $sliver_info= $api->GetSliceTags( array( "node_id"=>intval( $node_id ), "slice_id"=>intval( $slice_id ) ), array( "attribute_type_id", "name" ) );
 
     $types_left= $type_info;
 
@@ -77,10 +77,10 @@ if( $_GET['slice'] && $_GET['node'] ) {
   $node_info= $api->GetNodes( array( intval( $node_id ) ), array( "hostname" ) );
 
   // get the slivers for this node
-  $sliver_info= $api->GetSliceAttributes( array( "node_id"=>intval( $node_id ), "slice_id"=>intval( $slice_id ) ), array( "slice_attribute_id", "name", "value", "min_role_id", "description" ) );
+  $sliver_info= $api->GetSliceTags( array( "node_id"=>intval( $node_id ), "slice_id"=>intval( $slice_id ) ), array( "slice_tag_id", "name", "value", "min_role_id", "description" ) );
 
   // get the attrbibutes for this slice
-  $attrib_info= $api->GetSliceAttributes( array( intval( $slice_id ) ), array( "slice_attribute_id", "name", "value", "min_role_id", "description" ) );
+  $attrib_info= $api->GetSliceTags( array( intval( $slice_id ) ), array( "slice_tag_id", "name", "value", "min_role_id", "description" ) );
 
 
   // start form
@@ -97,7 +97,7 @@ if( $_GET['slice'] && $_GET['node'] ) {
 
     foreach( $sliver_info AS $sliver ) {
       echo "<tr><td>". $sliver['name'] ."</td><td>". $sliver['value'] ."</td><td>". $sliver['min_role_id'] ."</td><td>". $sliver['description'] ."</td>";
-      if ( in_array( 10, $_roles ) || ( in_array( 20, $_roles ) && in_array( $node_info, $_person['site_ids'] ) ) ) echo "<td><a href='/db/slices/attributes.php?id=". $sliver['slice_attribute_id'] ."'>Edit</a></td><td><a href='sliver_action.php?rem_id=". $sliver['slice_attribute_id'] ."' onclick=\"javascript:return confirm('Are you sure you want to remove ". $sliver['name'] ." from node ". $node_info[0]['hostname'] ."?')\">Remove</a></td>";
+      if ( in_array( 10, $_roles ) || ( in_array( 20, $_roles ) && in_array( $node_info, $_person['site_ids'] ) ) ) echo "<td><a href='/db/slices/attributes.php?id=". $sliver['slice_tag_id'] ."'>Edit</a></td><td><a href='sliver_action.php?rem_id=". $sliver['slice_tag_id'] ."' onclick=\"javascript:return confirm('Are you sure you want to remove ". $sliver['name'] ." from node ". $node_info[0]['hostname'] ."?')\">Remove</a></td>";
       echo "</tr>\n";
 
 
@@ -122,7 +122,7 @@ if( $_GET['slice'] && $_GET['node'] ) {
 
     foreach( $attrib_info AS $attrib ) {
       echo "<tr><td>". $attrib['name'] ."</td><td>". $attrib['value'] ."</td><td>". $attrib['min_role_id'] ."</td><td>". $attrib['description'] ."</td>";
-      if ( in_array( 10, $_roles ) || ( in_array( 20, $_roles ) && in_array( $node_info, $_person['site_ids'] ) ) ) echo "<td><a href='attributes.php?id=". $attrib['slice_attribute_id'] ."'>Edit</a></td>";
+      if ( in_array( 10, $_roles ) || ( in_array( 20, $_roles ) && in_array( $node_info, $_person['site_ids'] ) ) ) echo "<td><a href='attributes.php?id=". $attrib['slice_tag_id'] ."'>Edit</a></td>";
       echo "</tr>\n";
 
 

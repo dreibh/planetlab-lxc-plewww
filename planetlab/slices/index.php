@@ -224,7 +224,7 @@ else {
 
   $person_ids= $slice_info[0]['person_ids'];
   $node_ids= $slice_info[0]['node_ids'];
-  $slice_attribute_ids= $slice_info[0]['slice_attribute_ids'];
+  $slice_tag_ids= $slice_info[0]['slice_tag_ids'];
 
 
   // node info
@@ -253,17 +253,17 @@ else {
   }
 
   // slice attribute info
-  if( !empty( $slice_attribute_ids ) )
-    $slice_attibs= $api->GetSliceAttributes( $slice_attribute_ids, 
-					     array( "slice_attribute_id", "attribute_type_id", "value", "description", "min_role_id", "node_id" ) );
+  if( !empty( $slice_tag_ids ) )
+    $slice_attibs= $api->GetSliceTags( $slice_tag_ids, 
+					     array( "slice_tag_id", "attribute_type_id", "value", "description", "min_role_id", "node_id" ) );
 
   // gets attrib type info and combines it to form all attrib info array
   if( $slice_attibs ) {
     foreach( $slice_attibs as $slice_attib ) {
-      $attrib_type= $api->GetSliceAttributeTypes( array( $slice_attib['attribute_type_id'] ), 
+      $attrib_type= $api->GetSliceTagTypes( array( $slice_attib['attribute_type_id'] ), 
 						  array( "attribute_type_id", "name", "description" ) );
       
-      $attributes[]= array( "slice_attribute_id" => $slice_attib['slice_attribute_id'], 
+      $attributes[]= array( "slice_tag_id" => $slice_attib['slice_tag_id'], 
 			    "attribute_type_id" => $slice_attib['attribute_type_id'], 
 			    "name" => $attrib_type[0]['name'], 
 			    "value" => $slice_attib['value'], 
@@ -408,13 +408,13 @@ else {
         if( $is_admin ) {
 	  printf("<td>");
 	  sprintf($label,"\\n [ %s = %s] \\n from %s",$attribute['name'],$attribute['value'],$name);
-	  echo plc_delete_link_button ('attrib_action.php?rem_id=' . $attribute['slice_attribute_id'],
+	  echo plc_delete_link_button ('attrib_action.php?rem_id=' . $attribute['slice_tag_id'],
 				       $label);
 	  echo "</td>";
 	}
 	if( $is_admin || ($is_pi && $is_in_slice) ) {
           printf ("<td><a href='attributes.php?id=%s'>%s</a></td>",
-		  $attribute['slice_attribute_id'],$attribute['name']);
+		  $attribute['slice_tag_id'],$attribute['name']);
 	} else {
 	  printf("<td>%s</td>",$attribute['name']);
 	}
@@ -451,12 +451,12 @@ else {
 	  echo("<td>");
 	  $label=sprintf("\\n [ %s = %s ] \\n from %s \\n on node %s",
 			 $attribute['name'],$attribute['value'],$name,$nodename);
-	  echo plc_delete_link_label('/db/nodes/sliver_action.php?rem_id=' . $attribute['slice_attribute_id'], 
+	  echo plc_delete_link_label('/db/nodes/sliver_action.php?rem_id=' . $attribute['slice_tag_id'], 
 				     $label);
 	  echo "</td>";
 	}
         if( $is_admin ) {
-          printf("<td><a href='attributes.php?id=%s'>%s</a></td>",$attribute['slice_attribute_id'],$attribute['name']);
+          printf("<td><a href='attributes.php?id=%s'>%s</a></td>",$attribute['slice_tag_id'],$attribute['name']);
 	} else {
 	  printf("<td>%s</td>",$attribute['name']);
 	}

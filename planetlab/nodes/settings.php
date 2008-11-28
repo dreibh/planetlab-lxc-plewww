@@ -24,7 +24,7 @@ $_roles= $_person['role_ids'];
 
 //plc_debug("person", $_person );
 
-$columns=array( "interface_setting_type_id", "category", "name", "description", "min_role_id" );
+$columns=array( "interface_tag_type_id", "category", "name", "description", "min_role_id" );
 
 // prepare dict role_id => role_name
 global $roles;
@@ -45,7 +45,7 @@ foreach ($_person['role_ids'] as $role_id) {
 }
 //plc_debug("person_role",$person_role);
 
-// post-process results from GetInterfaceSettingTypes
+// post-process results from GetTagTypes
 // with planetlab 4.2, we've moved to php-5.2
 // with the former 5.0 reelase, I could invoke array_map 
 // with a function that took a reference and could do side-effects
@@ -65,9 +65,9 @@ if( !$_GET['id'] && !$_GET['add'] && !$_GET['add_type'] && !$_GET['edit_type'] )
   // get types
   global $person_role;
   $filter = array (']min_role_id'=>$person_role);
-  $setting_types= $api->GetInterfaceSettingTypes( $filter, $columns );
+  $setting_types= $api->GetTagTypes( $filter, $columns );
   $setting_types = array_map(layout_setting_type,$setting_types);
-  sort_interface_settings ($setting_types);
+  sort_interface_tags ($setting_types);
   
   // list them
   
@@ -90,13 +90,13 @@ if( !$_GET['id'] && !$_GET['add'] && !$_GET['add_type'] && !$_GET['edit_type'] )
     // if admin display delete links
     if(  in_array( "10", $_person['role_ids'] ) ) {
       echo "<td>";
-      echo plc_delete_link_button('setting_action.php?del_type='. $type['interface_setting_type_id'],
+      echo plc_delete_link_button('setting_action.php?del_type='. $type['interface_tag_type_id'],
 				  $type['name']);
       echo "</td>";
     }
     // if admin, the name is a link to edition
     if (in_array( "10", $_person['role_ids'])) {
-      echo "<td><a href='settings.php?edit_type=". $type['interface_setting_type_id'] . "'>" . $type['name'] . "</a></td>";
+      echo "<td><a href='settings.php?edit_type=". $type['interface_tag_type_id'] . "'>" . $type['name'] . "</a></td>";
     } else {
       echo "<td>" . $type['name'] . "</td>";
     }
@@ -119,7 +119,7 @@ elseif( $_GET['add_type'] || $_GET['edit_type'] ) {
   // if its edit get the attribute info
   if( $_GET['edit_type'] ) {
     $type_id= intval( $_GET['edit_type'] );
-    $type= $api->GetInterfaceSettingTypes( array( $type_id ) );
+    $type= $api->GetTagTypes( array( $type_id ) );
     
     $category=$type[0]['category'];
     $name= $type[0]['name'];
@@ -151,7 +151,7 @@ elseif( $_GET['add_type'] || $_GET['edit_type'] ) {
   echo "</td></tr>\n";
   echo "<tr><td colspan=2 align=center>";
   if( $_GET['edit_type'] ) {
-    echo "<input type=hidden name='interface_setting_type_id' value='$type_id'>\n";
+    echo "<input type=hidden name='interface_tag_type_id' value='$type_id'>\n";
     echo "<input type=submit name='edit_type' value='Edit Setting Type'>\n";
   } else {
     echo "<input type=submit name='add_type' value='Add Interface Type'>\n";
@@ -171,11 +171,11 @@ elseif( $_GET['add'] ) {
   // get all setting types 
   global $person_role;
   $filter = array (']min_role_id'=>$person_role);
-  $setting_types= $api->GetInterfaceSettingTypes( $filter, array( "interface_setting_type_id", "name" , "category") );
-  sort_interface_settings($setting_types);
+  $setting_types= $api->GetTagTypes( $filter, array( "interface_tag_type_id", "name" , "category") );
+  sort_interface_tags($setting_types);
     
   // get interface's settings
-  $interface = $api->GetInterfaces( array( $interface_id ), array( "interface_setting_ids","ip" ) );
+  $interface = $api->GetInterfaces( array( $interface_id ), array( "interface_tag_ids","ip" ) );
   
   drupal_set_title("Add a setting to  ". $interface[0]['ip']);
 
@@ -185,10 +185,10 @@ elseif( $_GET['add'] ) {
   
   echo "<table cellpadding='2'> <caption> New Setting </caption>";
 
-  echo "<tr><th>Select</th><td><select name='interface_setting_type_id'><option value=''>Choose a type to add</option>\n";
+  echo "<tr><th>Select</th><td><select name='interface_tag_type_id'><option value=''>Choose a type to add</option>\n";
   
   foreach( $setting_types as $setting_type ) {
-    echo "<option value='". $setting_type['interface_setting_type_id'] ."'>". $setting_type['category'] . ":" . $setting_type['name'] ."</option>\n";
+    echo "<option value='". $setting_type['interface_tag_type_id'] ."'>". $setting_type['category'] . ":" . $setting_type['name'] ."</option>\n";
   
   }
   echo "</select></td</tr>\n";
@@ -204,7 +204,7 @@ else {
   $setting_id= intval( $_GET['id'] );
   
   // get setting info
-  $setting= $api->GetInterfaceSettings( array( $setting_id ));
+  $setting= $api->GetInterfaceTags( array( $setting_id ));
   
   // interface info
   $interface= $api->GetInterfaces( array( $setting[0]['interface_id'] ), array( "ip" ) );
@@ -213,7 +213,7 @@ else {
 
   // start form and put values in to be edited.
   echo "<form action='setting_action.php' method='post'>\n";
-  echo "<input type=hidden name='setting_id' value='". $setting[0]['interface_setting_id'] ."'>\n";
+  echo "<input type=hidden name='setting_id' value='". $setting[0]['interface_tag_id'] ."'>\n";
   echo "<input type=hidden name='interface_id' value='". $setting[0]['interface_id'] ."'>\n";
   
   echo "<table cellpadding='2'> <caption> Edit Setting </caption>";

@@ -12,14 +12,14 @@
   //Database error 52cfdd40-b57e-43cb-ace0-406d49408527:
   //unindexable object
   //Query:
-  //SELECT creator_person_id, instantiation, slice_attribute_ids, name, slice_id, created, url, max_nodes, person_ids, expires, site_id, peer_slice_id, node_ids, peer_id, description FROM view_slices WHERE is_deleted IS False AND expires > 1175085968 AND (True AND name LIKE 'o%' AND  ( NOT expires = 0 ) )
+  //SELECT creator_person_id, instantiation, slice_tag_ids, name, slice_id, created, url, max_nodes, person_ids, expires, site_id, peer_slice_id, node_ids, peer_id, description FROM view_slices WHERE is_deleted IS False AND expires > 1175085968 AND (True AND name LIKE 'o%' AND  ( NOT expires = 0 ) )
   //Params:
   //{'api': <PLC.API.PLCAPI instance at 0xb7b466ac>,
   // 'columns': None,
   // 'expires': 1175085968,
   // 'self': [],
   // 'slice_filter': {'creator_person_id': (<type 'int'>, [<type 'int'>]), 'instantiation': (<type 'str'>, [<type 'str'>]), 'name': (<type 'str'>, [<type 'str'>]), 'slice_id': (<type 'int'>, [<type 'int'>]), 'created': (<type 'int'>, [<type 'int'>]), 'url': (<type 'str'>, [<type 'str'>]), 'max_nodes': (<type 'int'>, [<type 'int'>]), 'expires': (<type 'int'>, [<type 'int'>]), 'site_id': (<type 'int'>, [<type 'int'>]), 'peer_slice_id': (<type 'int'>, [<type 'int'>]), 'peer_id': (<type 'int'>, [<type 'int'>]), 'description': (<type 'str'>, [<type 'str'>])},
-  // 'sql': "SELECT creator_person_id, instantiation, slice_attribute_ids, name, slice_id, created, url, max_nodes, person_ids, expires, site_id, peer_slice_id, node_ids, peer_id, description FROM view_slices WHERE is_deleted IS False AND expires > 1175085968 AND (True AND name LIKE 'o%' AND  ( NOT expires = 0 ) )"}
+  // 'sql': "SELECT creator_person_id, instantiation, slice_tag_ids, name, slice_id, created, url, max_nodes, person_ids, expires, site_id, peer_slice_id, node_ids, peer_id, description FROM view_slices WHERE is_deleted IS False AND expires > 1175085968 AND (True AND name LIKE 'o%' AND  ( NOT expires = 0 ) )"}
   //Traceback (most recent call last):
   //  File "/usr/bin/plcsh", line 139, in ?
   //    result = eval(command)

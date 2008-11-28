@@ -29,14 +29,14 @@ $_roles= $_person['role_ids'];
 
 // attribute type updates
 if( $_POST['edit_type'] ) {
-  $setting_type_id= intval( $_POST['interface_setting_type_id'] );
+  $setting_type_id= intval( $_POST['interface_tag_type_id'] );
   $setting_type = array ('category' => $_POST['category'],
 			 'name' => $_POST['name'],
 			 'min_role_id' => intval( $_POST['min_role_id'] ),
 			 'description' => $_POST['description']);
   
   // Update it!
-  $api->UpdateInterfaceSettingType( $setting_type_id, $setting_type );
+  $api->UpdateTagType( $setting_type_id, $setting_type );
   $api_error=$api->error();
   if (!empty($api_error)) {
     print "<div class='plc-error'>" . $api_error . "</div>";
@@ -53,7 +53,7 @@ if( $_POST['add_type'] ) {
 			 'min_role_id' => intval( $_POST['min_role_id'] ),
 			 'description' => $_POST['description']);
   // add it!!
-  $api->AddInterfaceSettingType( $setting_type );
+  $api->AddTagType( $setting_type );
 
   header( "location: settings.php" );
   exit();
@@ -66,11 +66,11 @@ if( $_GET['rem_id'] ) {
   $setting_id= intval( $_GET['rem_id'] );
 
   // get interface_id 
-  $setting= $api->GetInterfaceSettings( array( $setting_id ), array( "interface_id" ) );
+  $setting= $api->GetInterfaceTags( array( $setting_id ), array( "interface_id" ) );
   $interface_id= $setting[0]['interface_id'];
   
   // delete the attribute
-  $api->DeleteInterfaceSetting( $setting_id );
+  $api->DeleteInterfaceTag( $setting_id );
 
   header( "location: interfaces.php?id=$interface_id" );
   exit();
@@ -80,11 +80,11 @@ if( $_GET['rem_id'] ) {
 if( $_POST['add_setting'] ) {
   // get the interface_id, attribute_type_id, and value from POST
   $interface_id= intval( $_POST['interface_id'] );
-  $interface_setting_type_id= intval( $_POST['interface_setting_type_id'] );
+  $interface_tag_type_id= intval( $_POST['interface_tag_type_id'] );
   $value= $_POST['value'];
 
   // add it!
-  $api->AddInterfaceSetting( $interface_id, $interface_setting_type_id, $value );
+  $api->AddInterfaceTag( $interface_id, $interface_tag_type_id, $value );
 
   header( "location: interfaces.php?id=$interface_id" );
   exit();
@@ -98,13 +98,13 @@ if( $_POST['edit_setting'] ) {
   $interface_id= $_POST['interface_id'];
 
   // update it!
-  $api->UpdateInterfaceSetting($setting_id, $value );
+  $api->UpdateInterfaceTag($setting_id, $value );
 
   header( "location: interfaces.php?id=$interface_id" );
   exit();
 }
 
-// down here is some codqe from attrib_action.php that was not converted yet
+// down here is some code from attrib_action.php that was not converted yet
 // Settings -------------------------------------------------
 
 // ATTRIBUTE TYPES ---------------------------------------------------
@@ -115,7 +115,7 @@ if( $_GET['del_type'] ) {
   $type_id= intval( $_GET['del_type'] );
 
   // delete it!
-  $api->DeleteInterfaceSettingType( $type_id );
+  $api->DeleteTagType( $type_id );
   
   header( "location: settings.php" );
   exit();

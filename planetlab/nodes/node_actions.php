@@ -406,7 +406,7 @@ if( $has_primary ) {
 
   print ("<tr><th colspan=2><a href='interfaces.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
   $nn_id = $interface_detail['interface_id'];
-  $settings=$api->GetInterfaceSettings(array("interface_id" => array($nn_id)));
+  $settings=$api->GetInterfaceTags(array("interface_id" => array($nn_id)));
   foreach ($settings as $setting) {
     $category=$setting['category'];
     $name=$setting['name'];

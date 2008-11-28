@@ -31,11 +31,11 @@ if( $_GET['rem_id'] ) {
   $attribute_id= intval( $_GET['rem_id'] );
 
   // get slice_id 
-  $attrib_info= $api->GetSliceAttributes( array( $attribute_id ), array( "slice_id" ) );
+  $attrib_info= $api->GetSliceTags( array( $attribute_id ), array( "slice_id" ) );
   $slice_id= $attrib_info[0]['slice_id'];
   
   // delete the attribute
-  $api->DeleteSliceAttribute( $attribute_id );
+  $api->DeleteSliceTag( $attribute_id );
 
 
   header( "location: index.php?id=$slice_id" );
@@ -51,7 +51,7 @@ if( $_POST['edit_attribute'] ) {
   $slice_id= $_POST['slice_id'];
 
   // update it!
-  $api->UpdateSliceAttribute( $attribute_id, $value );
+  $api->UpdateSliceTag( $attribute_id, $value );
 
   header( "location: index.php?id=$slice_id" );
   exit();
@@ -66,7 +66,7 @@ if( $_POST['add_attribute'] ) {
   $value= $_POST['value'];
 
   // add it!
-  $api->AddSliceAttribute( $slice_id, $attribute_type_id, $value );
+  $api->AddSliceTag( $slice_id, $attribute_type_id, $value );
 
   header( "location: index.php?id=$slice_id" );
   exit();
@@ -85,7 +85,7 @@ if( $_POST['add_type'] ) {
   $attribute_type_fields= array( "min_role_id" => $min_role_id, "name" => $name, "description" => $description );
   
   // add it!!
-  $api->AddSliceAttributeType( $attribute_type_fields );
+  $api->AddSliceTagType( $attribute_type_fields );
 
   header( "location: attributes.php" );
   exit();
@@ -104,7 +104,7 @@ if( $_POST['edit_type'] ) {
   $attribute_type_fields= array( "min_role_id" => $min_role_id, "name" => $name, "description" => $description );
 
   // Update it!
-  $api->UpdateSliceAttributeType( $attribute_type_id, $attribute_type_fields );
+  $api->UpdateSliceTagType( $attribute_type_id, $attribute_type_fields );
   
   header( "location: attributes.php" );
   exit();
@@ -117,7 +117,7 @@ if( $_GET['del_type'] ) {
   $type_id= intval( $_GET['del_type'] );
 
   // delete it!
-  $api->DeleteSliceAttributeType( $type_id );
+  $api->DeleteSliceTagType( $type_id );
   
   header( "location: attributes.php" );
   exit();

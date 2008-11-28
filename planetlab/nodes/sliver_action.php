@@ -29,7 +29,7 @@ if( !empty( $_POST['add_sub'] ) ) {
   $node_id= $_POST['node_id'];
   $slice_id= $_POST['slice_id'];
 
-  $api->AddSliceAttribute( intval( $slice_id ), intval( $attrib_type ), $value, intval( $node_id ) );
+  $api->AddSliceTag( intval( $slice_id ), intval( $attrib_type ), $value, intval( $node_id ) );
 
   header( "location: slivers.php?slice=$slice_id&node=$node_id" );
   exit();
@@ -42,9 +42,9 @@ if( $_GET['rem_id'] ) {
   $attrib_id= $_GET['rem_id'];
   
   // get the slivers for this node
-  $sliver_info= $api->GetSliceAttributes( array( "slice_attribute_id"=>intval( $attrib_id ) ), array( "slice_id", "node_id" ) );
+  $sliver_info= $api->GetSliceTags( array( "slice_tag_id"=>intval( $attrib_id ) ), array( "slice_id", "node_id" ) );
   
-  $api->DeleteSliceAttribute( intval( $attrib_id ) );
+  $api->DeleteSliceTag( intval( $attrib_id ) );
 
   header( "location: slivers.php?slice=". $sliver_info[0]['slice_id'] ."&node=". $sliver_info[0]['node_id'] );
   exit();

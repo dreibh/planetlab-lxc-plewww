@@ -62,7 +62,7 @@ function sort_peers (&$peers) {
   return usort ($peers, "__cmp_peers");
 }
 
-function __cmp_interface_settings($a,$b) {
+function __cmp_interface_tags($a,$b) {
   $cat=strcmp($a['category'],$b['category']);
   if ($cat != 0) {
     return $cat;
@@ -71,8 +71,8 @@ function __cmp_interface_settings($a,$b) {
   }
 }
 
-function sort_interface_settings (&$interface_settings) {
-  return usort ($interface_settings,"__cmp_interface_settings");
+function sort_interface_tags (&$interface_tags) {
+  return usort ($interface_tags,"__cmp_interface_tags");
 }
 
 ?>

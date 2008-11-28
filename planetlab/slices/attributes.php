@@ -25,7 +25,7 @@ $_roles= $_person['role_ids'];
 // if no id, display list of attributes types
 if( !$_GET['id'] && !$_GET['add'] && !$_GET['add_type'] && !$_GET['edit_type'] ) {
   // get types
-  $attrib_types= $api->GetSliceAttributeTypes( NULL, array( "attribute_type_id", "name", "description", "min_role_id" ) );
+  $attrib_types= $api->GetSliceTagTypes( NULL, array( "attribute_type_id", "name", "description", "min_role_id" ) );
   
   // get role names for the min role_ids
   foreach( $attrib_types as $attrib_type ) {
@@ -71,7 +71,7 @@ elseif( $_GET['add_type'] || $_GET['edit_type'] ) {
   // if its edit get the attribute info
   if( $_GET['edit_type'] ) {
     $type_id= intval( $_GET['edit_type'] );
-    $type_info= $api->GetSliceAttributeTypes( array( $type_id ) );
+    $type_info= $api->GetSliceTagTypes( array( $type_id ) );
     
     $name= $type_info[0]['name'];
     $min_role_id= $type_info[0]['min_role_id'];
@@ -107,15 +107,15 @@ elseif( $_GET['add'] ) {
   $slice_id= intval( $_GET['add'] );
   
   // get all attribute types 
-  $attrib_types= $api->GetSliceAttributeTypes( NULL, array( "attribute_type_id", "name" ) );
+  $attrib_types= $api->GetSliceTagTypes( NULL, array( "attribute_type_id", "name" ) );
   
   foreach( $attrib_types as $attrib_type ) {
     $all_attribs[$attrib_type['attribute_type_id']]= $attrib_type['name'];
   }
   
   // get slice's attribute types
-  $slice_info= $api->GetSlices( array( $slice_id ), array( "slice_attribute_ids" ) );
-  $attrib_info= $api->GetSliceAttributes( $slice_info[0]['slice_attribute_ids'], array( "attribute_type_id", "name" ) );
+  $slice_info= $api->GetSlices( array( $slice_id ), array( "slice_tag_ids" ) );
+  $attrib_info= $api->GetSliceTags( $slice_info[0]['slice_tag_ids'], array( "attribute_type_id", "name" ) );
   
   foreach( $attrib_info as $info ) {
     $slice_attrib_types[$info['attribute_type_id']]= $info['name'];
@@ -147,10 +147,10 @@ else {
   $attribute_id= intval( $_GET['id'] );
   
   // get attribute info
-  $slice_attib= $api->GetSliceAttributes( array( $attribute_id ), array( "slice_id", "slice_attribute_id", "attribute_type_id", "value", "description", "min_role_id" ) );
+  $slice_attib= $api->GetSliceTags( array( $attribute_id ), array( "slice_id", "slice_tag_id", "attribute_type_id", "value", "description", "min_role_id" ) );
   
   // get type info 
-  $attrib_type= $api->GetSliceAttributeTypes( array( $slice_attib[0]['attribute_type_id'] ), array( "attribute_type_id", "name", "description" ) );
+  $attrib_type= $api->GetSliceTagTypes( array( $slice_attib[0]['attribute_type_id'] ), array( "attribute_type_id", "name", "description" ) );
   
   // slice info
   $slice_info= $api->GetSlices( array( $slice_attib[0]['slice_id'] ), array( "name" ) );
