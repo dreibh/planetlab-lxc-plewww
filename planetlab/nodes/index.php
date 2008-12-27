@@ -26,7 +26,7 @@ $_roles= $_person['role_ids'];
 // The set of columns to fetch
 // and the filter applied for fetching sites
 $columns = array( "node_id", "hostname", "boot_state", "peer_id" ) ;
-$filter = array();
+$filter = array("node_type"=>"regular");
 if ( in_array( '10', $_roles ) || in_array('20', $_roles) || in_array('40',$_roles)) {
   // admins, PIs and techs can see interface details
   $columns [] = "interface_ids";
@@ -162,9 +162,9 @@ elseif( !$_GET['id'] ) {
     $nodes = array_map(layout_node,$nodes);
     sort_nodes( $nodes );
 
-    drupal_set_html_head('<script type="text/javascript" src="/planetlab/includes/js/bsn.Ajax.js"></script>
-    <script type="text/javascript" src="/planetlab/includes/js/bsn.DOM.js"></script>
-    <script type="text/javascript" src="/planetlab/includes/js/bsn.AutoSuggest.js"></script>');
+    drupal_set_html_head('<script type="text/javascript" src="/planetlab/bsn/bsn.Ajax.js"></script>
+    <script type="text/javascript" src="/planetlab/bsn/bsn.DOM.js"></script>
+    <script type="text/javascript" src="/planetlab/bsn/bsn.AutoSuggest.js"></script>');
 
     echo "<div>\n
         <form method=get action='index.php'>\n";
@@ -246,7 +246,7 @@ if ( $_GET['id'] ) {
     if( !empty( $conf_file_ids ) )
       $conf_files= $api->GetConfFiles( $conf_file_ids );
 
-    // get node network info
+    // get interface info
     if( !empty( $interface_ids ) )
       $interfaces= $api->GetInterfaces( $interface_ids );
 
@@ -380,10 +380,10 @@ if ( $_GET['id'] ) {
 
       echo "<hr />\n";
 
-      // display node networks
+      // display interfaces
       if( $interfaces ) {
 	echo "<p><table class='list_set' border=0 cellpadding=2>\n";
-	echo "<caption class='list_set'>Node Networks</caption>\n";
+	echo "<caption class='list_set'>Interfaces</caption>\n";
 	echo "<thead><tr class='list_set'>";
 	// placeholder for the delete buttons
 	if ( $is_admin || ($is_pi && $in_site)) {
@@ -411,9 +411,9 @@ if ( $_GET['id'] ) {
 	  if ( $is_admin || ($is_pi && $in_site)) {
 	    echo "<td class='list_set'>";
 	    if (!$nn_primary) {
-	      echo plc_delete_link_button('interfaces.php?id=' . $nn_id . '&delete=1&submitted=1', '\\nNode Network ' . $nn_ip);
+	      echo plc_delete_link_button('interfaces.php?id=' . $nn_id . '&delete=1&submitted=1', '\\nInterface ' . $nn_ip);
 	    } else {
-	      echo '<span title="This node network is primary"> P </span>';
+	      echo '<span title="This interface is primary"> P </span>';
 	    }
 	    echo "</td>";
 	  }
@@ -429,10 +429,10 @@ if ( $_GET['id'] ) {
 	echo "</tbody></table>\n";
 
       } else {
-	echo "<p><span class='plc-warning'>No Node Network</span>.  Please add a node network to make this a usable PLC node</p>.\n";
+	echo "<p><span class='plc-warning'>No interface</span>.  Please add an interface to make this a usable PLC node</p>.\n";
       }
 
-      echo "<br /><a href='interfaces.php?node_id=$node_id'>Add a node network</a>.\n";
+      echo "<br /><a href='interfaces.php?node_id=$node_id'>Add an interface</a>.\n";
       echo "<br /><hr />\n";
     }
 

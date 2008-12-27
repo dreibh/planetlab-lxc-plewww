@@ -357,7 +357,7 @@ a new node key, and any existing configuration file will be unusable and
 go into debug mode.
 
 <p>In order to create a configuration file for this node using this page,
-all the node network settings must be up to date. Below is summary of these
+all the interface settings must be up to date. Below is summary of these
 values. Any missing values must be entered before this can be used.
 
 EOF;
@@ -366,7 +366,7 @@ EOF;
 
    show_download_confirm_button($api, $node_id, $action, $can_gen_config, false);
    print ("<p>");
-   print ("<h3>Current node network settings</h3>\n");
+   print ("<h3>Current interface settings</h3>\n");
    
 if( $has_primary ) {
   print( "<table border=\"0\" cellspacing=\"4\">\n" );
@@ -378,7 +378,7 @@ if( $has_primary ) {
   print( "<td>" . $node_detail['hostname'] . "</td></tr>\n" );
 
   $nn_id = $interface_detail['interface_id'];
-  print( "<tr><th colspan=2><a href='interfaces.php?id=$nn_id'>Node Network Details</a></th></tr>" );
+  print( "<tr><th colspan=2><a href='interfaces.php?id=$nn_id'>Interface Details</a></th></tr>" );
 
   print( "<tr><th>Method:</th>" );
   print( "<td>" . $interface_detail['method'] . "</td></tr>\n" );
@@ -409,14 +409,14 @@ if( $has_primary ) {
   $settings=$api->GetInterfaceTags(array("interface_id" => array($nn_id)));
   foreach ($settings as $setting) {
     $category=$setting['category'];
-    $name=$setting['name'];
+    $name=$setting['tagname'];
     $value=$setting['value'];
     print (" <tr><th> $category $name </th><td> $value </td></tr>\n");
   }
 
   print( "</table>\n" );
 } else {
-  print( "<p class='plc-warning'>This node has no configured primary network.</p>\n" );
+  print( "<p class='plc-warning'>This node has no configured primary interface.</p>\n" );
 }
 
  show_download_confirm_button($api, $node_id, $action, $can_gen_config, true);

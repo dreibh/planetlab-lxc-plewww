@@ -289,11 +289,6 @@ if ( !in_array ('10', $_roles)) {
   
  } else {
 
-  //  // xxx this of any use at all ?
-  //  drupal_set_html_head('<script type="text/javascript" src="/planetlab/includes/js/bsn.Ajax.js"></script>
-  //    <script type="text/javascript" src="/planetlab/includes/js/bsn.DOM.js"></script>
-  //    <script type="text/javascript" src="/planetlab/includes/js/bsn.AutoSuggest.js"></script>');
-
   // handle dates
   list($from_date,$from_time,$until_date,$until_time) = parse_dates ();
   if ( ($from_time != 0) && ($until_time != 0) && ($from_time > $until_time) ) {

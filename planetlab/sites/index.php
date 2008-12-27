@@ -155,9 +155,9 @@ elseif( !$_GET['id'] ) {
   } else {
     sort_sites( $sites );
 
-    drupal_set_html_head('<script type="text/javascript" src="/planetlab/includes/js/bsn.Ajax.js"></script>
-    <script type="text/javascript" src="/planetlab/includes/js/bsn.DOM.js"></script>
-    <script type="text/javascript" src="/planetlab/includes/js/bsn.AutoSuggest.js"></script>');
+    drupal_set_html_head('<script type="text/javascript" src="/planetlab/bsn/bsn.Ajax.js"></script>
+    <script type="text/javascript" src="/planetlab/bsn/bsn.DOM.js"></script>
+    <script type="text/javascript" src="/planetlab/bsn/bsn.AutoSuggest.js"></script>');
     
     echo "<div>\n
         <form method=get action='index.php'>\n";

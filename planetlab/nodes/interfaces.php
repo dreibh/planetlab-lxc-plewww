@@ -188,48 +188,44 @@ echo <<<EOF
 </form>
 EOF;
 
-// displays related settings, if supported by the API
-if (method_exists ($api,'GetInterfaceTags')) {
+$is_admin=in_array( 10, $_roles );
+$is_pi=in_array( 20, $_roles );
+print "<hr />";
 
-  $is_admin=in_array( 10, $_roles );
-  $is_pi=in_array( 20, $_roles );
-  print "<hr />";
-
-  if (empty ($interface['interface_tag_ids'])) {
-    print "<p> This network interface has no additional setting</p>";
-    if( $is_admin || $is_pi )
-      echo "<p><a href='settings.php?add=$id'>Add a Network Setting</a></p>\n";
-  } else {
-    $interface_tags = $api->GetInterfaceTags($interface['interface_tag_ids']);
-    sort_interface_tags ($interface_tags);
-    print "<table cellpadding='5' cellspacing='5' class='list_set'><caption class='list_set'>Additional Settings</caption>";
-    print "<thead><tr class='list_set'>";
-    // the column for the delete button
-    if( $is_admin )
-      print "<th></th>";
-    print "<th class='list_set'>Name</th><th class='list_set'>Category</th><th class='list_set'>Description</th><th class='list_set'>Value</th></tr></thead><tbody>";
-    foreach ($interface_tags as $setting) {
-      echo "<tr class='list_set'>";
-      if ($is_admin) {
-	echo("<td>");
-	echo plc_delete_link_button('setting_action.php?rem_id=' . $setting['interface_tag_id'],
-				    '\\n [ ' . $setting['name'] . ' = ' . $setting['value']);
-	echo("</td>");
+if (empty ($interface['interface_tag_ids'])) {
+  print "<p> This network interface has no additional setting</p>";
+  if( $is_admin || $is_pi )
+    echo "<p><a href='settings.php?add=$id'>Add an Interface Setting</a></p>\n";
+ } else {
+  $interface_tags = $api->GetInterfaceTags($interface['interface_tag_ids']);
+  sort_interface_tags ($interface_tags);
+  print "<table cellpadding='5' cellspacing='5' class='list_set'><caption class='list_set'>Additional Settings</caption>";
+  print "<thead><tr class='list_set'>";
+  // the column for the delete button
+  if( $is_admin )
+    print "<th></th>";
+  print "<th class='list_set'>Name</th><th class='list_set'>Category</th><th class='list_set'>Description</th><th class='list_set'>Value</th></tr></thead><tbody>";
+  foreach ($interface_tags as $setting) {
+    echo "<tr class='list_set'>";
+    if ($is_admin) {
+      echo("<td>");
+      echo plc_delete_link_button('setting_action.php?rem_id=' . $setting['interface_tag_id'],
+				  '\\n [ ' . $setting['tagname'] . ' = ' . $setting['value']);
+      echo("</td>");
     }
-      if ($is_admin || $is_pi) 
-	printf ("<td class='list_set'> <a href='settings.php?id=%s'>%s </a></td>",$setting['interface_tag_id'],$setting['name']);
-      else
-	printf ("<td class='list_set'> %s </td>",$setting['name']);
-      printf ("<td class='list_set'> %s</td><td class='list_set'> %s</td><td class='list_set'> %s </td></tr>",
-	      $setting['category'],
-	      $setting['description'],
-	      $setting['value']);
-    }
-    if( $is_admin || $is_pi )
-      echo "<tr><td colspan=4><a href='settings.php?add=$id'>Add a Network Setting</td</tr>\n";
-    
-    print "</tbody></table>";
+    if ($is_admin || $is_pi) 
+      printf ("<td class='list_set'> <a href='settings.php?id=%s'>%s </a></td>",$setting['interface_tag_id'],$setting['tagname']);
+    else
+      printf ("<td class='list_set'> %s </td>",$setting['tagname']);
+    printf ("<td class='list_set'> %s</td><td class='list_set'> %s</td><td class='list_set'> %s </td></tr>",
+	    $setting['category'],
+	    $setting['description'],
+	    $setting['value']);
   }
+  if( $is_admin || $is_pi )
+    echo "<tr><td colspan=4><a href='settings.php?add=$id'>Add a Network Setting</td</tr>\n";
+  
+  print "</tbody></table>";
  }
 
 echo <<<EOF

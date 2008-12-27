@@ -68,7 +68,8 @@ if( !$_GET['id'] && !$_GET['nodegroup_id'] ) {
 elseif( $_GET['id'] ) {
   $nodegroup_id= $_GET['id'];
 
-  $nodegroup_info= $api->GetNodeGroups( array( intval( $nodegroup_id ) ), array( "name", "nodegroup_id", "node_ids" ) );
+  $nodegroup_info= $api->GetNodeGroups( array( intval( $nodegroup_id ) ), 
+					array( "name", "nodegroup_id", "node_ids" ) );
   $node_info= $api->GetNodes( $nodegroup_info[0]['node_ids'], array( "node_id", "hostname" ) );
 
   //display info 
@@ -183,7 +184,8 @@ elseif( $_GET['nodegroup_id'] )
     $api->UpdateNodeGroup( intval( $node_group_id ), $fields );
 
   // get node_group info
-  $group_info= $api->GetNodeGroups( array( intval( $node_group_id ) ), array( "node_ids", "name", "conf_file_ids", "description" ) );
+  $group_info= $api->GetNodeGroups( array( intval( $node_group_id ) ),
+				    array( "node_ids", "name", "conf_file_ids", "description" ) );
 
   $node_ids = $group_info[0]['node_ids'];
   $name = $group_info[0]['name'];
@@ -192,7 +194,8 @@ elseif( $_GET['nodegroup_id'] )
 
   // get node info
   if( !empty( $node_ids ) )
-    $node_info= $api->GetNodes( $node_ids, array( "hostname", "node_id" ) );
+    $node_info= $api->GetNodes( $node_ids, 
+				array( "hostname", "node_id" ) );
 
   // get site names and ids
   $site_info= $api->GetSites( NULL, array( "site_id", "name" ) );

@@ -93,7 +93,7 @@ if( $_POST['submitted'] )
   {
     $success= 1;
 
-    // add new node and its network
+    // add new node and its interface
     $optional_vals= array( "hostname"=>$hostname, "model"=>$model );
 
     $site_id= $_person['site_ids'][0];

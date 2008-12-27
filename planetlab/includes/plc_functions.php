@@ -1,5 +1,7 @@
 <?php
 
+// $Id$
+
 function plc_person_link ($person_id) {
   if ( empty ($person_id)) {
     return "";
@@ -336,7 +338,7 @@ function plc_debug($message,$object) {
 
 // attempt to normalize the delete buttons and confirmations
 function plc_delete_button($width=15) {
-  return '<span title="Delete this entry"><img width=' . $width . ' alt="Delete this entry" src="/planetlab/includes/delete.png"></span>';
+  return '<span title="Delete this entry"><img width=' . $width . ' alt="Delete this entry" src="/planetlab/icons/delete.png"></span>';
 }
 
 function plc_js_confirm($message) {
@@ -352,7 +354,7 @@ function plc_delete_link_button($url,$delete_message,$width=15) {
 }
 
 function plc_event_button($type,$param,$id) {
-  return '<a href="/db/events/index.php?type=' . $type . '&' . $param . '=' . $id . '"> <span title="Related events"> <img src="/planetlab/includes/event.png" width=18></span></a>';
+  return '<a href="/db/events/index.php?type=' . $type . '&' . $param . '=' . $id . '"> <span title="Related events"> <img src="/planetlab/icons/event.png" width=18></span></a>';
 }
 
 function plc_comon_button ($field, $value,$target="") {
@@ -361,7 +363,7 @@ function plc_comon_button ($field, $value,$target="") {
     $result.='target="' . $target . '" ';
   }
   $result.='href="/db/nodes/comon.php?' . $field . "=" . $value . '">';
-  $result.='<span title="Link to Comon"> <img src="/planetlab/includes/comon.png" width="18"></span></a>';
+  $result.='<span title="Link to Comon"> <img src="/planetlab/icons/comon.png" width="18"></span></a>';
   return $result;
 }
 

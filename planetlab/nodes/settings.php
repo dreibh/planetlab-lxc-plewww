@@ -24,7 +24,7 @@ $_roles= $_person['role_ids'];
 
 //plc_debug("person", $_person );
 
-$columns=array( "interface_tag_type_id", "category", "name", "description", "min_role_id" );
+$columns=array( "tag_type_id", "category", "tagname", "description", "min_role_id" );
 
 // prepare dict role_id => role_name
 global $roles;
@@ -60,11 +60,11 @@ function layout_setting_type ($setting_type) {
   return $setting_type;
 }
 
-// if no id, display list of attributes types
+// if no id, display list of tag types
 if( !$_GET['id'] && !$_GET['add'] && !$_GET['add_type'] && !$_GET['edit_type'] ) {
   // get types
   global $person_role;
-  $filter = array (']min_role_id'=>$person_role);
+  $filter = array (']min_role_id'=>$person_role,'category'=>'interface*');
   $setting_types= $api->GetTagTypes( $filter, $columns );
   $setting_types = array_map(layout_setting_type,$setting_types);
   sort_interface_tags ($setting_types);
@@ -90,15 +90,15 @@ if( !$_GET['id'] && !$_GET['add'] && !$_GET['add_type'] && !$_GET['edit_type'] )
     // if admin display delete links
     if(  in_array( "10", $_person['role_ids'] ) ) {
       echo "<td>";
-      echo plc_delete_link_button('setting_action.php?del_type='. $type['interface_tag_type_id'],
-				  $type['name']);
+      echo plc_delete_link_button('setting_action.php?del_type='. $type['tag_type_id'],
+				  $type['tagname']);
       echo "</td>";
     }
     // if admin, the name is a link to edition
     if (in_array( "10", $_person['role_ids'])) {
-      echo "<td><a href='settings.php?edit_type=". $type['interface_tag_type_id'] . "'>" . $type['name'] . "</a></td>";
+      echo "<td><a href='settings.php?edit_type=". $type['tag_type_id'] . "'>" . $type['tagname'] . "</a></td>";
     } else {
-      echo "<td>" . $type['name'] . "</td>";
+      echo "<td>" . $type['tagname'] . "</td>";
     }
     echo "<td>" . $type['category'] . "</td>";
     echo "<td>" . $type['min_role'] . "</td><td>" . $type['min_role_id'] . "</td><td>" . $type['description'] . "</td>";
@@ -116,13 +116,13 @@ if( !$_GET['id'] && !$_GET['add'] && !$_GET['add_type'] && !$_GET['edit_type'] )
 
 }
 elseif( $_GET['add_type'] || $_GET['edit_type'] ) {
-  // if its edit get the attribute info
+  // if its edit get the tag info
   if( $_GET['edit_type'] ) {
     $type_id= intval( $_GET['edit_type'] );
     $type= $api->GetTagTypes( array( $type_id ) );
     
     $category=$type[0]['category'];
-    $name= $type[0]['name'];
+    $name= $type[0]['tagname'];
     $min_role_id= $type[0]['min_role_id'];
     $description= $type[0]['description'];
     
@@ -151,7 +151,7 @@ elseif( $_GET['add_type'] || $_GET['edit_type'] ) {
   echo "</td></tr>\n";
   echo "<tr><td colspan=2 align=center>";
   if( $_GET['edit_type'] ) {
-    echo "<input type=hidden name='interface_tag_type_id' value='$type_id'>\n";
+    echo "<input type=hidden name='tag_type_id' value='$type_id'>\n";
     echo "<input type=submit name='edit_type' value='Edit Setting Type'>\n";
   } else {
     echo "<input type=submit name='add_type' value='Add Interface Type'>\n";
@@ -170,8 +170,8 @@ elseif( $_GET['add'] ) {
   
   // get all setting types 
   global $person_role;
-  $filter = array (']min_role_id'=>$person_role);
-  $setting_types= $api->GetTagTypes( $filter, array( "interface_tag_type_id", "name" , "category") );
+  $filter = array (']min_role_id'=>$person_role,'category'=>'interface*');
+  $setting_types= $api->GetTagTypes( $filter, array( "tag_type_id", "tagname" , "category") );
   sort_interface_tags($setting_types);
     
   // get interface's settings
@@ -185,10 +185,10 @@ elseif( $_GET['add'] ) {
   
   echo "<table cellpadding='2'> <caption> New Setting </caption>";
 
-  echo "<tr><th>Select</th><td><select name='interface_tag_type_id'><option value=''>Choose a type to add</option>\n";
+  echo "<tr><th>Select</th><td><select name='tag_type_id'><option value=''>Choose a type to add</option>\n";
   
   foreach( $setting_types as $setting_type ) {
-    echo "<option value='". $setting_type['interface_tag_type_id'] ."'>". $setting_type['category'] . ":" . $setting_type['name'] ."</option>\n";
+    echo "<option value='". $setting_type['tag_type_id'] ."'>". $setting_type['category'] . ":" . $setting_type['tagname'] ."</option>\n";
   
   }
   echo "</select></td</tr>\n";
@@ -209,7 +209,7 @@ else {
   // interface info
   $interface= $api->GetInterfaces( array( $setting[0]['interface_id'] ), array( "ip" ) );
   
-  drupal_set_title("Edit setting ". $setting[0]['name'] ." on ". $interface[0]['ip']);
+  drupal_set_title("Edit setting ". $setting[0]['tagname'] ." on ". $interface[0]['ip']);
 
   // start form and put values in to be edited.
   echo "<form action='setting_action.php' method='post'>\n";
@@ -218,7 +218,7 @@ else {
   
   echo "<table cellpadding='2'> <caption> Edit Setting </caption>";
   echo "<tr><th> Category </th> <td>" . $setting[0]['category'] . "</td></tr>";
-  echo "<tr><th> Name </th> <td>" . $setting[0]['name'] . "</td></tr>";
+  echo "<tr><th> Name </th> <td>" . $setting[0]['tagname'] . "</td></tr>";
   echo "<tr><th> Value </th> <td><input type=text name='value' value='" . $setting[0]['value'] . "'> </td></tr>";
   echo "<tr><td colspan=2> <input type=submit value='Edit Setting' name='edit_setting'></td></tr>";
   echo "</table>";

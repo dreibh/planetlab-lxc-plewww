@@ -108,29 +108,30 @@ else
 
 // get site nodes for $site_id
 if( $site_id == 'all_site' ) {
-  $full_node_info= $adm->GetNodes( NULL, array( "hostname", "node_id" , "peer_id", "boot_state","last_updated") );
+  $full_node_info= $adm->GetNodes( array("node_type","regular"),
+				   array( "hostname", "node_id" , "peer_id", "boot_state","last_updated") );
 
-	$snode_info= array();
-	foreach( $full_node_info as $full_node ) {
-		if( !in_array( $full_node['node_id'], $slice_info[0]['node_ids'] ) )
-			$snode_info[]= $full_node;
-	}
+  $snode_info= array();
+  foreach( $full_node_info as $full_node ) {
+    if( !in_array( $full_node['node_id'], $slice_info[0]['node_ids'] ) )
+      $snode_info[]= $full_node;
+  }
 }
 else {
-	$sid= intval( $site_id );
-	$site_node_info= $adm->GetSites( array( $sid ), array( "node_ids" ) );
-	$site_nodes= $site_node_info[0]['node_ids'];
+  $sid= intval( $site_id );
+  $site_node_info= $adm->GetSites( array( $sid ), array( "node_ids" ) );
+  $site_nodes= $site_node_info[0]['node_ids'];
 	
-	// gets all node_ids from site that arent already associated with the slice
-	foreach( $site_nodes as $snode) {
-		if( !in_array( $snode, $slice_info[0]['node_ids'] ) )
-			$snodes[]= $snode;
-	}
+  // gets all node_ids from site that arent already associated with the slice
+  foreach( $site_nodes as $snode) {
+    if( !in_array( $snode, $slice_info[0]['node_ids'] ) )
+      $snodes[]= $snode;
+  }
 	
-	// Get node info from new list
-	if( !empty( $snodes ) )
-	  $snode_info= $adm->GetNodes( $snodes, array( "hostname", "node_id" , "peer_id", "boot_state","last_updated" ) );
-
+  // Get node info from new list
+  if( !empty( $snodes ) )
+    $snode_info= $adm->GetNodes( $snodes, array( "hostname", "node_id" , "peer_id", "boot_state","last_updated" ) );
+  
 }
 
 // start form   
@@ -149,10 +150,10 @@ if ( ! $slice_readonly ) {
     echo "</td><td>";
   }
   echo "<select name='site_id' onChange='submit()'>\n";
-	echo "<option value='all_site'";
-	if( $site_id == 'all_site' )
-		echo " selected";
-	echo ">--All Sites--</option>\n";
+  echo "<option value='all_site'";
+  if( $site_id == 'all_site' )
+    echo " selected";
+  echo ">--All Sites--</option>\n";
 
   foreach( $site_info as $site ) {
     echo "<option value=". $site['site_id'];

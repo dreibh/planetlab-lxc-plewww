@@ -15,7 +15,7 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2006 The Trustees of Princeton University
 //
-// $Id: plc_session.php 804 2007-08-31 13:58:58Z thierry $ $
+// $Id$ $
 //
 
 // Usually in /etc/planetlab/php

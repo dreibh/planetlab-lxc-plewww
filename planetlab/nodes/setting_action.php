@@ -27,7 +27,7 @@ $_roles= $_person['role_ids'];
 //plc_debug('GET',$_GET);
 //plc_debug('POST',$_POST);
 
-// attribute type updates
+// tag type updates
 if( $_POST['edit_type'] ) {
   $setting_type_id= intval( $_POST['interface_tag_type_id'] );
   $setting_type = array ('category' => $_POST['category'],
@@ -46,7 +46,7 @@ if( $_POST['edit_type'] ) {
   exit();
 }
 
-// attribute type adds
+// tag type adds
 if( $_POST['add_type'] ) {
   $setting_type = array ('category' => $_POST['category'],
 			 'name' => $_POST['name'],
@@ -60,25 +60,25 @@ if( $_POST['add_type'] ) {
 }
   
 
-// attribute deletion
+// tag deletion
 if( $_GET['rem_id'] ) {
-  // get the id of the attrib to remove from GET
+  // get the id of the tag to remove from GET
   $setting_id= intval( $_GET['rem_id'] );
 
   // get interface_id 
   $setting= $api->GetInterfaceTags( array( $setting_id ), array( "interface_id" ) );
   $interface_id= $setting[0]['interface_id'];
   
-  // delete the attribute
+  // delete the tag
   $api->DeleteInterfaceTag( $setting_id );
 
   header( "location: interfaces.php?id=$interface_id" );
   exit();
 }
 
-// attribute adds
+// tag adds
 if( $_POST['add_setting'] ) {
-  // get the interface_id, attribute_type_id, and value from POST
+  // get the interface_id, tag_type_id, and value from POST
   $interface_id= intval( $_POST['interface_id'] );
   $interface_tag_type_id= intval( $_POST['interface_tag_type_id'] );
   $value= $_POST['value'];
@@ -90,7 +90,7 @@ if( $_POST['add_setting'] ) {
   exit();
 }
 
-// attribute updates
+// tag updates
 if( $_POST['edit_setting'] ) {
   // get the id of the setting to update and the value from POST
   $setting_id= intval( $_POST['setting_id'] );
@@ -104,12 +104,11 @@ if( $_POST['edit_setting'] ) {
   exit();
 }
 
-// down here is some code from attrib_action.php that was not converted yet
 // Settings -------------------------------------------------
 
-// ATTRIBUTE TYPES ---------------------------------------------------
+// TAG TYPES ---------------------------------------------------
   
-// delete attribute types
+// delete tag types
 if( $_GET['del_type'] ) {
   // get vars
   $type_id= intval( $_GET['del_type'] );
@@ -120,8 +119,6 @@ if( $_GET['del_type'] ) {
   header( "location: settings.php" );
   exit();
 }
-
-  
   
 /*
 // Print footer

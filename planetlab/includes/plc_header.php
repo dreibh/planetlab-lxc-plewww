@@ -6,11 +6,11 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2006 The Trustees of Princeton University
 //
-// $Id: plc_header.php 144 2007-03-28 07:52:20Z thierry $ $
+// $Id$ $
 //
 
 require_once 'plc_drupal.php';
-drupal_set_html_head('<link href="/planetlab/includes/plc_style.css" rel="stylesheet" type="text/css"/>');
+drupal_set_html_head('<link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css"/>');
 
 if (!function_exists('drupal_page_header')) {
   $title = drupal_get_title();

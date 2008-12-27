@@ -1,5 +1,7 @@
 <?php
 
+// $Id$
+
 // person sort on last name, first name, email
 function __cmp_persons($a, $b) {
   $persona = $a['last_name'] . $a['first_name'] . $a['email'];
@@ -11,6 +13,10 @@ function sort_persons(&$persons) {
   return usort($persons, "__cmp_persons");
 }
 
+function topdomain ($hostname) {
+  $exploded=array_reverse(explode(".",$hostname));
+  return $exploded[0];
+}
 
 function __cmp_nodes($a, $b) {
  $as = array_reverse(explode(".", $a['hostname']));

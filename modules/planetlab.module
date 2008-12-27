@@ -141,12 +141,23 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array())
       $slice_item .= '<ul>';
       if( $is_admin || $is_pi ) {
 	$slice_item .= "<li><a href='/db/slices/add_slice.php'>Create Slice</a></li>";
-	$slice_item .= "<li><a href='/db/slices/attributes.php'>Attribute Types</a></li>";
       }
       if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
 	$slice_item .= '<li><a href="/db/sirius/index.php">Sirius</a></li>';
       $slice_item .= '</ul>';
       $items [] = $slice_item;
+
+      if( $is_admin || $is_pi ) {
+	$tag_item = '';
+	$tag_item .= '<a href="/db/slices/tags.php?type=all">Tags</a>';
+	$tag_item .= '<ul>';
+	$tag_item .= "<li><a href='/db/slices/tags.php?type=node'>Node Tags</a></li>";
+	$tag_item .= "<li><a href='/db/slices/tags.php?type=interface'>Interface Tags</a></li>";
+	$tag_item .= "<li><a href='/db/slices/tags.php?type=slice'>Slice Tags</a></li>";
+	$tag_item .= '</ul>';
+	$items [] = $tag_item;
+      }
+      
 
       if ( $is_admin )
 	$items[] = l(t('Peers'),'db/peers/');

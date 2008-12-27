@@ -47,9 +47,9 @@ if( !$_GET['id'] ) {
   if( in_array( 10, $_roles ) ) {
     // auto complete box for finding a slice
                 
-    drupal_set_html_head('<script type="text/javascript" src="/planetlab/includes/js/bsn.Ajax.js"></script>
-    <script type="text/javascript" src="/planetlab/includes/js/bsn.DOM.js"></script>
-    <script type="text/javascript" src="/planetlab/includes/js/bsn.AutoSuggest.js"></script>');
+    drupal_set_html_head('<script type="text/javascript" src="/planetlab/bsn/bsn.Ajax.js"></script>
+    <script type="text/javascript" src="/planetlab/bsn/bsn.DOM.js"></script>
+    <script type="text/javascript" src="/planetlab/bsn/bsn.AutoSuggest.js"></script>');
 
     echo "<div>\n
           <form method=post action='index.php'>\n";
@@ -122,7 +122,7 @@ if( !$_GET['id'] ) {
     echo "<p><strong>No slice found, or all are expired.</strong>";
   } else {
   
-    $slice_info= $api->GetSlices( $slice_ids, array( "slice_id", "name", "site_id", "state", "person_ids", "expires", "peer_id" ) );
+    $slice_info= $api->GetSlices( $slice_ids, array( "slice_id", "name", "site_id", "person_ids", "expires", "peer_id" ) );
     //print '<pre>'; print_r( $api->trace() ) ; print '</pre>';
 
     if ( ! $slice_info) {
@@ -153,7 +153,6 @@ if( !$_GET['id'] ) {
       foreach( $slice_info as $slice ) {
 	$slice_id= $slice['slice_id'];
 	$slice_name= $slice['name'];
-	$slice_state= $slice['state'];
 	$slice_expires= date( "M j, Y", $slice['expires'] );
 	$peer_id = $slice['peer_id'];
       
@@ -252,24 +251,24 @@ else {
     }
   }
 
-  // slice attribute info
+  // slice tag info
   if( !empty( $slice_tag_ids ) )
     $slice_attibs= $api->GetSliceTags( $slice_tag_ids, 
-					     array( "slice_tag_id", "attribute_type_id", "value", "description", "min_role_id", "node_id" ) );
+				       array( "slice_tag_id", "tag_type_id", "value", "description", "min_role_id", "node_id" ) );
 
-  // gets attrib type info and combines it to form all attrib info array
+  // gets tag type info and combines it to form all tag info array
   if( $slice_attibs ) {
     foreach( $slice_attibs as $slice_attib ) {
-      $attrib_type= $api->GetSliceTagTypes( array( $slice_attib['attribute_type_id'] ), 
-						  array( "attribute_type_id", "name", "description" ) );
+      $tag_type= $api->GetTagTypes( array( $slice_attib['tag_type_id'] ), 
+						  array( "tag_type_id", "tagname", "description" ) );
       
-      $attributes[]= array( "slice_tag_id" => $slice_attib['slice_tag_id'], 
-			    "attribute_type_id" => $slice_attib['attribute_type_id'], 
-			    "name" => $attrib_type[0]['name'], 
-			    "value" => $slice_attib['value'], 
-			    "description" => $slice_attib['description'], 
-			    "min_role_id" => $slice_attib['min_role_id'], 
-			    "node_id" => $slice_attib['node_id'] );
+      $tags[]= array( "slice_tag_id" => $slice_attib['slice_tag_id'], 
+		      "tag_type_id" => $slice_attib['tag_type_id'], 
+		      "tagname" => $tag_type[0]['tagname'], 
+		      "value" => $slice_attib['value'], 
+		      "description" => $slice_attib['description'], 
+		      "min_role_id" => $slice_attib['min_role_id'], 
+		      "node_id" => $slice_attib['node_id'] );
     }
 
   }
@@ -361,17 +360,17 @@ else {
   echo "<br /><hr />\n";
 
 
-  // slice attributes
-  if( $attributes ) {
+  // slice tags
+  if( $tags ) {
 
-    // builds 2 arrays, one for attribs,one for slivers
-    foreach( $attributes as $attribute ) {
-      if( empty( $attribute['node_id'] ) ) {
-        $slice_attrib[]= $attribute;
+    // builds 2 arrays, one for tags, one for slivers
+    foreach( $tags as $tag ) {
+      if( empty( $tag['node_id'] ) ) {
+        $slice_tag[]= $tag;
       }
       else {
-        $sliver_attrib[]= $attribute;
-        $sliver_nodes[]= $attribute['node_id'];
+        $sliver_tag[]= $tag;
+        $sliver_nodes[]= $tag['node_id'];
       }
     }
   }
@@ -389,37 +388,37 @@ else {
    echo "<br /></div>\n";
   }
  
-  // slice attributes
+  // slice tags
   $is_admin=in_array( 10, $_roles );
   $is_in_slice=in_array( $slice_id, $_person['slice_ids'] );
   $is_pi=in_array( 20, $_roles );
-  if( $slice_attrib ) {
-    echo "<table cellpadding=3><caption class='list_set'>Slice Attributes</caption>";
+  if( $slice_tag ) {
+    echo "<table cellpadding=3><caption class='list_set'>Slice Tags</caption>";
     echo "<thead><tr>";
     if( $is_admin )
       echo "<th></th>";
-    echo "<th>Attribute</th><th>Value</th><th>Description</th>";
+    echo "<th>Tag</th><th>Value</th><th>Description</th>";
     echo "</tr></thead><tbody>\n";
 
-    foreach( $attributes as $attribute ) {
-      // ignore sliver attributes at this stage
-      if( empty( $attribute['node_id'] ) ) {
+    foreach( $tags as $tag ) {
+      // ignore sliver tags at this stage
+      if( empty( $tag['node_id'] ) ) {
         echo("<tr>");
         if( $is_admin ) {
 	  printf("<td>");
-	  sprintf($label,"\\n [ %s = %s] \\n from %s",$attribute['name'],$attribute['value'],$name);
-	  echo plc_delete_link_button ('attrib_action.php?rem_id=' . $attribute['slice_tag_id'],
+	  sprintf($label,"\\n [ %s = %s] \\n from %s",$tag['tagname'],$tag['value'],$name);
+	  echo plc_delete_link_button ('tag_action.php?rem_id=' . $tag['slice_tag_id'],
 				       $label);
 	  echo "</td>";
 	}
 	if( $is_admin || ($is_pi && $is_in_slice) ) {
-          printf ("<td><a href='attributes.php?id=%s'>%s</a></td>",
-		  $attribute['slice_tag_id'],$attribute['name']);
+          printf ("<td><a href='tags.php?type=slice?id=%s'>%s</a></td>",
+		  $tag['slice_tag_id'],$tag['tagname']);
 	} else {
-	  printf("<td>%s</td>",$attribute['name']);
+	  printf("<td>%s</td>",$tag['tagname']);
 	}
 	printf("<td align=center>%s</td><td>%s</td>",
-	       $attribute['value'],$attribute['description']);
+	       $tag['value'],$tag['description']);
         echo "</tr>";
       }
     }
@@ -429,39 +428,39 @@ else {
 
   }
   if( $is_admin || ($is_pi && $is_in_slice) )
-    echo "<a href='attributes.php?add=$slice_id'>Add a Slice Attribute\n";    
+    echo "<a href='tags.php?type=slice&add=$slice_id'>Add a Slice Tag</a>\n";    
 
 
 
-  // sliver attributes
-  if( $sliver_attrib ) {
-    echo "<table cellpadding=3><caption class='list_set'>Sliver Attributes</caption>";
+  // sliver tags
+  if( $sliver_tag ) {
+    echo "<table cellpadding=3><caption class='list_set'>Sliver Tags</caption>";
     echo "<thead><tr>";
     if( $is_admin )
       echo "<th></th>";
-    echo "<th>Attribute</th><th>Value</th><th>Description</th><th>Node</th>";
+    echo "<th>Tag</th><th>Value</th><th>Description</th><th>Node</th>";
     echo "</tr></thead><tbody>\n";
 
-    foreach( $attributes as $attribute ) {
-      $nodename=$new_sliver_node_info[$attribute['node_id']]['hostname'];
-      // consider only sliver attributes at this stage
-      if( !empty( $attribute['node_id'] ) ) {
+    foreach( $tags as $tag ) {
+      $nodename=$new_sliver_node_info[$tag['node_id']]['hostname'];
+      // consider only sliver tags at this stage
+      if( !empty( $tag['node_id'] ) ) {
         echo("<tr>");
         if( $is_admin ) {
 	  echo("<td>");
 	  $label=sprintf("\\n [ %s = %s ] \\n from %s \\n on node %s",
-			 $attribute['name'],$attribute['value'],$name,$nodename);
-	  echo plc_delete_link_label('/db/nodes/sliver_action.php?rem_id=' . $attribute['slice_tag_id'], 
+			 $tag['tagname'],$tag['value'],$name,$nodename);
+	  echo plc_delete_link_label('/db/nodes/sliver_action.php?rem_id=' . $tag['slice_tag_id'], 
 				     $label);
 	  echo "</td>";
 	}
         if( $is_admin ) {
-          printf("<td><a href='attributes.php?id=%s'>%s</a></td>",$attribute['slice_tag_id'],$attribute['name']);
+          printf("<td><a href='tags.php?type=slice&id=%s'>%s</a></td>",$tag['slice_tag_id'],$tag['tagname']);
 	} else {
-	  printf("<td>%s</td>",$attribute['name']);
+	  printf("<td>%s</td>",$tag['tagname']);
 	}
 	printf("<td align=center>%s</td><td>%s</td><td><a href='/db/nodes/index.php?id=%s'>%s</a></td>",
-	       $attribute['value'],$attribute['description'],$attribute['node_id'],$nodename);
+	       $tag['value'],$tag['description'],$tag['node_id'],$nodename);
 	
         echo "</tr>";
       }
