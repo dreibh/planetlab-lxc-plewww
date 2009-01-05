@@ -3,10 +3,11 @@
 #
 %define module_taglevel_varname subversion
 %define name PLCWWW
-%define version onelab.5.0
+%define version PLE.5.0
 %define subversion 0
 
-%define release %{subversion}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
+#%define release %{subversion}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
+%define release %{subversion}%{?date:.%{date}}
 
 Summary: PlanetLab Central (PLC) Web Pages
 Name: %{name}
