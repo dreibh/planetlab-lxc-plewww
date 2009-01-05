@@ -58,7 +58,7 @@ mkdir -p $RPM_BUILD_ROOT/var/www/html
 rsync -a --exclude \*.spec --exclude .svn --exclude CVS ./ $RPM_BUILD_ROOT/var/www/html/
 
 echo "* PLCWWW: Installing drupal config for httpd"
-install -D -m 644 drupal.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/drupal.conf
+install -D -m 644 drupal.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/drupal-plcwww.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -66,7 +66,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 /var/www/html
-/etc/httpd/conf.d/drupal.conf
+/etc/httpd/conf.d/drupal-plcwww.conf
 
 %changelog
 * Fri Apr 25 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-onelab.4.2-11
