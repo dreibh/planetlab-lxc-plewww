@@ -71,8 +71,9 @@ if [ ! -d $drupal_settings_dir ] ; then
     exit 1
 fi
 pushd $drupal_settings_dir
+# tune $db_url
 if [ ! -f settings.php ] ; then
-    sed -e 's|^[ \t]*\$db_url|$db_url="pgsql://" . PLC_DB_USER . ":" . PLC_DB_PASSWORD . "@" . PLC_DB_HOST . ":" PLC_DB_PORT . "/drupal";|' \
+    sed -e 's|^[ \t]*\$db_url.*|require_once("plc_config.php");$db_url="pgsql://" . PLC_DB_USER . ":" . PLC_DB_PASSWORD . "@" . PLC_DB_HOST . ":" . PLC_DB_PORT . "/drupal";|' \
         default.settings.php > settings.php
     chown apache:apache settings.php
     chmod 444 settings.php
