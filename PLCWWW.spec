@@ -86,6 +86,7 @@ for dir in $drupal_files_dirs; do
 	chown apache:apache $dir
     fi
 done
+curl "http://localhost/install.php?profile=default&locale=en"
 
 %clean
 rm -rf $RPM_BUILD_ROOT
