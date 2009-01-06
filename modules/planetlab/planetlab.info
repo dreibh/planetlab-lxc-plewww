@@ -3,4 +3,6 @@ name = "PlanetLab"
 description = "Provides a web UI to the PLC API"
 package = "PLEWWW"
 version = "5.0"
-
+core = 6.x
+project = "planetlab"
+datestamp = "1231282081"
