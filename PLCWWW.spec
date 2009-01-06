@@ -79,11 +79,13 @@ if [ ! -f settings.php ] ; then
     chmod 444 settings.php
 fi
 popd
-drupal_files_dir=/var/www/html/files
-if [ ! -d $drupal_files_dir ] ; then
-    mkdir -p $drupal_files_dir
-    chown apache:apache $drupal_files_dir
-fi
+drupal_files_dirs="/var/www/html/files /var/www/html/sites/default/files"
+for dir in $drupal_files_dirs; do 
+    if [ ! -d $dir ] ; then
+	mkdir -p $dir
+	chown apache:apache $dir
+    fi
+done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
