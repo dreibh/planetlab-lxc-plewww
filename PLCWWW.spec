@@ -9,7 +9,7 @@
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
 %define release %{taglevel}%{?date:.%{date}}
 
-Summary: PlanetLab Central (PLC) Web Pages
+Summary: PlanetLab Europe (PLC) Web Pages
 Name: %{name}
 Version: %{version}
 Release: %{release}
@@ -61,6 +61,28 @@ rsync -a --exclude \*.spec --exclude .svn --exclude CVS ./ $RPM_BUILD_ROOT/var/w
 
 echo "* PLEWWW: Installing config for httpd"
 install -D -m 644 planetlab.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/planetlab.conf
+
+%post
+# attempt to perform most of the drupal post-install stuff - assuming version 6.x
+drupal_settings_dir=/var/www/html/sites/default
+if [ ! -d $drupal_settings_dir ] ; then
+    echo "Could not find directory $drupal_settings_dir"
+    echo "This suggests that you do not have a planetlab-custom drupal installed"
+    exit 1
+fi
+pushd $drupal_settings_dir
+if [ ! -f settings.php ] ; then
+    sed -e 's|^[ \t]*\$db_url|$db_url="pgsql://" . PLC_DB_USER . ":" . PLC_DB_PASSWORD . "@" . PLC_DB_HOST . ":" PLC_DB_PORT . "/drupal";|' \
+        default.settings.php > settings.php
+    chown apache:apache settings.php
+    chmod 444 settings.php
+fi
+popd
+drupal_files_dir=/var/www/html/files
+if [ ! -d $drupal_files_dir ] ; then
+    mkdir -p $drupal_files_dir
+    chown apache:apache $drupal_files_dir
+fi
 
 %clean
 rm -rf $RPM_BUILD_ROOT
