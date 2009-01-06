@@ -1,13 +1,13 @@
 #
 # $Id: PLCWWW.spec 1206 2008-03-03 15:49:07Z thierry $
 #
-%define module_taglevel_varname subversion
 %define name PLCWWW
 %define version PLE.5.0
-%define subversion 0
+%define taglevel 0
 
-#%define release %{subversion}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
-%define release %{subversion}%{?date:.%{date}}
+# no need to mention pldistro as this module differs in both distros
+#%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
+%define release %{taglevel}%{?date:.%{date}}
 
 Summary: PlanetLab Central (PLC) Web Pages
 Name: %{name}
@@ -53,13 +53,13 @@ rm -rf $RPM_BUILD_ROOT
 # plcwww
 #
 
-echo "* PLCWWW: Installing web pages"
+echo "* PLEWWW: Installing web pages"
 mkdir -p $RPM_BUILD_ROOT/var/www/html
 # let's be conservative and exclude codebase files, though there should not be any
 rsync -a --exclude \*.spec --exclude .svn --exclude CVS ./ $RPM_BUILD_ROOT/var/www/html/
 
-echo "* PLCWWW: Installing drupal config for httpd"
-install -D -m 644 drupal.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/drupal-plcwww.conf
+echo "* PLEWWW: Installing config for httpd"
+install -D -m 644 planetlab.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/planetlab.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -67,7 +67,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 /var/www/html
-/etc/httpd/conf.d/drupal-plcwww.conf
+/etc/httpd/conf.d/planetlab.conf
 
 %changelog
 * Fri Apr 25 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-onelab.4.2-11
