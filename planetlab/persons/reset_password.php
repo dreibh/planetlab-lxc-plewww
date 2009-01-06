@@ -5,7 +5,7 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2007 The Trustees of Princeton University
 //
-// $Id: reset_password.php 185 2007-04-04 09:33:43Z thierry $ $
+// $Id$ $
 //
 
 // Get session and API handles

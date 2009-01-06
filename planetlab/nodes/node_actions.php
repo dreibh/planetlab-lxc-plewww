@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: node_actions.php 1184 2008-02-12 20:33:35Z thierry $
+  // $Id$
   // This file was created when we decided to make the node page consistent with the other pages
   // That is to say, we wanted the 'Update' and 'Delete' functions to appear in a drop-down
   // menu like for the other objects

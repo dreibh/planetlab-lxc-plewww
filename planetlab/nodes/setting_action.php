@@ -1,6 +1,6 @@
 <?php
 
-// $Id: setting_action.php 1159 2008-01-24 18:51:36Z thierry $
+// $Id$
 
 // Require login
 require_once 'plc_login.php';

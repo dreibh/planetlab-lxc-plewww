@@ -1,5 +1,5 @@
 <?php
-// $Id: join_request.php 776 2007-08-22 17:28:29Z thierry $
+// $Id$
 //
 // page for administration of pending site registration requests
 //

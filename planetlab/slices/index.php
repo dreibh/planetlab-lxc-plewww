@@ -1,6 +1,6 @@
 <?php
 
-// $Id: index.php 970 2007-11-07 17:18:23Z amine $
+// $Id$
 // pattern-matching selection not implemented
 // due to GetSlices bug, see test.php for details
 // in addition that would not make much sense

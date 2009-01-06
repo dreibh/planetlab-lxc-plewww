@@ -1,5 +1,5 @@
 <?php
-// $Id: register.php 193 2007-04-04 11:05:28Z thierry $
+// $Id$
 //
 // Account registration and verification form. This form can be called
 // in one of two ways:
@@ -24,7 +24,7 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2007 The Trustees of Princeton University
 //
-// $Id: register.php 193 2007-04-04 11:05:28Z thierry $ $
+// $Id$ $
 //
 
 // Get session and API handles

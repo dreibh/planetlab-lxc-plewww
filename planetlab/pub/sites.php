@@ -5,7 +5,7 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2006 The Trustees of Princeton University
 //
-// $Id: sites.php 144 2007-03-28 07:52:20Z thierry $ $
+// $Id$ $
 //
 
 // Get API handle

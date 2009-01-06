@@ -1,6 +1,6 @@
 <?php
 
-// $Id: slice_nodes.php 955 2007-11-06 17:08:24Z amine $
+// $Id$
 // Thierry on 2007-02-20
 // There's no reason why we should see this page with a foreign slice, at least
 // so long as the UI is used in a natural way, given the UI's logic as of now

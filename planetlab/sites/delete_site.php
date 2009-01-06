@@ -1,5 +1,5 @@
 <?php
-// $Id: delete_site.php 353 2007-05-14 09:36:49Z thierry $
+// $Id$
 //
 
 // Require login

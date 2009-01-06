@@ -5,7 +5,7 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2006 The Trustees of Princeton University
 //
-// $Id: sulogout.php 1154 2008-01-22 14:36:00Z thierry $ $
+// $Id$ $
 //
 
 // Get session and API handles

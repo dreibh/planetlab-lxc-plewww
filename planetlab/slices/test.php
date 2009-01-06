@@ -1,6 +1,6 @@
 <?php
 
-// $Id: test.php 152 2007-03-28 13:26:00Z thierry $
+// $Id$
 
   // *NOTE*
   // the optimization done for nodes was *not* merged here, because of the following bug

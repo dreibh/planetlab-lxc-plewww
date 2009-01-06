@@ -1,6 +1,6 @@
 <?php
 
-// $Id: test.php 163 2007-03-29 07:18:59Z thierry $
+// $Id$
 
 // Get session and API handles
 require_once 'plc_session.php';

@@ -5,7 +5,7 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2006 The Trustees of Princeton University
 //
-// $Id: login.php 179 2007-04-03 15:46:19Z thierry $ $
+// $Id$ $
 //
 
 // Get session and API handles

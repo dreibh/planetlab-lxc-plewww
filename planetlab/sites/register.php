@@ -1,5 +1,5 @@
 <?php
-// $Id: register.php 823 2007-09-07 10:13:27Z thierry $
+// $Id$
 //
 // Site registration and verification form. 
 //

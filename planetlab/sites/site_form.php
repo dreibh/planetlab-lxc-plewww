@@ -1,5 +1,5 @@
 <?php
-// $Id: site_form.php 823 2007-09-07 10:13:27Z thierry $
+// $Id$
 
 // Drupalish, but does not use Drupal itself to generate the form
 

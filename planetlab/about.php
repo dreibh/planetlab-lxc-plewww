@@ -1,5 +1,5 @@
 <?php
-// $Id: about.php 1178 2008-02-08 15:00:18Z thierry $
+// $Id$
 //
 // Get session and API handles
 require_once 'plc_session.php';

@@ -5,7 +5,7 @@
   // Mark Huang <mlhuang@cs.princeton.edu>
   // Copyright (C) 2006 The Trustees of Princeton University
   //
-  // $Id: planetlab.module 809 2007-09-03 09:47:40Z thierry $
+  // $Id$
   //
 
 require_once 'plc_config.php';
