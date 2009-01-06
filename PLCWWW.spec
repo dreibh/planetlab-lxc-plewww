@@ -29,6 +29,7 @@ URL: http://svn.one-lab.org/svn/new_plc_www/
 Requires: php >= 5.0
 Requires: postgresql >= 8.0
 Requires: PLCAPI >= 5.0
+Requires: drupal >= 6.7
 
 # on centos5, when rebuilding the full monty, we get:
 # Error: Missing Dependency: perl(GD) is needed by package PLCWWW
