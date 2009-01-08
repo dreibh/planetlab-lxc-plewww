@@ -72,20 +72,21 @@ if [ ! -d $drupal_settings_dir ] ; then
 fi
 pushd $drupal_settings_dir
 # tune $db_url
-if [ ! -f settings.php ] ; then
+if [ ! -f settings.php.distrib ] ; then
+    cp settings.php settings.php.distrib
     sed -e 's|^[ \t]*\$db_url.*|require_once("plc_config.php");$db_url="pgsql://" . PLC_DB_USER . ":" . PLC_DB_PASSWORD . "@" . PLC_DB_HOST . ":" . PLC_DB_PORT . "/drupal";|' \
-        default.settings.php > settings.php
-    chown apache:apache settings.php
-    chmod 444 settings.php
+        settings.php.distrib > settings.php
+#    chown apache:apache settings.php
+#    chmod 444 settings.php
 fi
 popd
-drupal_files_dirs="/var/www/html/files /var/www/html/sites/default/files"
-for dir in $drupal_files_dirs; do 
-    if [ ! -d $dir ] ; then
-	mkdir -p $dir
-	chown apache:apache $dir
-    fi
-done
+#drupal_files_dirs="/var/www/html/files /var/www/html/sites/default/files"
+#for dir in $drupal_files_dirs; do 
+#    if [ ! -d $dir ] ; then
+#	mkdir -p $dir
+#	chown apache:apache $dir
+#    fi
+#done
 # drupal install script cannot be invoked here yet - pgsql might not even be running
 
 %clean
