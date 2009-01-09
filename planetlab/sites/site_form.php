@@ -57,7 +57,7 @@ function build_site_form ($register_mode) {
 
   if ($register_mode) {
     // required for the following code
-    drupal_set_html_head('<script type="text/javascript" src="/planetlab/includes/plc_script.js"></script>');
+    drupal_set_html_head('<script type="text/javascript" src="/planetlab/js/plc_functions.js"></script>');
 
     $fill_from_pi_button = <<< EOF
 <input type="button" value="Same as PI" onclick='copyValue("edit-pi:first_name","edit-tech:first_name");

@@ -1,0 +1,134 @@
+/* Pagination list styles */
+ul.fdtablePaginater
+        {
+        display:table;
+        list-style:none;
+        padding:0;
+        margin:0 auto;
+        text-align:center;
+        height:2em;
+        width:auto;
+        margin-bottom:2em;
+        }
+ul.fdtablePaginater li
+        {
+        display:table-cell;
+        padding-right:4px;
+        color:#666;
+        list-style:none;
+        
+        -moz-user-select:none;
+        -khtml-user-select:none;
+        }
+ul.fdtablePaginater li a.currentPage
+        {
+        border-color:#a84444 !important;
+        color:#000;
+        }
+ul.fdtablePaginater li a:active
+        {
+        border-color:#222 !important;
+        color:#222;
+        }
+ul.fdtablePaginater li a,
+ul.fdtablePaginater li div
+        {
+        display:block;
+        width:2em;
+        font-size:1em;
+        color:#666;
+        padding:0;
+        margin:0;
+        text-decoration:none;
+        outline:none;
+        border:1px solid #ccc;
+        font-family:georgia, serif;
+        }
+ul.fdtablePaginater li div
+        {
+        cursor:normal;
+        opacity:.5;
+        filter:alpha(opacity=50);
+        }
+ul.fdtablePaginater li a span,
+ul.fdtablePaginater li div span
+        {
+        display:block;
+        line-height:2em;
+        border:1px solid #fff;
+        background:#fff url(../media/gradient.gif) repeat-x 0 -20px;
+        }
+ul.fdtablePaginater li a
+        {
+        cursor:pointer;
+        }
+ul.fdtablePaginater li a:focus
+        {
+        color:#333;
+        text-decoration:none;
+        border-color:#aaa;
+        }
+.fdtablePaginaterWrap
+        {
+        text-align:center;
+        clear:both;
+        text-decoration:none;
+        }
+ul.fdtablePaginater li .next-page span,
+ul.fdtablePaginater li .previous-page span,
+ul.fdtablePaginater li .first-page span,
+ul.fdtablePaginater li .last-page span
+        {
+        font-weight:bold !important;
+        }
+/* Keep the table columns an equal size during pagination */
+td.sized1
+        {
+        width:16em;
+        text-align:left;
+        }
+td.sized2
+        {
+        width:10em;
+        text-align:left;
+        }
+td.sized3
+        {
+        width:7em;
+        text-align:left;
+        }
+tfoot td
+        {
+        text-align:right;
+        font-weight:bold;
+        text-transform:uppercase;
+        letter-spacing:1px;
+        }
+#visibleTotal
+        {
+        text-align:center;
+        letter-spacing:auto;
+        }
+* html ul.fdtablePaginater li div span,
+* html ul.fdtablePaginater li div span
+        {
+        background:#eee;
+        }
+tr.invisibleRow
+        {
+        display:none;
+        visibility:hidden;
+        }
+p.paginationText
+        {
+        font-style:oblique;
+        }
+<!--[if IE]>
+<style type="text/css">
+ul.fdtablePaginater {display:inline-block;}
+mul.fdtablePaginater {display:inline;}
+ul.fdtablePaginater li {float:left;}
+ul.fdtablePaginater {text-align:center;}
+table { border-bottom:1px solid #C1DAD7; }
+</style>
+<![endif]-->

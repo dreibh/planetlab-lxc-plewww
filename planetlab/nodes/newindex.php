@@ -11,7 +11,7 @@ global $plc, $api, $adm;
 
 // Print header
 require_once 'plc_drupal.php';
-drupal_set_title('New Nodes');
+drupal_set_title('Nodes');
 include 'plc_header.php';
 
 // Common functions
@@ -22,48 +22,109 @@ require_once 'plc_sorts.php';
 $_person= $plc->person;
 $_roles= $_person['role_ids'];
 
-$header_js='
+$header_autocomplete_js='
+<script type="text/javascript" src="/planetlab/bsn/bsn.Ajax.js"></script>
+<script type="text/javascript" src="/planetlab/bsn/bsn.DOM.js"></script>
+<script type="text/javascript" src="/planetlab/bsn/bsn.AutoSuggest.js"></script>
+';
+
+$header_tablesort_js='
 <script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
+<script type="text/javascript" src="/planetlab/js/plc_paginate.js"></script>
+';
+
+$header_tablesort_css='
+<link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css" />
+<link href="/planetlab/css/plc_table.css" rel="stylesheet" type="text/css" />
+<link href="/planetlab/css/plc_paginate.css" rel="stylesheet" type="text/css" />
+';
+
+$unused='
 <script type="text/javascript" src="/planetlab/tablesort/more.js"></script>
+<link href="/planetlab/css/more.css" rel="stylesheet" type="text/css" />
 <body OnLoad="init();">
 ';
-$header_css='
-<link href="/planetlab/css/demo.css" rel="stylesheet" type="text/css" />
-<link href="/planetlab/css/more.css" rel="stylesheet" type="text/css" />
-<!--[if IE]>
-<style type="text/css">
-ul.fdtablePaginater {display:inline-block;}
-mul.fdtablePaginater {display:inline;}
-ul.fdtablePaginater li {float:left;}
-ul.fdtablePaginater {text-align:center;}
-table { border-bottom:1px solid #C1DAD7; }
-</style>
-<![endif]-->
-';
 
-$header_unused='
-';
+drupal_set_html_head($header_autocomplete_js);
+drupal_set_html_head($header_tablesort_js);
+drupal_set_html_head($header_tablesort_css);
 
-drupal_set_html_head($header_js);
-drupal_set_html_head($header_css);
+$nodepattern=$_GET['nodepattern'];
+$peerscope=$_GET['peerscope'];
+$tablesize=$_GET['tablesize'];
+if (empty($tablesize)) $tablesize=25;
 
-$site_columns=array("site_id","login_base");
-$site_filter=array("login_base"=>"*");
-$sites=$api->GetSites($site_filter,$site_columns);
+?>
 
-$site_hash=array();
-foreach ($sites as $site) {
-    $site_hash[$site["site_id"]]=$site;
-}
+<div class="plc_filter">
+<form method=get action='newindex.php'>
+<table>
 
-$node_columns=array("hostname","site_id","node_id","boot_state");
-$node_filter=array("hostname"=>"*");
+<tr>
+<th><label for='peerscope'>Federation scope </label></th>
+<td colspan=2><select id='peerscope' name='peerscope' onChange='submit()'>
+<?php echo plc_peers_option_list($api); ?>
+</select></td>
+</tr>
+
+<tr>
+<th><label for='nodepattern'>Hostname </label></th>
+<td><input type='text' id='nodepattern' name='nodepattern' 
+     size=40 value='<?php print $nodepattern; ?>'/></td>
+<td><input type=submit value='Go' /></td>
+</tr> 
+
+<tr> 
+<th><label for='tablesize'>Table size</label></th>
+<td> <input type='text' id='tablesize' name='tablesize' 
+      size=3 value='<?php print $tablesize; ?>'/></td>
+<td><input type=submit value='Go' /> </td>
+</tr>
+</table>
+</form>
+</div>
+
+<script type="text/javascript">
+var options = {
+	script:"/planetlab/nodes/test.php?",
+	varname:"input",
+	minchars:1
+};
+var as = new AutoSuggest('nodepattern', options);
+</script>
+
+
+<?php
+
+$peer_filter=array();
+
+// fetch nodes
+$node_columns=array('hostname','site_id','node_id','boot_state','interface_ids');
+if ($nodepattern) {
+  $node_filter['hostname']=$nodepattern;
+ } else {
+  $node_filter=array('hostname'=>"*");
+ }
+
+// peerscope
+list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
+$node_filter=array_merge($node_filter,$peer_filter);
+
 $nodes=$api->GetNodes($node_filter,$node_columns);
 
-$interface_columns=array("ip","node_id");
-$interface_filter=array("is_primary"=>TRUE);
+// build site_ids and interface_ids 
+$site_ids=array();
+$interface_ids=array();
+foreach ($nodes as $node) {
+  $site_ids []= $node['site_id'];
+  $interface_ids = array_merge ($interface_ids,$node['interface_ids']);
+}
+
+// fetch related interfaces
+$interface_columns=array('ip','node_id','interface_id');
+$interface_filter=array('is_primary'=>TRUE,'interface_id'=>$interface_ids);
 $interfaces=$api->GetInterfaces($interface_filter,$interface_columns);
 
 $interface_hash=array();
@@ -71,42 +132,64 @@ foreach ($interfaces as $interface) {
     $interface_hash[$interface['node_id']]=$interface;
 }
 
+// fetch related sites
+$site_columns=array('site_id','login_base');
+$site_filter=array('site_id'=>$site_ids);
+$sites=$api->GetSites($site_filter,$site_columns);
+
+$site_hash=array();
+foreach ($sites as $site) {
+    $site_hash[$site['site_id']]=$site;
+}
+
 ?>
 
-<table id="theTable" cellpadding="0" cellspacing="0" border="0" 
-class="sortable-onload-2 rowstyle-alt colstyle-alt no-arrow paginate-50 max-pages-10">
+<div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapTop"><p></p></div>
+
+<table id="nodes" cellpadding="0" cellspacing="0" border="0" 
+class="plc_table sortable-onload-3r rowstyle-alt colstyle-alt no-arrow paginationcallback-nodesTextInfo max-pages-15 paginate-<?php print $tablesize; ?>">
 <thead>
 <tr>
-<th align=top>Select </th>
-<th class="sortable">State</th>
-<th class="sortable">Hostname</th>
-<th class="sortable">Site</th>
-<th class="sortable">Region</th>
-<th class="sortable-sortIPAddress">IP</th>
-<th class="sortable">Load</th>
-<th class="sortable">Avg Load</th>
+<th class="sortable plc_table">State</th>
+<th class="sortable plc_table">Hostname</th>
+<th class="sortable plc_table">Site</th>
+<th class="sortable plc_table">Region</th>
+<th class="sortable-sortIPAddress plc_table">IP</th>
+<th class="sortable plc_table">Load</th>
+<th class="sortable plc_table">Avg Load</th>
 </tr>
 </thead>
 <tbody>
 
+<script type"text/javascript">
+function nodesTextInfo (opts) {
+  displayTextInfo (opts,"nodes");
+}
+</script>
+
 <?php
 
+  $fake1=1; $fake2=3.14;
 foreach ($nodes as $node) {
     $hostname=$node['hostname'];
-    $site=$site_hash[$node['site_id']];
+    $node_id=$node['node_id'];
+    $site_id=$node['site_id'];
+    $site=$site_hash[$site_id];
     $login_base = $site['login_base'];
     $node_id=$node['node_id'];
     $ip=$interface_hash[$node['node_id']]['ip'];
+    $interface_id=$interface_hash[$node['node_id']]['interface_id'];
     printf ('<tr id="%s">',$hostname);
-    printf ('<td> <input type="checkbox" id="%s"></td>',$hostname);
-    printf ('<td> %s </td>',$node['boot_state']);
-    printf ('<td> %s </td>',$hostname);
-    printf ('<td> %s </td>',$login_base);
-    printf ('<td> %s </td>',topdomain($hostname));
-    printf ('<td> %s </td>',$ip);
-    printf ('<td> 1.0 </td>');
-    printf ('<td> 10.0 </td>');
+    printf ('<td class="plc_table"> %s </td>',$node['boot_state']);
+    printf ('<td class="plc_table"> <a href="/db/nodes/index.php?id=%s">%s</a></td>',$node_id,$hostname);
+    printf ('<td class="plc_table"> <a href="/db/sites/index.php?id=%s">%s</a></td>',$site_id,$login_base);
+    printf ('<td class="plc_table"> %s </td>',topdomain($hostname));
+    printf ('<td class="plc_table"> <a href="/db/nodes/interfaces.php?id=%s">%s</a></td>', $interface_id,$ip);
+    printf ('<td class="plc_table"> %s </td>', $fake1);
+    printf ('<td class="plc_table"> %s </td>', $fake2);
     printf ( '</tr>');
+    $fake1 += 3;
+    $fake2 += 2;
 }
 
 ?>
@@ -114,4 +197,6 @@ foreach ($nodes as $node) {
 <tfoot>
 </tfoot>
 </table>
+
+<div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapBottom"><p></p></div>
 

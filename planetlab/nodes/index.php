@@ -63,31 +63,19 @@ function layout_node ($node) {
 // we use GET rather than POST so paginate can display the right contents on subsequent pages
 // can be useful for writing bookmarkable URL's as well
 if( $_GET['nodepattern'] || $_GET['peerscope']) {
+
+  // nodepattern
   $nodepattern= $_GET['nodepattern'];
+  // need to use a hash filter for patterns to be properly handled
   if (empty($nodepattern)) { 
     $nodepattern="*";
   }
   $filter = array_merge (array( "hostname"=>$nodepattern ), $filter);
-  switch ($_GET['peerscope']) {
-  case '':
-    $peer_label="all peers";
-    break;
-  case 'local':
-    $filter=array_merge(array("peer_id"=>NULL),$filter);
-    $peer_label="local peer";
-    break;
-  case 'foreign':
-    $filter=array_merge(array("~peer_id"=>NULL),$filter);
-    $peer_label="foreign peers";
-    break;
-  default:
-    $peer_id=intval($_GET['peerscope']);
-    $filter=array_merge(array("peer_id"=>$peer_id),$filter);
-    $peer=$api->GetPeers(array("peer_id"=>$peer_id));
-    $peer_label='peer "' . $peer[0]['peername'] . '"';
-    break;
-  }
-  // need to use a hash filter for patterns to be properly handled
+
+  // peerscope
+  list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
+  $filter=array_merge($filter,$peer_filter);
+
   $nodes= $api->GetNodes($filter, $columns);
   $nodes_count = count ($nodes);
   if ( $nodes_count == 1) {
@@ -181,8 +169,7 @@ elseif( !$_GET['id'] ) {
          </tr></table></form></div>\n
           <br />\n";
 
-
-echo paginate( $nodes, "node_id", "Nodes", 25, "hostname" );
+    echo paginate( $nodes, "node_id", "Nodes", 25, "hostname" );
 
     echo "<script type=\"text/javascript\">\n
 var options = {\n

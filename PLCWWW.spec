@@ -60,7 +60,7 @@ mkdir -p $RPM_BUILD_ROOT/var/www/html
 rsync -a --exclude \*.spec --exclude .svn --exclude CVS ./ $RPM_BUILD_ROOT/var/www/html/
 
 echo "* PLEWWW: Installing config for httpd"
-install -D -m 644 planetlab.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/planetlab.conf
+install -D -m 644 httpd.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/plcwww.conf
 
 %post
 # attempt to perform most of the drupal post-install stuff - assuming version 6.x

@@ -398,4 +398,29 @@ function plc_peers_option_list ($api) {
     return $result;
 }
 
+function plc_peer_info ($api,$peerscope) {
+  switch ($_GET['peerscope']) {
+  case '':
+    $peer_filter=array();
+    $peer_label="all peers";
+    break;
+  case 'local':
+    $peer_filter=array("peer_id"=>NULL);
+    $peer_label="local peer";
+    break;
+  case 'foreign':
+    $peer_filter=array("~peer_id"=>NULL);
+    $peer_label="foreign peers";
+    break;
+  default:
+    $peer_id=intval($_GET['peerscope']);
+    $peer_filter=array("peer_id"=>$peer_id);
+    $peer=$api->GetPeers(array("peer_id"=>$peer_id));
+    $peer_label='peer "' . $peer[0]['peername'] . '"';
+    break;
+  }
+  return array ($peer_filter,$peer_label);
+}
+    
+
 ?>
