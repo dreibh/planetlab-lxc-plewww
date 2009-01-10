@@ -1,6 +1,8 @@
 #
 # $Id$
 #
+
+# what the myplc rpm requires
 %define name PLCWWW
 %define version PLE.5.0
 %define taglevel 0
@@ -93,7 +95,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 /var/www/html
-/etc/httpd/conf.d/planetlab.conf
+/etc/httpd/conf.d/plcwww.conf
 
 %changelog
 * Fri Apr 25 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-onelab.4.2-11
