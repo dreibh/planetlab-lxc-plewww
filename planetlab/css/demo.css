@@ -113,41 +113,6 @@ td.total
         text-transform:uppercase;
         letter-spacing:1px;
         }
-th.sortable,
-th.sortable-text,
-th.sortable-date,
-th.sortable-keep,
-th.sortable-date-dmy,
-th.sortable-numeric,
-th.sortable-currency,
-th.sortable-sortByTwelveHourTimestamp,
-th.sortable-sortIPAddress,
-th.sortable-sortEnglishLonghandDateFormat,
-th.sortable-sortScientificNotation,
-th.sortable-sortImage,
-th.sortable-sortFileSize,
-th.sortable-sortAlphaNumeric,
-th.sortable-sortEnglishDateTime
-
-        {
-        cursor:pointer;
-        background: #CAE8EA url(../media/bg_header_sortable.jpg) no-repeat;
-        padding: 8px 12px 4px 16px;
-        }
-th.forwardSort
-        {
-        background:#CAE8EA url(../media/bg_header_down.jpg) no-repeat 0 0;
-        }
-th.reverseSort
-        {
-        background:#CAE8EA url(../media/bg_header_up.jpg) no-repeat 0 0;
-        }
-table thead th.forwardSort a,
-table thead th.reverseSort a
-        {
-        color:#000;
-        text-decoration:none;
-        }
 /*
 These styles should be added when very long tables are expected
 th.sort-active
