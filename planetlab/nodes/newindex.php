@@ -52,6 +52,7 @@ drupal_set_html_head($header_autocomplete_js);
 drupal_set_html_head($header_tablesort_js);
 drupal_set_html_head($header_tablesort_css);
 
+// -------------------- 
 $nodepattern=$_GET['nodepattern'];
 $peerscope=$_GET['peerscope'];
 $tablesize=$_GET['tablesize'];
@@ -59,56 +60,13 @@ if (empty($tablesize)) $tablesize=25;
 
 ?>
 
-<script type"text/javascript">
-function nodesTextInfo (opts) {
-  displayTextInfo (opts,"nodes");
-}
-</script>
-
-<div class="plc_filter">
-<form method=get action='newindex.php'>
-<table>
-
-<tr>
-<th><label for='peerscope'>Federation scope </label></th>
-<td colspan=2><select id='peerscope' name='peerscope' onChange='submit()'>
-<?php echo plc_peers_option_list($api); ?>
-</select></td>
-</tr>
-
-<tr>
-<th><label for='nodepattern'>Hostname (server-side pattern)</label></th>
-<td><input type='text' id='nodepattern' name='nodepattern' 
-     size=40 value='<?php print $nodepattern; ?>'/></td>
-<td><input type=submit value='Go' /></td>
-</tr> 
-
-<tr> 
-<th><label for='tablesize'>Table size</label></th>
-<td> <input type='text' id='tablesize' name='tablesize' 
-      size=3 value='<?php print $tablesize; ?>'/></td>
-<td><input type=submit value='Go' /> </td>
-</tr>
-</table>
-</form>
-</div>
-
-<script type="text/javascript">
-var options = {
-	script:"/planetlab/nodes/test.php?",
-	varname:"input",
-	minchars:1
-};
-var as = new AutoSuggest('nodepattern', options);
-</script>
-
-
+<!------------------------------------------------------------>
 <?php
 
 $peer_filter=array();
 
 // fetch nodes
-$node_columns=array('hostname','site_id','node_id','boot_state','interface_ids');
+$node_columns=array('hostname','site_id','node_id','boot_state','interface_ids','peer_id');
 if ($nodepattern) {
   $node_filter['hostname']=$nodepattern;
  } else {
@@ -121,7 +79,7 @@ $node_filter=array_merge($node_filter,$peer_filter);
 
 $nodes=$api->GetNodes($node_filter,$node_columns);
 
-// build site_ids and interface_ids 
+// build site_ids - interface_ids
 $site_ids=array();
 $interface_ids=array();
 foreach ($nodes as $node) {
@@ -149,26 +107,54 @@ foreach ($sites as $site) {
     $site_hash[$site['site_id']]=$site;
 }
 
+// fetch peers
+$peer_columns=array('peer_id','shortname');
+$peer_filter=array();
+$peers = $api->GetPeers($peer_filter,$peer_columns);
+
+$peer_hash=array();
+foreach ($peers as $peer) {
+    $peer_hash[$peer['peer_id']]=$peer;
+}
+
 ?>
 
-<div id='tmp'>
-  <form> 
-  <label> client-side pattern </label> 
-    <input type='text' id='filter_text' size=15 onchange='plc_filter_table("nodes","filter_text");'/>
-  <input type='button' name='tmpbutton' value='click' onclick='plc_filter_table("nodes","filter_text");' />
+<!------------------------------------------------------------>
+<div class='table_size_dialog'>
+<form>
+  <label> table size </label> 
+  <input type='text' id='tablesize_text' value="<?php echo $tablesize; ?>" size=3 maxlength=3 
+  onkeyup='plc_table_setsize("nodes","tablesize_text", "<?php echo $tablesize; ?>" );' 
+  /> 
+  <input type='button' value='reset' src="/planetlab/icons/clear.png" 
+    onclick='plc_table_filter_resetsize("nodes","tablesize_text","999");'>
 </form>
 </div>
 
+<div class='table_pattern_dialog'> 
+<form>
+  <label> pattern </label> 
+  <input type='text' id='filter_text' size=40 maxlength=256
+  onkeyup='plc_table_filter("nodes","filter_text");'
+ />
+  <input type='button' value='reset' src="/planetlab/icons/clear.png" 
+    onclick='plc_table_filter_reset("nodes","filter_text");'>
+</form>
+</div>
+
+<!------------------------------------------------------------>
 <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapTop"><p></p></div>
 
+<!------------------------------------------------------------>
 <table id="nodes" cellpadding="0" cellspacing="0" border="0" 
-class="plc_table sortable-onload-3r rowstyle-alt colstyle-alt no-arrow paginationcallback-nodesTextInfo max-pages-15 paginate-<?php print $tablesize; ?>">
+class="plc_table sortable-onload-1 rowstyle-alt colstyle-alt no-arrow paginationcallback-nodesTextInfo max-pages-15 paginate-<?php print $tablesize; ?>">
 <thead>
 <tr>
+<th class="sortable plc_table">Peer</th>
+<th class="sortable plc_table">Region</th>
+<th class="sortable plc_table">Site</th>
 <th class="sortable plc_table">State</th>
 <th class="sortable plc_table">Hostname</th>
-<th class="sortable plc_table">Site</th>
-<th class="sortable plc_table">Region</th>
 <th class="sortable-sortIPAddress plc_table">IP</th>
 <th class="sortable plc_table">Load</th>
 <th class="sortable plc_table">Avg Load</th>
@@ -178,7 +164,7 @@ class="plc_table sortable-onload-3r rowstyle-alt colstyle-alt no-arrow paginatio
 
 <?php
 
-  $fake1=1; $fake2=3.14;
+  $fake1=1; $fake2=3.14; $fake_i=0;
 foreach ($nodes as $node) {
     $hostname=$node['hostname'];
     $node_id=$node['node_id'];
@@ -188,17 +174,25 @@ foreach ($nodes as $node) {
     $node_id=$node['node_id'];
     $ip=$interface_hash[$node['node_id']]['ip'];
     $interface_id=$interface_hash[$node['node_id']]['interface_id'];
+    if ( ! $node['peer_id'] ) {
+      $shortname="local";
+    } else {
+      $shortname=$peer_hash[$node['peer_id']]['shortname'];
+    }
     printf ('<tr id="%s">',$hostname);
+    printf ('<td class="plc_table"> %s </td>',$shortname);
+    printf ('<td class="plc_table"> %s </td>',topdomain($hostname));
+    printf ('<td class="plc_table"> <a href="/db/sites/index.php?id=%s">%s</a></td>',$site_id,$login_base);
     printf ('<td class="plc_table"> %s </td>',$node['boot_state']);
     printf ('<td class="plc_table"> <a href="/db/nodes/index.php?id=%s">%s</a></td>',$node_id,$hostname);
-    printf ('<td class="plc_table"> <a href="/db/sites/index.php?id=%s">%s</a></td>',$site_id,$login_base);
-    printf ('<td class="plc_table"> %s </td>',topdomain($hostname));
     printf ('<td class="plc_table"> <a href="/db/nodes/interfaces.php?id=%s">%s</a></td>', $interface_id,$ip);
     printf ('<td class="plc_table"> %s </td>', $fake1);
     printf ('<td class="plc_table"> %s </td>', $fake2);
     printf ( '</tr>');
-    $fake1 += 3;
-    $fake2 += 2;
+				 
+    if ($fake_i % 5 == 0) $fake1 += 3; 
+    if ($fake_i % 3 == 0) $fake2 +=5; else $fake2 -= $fake_i;
+    $fake_i += 1;
 }
 
 ?>
@@ -208,4 +202,56 @@ foreach ($nodes as $node) {
 </table>
 
 <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapBottom"><p></p></div>
+<p class='plc_filter_note'> Notes: Several words in pattern are combined with <em> OR </em>
+
+<br/> Hold down the shift key to select multiple columns to sort 
+</p>
+
+<!------------------------------------------------------------>
+<hr>
+<hr>
+<p> This section is for trying out server-side filtering </p>
+<hr>
+<hr>
+
+<script type"text/javascript">
+ /* instantiate generic mechanisms for nodes */
+function nodesTextInfo (opts) {
+  plc_table_update_paginaters (opts,"nodes");
+}
+var options = {
+	script:"/planetlab/nodes/test.php?",
+	varname:"input",
+	minchars:1
+};
+var as = new AutoSuggest('nodepattern', options);
+</script>
+
+<!------------------------------------------------------------>
+<div class="plc_filter">
+<form method='get' id='filter_nodes'>
+<table>
+
+<tr>
+<th><label for='peerscope'>Federation scope </label></th>
+<td colspan=2><select id='peerscope' name='peerscope' onChange='submit()'>
+<?php echo plc_peers_option_list($api); ?>
+</select></td>
+</tr>
+
+<tr>
+<th><label for='nodepattern'>Hostname (server-side pattern)</label></th>
+<td><input type='text' id='nodepattern' name='nodepattern' 
+     size=40 value='<?php print $nodepattern; ?>'/></td>
+<td><input id='go' rowspan=2 type=submit value='Go' /></td>
+</tr> 
+
+<tr> 
+<th><label for='tablesize'>Table size</label></th>
+<td> <input type='text' id='tablesize' name='tablesize' 
+      size=3 value='<?php print $tablesize; ?>'/></td>
+</tr>
+</table>
+</form>
+</div>
 

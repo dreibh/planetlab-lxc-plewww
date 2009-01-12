@@ -8,9 +8,9 @@ ul.fdtablePaginater
         padding:0;
         margin:0 auto;
         text-align:center;
-        height:2em;
+        height:1.5em;
         width:auto;
-        margin-bottom:2em;
+        margin-bottom:1em;
         }
 ul.fdtablePaginater li
         {
@@ -99,13 +99,15 @@ td.sized3
         width:7em;
         text-align:left;
         }
-tfoot td
+/*
+   tfoot td
         {
         text-align:right;
         font-weight:bold;
         text-transform:uppercase;
         letter-spacing:1px;
         }
+   */
 #visibleTotal
         {
         text-align:center;
@@ -125,6 +127,14 @@ p.paginationText
         {
         font-style:oblique;
         }
+p.plc_filter_note
+	{
+    font-style:oblique;
+    font-size:0.6em;
+    font-family: georgia;
+    text-align: center
+	}
+
 <!--[if IE]>
 <style type="text/css">
 ul.fdtablePaginater {display:inline-block;}

@@ -153,28 +153,6 @@ td.lft
         {
         text-align:left;
         }
-/* Poor old Internet Explorer 6 has a bug that means we can't use background images for the table rows
-   as it trys to download the image each and every time that it is used (which means a 1000 row table
-   will produce 1000 http requests for the image in question) */
-tr[class="alt"] td
-        {
-        background: #F5FAFA url(../media/td_alt.jpg) no-repeat;
-        }
-td[class~="alt"]
-        {
-        background: #edf3f3 url(../media/col_alt.jpg) no-repeat !important;
-        }
-/* Poor old Internet Explorer won't see the next two rules either as it doesn't get :first-child */
-tbody tr.alt td:first-child
-        {
-        background: #F5FAFA url(../media/bullet2.gif) no-repeat;
-        font-weight:bold;
-        }
-tbody tr td:first-child
-        {
-        background: #fff url(../media/bullet1.gif) no-repeat;
-        font-weight:bold;
-        }
 /* Image free rules for Internet Explorer < 7 */
 * html tr.alt td
         {
