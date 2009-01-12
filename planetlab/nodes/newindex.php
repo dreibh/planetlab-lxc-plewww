@@ -33,6 +33,7 @@ $header_tablesort_js='
 <script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
 <script type="text/javascript" src="/planetlab/js/plc_paginate.js"></script>
+<script type="text/javascript" src="/planetlab/js/plc_filter.js"></script>
 ';
 
 $header_tablesort_css='
@@ -58,6 +59,12 @@ if (empty($tablesize)) $tablesize=25;
 
 ?>
 
+<script type"text/javascript">
+function nodesTextInfo (opts) {
+  displayTextInfo (opts,"nodes");
+}
+</script>
+
 <div class="plc_filter">
 <form method=get action='newindex.php'>
 <table>
@@ -70,7 +77,7 @@ if (empty($tablesize)) $tablesize=25;
 </tr>
 
 <tr>
-<th><label for='nodepattern'>Hostname </label></th>
+<th><label for='nodepattern'>Hostname (server-side pattern)</label></th>
 <td><input type='text' id='nodepattern' name='nodepattern' 
      size=40 value='<?php print $nodepattern; ?>'/></td>
 <td><input type=submit value='Go' /></td>
@@ -144,6 +151,14 @@ foreach ($sites as $site) {
 
 ?>
 
+<div id='tmp'>
+  <form> 
+  <label> client-side pattern </label> 
+    <input type='text' id='filter_text' size=15 onchange='plc_filter_table("nodes","filter_text");'/>
+  <input type='button' name='tmpbutton' value='click' onclick='plc_filter_table("nodes","filter_text");' />
+</form>
+</div>
+
 <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapTop"><p></p></div>
 
 <table id="nodes" cellpadding="0" cellspacing="0" border="0" 
@@ -160,12 +175,6 @@ class="plc_table sortable-onload-3r rowstyle-alt colstyle-alt no-arrow paginatio
 </tr>
 </thead>
 <tbody>
-
-<script type"text/javascript">
-function nodesTextInfo (opts) {
-  displayTextInfo (opts,"nodes");
-}
-</script>
 
 <?php
 

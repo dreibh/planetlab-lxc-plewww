@@ -153,12 +153,6 @@ td.lft
         {
         text-align:left;
         }
-tr.alt
-        {
-        background: #F5FAFA;
-        color: #797268;
-        }
-
 /* Poor old Internet Explorer 6 has a bug that means we can't use background images for the table rows
    as it trys to download the image each and every time that it is used (which means a 1000 row table
    will produce 1000 http requests for the image in question) */

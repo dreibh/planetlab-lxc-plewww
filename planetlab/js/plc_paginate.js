@@ -1,3 +1,5 @@
+/* $Id$ */
+
 function displayTextInfo (opts,tablename) {
 
   if(!("currentPage" in opts)) { return; }
@@ -12,4 +14,5 @@ function displayTextInfo (opts,tablename) {
   t.insertBefore(p.cloneNode(true), t.firstChild);
   b.appendChild(p);
 }
+
 

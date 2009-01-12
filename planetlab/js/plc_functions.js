@@ -1,3 +1,4 @@
+/* $Id$ */
 
 function addLoadEvent(func) {
   if (!document.getElementById | !document.getElementsByTagName) return;
