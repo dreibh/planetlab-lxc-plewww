@@ -25,11 +25,13 @@ $header_tablesort_js='
 <script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
+<script type="text/javascript" src="/planetlab/minitab/minitab.js"></script>
 <script type="text/javascript" src="/planetlab/js/plc_paginate.js"></script>
 <script type="text/javascript" src="/planetlab/js/plc_filter.js"></script>
 ';
 
 $header_tablesort_css='
+<link href="/planetlab/minitab/minitab.css" rel="stylesheet" type="text/css" />
 <link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css" />
 <link href="/planetlab/css/plc_table.css" rel="stylesheet" type="text/css" />
 <link href="/planetlab/css/plc_paginate.css" rel="stylesheet" type="text/css" />
@@ -43,7 +45,20 @@ $nodepattern=$_GET['nodepattern'];
 $peerscope=$_GET['peerscope'];
 $tablesize=25;
 
+drupal_set_title('Nodes');
+
 ?>
+
+<div id="container">
+  <ul id="miniflex">
+  <li class='minitab'><a href="/db/nodes/index.php" title="">Old page</a></li>
+  <li class='minitab'><a href="/db/about.php" title="">About</a></li>
+  <li class='minitab'><a href="/planetlab/logout.php" title="">Log out</a></li>
+  <li class='minitab'><a href="http://www.google.com/" title="">Google</a></li>
+  <li class='minitab'><a href="/undefined/" title="">Other stuff</a></li>
+  </ul>
+</div>
+
 
 <!------------------------------------------------------------>
 <?php
@@ -61,13 +76,6 @@ if ($nodepattern) {
 // server-side selection on peerscope
 list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
 $node_filter=array_merge($node_filter,$peer_filter);
-
-$title='Nodes';
-if ($nodepattern) {
-  $title .= " matching " . $nodepattern;
- }
-$title .= ' (' . $peer_label . ')';
-drupal_set_title($title);
 
 // go
 $nodes=$api->GetNodes($node_filter,$node_columns);
@@ -123,6 +131,7 @@ function nodes_filter () {
 }
 </script>
 
+<br/>
 <!------------------------------------------------------------>
 <table class='table_dialogs'> <tr>
 <td class='table_flushleft'>

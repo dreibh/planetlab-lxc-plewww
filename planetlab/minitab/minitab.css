@@ -1,0 +1,62 @@
+li.minitab {
+    font-family: verdana, sans-serif;
+    font-size: 14px;
+    text-align: center;
+    font-style: oblique;
+}    
+#container {
+        padding: 15px;
+        margin: 8px 0;
+        width:80%;
+/*        margin:40px auto; */
+        }
+#miniflex {
+        width: 100%;
+        float: left;
+        font-size: small; /* could be specified at a higher level */
+        margin: 0;
+        padding: 0 10px 0 10px;
+        border-bottom: 1px solid #696;
+        position:relative;
+        z-index:2;
+        }
+
+#miniflex li {
+        float: left;
+        margin: 0;
+        padding: 0;
+        display: inline;
+        list-style: none;
+        position:relative;
+        }
+
+#miniflex a:link, #miniflex a:visited {
+        float: left;
+        font-size: 85%;
+        line-height: 20px;
+        font-weight: bold;
+        margin: 0 5px 0 5px; 
+        text-decoration: none;
+        color: #9c9;
+        }
+
+#miniflex a.active:link, #miniflex a.active:visited, #miniflex a:hover {
+        border-bottom: 4px solid #696;
+        padding-bottom: 2px;
+        color: #696;
+        }
+        
+#animated-tab {
+        position: absolute;
+        z-index: 1;
+        font-size: 85%;
+        line-height: 20px;
+        padding-bottom: 2px;
+        border-bottom: 4px solid #696;
+        }
+/*
+   br
+        {
+        clear:both;
+        }
+*/
