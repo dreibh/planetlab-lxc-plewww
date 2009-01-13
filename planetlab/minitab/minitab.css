@@ -5,10 +5,10 @@ li.minitab {
     font-style: oblique;
 }    
 #container {
-        padding: 15px;
+        padding: 20px;
         margin: 8px 0;
         width:80%;
-/*        margin:40px auto; */
+        margin:8px auto;
         }
 #miniflex {
         width: 100%;
@@ -24,7 +24,7 @@ li.minitab {
 #miniflex li {
         float: left;
         margin: 0;
-        padding: 0;
+        padding: 0 8px 0 8px;
         display: inline;
         list-style: none;
         position:relative;
@@ -54,9 +54,3 @@ li.minitab {
         padding-bottom: 2px;
         border-bottom: 4px solid #696;
         }
-/*
-   br
-        {
-        clear:both;
-        }
-*/
