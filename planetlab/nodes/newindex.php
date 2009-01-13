@@ -11,7 +11,6 @@ global $plc, $api, $adm;
 
 // Print header
 require_once 'plc_drupal.php';
-drupal_set_title('Nodes');
 include 'plc_header.php';
 
 // Common functions
@@ -21,12 +20,6 @@ require_once 'plc_sorts.php';
 // find person roles
 $_person= $plc->person;
 $_roles= $_person['role_ids'];
-
-$header_autocomplete_js='
-<script type="text/javascript" src="/planetlab/bsn/bsn.Ajax.js"></script>
-<script type="text/javascript" src="/planetlab/bsn/bsn.DOM.js"></script>
-<script type="text/javascript" src="/planetlab/bsn/bsn.AutoSuggest.js"></script>
-';
 
 $header_tablesort_js='
 <script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
@@ -42,7 +35,6 @@ $header_tablesort_css='
 <link href="/planetlab/css/plc_paginate.css" rel="stylesheet" type="text/css" />
 ';
 
-drupal_set_html_head($header_autocomplete_js);
 drupal_set_html_head($header_tablesort_js);
 drupal_set_html_head($header_tablesort_css);
 
@@ -70,6 +62,14 @@ if ($nodepattern) {
 list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
 $node_filter=array_merge($node_filter,$peer_filter);
 
+$title='Nodes';
+if ($nodepattern) {
+  $title .= " matching " . $nodepattern;
+ }
+$title .= ' (' . $peer_label . ')';
+drupal_set_title($title);
+
+// go
 $nodes=$api->GetNodes($node_filter,$node_columns);
 
 // build site_ids - interface_ids
@@ -113,13 +113,24 @@ foreach ($peers as $peer) {
 ?>
 
 <!------------------------------------------------------------>
+<!-- instantiate generic mechanisms for nodes -->
+<script type"text/javascript">
+function nodes_paginator (opts) {
+  plc_table_paginator (opts,"nodes");
+}
+function nodes_filter () {
+  plc_table_filter("nodes","search_text","nodes_and");
+}
+</script>
+
+<!------------------------------------------------------------>
 <table class='table_dialogs'> <tr>
 <td class='table_flushleft'>
 <form class='table_size'>
   <input class='table_size_input' type='text' id='tablesize_text' value="<?php echo $tablesize; ?>" 
   onkeyup='plc_table_setsize("nodes","tablesize_text", "<?php echo $tablesize; ?>" );' 
   size=3 maxlength=3 /> 
-  <label class='table_size_label'> items per page </label>   
+  <label class='table_size_label'> Items per page </label>   
   <img class='table_reset' src="/planetlab/icons/clear.png" 
     onmousedown='plc_table_size_reset("nodes","tablesize_text","999");'>
 </form>
@@ -127,10 +138,13 @@ foreach ($peers as $peer) {
 
 <td class='table_flushright'> 
 <form class='table_search'>
-  <label class='table_search_label'> search </label> 
+  <label class='table_search_label'> Search </label> 
   <input class='table_search_input' type='text' id='search_text'
-  onkeyup='plc_table_filter("nodes","search_text");'
+     onkeyup='nodes_filter();'
   size=40 maxlength=256 />
+  <label>and</label>
+  <input id='nodes_and' class='table_search_and' 
+    type='checkbox' checked='checked' onchange='nodes_filter();' />
   <img class='table_reset' src="/planetlab/icons/clear.png" 
   onmousedown='plc_table_filter_reset("nodes","search_text");'>
 </form>
@@ -138,11 +152,11 @@ foreach ($peers as $peer) {
 </tr></table>
 
 <!------------------------------------------------------------>
-<div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapTop"><p></p></div>
+<!-- <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapTop"><p></p></div> -->
 
 <!------------------------------------------------------------>
 <table id="nodes" cellpadding="0" cellspacing="0" border="0" 
-class="plc_table sortable-onload-4 rowstyle-alt colstyle-alt no-arrow paginationcallback-nodesTextInfo max-pages-15 paginate-<?php print $tablesize; ?>">
+class="plc_table sortable-onload-4 rowstyle-alt colstyle-alt no-arrow paginationcallback-nodes_paginator max-pages-15 paginate-<?php print $tablesize; ?>">
 <thead>
 <tr>
 <th class="sortable plc_table">Peer</th>
@@ -196,70 +210,11 @@ foreach ($nodes as $node) {
 </tfoot>
 </table>
 
-<div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapBottom"><p></p></div>
+<!-- <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapBottom"><p></p></div> -->
 
 <p class='plc_filter_note'> 
-Notes: Several words in pattern are combined with <em> OR </em>
+Notes: Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes
 <br/> 
 Hold down the shift key to select multiple columns to sort 
 </p>
-
-<!------------------------------------------------------------>
-<hr>
-<hr>
-<p> This section is for trying out server-side filtering </p>
-<hr>
-<hr>
-
-<script type"text/javascript">
- /* instantiate generic mechanisms for nodes */
-function nodesTextInfo (opts) {
-  plc_table_update_paginaters (opts,"nodes");
-}
-var options = {
-	script:"/planetlab/nodes/test.php?",
-	varname:"input",
-	minchars:1
-};
-var as = new AutoSuggest('nodepattern', options);
-</script>
-
-<!------------------------------------------------------------>
-<div class="plc_filter">
-<form method='get' id='filter_nodes'>
-<table>
-
-<tr>
-<th><label for='peerscope'>Federation scope </label></th>
-<td colspan=2><select id='peerscope' name='peerscope' onChange='submit()'>
-<?php echo plc_peers_option_list($api); ?>
-</select></td>
-</tr>
-
-<tr>
-<th><label for='nodepattern'>Hostname (server-side pattern)</label></th>
-<td><input type='text' id='nodepattern' name='nodepattern' 
-     size=40 value='<?php print $nodepattern; ?>'/></td>
-<td><input id='go' rowspan=2 type=submit value='Go' /></td>
-</tr> 
-
-<tr> 
-<th><label for='tablesize'>Table size</label></th>
-<td> <input type='text' id='tablesize' name='tablesize' 
-      size=3 value='<?php print $tablesize; ?>'/></td>
-</tr>
-</table>
-</form>
-</div>
-
-<!-- trash -->
-<script type="text/javascript">
-  function foo () {
-      var tbody=document.getElementById("nodes").getElementsByTagName("tbody")[0];
-      alert ('current classname = [' + tbody.className + "]");
-    }
-</script>
-
-<hr>
-<form> <input type='button' onclick="foo()" value='debug classname'> </form>
 

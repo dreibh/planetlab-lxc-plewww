@@ -1,13 +1,16 @@
 /* $Id$ */
 
 /* when a table gets paginated, displays context info */
-function plc_table_update_paginaters (opts,tablename) {
+function plc_table_paginator (opts,tablename) {
 
   if(!("currentPage" in opts)) { return; }
     
   var p = document.createElement('p');
   var t = document.getElementById(tablename+'-fdtablePaginaterWrapTop');
   var b = document.getElementById(tablename+'-fdtablePaginaterWrapBottom');
+
+  /* when there's no visible entry, the pagination code removes the wrappers */
+  if ( (!t) || (!b) ) return;
 
   /* get how many entries are matching:
      opts.visibleRows only holds the contents of the current page
@@ -22,9 +25,6 @@ function plc_table_update_paginaters (opts,tablename) {
   } 
 
   var label;
-
-  /* when there's no visible entry, the pagination code removes the wrappers */
-  if (totalMatches == 0) return;
 
   var matches_text;
   if (totalMatches != opts.totalRows) {

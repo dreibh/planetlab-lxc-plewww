@@ -58,7 +58,7 @@ ul.fdtablePaginater li div span
         display:block;
         line-height:2em;
         border:1px solid #fff;
-        background:#fff url(../media/gradient.gif) repeat-x 0 -20px;
+        background:#fff url(/planetlab/icons/tablesort_gradient.gif) repeat-x 0 -20px;
         }
 ul.fdtablePaginater li a
         {
