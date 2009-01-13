@@ -42,12 +42,6 @@ $header_tablesort_css='
 <link href="/planetlab/css/plc_paginate.css" rel="stylesheet" type="text/css" />
 ';
 
-$unused='
-<script type="text/javascript" src="/planetlab/tablesort/more.js"></script>
-<link href="/planetlab/css/more.css" rel="stylesheet" type="text/css" />
-<body OnLoad="init();">
-';
-
 drupal_set_html_head($header_autocomplete_js);
 drupal_set_html_head($header_tablesort_js);
 drupal_set_html_head($header_tablesort_css);
@@ -55,8 +49,7 @@ drupal_set_html_head($header_tablesort_css);
 // -------------------- 
 $nodepattern=$_GET['nodepattern'];
 $peerscope=$_GET['peerscope'];
-$tablesize=$_GET['tablesize'];
-if (empty($tablesize)) $tablesize=25;
+$tablesize=25;
 
 ?>
 
@@ -65,7 +58,7 @@ if (empty($tablesize)) $tablesize=25;
 
 $peer_filter=array();
 
-// fetch nodes
+// fetch nodes - use nodepattern for server-side filtering
 $node_columns=array('hostname','site_id','node_id','boot_state','interface_ids','peer_id');
 if ($nodepattern) {
   $node_filter['hostname']=$nodepattern;
@@ -73,7 +66,7 @@ if ($nodepattern) {
   $node_filter=array('hostname'=>"*");
  }
 
-// peerscope
+// server-side selection on peerscope
 list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
 $node_filter=array_merge($node_filter,$peer_filter);
 
@@ -120,34 +113,36 @@ foreach ($peers as $peer) {
 ?>
 
 <!------------------------------------------------------------>
-<div class='table_size_dialog'>
-<form>
-  <label> table size </label> 
-  <input type='text' id='tablesize_text' value="<?php echo $tablesize; ?>" size=3 maxlength=3 
+<table class='table_dialogs'> <tr>
+<td class='table_flushleft'>
+<form class='table_size'>
+  <input class='table_size_input' type='text' id='tablesize_text' value="<?php echo $tablesize; ?>" 
   onkeyup='plc_table_setsize("nodes","tablesize_text", "<?php echo $tablesize; ?>" );' 
-  /> 
-  <input type='button' value='reset' src="/planetlab/icons/clear.png" 
-    onclick='plc_table_filter_resetsize("nodes","tablesize_text","999");'>
+  size=3 maxlength=3 /> 
+  <label class='table_size_label'> items per page </label>   
+  <img class='table_reset' src="/planetlab/icons/clear.png" 
+    onmousedown='plc_table_size_reset("nodes","tablesize_text","999");'>
 </form>
-</div>
+</td>
 
-<div class='table_pattern_dialog'> 
-<form>
-  <label> pattern </label> 
-  <input type='text' id='filter_text' size=40 maxlength=256
-  onkeyup='plc_table_filter("nodes","filter_text");'
- />
-  <input type='button' value='reset' src="/planetlab/icons/clear.png" 
-    onclick='plc_table_filter_reset("nodes","filter_text");'>
+<td class='table_flushright'> 
+<form class='table_search'>
+  <label class='table_search_label'> search </label> 
+  <input class='table_search_input' type='text' id='search_text'
+  onkeyup='plc_table_filter("nodes","search_text");'
+  size=40 maxlength=256 />
+  <img class='table_reset' src="/planetlab/icons/clear.png" 
+  onmousedown='plc_table_filter_reset("nodes","search_text");'>
 </form>
-</div>
+</td>
+</tr></table>
 
 <!------------------------------------------------------------>
 <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapTop"><p></p></div>
 
 <!------------------------------------------------------------>
 <table id="nodes" cellpadding="0" cellspacing="0" border="0" 
-class="plc_table sortable-onload-1 rowstyle-alt colstyle-alt no-arrow paginationcallback-nodesTextInfo max-pages-15 paginate-<?php print $tablesize; ?>">
+class="plc_table sortable-onload-4 rowstyle-alt colstyle-alt no-arrow paginationcallback-nodesTextInfo max-pages-15 paginate-<?php print $tablesize; ?>">
 <thead>
 <tr>
 <th class="sortable plc_table">Peer</th>
@@ -202,9 +197,11 @@ foreach ($nodes as $node) {
 </table>
 
 <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapBottom"><p></p></div>
-<p class='plc_filter_note'> Notes: Several words in pattern are combined with <em> OR </em>
 
-<br/> Hold down the shift key to select multiple columns to sort 
+<p class='plc_filter_note'> 
+Notes: Several words in pattern are combined with <em> OR </em>
+<br/> 
+Hold down the shift key to select multiple columns to sort 
 </p>
 
 <!------------------------------------------------------------>
@@ -254,4 +251,15 @@ var as = new AutoSuggest('nodepattern', options);
 </table>
 </form>
 </div>
+
+<!-- trash -->
+<script type="text/javascript">
+  function foo () {
+      var tbody=document.getElementById("nodes").getElementsByTagName("tbody")[0];
+      alert ('current classname = [' + tbody.className + "]");
+    }
+</script>
+
+<hr>
+<form> <input type='button' onclick="foo()" value='debug classname'> </form>
 

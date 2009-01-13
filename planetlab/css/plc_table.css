@@ -95,9 +95,22 @@ tbody tr td:first-child
         font-weight:bold;
         }
 
-div.table_size_dialog {
-    align:left;
+td.table_flushleft {
+    text-align:left;
 }
-div.table_pattern_dialog {
-    align:right;
+td.table_flushright {
+    text-align:right;
+}
+table.table_dialogs {
+    width:100%;
+    border:1px;
+}
+.table_size_label{
+    font-weight:bold;
+}
+.table_search_label{
+    font-weight:bold;
+}
+.table_reset {
+    border:1px;
 }
