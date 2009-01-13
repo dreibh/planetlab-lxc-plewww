@@ -47,22 +47,15 @@ $tablesize=25;
 
 drupal_set_title('Nodes');
 
-?>
+require_once 'plc_minitab.php';
+$minitab=array("Old page"=>"/db/nodes/index.php",
+	       "About"=>"/db/about.php",
+	       "Logout"=>"/planetlab/logout.php",
+	       "And other buttons"=>"http://www.google.com",
+	       "For demo purposes"=>"/undefined");
+plc_show_options($minitab);
 
-<div id="container">
-  <ul id="miniflex">
-  <li class='minitab'><a href="/db/nodes/index.php" title="">Old page</a></li>
-  <li class='minitab'><a href="/db/about.php" title="">About</a></li>
-  <li class='minitab'><a href="/planetlab/logout.php" title="">Log out</a></li>
-  <li class='minitab'><a href="http://www.google.com/" title="">Google</a></li>
-  <li class='minitab'><a href="/undefined/" title="">Other stuff</a></li>
-  </ul>
-</div>
-
-
-<!------------------------------------------------------------>
-<?php
-
+// -------------------- 
 $peer_filter=array();
 
 // fetch nodes - use nodepattern for server-side filtering
@@ -226,4 +219,3 @@ Notes: Enter & or | in the search area to alternate between <bold>AND</bold> and
 <br/> 
 Hold down the shift key to select multiple columns to sort 
 </p>
-
