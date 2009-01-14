@@ -27,15 +27,13 @@ $header_js='
 <script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
 <script type="text/javascript" src="/planetlab/minitabs/minitabs.js"></script>
-<script type="text/javascript" src="/planetlab/js/plc_paginate.js"></script>
-<script type="text/javascript" src="/planetlab/js/plc_filter.js"></script>
+<script type="text/javascript" src="/planetlab/js/plc_tables.js"></script>
 ';
 
 $header_css='
 <link href="/planetlab/minitabs/minitabs.css" rel="stylesheet" type="text/css" />
 <link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css" />
-<link href="/planetlab/css/plc_table.css" rel="stylesheet" type="text/css" />
-<link href="/planetlab/css/plc_paginate.css" rel="stylesheet" type="text/css" />
+<link href="/planetlab/css/plc_tables.css" rel="stylesheet" type="text/css" />
 ';
 
 drupal_set_html_head($header_js);
