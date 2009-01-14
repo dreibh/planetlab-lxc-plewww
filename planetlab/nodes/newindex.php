@@ -109,43 +109,21 @@ foreach ($peers as $peer) {
     $peer_hash[$peer['peer_id']]=$peer;
 }
 
-?>
+$pagesize=25;
+plc_table_search_area("nodes",$pagesize,999);
+$columns = array ("Peer"=>"string",
+		  "Region"=>"string",
+		  "Site"=>"string",
+		  "State"=>"string",
+		  "Hostname"=>"string",
+		  "IP"=>"IPAddress",
+		  "Load"=>"int",
+		  "Avg Load"=>"float");
 
-<?php
-$tablesize=25;
-plc_table_header("nodes",$tablesize,999);
-?>
+plc_table_head("nodes",$columns,$pagesize,"4",15);
 
-<!------------------------------------------------------------>
-<!-- instantiate generic mechanisms for nodes -->
-<script type"text/javascript">
-function nodes_paginator (opts) {
-  plc_table_paginator (opts,"nodes");
-}
-</script>
-
-<br/>
-<!------------------------------------------------------------>
-<!------------------------------------------------------------>
-<table id="nodes" cellpadding="0" cellspacing="0" border="0" 
-class="plc_table sortable-onload-4 rowstyle-alt colstyle-alt no-arrow paginationcallback-nodes_paginator max-pages-15 paginate-<?php print $tablesize; ?>">
-<thead>
-<tr>
-<th class="sortable plc_table">Peer</th>
-<th class="sortable plc_table">Region</th>
-<th class="sortable plc_table">Site</th>
-<th class="sortable plc_table">State</th>
-<th class="sortable plc_table">Hostname</th>
-<th class="sortable-sortIPAddress plc_table">IP</th>
-<th class="sortable plc_table">Load</th>
-<th class="sortable plc_table">Avg Load</th>
-</tr>
-</thead>
-<tbody>
-
-<?php
-
-  $fake1=1; $fake2=3.14; $fake_i=0;
+// write rows
+$fake1=1; $fake2=3.14; $fake_i=0;
 foreach ($nodes as $node) {
     $hostname=$node['hostname'];
     $node_id=$node['node_id'];
@@ -176,14 +154,8 @@ foreach ($nodes as $node) {
     $fake_i += 1;
 }
 
-?>
-</tbody>
-<tfoot>
-</tfoot>
-</table>
+plc_table_foot();
 
-<p class='plc_filter_note'> 
-Notes: Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes
-<br/> 
-Hold down the shift key to select multiple columns to sort 
-</p>
+plc_table_notes();
+?>
+

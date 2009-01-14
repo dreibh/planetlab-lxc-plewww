@@ -47,7 +47,7 @@ function plc_table_paginator (opts,tablename) {
 
 
 /* locates a table from its id and alters the classname to reflect new table size */
-function plc_table_setsize (table_id,size_id,def_size) {
+function plc_pagesize_set (table_id,size_id,def_size) {
   var table=document.getElementById(table_id);
   var size_area=document.getElementById(size_id);
   if ( ! size_area.value ) {
@@ -58,7 +58,7 @@ function plc_table_setsize (table_id,size_id,def_size) {
   tablePaginater.init(table_id);
 }
 
-function plc_table_size_reset(table_id, size_id, size) {
+function plc_pagesize_reset(table_id, size_id, size) {
   var table=document.getElementById(table_id);
   var size_area=document.getElementById(size_id);
   size_area.value=size;
