@@ -16,52 +16,52 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_sorts.php';
+require_once 'plc_tables.php';
 
 // find person roles
 $_person= $plc->person;
 $_roles= $_person['role_ids'];
 
-$header_tablesort_js='
+$header_js='
 <script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
-<script type="text/javascript" src="/planetlab/minitab/minitab.js"></script>
+<script type="text/javascript" src="/planetlab/minitabs/minitabs.js"></script>
 <script type="text/javascript" src="/planetlab/js/plc_paginate.js"></script>
 <script type="text/javascript" src="/planetlab/js/plc_filter.js"></script>
 ';
 
-$header_tablesort_css='
-<link href="/planetlab/minitab/minitab.css" rel="stylesheet" type="text/css" />
+$header_css='
+<link href="/planetlab/minitabs/minitabs.css" rel="stylesheet" type="text/css" />
 <link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css" />
 <link href="/planetlab/css/plc_table.css" rel="stylesheet" type="text/css" />
 <link href="/planetlab/css/plc_paginate.css" rel="stylesheet" type="text/css" />
 ';
 
-drupal_set_html_head($header_tablesort_js);
-drupal_set_html_head($header_tablesort_css);
+drupal_set_html_head($header_js);
+drupal_set_html_head($header_css);
 
 // -------------------- 
-$nodepattern=$_GET['nodepattern'];
+$pattern=$_GET['pattern'];
 $peerscope=$_GET['peerscope'];
-$tablesize=25;
 
 drupal_set_title('Nodes');
 
-require_once 'plc_minitab.php';
-$minitab=array("Old page"=>"/db/nodes/index.php",
+require_once 'plc_minitabs.php';
+$minitabs=array("Old page"=>"/db/nodes/index.php",
 	       "About"=>"/db/about.php",
 	       "Logout"=>"/planetlab/logout.php",
-	       "And other buttons"=>"http://www.google.com",
-	       "For demo purposes"=>"/undefined");
-plc_show_options($minitab);
+	       "And others"=>"http://www.google.com",
+	       "For demo"=>"/undefined");
+plc_show_options($minitabs);
 
 // -------------------- 
 $peer_filter=array();
 
-// fetch nodes - use nodepattern for server-side filtering
+// fetch nodes - set pattern in the url for server-side filtering
 $node_columns=array('hostname','site_id','node_id','boot_state','interface_ids','peer_id');
-if ($nodepattern) {
-  $node_filter['hostname']=$nodepattern;
+if ($pattern) {
+  $node_filter['hostname']=$pattern;
  } else {
   $node_filter=array('hostname'=>"*");
  }
@@ -113,49 +113,21 @@ foreach ($peers as $peer) {
 
 ?>
 
+<?php
+$tablesize=25;
+plc_table_header("nodes",$tablesize,999);
+?>
+
 <!------------------------------------------------------------>
 <!-- instantiate generic mechanisms for nodes -->
 <script type"text/javascript">
 function nodes_paginator (opts) {
   plc_table_paginator (opts,"nodes");
 }
-function nodes_filter () {
-  plc_table_filter("nodes","search_text","nodes_and");
-}
 </script>
 
 <br/>
 <!------------------------------------------------------------>
-<table class='table_dialogs'> <tr>
-<td class='table_flushleft'>
-<form class='table_size'>
-  <input class='table_size_input' type='text' id='tablesize_text' value="<?php echo $tablesize; ?>" 
-  onkeyup='plc_table_setsize("nodes","tablesize_text", "<?php echo $tablesize; ?>" );' 
-  size=3 maxlength=3 /> 
-  <label class='table_size_label'> Items per page </label>   
-  <img class='table_reset' src="/planetlab/icons/clear.png" 
-    onmousedown='plc_table_size_reset("nodes","tablesize_text","999");'>
-</form>
-</td>
-
-<td class='table_flushright'> 
-<form class='table_search'>
-  <label class='table_search_label'> Search </label> 
-  <input class='table_search_input' type='text' id='search_text'
-     onkeyup='nodes_filter();'
-  size=40 maxlength=256 />
-  <label>and</label>
-  <input id='nodes_and' class='table_search_and' 
-    type='checkbox' checked='checked' onchange='nodes_filter();' />
-  <img class='table_reset' src="/planetlab/icons/clear.png" 
-  onmousedown='plc_table_filter_reset("nodes","search_text");'>
-</form>
-</td>
-</tr></table>
-
-<!------------------------------------------------------------>
-<!-- <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapTop"><p></p></div> -->
-
 <!------------------------------------------------------------>
 <table id="nodes" cellpadding="0" cellspacing="0" border="0" 
 class="plc_table sortable-onload-4 rowstyle-alt colstyle-alt no-arrow paginationcallback-nodes_paginator max-pages-15 paginate-<?php print $tablesize; ?>">
@@ -211,8 +183,6 @@ foreach ($nodes as $node) {
 <tfoot>
 </tfoot>
 </table>
-
-<!-- <div class="fdtablePaginaterWrap" id="nodes-fdtablePaginaterWrapBottom"><p></p></div> -->
 
 <p class='plc_filter_note'> 
 Notes: Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes

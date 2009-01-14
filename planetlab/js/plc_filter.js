@@ -35,7 +35,6 @@ function plc_table_filter (table_id,pattern_id,and_id) {
   var and_button=document.getElementById(and_id);
   var and_if_true=and_button.checked;
 
-  
   // remove whitespaces at the beginning and end
   pattern_text = pattern_text.replace(/[ \t]+$/,"");
   pattern_text = pattern_text.replace(/^[ \t]+/,"");
@@ -67,7 +66,11 @@ function plc_table_filter (table_id,pattern_id,and_id) {
 	var pattern_matched=false;
 	pattern=patterns[i];
 	for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
-	  if ( cell.innerHTML.match(pattern)) pattern_matched=true;
+	  if ( cell.innerHTML.match(pattern)) {
+	    pattern_matched=true;
+	    // alert ('AND matched! p='+pattern+' c='+cell.innerHTML);
+	    break;	  
+	  }
 	}
 	if ( ! pattern_matched ) visible=false;
       }
@@ -77,7 +80,11 @@ function plc_table_filter (table_id,pattern_id,and_id) {
       for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
 	for (i in patterns) {
 	  pattern=patterns[i];
-	  if (cell.innerHTML.match(pattern)) visible=true;
+	  if (cell.innerHTML.match(pattern)) {
+	    visible=true;
+	    // alert ('OR matched! p='+pattern+' c='+cell.innerHTML);
+	    break;
+	  }
 	}
       }
     }
@@ -88,8 +95,8 @@ function plc_table_filter (table_id,pattern_id,and_id) {
   tablePaginater.init(table_id);
 }
 
-function plc_table_filter_reset (table_id, pattern_id) {
+function plc_table_filter_reset (table_id, pattern_id,and_id) {
   /* reset pattern */
   document.getElementById(pattern_id).value="";
-  plc_table_filter (table_id, pattern_id);
+  plc_table_filter (table_id, pattern_id,and_id);
 }
