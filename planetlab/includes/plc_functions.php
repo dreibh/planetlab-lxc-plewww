@@ -140,6 +140,7 @@ function l_interface ($interface_id) { return href (l_interface_u($interface_id)
 function l_interface2 ($interface_id,$text) { return href (l_interface_u($interface_id),$text); }
 
 function l_event ($type,$param,$id) { return '/db/events/index.php?type=' . $type . '&' . $param . '=' . $id; }
+function l_comon($id_name,$id_value) { return '/db/nodes/comon.php?' . $id_name . "=" . $id_value; }
 
 //////////////////////////////////////////////////////////// titles
 function t_site($site) { return " on site " . $site['name'] . " (" . $site['login_base'] .")"; }
@@ -152,19 +153,6 @@ function tabs_slice($slice) { return array('Slice ' . $slice['name']=>l_slice_u(
 
 //////////////////////////////////////////////////////////// presentation
 // builds a table from an array of strings, with the given class
-function plc_make_table ($class, $messages) {
-  // pretty print the cell
-  $formatted = "";
-  if (! empty ($messages)) {
-    $formatted="<table class='" . $class . "'>";
-    foreach ($messages as $message) {
-      $formatted .= "<tr><td>" . $message . "</td></tr>";
-    }
-    $formatted .= "</table>";
-  }
-  return $formatted;
-}
-
 // attempt to normalize the delete buttons and confirmations
 function plc_delete_button($width=15) {
   return '<span title="Delete this entry"><img width=' . $width . ' alt="Delete this entry" src="/planetlab/icons/delete.png"></span>';
@@ -186,14 +174,27 @@ function plc_event_button($type,$param,$id) {
   return '<a href="' . l_event($type,$param,$id) . '"> <span title="Related events"> <img src="/planetlab/icons/event.png" width=18></span></a>';
 }
 
-function plc_comon_button ($field, $value,$target="") {
+function plc_comon_button ($id_name, $id_value,$target="") {
   $result='<a ';
   if (!empty($target)) {
     $result.='target="' . $target . '" ';
   }
-  $result.='href="/db/nodes/comon.php?' . $field . "=" . $value . '">';
+  $result.='href="' . l_comon($id_name,$id_value) . '">';
   $result.='<span title="Link to Comon"> <img src="/planetlab/icons/comon.png" width="18"></span></a>';
   return $result;
+}
+
+function plc_make_table ($class, $messages) {
+  // pretty print the cell
+  $formatted = "";
+  if (! empty ($messages)) {
+    $formatted="<table class='" . $class . "'>";
+    foreach ($messages as $message) {
+      $formatted .= "<tr><td>" . $message . "</td></tr>";
+    }
+    $formatted .= "</table>";
+  }
+  return $formatted;
 }
 
 ////////////////////////////////////////////////////////////
