@@ -168,15 +168,17 @@ foreach ($nodes as $node) {
       $shortname=$peer_hash[$node['peer_id']]['shortname'];
     }
     printf ('<tr id="%s">',$hostname);
-    plc_table_cell($shortname);
-    printf ('<td class="plc_table"> %s </td>',topdomain($hostname));
-    printf ('<td class="plc_table"> %s</td>',l_site2($site_id,$login_base));
-    printf ('<td class="plc_table"> %s </td>',$node['boot_state']);
-    printf ('<td class="plc_table"> %s </td>',l_node2($node_id,$hostname));
-    printf ('<td class="plc_table"> %s </td>', l_interface2($interface_id,$ip));
-    printf ('<td class="plc_table"> %s </td>', $fake1);
-    printf ('<td class="plc_table"> %s </td>', $fake2);
+
+    plc_table_cell ($shortname);
+    plc_table_cell (topdomain($hostname));
+    plc_table_cell (l_site2($site_id,$login_base));
+    plc_table_cell ($node['boot_state']);
+    plc_table_cell (l_node2($node_id,$hostname));
+    plc_table_cell (l_interface2($interface_id,$ip));
+    plc_table_cell ($fake1);
+    plc_table_cell ($fake2);
     plc_table_cell (node_status($node));
+
     printf ( '</tr>');
 				 
     if ($fake_i % 5 == 0) $fake1 += 3; 
