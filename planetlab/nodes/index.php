@@ -120,7 +120,7 @@ else if( $_GET['slice_id'] ) {
 
   // Get slice infos
   $slice_info= $api->GetSlices( array( intval( $slice_id ) ), array( "name", "node_ids" ) );
-  drupal_set_title($slice_info[0]['name']."run on");
+  drupal_set_title("nodes where " . $slice_info[0]['name'] . " is running");
 
   // Get slice nodes
   $nodes= $api->GetNodes( array_merge(array('node_id'=>$slice_info[0]['node_ids']),$filter), $columns);
@@ -133,7 +133,7 @@ else if( $_GET['slice_id'] ) {
     sort_nodes( $nodes );	
 
     echo paginate( $nodes, "node_id", "Nodes", 25, "hostname");
-    echo "<br /><p><a href='/db/slices/index.php?id=".$slice_id.">Back to slice page</a></div>";
+    echo "<br /><p><a href='/db/slices/index.php?id=" . $slice_id . "'>Go to slice page</a></p>";
   }
   
  }
