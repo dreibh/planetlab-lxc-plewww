@@ -23,32 +23,69 @@ $_person= $plc->person;
 $_roles= $_person['role_ids'];
 
 // -------------------- 
-$pattern=$_GET['pattern'];
+// recognized URL arguments
 $peerscope=$_GET['peerscope'];
+$pattern=$_GET['pattern'];
+$site_id=intval($_GET['site_id']);
+$slice_id=intval($_GET['slice_id']);
 
-drupal_set_title('Nodes');
-
-$minitabs=array("Old page"=>"/db/nodes/index.php",
-	       "About"=>"/db/about.php",
-	       "Logout"=>"/planetlab/logout.php",
-	       "And others"=>"http://www.google.com",
-	       "For demo"=>"/undefined");
-plc_show_options($minitabs);
+// --- decoration
+$title="Nodes";
+$tabs=array("Old page"=>l_nodes(),
+	    "Logout"=>"/planetlab/logout.php");
 
 // -------------------- 
 $peer_filter=array();
+$node_filter=array();
+
+
+//////////////////
+// performs sanity check and summarize the result in a single column
+function node_status ($node) {
+
+  $messages=array();
+  
+  // do all this stuff on local nodes only
+  if ( ! $node['peer_id'] ) {
+    // check that the node has keys
+    if (count($node['interface_ids']) == 0) {
+      $messages [] = "No interface";
+    }
+  }
+  return plc_make_table('plc-warning',$messages);
+}
+
 
 // fetch nodes - set pattern in the url for server-side filtering
 $node_columns=array('hostname','site_id','node_id','boot_state','interface_ids','peer_id');
 if ($pattern) {
   $node_filter['hostname']=$pattern;
+  $title .= " matching " . $pattern;
  } else {
-  $node_filter=array('hostname'=>"*");
+  $node_filter['hostname']="*";
  }
 
 // server-side selection on peerscope
 list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
 $node_filter=array_merge($node_filter,$peer_filter);
+
+if ($site_id) {
+  $sites=$api->GetSites(array($site_id),array("name","login_base"));
+  $site=$sites[0];
+  $name=$site['name'];
+  $login_base=$site['login_base'];
+  $title .= t_site($site);
+  $tabs = array_merge($tabs,tabs_site($site));
+  $node_filter['site_id']=array($site_id);
+}
+
+if ($slice_id) {
+  $slices=$api->GetSlices(array($slice_id),array('node_ids','name'));
+  $slice=$slices[0];
+  $title .= t_slice($slice);
+  $tabs = array_merge($tabs,tabs_slice($slice));
+  $node_filter['node_id'] = $slice['node_ids'];
+ }
 
 // go
 $nodes=$api->GetNodes($node_filter,$node_columns);
@@ -56,7 +93,7 @@ $nodes=$api->GetNodes($node_filter,$node_columns);
 // build site_ids - interface_ids
 $site_ids=array();
 $interface_ids=array();
-foreach ($nodes as $node) {
+if ($nodes) foreach ($nodes as $node) {
   $site_ids []= $node['site_id'];
   $interface_ids = array_merge ($interface_ids,$node['interface_ids']);
 }
@@ -91,8 +128,16 @@ foreach ($peers as $peer) {
     $peer_hash[$peer['peer_id']]=$peer;
 }
 
+// --------------------
+drupal_set_title($title);
 
+plc_tabs($tabs);
 
+if ( ! $nodes ) {
+  drupal_set_message ('No node found');
+  return;
+ }
+  
 $columns = array ("Peer"=>"string",
 		  "Region"=>"string",
 		  "Site"=>"string",
@@ -100,7 +145,8 @@ $columns = array ("Peer"=>"string",
 		  "Hostname"=>"string",
 		  "IP"=>"IPAddress",
 		  "Load"=>"int",
-		  "Avg Load"=>"float");
+		  "Avg Load"=>"float",
+		  "Status"=>"string");
 
 # initial sort on hostnames
 plc_table_start("nodes",$columns,4);
@@ -117,19 +163,20 @@ foreach ($nodes as $node) {
     $ip=$interface_hash[$node['node_id']]['ip'];
     $interface_id=$interface_hash[$node['node_id']]['interface_id'];
     if ( ! $node['peer_id'] ) {
-      $shortname="local";
+      $shortname=PLC_SHORTNAME;
     } else {
       $shortname=$peer_hash[$node['peer_id']]['shortname'];
     }
     printf ('<tr id="%s">',$hostname);
-    printf ('<td class="plc_table"> %s </td>',$shortname);
+    plc_table_cell($shortname);
     printf ('<td class="plc_table"> %s </td>',topdomain($hostname));
-    printf ('<td class="plc_table"> <a href="/db/sites/index.php?id=%s">%s</a></td>',$site_id,$login_base);
+    printf ('<td class="plc_table"> %s</td>',l_site2($site_id,$login_base));
     printf ('<td class="plc_table"> %s </td>',$node['boot_state']);
-    printf ('<td class="plc_table"> <a href="/db/nodes/index.php?id=%s">%s</a></td>',$node_id,$hostname);
-    printf ('<td class="plc_table"> <a href="/db/nodes/interfaces.php?id=%s">%s</a></td>', $interface_id,$ip);
+    printf ('<td class="plc_table"> %s </td>',l_node2($node_id,$hostname));
+    printf ('<td class="plc_table"> %s </td>', l_interface2($interface_id,$ip));
     printf ('<td class="plc_table"> %s </td>', $fake1);
     printf ('<td class="plc_table"> %s </td>', $fake2);
+    plc_table_cell (node_status($node));
     printf ( '</tr>');
 				 
     if ($fake_i % 5 == 0) $fake1 += 3; 
