@@ -10,6 +10,11 @@ drupal_set_html_head('
 
 
 ////////////////////////////////////////
+function plc_table_cell($cell) {
+  printf ('<td class="plc_table"> %s </td>',$cell);
+}
+
+////////////////////////////////////////
 // table_id: <table>'s id tag
 // headers: an associative array "label"=>"type" 
 // column_sort: the column to sort on at load-time

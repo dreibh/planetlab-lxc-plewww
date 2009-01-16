@@ -7,7 +7,7 @@ drupal_set_html_head('
 ');
 
 
-function plc_show_options($array) {
+function plc_tabs($array) {
   print '<div id="minitabs_container">';
   print '<ul id="miniflex">';
   foreach ($array as $name=>$url) {
