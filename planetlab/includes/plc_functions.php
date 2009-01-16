@@ -422,5 +422,10 @@ function plc_peer_info ($api,$peerscope) {
   return array ($peer_filter,$peer_label);
 }
     
+function topdomain ($hostname) {
+  $exploded=array_reverse(explode(".",$hostname));
+  return $exploded[0];
+}
+
 
 ?>

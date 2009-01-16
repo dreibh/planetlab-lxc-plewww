@@ -1,10 +1,36 @@
 <?php
 
+drupal_set_html_head('
+<script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
+<script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
+<script type="text/javascript" src="/planetlab/js/plc_tables.js"></script>
+<link href="/planetlab/css/plc_tables.css" rel="stylesheet" type="text/css" />
+');
+
+
 ////////////////////////////////////////
 // table_id: <table>'s id tag
-// pagesize_init: the initial pagination size
-// pagesize_def: the page size when one clisks the pagesize reset button
-function plc_table_search_area ($table_id,$pagesize_init,$pagesize_def) {
+// headers: an associative array "label"=>"type" 
+// column_sort: the column to sort on at load-time
+// search_area : boolean
+// pagesize: the initial pagination size
+// pagesize_def: the page size when one clicks the pagesize reset button
+// max_pages: the max number of pages to display in the paginator
+function plc_table_start ($table_id, $headers, $column_sort,
+			  $search_area=true,$max_pages="10",$pagesize="25",$pagesize_def="999") {
+  if ($search_area) {
+    plc_table_search_area($table_id,$pagesize,$pagesize_def);
+  }
+  plc_table_head($table_id,$headers,$column_sort,$max_pages,$pagesize);
+}
+
+function plc_table_end () {
+  plc_table_foot();
+}
+		    
+////////////////////
+function plc_table_search_area ($table_id,$pagesize,$pagesize_def) {
   $pagesize_text_id = $table_id . "_pagesize";
   $search_text_id = $table_id . "_search";
   $search_reset_id = $table_id . "_search_reset";
@@ -13,8 +39,8 @@ function plc_table_search_area ($table_id,$pagesize_init,$pagesize_def) {
 <table class='table_dialogs'> <tr>
 <td class='table_flushleft'>
 <form class='pagesize'>
-   <input class='pagesize_input' type='text' id="$pagesize_text_id" value=$pagesize_init 
-      onkeyup='plc_pagesize_set("$table_id","$pagesize_text_id", $pagesize_init);' 
+   <input class='pagesize_input' type='text' id="$pagesize_text_id" value=$pagesize 
+      onkeyup='plc_pagesize_set("$table_id","$pagesize_text_id", $pagesize);' 
       size=3 maxlength=3 /> 
   <label class='pagesize_label'> items/page </label>   
   <img class='table_reset' src="/planetlab/icons/clear.png" 
@@ -41,12 +67,7 @@ EOF;
 }
 
 ////////////////////////////////////////
-// table_id: <table>'s id tag
-// headers: an associative array "label"=>"type" 
-// pagesize: the initial page
-// column_init_sort: the column to sort on at load-time
-// max_pages: the max number of pages to display in the paginator
-function plc_table_head ($table_id,$headers,$pagesize,$column_init_sort,$max_pages) {
+function plc_table_head ($table_id,$headers,$column_sort,$max_pages,$pagesize) {
   $paginator=$table_id."_paginator";
   $classname="paginationcallback-".$paginator;
   $classname.=" max-pages-" . $max_pages;
@@ -58,7 +79,7 @@ function $paginator (opts) { plc_table_paginator (opts,"$table_id"); }
 </script>
 <br/>
 <table id="$table_id" cellpadding="0" cellspacing="0" border="0" 
-class="plc_table sortable-onload-$column_init_sort rowstyle-alt colstyle-alt no-arrow $classname">
+class="plc_table sortable-onload-$column_sort rowstyle-alt colstyle-alt no-arrow $classname">
 <thead>
 <tr>
 EOF;

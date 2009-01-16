@@ -13,11 +13,6 @@ function sort_persons(&$persons) {
   return usort($persons, "__cmp_persons");
 }
 
-function topdomain ($hostname) {
-  $exploded=array_reverse(explode(".",$hostname));
-  return $exploded[0];
-}
-
 function __cmp_nodes($a, $b) {
  $as = array_reverse(explode(".", $a['hostname']));
  $bs = array_reverse(explode(".", $b['hostname']));

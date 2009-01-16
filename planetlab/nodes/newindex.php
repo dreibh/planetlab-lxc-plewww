@@ -15,29 +15,12 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
+require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 
 // find person roles
 $_person= $plc->person;
 $_roles= $_person['role_ids'];
-
-$header_js='
-<script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
-<script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
-<script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
-<script type="text/javascript" src="/planetlab/minitabs/minitabs.js"></script>
-<script type="text/javascript" src="/planetlab/js/plc_tables.js"></script>
-';
-
-$header_css='
-<link href="/planetlab/minitabs/minitabs.css" rel="stylesheet" type="text/css" />
-<link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css" />
-<link href="/planetlab/css/plc_tables.css" rel="stylesheet" type="text/css" />
-';
-
-drupal_set_html_head($header_js);
-drupal_set_html_head($header_css);
 
 // -------------------- 
 $pattern=$_GET['pattern'];
@@ -45,7 +28,6 @@ $peerscope=$_GET['peerscope'];
 
 drupal_set_title('Nodes');
 
-require_once 'plc_minitabs.php';
 $minitabs=array("Old page"=>"/db/nodes/index.php",
 	       "About"=>"/db/about.php",
 	       "Logout"=>"/planetlab/logout.php",
@@ -109,8 +91,8 @@ foreach ($peers as $peer) {
     $peer_hash[$peer['peer_id']]=$peer;
 }
 
-$pagesize=25;
-plc_table_search_area("nodes",$pagesize,999);
+
+
 $columns = array ("Peer"=>"string",
 		  "Region"=>"string",
 		  "Site"=>"string",
@@ -120,7 +102,8 @@ $columns = array ("Peer"=>"string",
 		  "Load"=>"int",
 		  "Avg Load"=>"float");
 
-plc_table_head("nodes",$columns,$pagesize,"4",15);
+# initial sort on hostnames
+plc_table_start("nodes",$columns,4);
 
 // write rows
 $fake1=1; $fake2=3.14; $fake_i=0;
@@ -154,7 +137,7 @@ foreach ($nodes as $node) {
     $fake_i += 1;
 }
 
-plc_table_foot();
+plc_table_end();
 
 plc_table_notes();
 ?>
