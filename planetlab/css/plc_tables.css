@@ -1,4 +1,4 @@
-/* $Id: plc_table.css 11549 2009-01-13 20:26:18Z thierry $ */
+/* $Id$ */
 table.plc_table
         {
         width: auto;
@@ -116,7 +116,6 @@ table.table_dialogs {
 .table_reset {
     border:1px;
 }
-/* $Id: plc_paginate.css 11544 2009-01-13 13:54:34Z thierry $ */
 
 /* Pagination list styles */
 ul.fdtablePaginater

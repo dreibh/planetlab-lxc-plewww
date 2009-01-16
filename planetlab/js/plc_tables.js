@@ -1,4 +1,4 @@
-/* $Id: plc_paginate.js 11544 2009-01-13 13:54:34Z thierry $ */
+/* $Id$ */
 
 /* when a table gets paginated, displays context info */
 function plc_table_paginator (opts,tablename) {
