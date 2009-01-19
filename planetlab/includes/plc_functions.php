@@ -86,7 +86,60 @@ function is_reserved_network_addr($network_addr) {
   return false;
 }
 
-////////////////////////////////////////////////////////////  peerscopes
+//////////////////////////////////////////////////////////// roles & other checks on global $plc
+function plc_is_admin () {
+  global $plc;
+  return in_array( 10, $plc->person['role_ids']);
+}
+function plc_is_pi () {
+  global $plc;
+  return in_array( 20, $plc->person['role_ids']);
+}
+function plc_is_tech () {
+  global $plc;
+  return in_array( 40, $plc->person['role_ids']);
+}
+function plc_in_site ($site_id) {
+  global $plc;
+  return in_array( $site_id, $plc->person['site_ids']);
+}
+
+////////////////////////////////////////////////////////////  peer & peerscopes
+// when shortnames are needed on peers
+function plc_peer_get_hash ($api) {
+  $peer_columns=array('peer_id','shortname');
+  $peer_filter=array();
+  $peers = $api->GetPeers($peer_filter,$peer_columns);
+  
+  $peer_hash=array();
+  foreach ($peers as $peer) {
+    $peer_hash[$peer['peer_id']]=$peer;
+  }
+}
+
+function plc_peer_shortname ($peer_hash,$peer_id) {
+  if ( ! $peer_id ) {
+    return PLC_SHORTNAME;
+  } else {
+     return $peer_hash[$node['peer_id']]['shortname'];
+  }
+}
+
+// to set the background to grey on foreign objects
+function plc_peer_block_start ($peer_hash,$peer_id) {
+  if ( ! $peer_id ) {
+    print "<div>";
+  } else {
+    // set two classes, one eneraic to all foreign, and one based on the peer's shortname for finer grain tuning
+    printf ('<div class="plc-foreign plc-%s>"',strtolower(plc_peer_shortname($peer_hash,$peer_id)));
+  }
+}
+
+function plc_peer_block_end () {
+  print "</div>\n";
+}
+
+//// standard peerscope syntax
 function plc_peer_info ($api,$peerscope) {
   switch ($_GET['peerscope']) {
   case '':
@@ -119,25 +172,31 @@ function l_node_u ($node_id) { return "/db/nodes/node.php?id=" . $node_id; }
 function l_node ($node_id) { return href (l_node_u($node_id),$node_id); }
 function l_node2 ($node_id,$text) { return href (l_node_u($node_id),$text); }
 
+function l_interface_u ($interface_id) { return "/db/nodes/interfaces.php?id=" . $interface_id; }
+function l_interface_add_u($node_id) { return "/db/nodes/interfaces.php?node_id=" . $node_id; }
+function l_interface ($interface_id) { return href (l_interface_u($interface_id),$interface_id); }
+function l_interface2 ($interface_id,$text) { return href (l_interface_u($interface_id),$text); }
+
+function l_nodegroup_u ($nodegroup_id) { return "/db/nodes/node_groups.php?id=" . $nodegroup_id; }
+function l_nodegroup2 ($nodegroup_id,$text) { return href(l_nodegroup_u($nodegroup_id),$text); }
+
 function l_sites () { return "/db/sites/index.php"; }
 function l_site_u ($site_id) { return "/db/persons/index.php?id=" . $site_id; }
 function l_site ($site_id) { return href (l_site_u($site_id),$site_id); }
 function l_site2 ($site_id,$text) { return href (l_site_u($site_id),$text); }
 
 function l_slices () { return "/db/slices/index.php"; }
-function l_slice_u ($slice_id) { return "/db/persons/index.php?id=" . $slice_id; }
+function l_slice_u ($slice_id) { return "/db/slices/index.php?id=" . $slice_id; }
 function l_slice ($slice_id) { return href (l_slice_u($slice_id),$slice_id); }
 function l_slice2 ($slice_id,$text) { return href (l_slice_u($slice_id),$text); }
+
+function l_sliver_u ($node_id,$slice_id) { return "/db/nodes/slivers.php?node_id=" . $node_id. "&slice_id=" . $slice_id; }
+function l_sliver3 ($node_id,$slice_id,$text) { return href (l_sliver_u($node_id,$slice_id),$text) ; }
 
 function l_persons () { return "/db/persons/index.php"; }
 function l_person_u ($person_id) { return "/db/persons/index.php?id=" . $person_id; }
 function l_person ($person_id) { return href (l_person_u($person_id),$person_id); }
 function l_person2 ($person_id,$text) { return href (l_person_u($person_id),$text); }
-
-function l_interfaces () { return "/db/interfaces/index.php"; }
-function l_interface_u ($interface_id) { return "/db/interfaces/index.php?id=" . $interface_id; }
-function l_interface ($interface_id) { return href (l_interface_u($interface_id),$interface_id); }
-function l_interface2 ($interface_id,$text) { return href (l_interface_u($interface_id),$text); }
 
 function l_event ($type,$param,$id) { return '/db/events/index.php?type=' . $type . '&' . $param . '=' . $id; }
 function l_comon($id_name,$id_value) { return '/db/nodes/comon.php?' . $id_name . "=" . $id_value; }

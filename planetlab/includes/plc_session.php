@@ -8,7 +8,6 @@
 // To use, include this file and declare the global variable
 // $plc. This object contains the following members:
 //
-// admin: Admin API handle. Use cautiously.
 // person: If logged in, the user's GetPersons() details
 // api: If logged in, the user's API handle
 //

@@ -126,6 +126,21 @@ Hold down the shift key to select multiple columns to sort
 EOF;
 }
 
+////////////////////////////////////////
+function plc_table_title ($text) {
+  print "<h2> $text </h2>\n";
+}
+
+function plc_table_row_start ($id="") {
+  if ( $id) {
+    printf ('<tr id="%s">',$id);
+  } else {
+    print '<tr>';
+  }
+}
+function plc_table_row_end () {
+  print "</tr>\n";
+}
 
 ?>
 

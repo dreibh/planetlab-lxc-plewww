@@ -38,7 +38,6 @@ $tabs=array("Old page"=>l_nodes(),
 $peer_filter=array();
 $node_filter=array();
 
-
 //////////////////
 // performs sanity check and summarize the result in a single column
 function node_status ($node) {
@@ -57,7 +56,7 @@ function node_status ($node) {
 
 
 // fetch nodes - set pattern in the url for server-side filtering
-$node_columns=array('hostname','site_id','node_id','boot_state','interface_ids','peer_id');
+$node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id');
 if ($pattern) {
   $node_filter['hostname']=$pattern;
   $title .= " matching " . $pattern;
@@ -118,16 +117,6 @@ foreach ($sites as $site) {
     $site_hash[$site['site_id']]=$site;
 }
 
-// fetch peers
-$peer_columns=array('peer_id','shortname');
-$peer_filter=array();
-$peers = $api->GetPeers($peer_filter,$peer_columns);
-
-$peer_hash=array();
-foreach ($peers as $peer) {
-    $peer_hash[$peer['peer_id']]=$peer;
-}
-
 // --------------------
 drupal_set_title($title);
 
@@ -144,13 +133,15 @@ $columns = array ("Peer"=>"string",
 		  "State"=>"string",
 		  "Hostname"=>"string",
 		  "IP"=>"IPAddress",
-		  "Load"=>"int",
-		  "Avg Load"=>"float",
-		  "Status"=>"string");
+		  "Type"=>"string",
+		  "?"=>"string",
+		  "Int"=>"int",
+		  "Float"=>"float");
 
 # initial sort on hostnames
 plc_table_start("nodes",$columns,4);
 
+$peer_hash = plc_peer_get_hash ($api);
 // write rows
 $fake1=1; $fake2=3.14; $fake_i=0;
 foreach ($nodes as $node) {
@@ -162,24 +153,21 @@ foreach ($nodes as $node) {
     $node_id=$node['node_id'];
     $ip=$interface_hash[$node['node_id']]['ip'];
     $interface_id=$interface_hash[$node['node_id']]['interface_id'];
-    if ( ! $node['peer_id'] ) {
-      $shortname=PLC_SHORTNAME;
-    } else {
-      $shortname=$peer_hash[$node['peer_id']]['shortname'];
-    }
-    printf ('<tr id="%s">',$hostname);
+    $shortname = plc_peer_shortname ($peer_hash,$node['peer_id']);
+    $node_type = $node['node_type'];
 
+    plc_table_row_start($hostname);
     plc_table_cell ($shortname);
     plc_table_cell (topdomain($hostname));
     plc_table_cell (l_site2($site_id,$login_base));
     plc_table_cell ($node['boot_state']);
     plc_table_cell (l_node2($node_id,$hostname));
     plc_table_cell (l_interface2($interface_id,$ip));
+    plc_table_cell ($node_type);
+    plc_table_cell (node_status($node));
     plc_table_cell ($fake1);
     plc_table_cell ($fake2);
-    plc_table_cell (node_status($node));
-
-    printf ( '</tr>');
+    plc_table_row_end();
 				 
     if ($fake_i % 5 == 0) $fake1 += 3; 
     if ($fake_i % 3 == 0) $fake2 +=5; else $fake2 -= $fake_i;
