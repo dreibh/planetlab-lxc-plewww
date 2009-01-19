@@ -11,28 +11,24 @@
 require_once 'plc_config.php';
 require_once 'plc_session.php';
 
-function planetlab_help($section)
-{
+function planetlab_help($section) {
   switch ($section) {
   case 'admin/modules#description':
     return t('Enables authenticated login via a PlanetLab API server.');
   }
 }
 
-function planetlab_info($field = 0)
-{
+function planetlab_info($field = 0) {
   $info['name'] = 'PlanetLab';
 
   if ($field) {
     return $info[$field];
-  }
-  else {
+  } else {
     return $info;
   }
 }
 
-function planetlab_menu($may_cache)
-{
+function planetlab_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
@@ -55,16 +51,15 @@ function planetlab_menu($may_cache)
   return $items;
 }
 
-function planetlab_block($op = 'list', $delta = 0, $edit = array())
-{
+function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
   global $user, $plc;
 
   if ($op == 'list') {
     $blocks[0]['info'] = t('PlanetLab login');
 
     return $blocks;
-  }
-  else if ($op == 'view') {
+
+  } else if ($op == 'view') {
     $block = array();
 
     if (!$plc->person) {
@@ -95,9 +90,9 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array())
     } else {
       $block['subject'] = $plc->person['email'];
       $is_admin = in_array(10,$plc->person['role_ids']);
-      $is_pi =    in_array(20,$plc->person['role_ids']);
-      $is_user =  in_array(30,$plc->person['role_ids']);
-      $is_tech =  in_array(40,$plc->person['role_ids']);
+      $is_pi    = in_array(20,$plc->person['role_ids']);
+      $is_user  = in_array(30,$plc->person['role_ids']);
+      $is_tech  = in_array(40,$plc->person['role_ids']);
 
       $site_item = '';
       $site_item .= '<a href="/db/sites/">Sites</a>';
@@ -128,7 +123,6 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array())
       $node_item = '';
       $node_item .= '<a href="/db/nodes/">Nodes</a>';
       $node_item .= '<ul>';
-      $node_item .= '<li><a href="/db/nodes/newindex.php"> New nodes page </a></li>';
       $node_item .= '<li><a href="/db/nodes/index.php?site_id='. $plc->person['site_ids'][0] .'">My Site Nodes</a></li>';
       $node_item .= "<li><a href='/db/nodes/add_node.php'>Add Node</a></li>";
       if ( $is_admin) 
@@ -152,9 +146,10 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array())
 	$tag_item = '';
 	$tag_item .= '<a href="/db/slices/tags.php?type=all">Tags</a>';
 	$tag_item .= '<ul>';
-	$tag_item .= "<li><a href='/db/slices/tags.php?type=node'>Node Tags</a></li>";
-	$tag_item .= "<li><a href='/db/slices/tags.php?type=interface'>Interface Tags</a></li>";
-	$tag_item .= "<li><a href='/db/slices/tags.php?type=slice'>Slice Tags</a></li>";
+	$tag_item .= "<li><a href='/db/tags/index.php?type=node'>Node Tags</a></li>";
+	$tag_item .= "<li><a href='/db/tags/index.php?type=interface'>Interface Tags</a></li>";
+	$tag_item .= "<li><a href='/db/tags/index.php?type=slice'>Slice Tags</a></li>";
+	$tag_item .= "<li><a href='/db/tags/nodegroups.php'>Node groups (xxx)<a></li>";
 	$tag_item .= '</ul>';
 	$items [] = $tag_item;
       }
@@ -192,8 +187,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array())
   }
 }
 
-function planetlab_login_validate($form_id, $form_values)
-{
+function planetlab_login_validate($form_id, $form_values) {
   global $user, $plc;
 
   if ($form_values['name'] && $form_values['pass']) {
@@ -221,8 +215,7 @@ function planetlab_login_validate($form_id, $form_values)
   }
 }
 
-function planetlab_login_submit($form_id, $form_values)
-{
+function planetlab_login_submit($form_id, $form_values) {
   global $plc;
 
   // Our referring page is encased in a query string of the form
@@ -263,8 +256,7 @@ function planetlab_login_submit($form_id, $form_values)
   }
 }
 
-function planetlab_logout()
-{
+function planetlab_logout() {
   global $plc;
 
   if ($plc->person) {
