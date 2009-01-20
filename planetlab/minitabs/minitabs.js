@@ -137,7 +137,8 @@ var miniTab = {
   },
 
  submit: function (message) {
-    if ( ! confirm (message) ) return;
+    /* ask for confirmation if message is not empty */
+    if (message && ! confirm (message) ) return;
     this.inputArr[this.activeTab].parentNode.submit();
   },
 }

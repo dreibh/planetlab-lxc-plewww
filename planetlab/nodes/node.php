@@ -123,13 +123,6 @@ if (empty($nodes)) {
 
     plc_tabs($tabs);
 
-    // the javascript callback we set on the form; this
-    // (*) checks whether we clicked on 'delete'
-    // (*) in this case performs a javascript 'confirm'
-    // (*) then, notice that if we select delete, then cancel, we can select back 'Choose action' 
-    //     so submit only when value is not empty
-    $change='if (document.actions.action.value=="delete") if (! confirm("Are you sure you want to delete ' . $hostname . ' ? ") ) return false; if (document.actions.action.value!="") submit();';
-    
   }    
   
   echo "<hr />";

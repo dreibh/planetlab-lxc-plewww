@@ -37,12 +37,7 @@ function plc_tabs($array) {
       }
     }
     $class_value="minitabs-submit";
-    if (! $todo['confirm'] ) {
-	printf('<input class="%s" value="%s" type=submit />',$class_value,$label);
-    } else { 
-      /*      printf('<input class="%s" value="%s" type=button onclick="miniTab.submit(\"%s\")" />',$class_value,$label,$todo['confirm']); */
-      printf('<input class="%s" value="%s" type=button onclick=\'miniTab.submit("%s");\' />',$class_value,$label,$todo['confirm']);
-    }
+    printf('<input class="%s" value="%s" type=button onclick=\'miniTab.submit("%s");\' />',$class_value,$label,$todo['confirm']);
     printf("</form></li>\n");
   }
   print '</ul>';
