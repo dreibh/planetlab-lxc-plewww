@@ -28,7 +28,8 @@ var miniTab = {
  
                 miniTab.ul          = document.getElementById("miniflex");
                 miniTab.liArr       = miniTab.ul.getElementsByTagName("li");
-                miniTab.aArr        = miniTab.ul.getElementsByTagName("a");
+		// Thierry: the original impl. relied on <a> links rather than forms
+		miniTab.aArr        = miniTab.ul.getElementsByTagName("input");
  
                 for(var i = 0, li; li = miniTab.liArr[i]; i++) {
                         li.onmouseover = miniTab.aArr[i].onfocus = function(e) {
@@ -52,7 +53,7 @@ var miniTab = {
                                 miniTab.activeTab = miniTab.currentTab = i;
                         }
                         a.style.borderBottom  = "0px";
-                        a.style.paddingBottom = "6px";
+                        /*a.style.paddingBottom = "6px";*/
                 }
  
                 miniTab.slideObj                = miniTab.ul.parentNode.appendChild(document.createElement("div"));
@@ -80,10 +81,19 @@ var miniTab = {
                 miniTab.initAnim();
         },
  
+	/* search for input with type != hidden */
+	locateSubmitInput: function () {
+		inputs=miniTab.liArr[miniTab.activeTab].getElementsByTagName("input");
+		for(var i=0,input; inputs[i]; i++) {
+		  input=inputs[i];
+		  if (input.type == "submit") return input;
+		}
+	},
+    
         initAnim: function() {
- 
-                miniTab.destX = parseInt(miniTab.liArr[miniTab.activeTab].offsetLeft + miniTab.liArr[miniTab.activeTab].getElementsByTagName("a")[0].offsetLeft + miniTab.ul.offsetLeft);
-                miniTab.destW = parseInt(miniTab.liArr[miniTab.activeTab].getElementsByTagName("a")[0].offsetWidth);
+		var input=miniTab.locateSubmitInput();
+                miniTab.destX = parseInt(miniTab.liArr[miniTab.activeTab].offsetLeft + input.offsetLeft + miniTab.ul.offsetLeft);
+                miniTab.destW = parseInt(input.offsetWidth);
                 miniTab.t = 0;
                 miniTab.b = miniTab.slideObj.offsetLeft;
                 miniTab.c = miniTab.destX - miniTab.b;
