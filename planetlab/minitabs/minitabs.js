@@ -142,7 +142,7 @@ var miniTab = {
  submit: function (message) {
     /* ask for confirmation if message is not empty */
     if (message && ! confirm (message) ) return;
-    this.inputArr[this.activeTab].parentNode.submit();
+    this.inputArr[this.activeTab].parentNode.parentNode.submit();
   },
 }
  

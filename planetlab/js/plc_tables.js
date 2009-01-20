@@ -41,7 +41,7 @@ function plc_table_paginator (opts,tablename) {
   p.className = "paginationText";    
   p.appendChild(document.createTextNode(label));
 
-  t.insertBefore(p.cloneNode(true), t.firstChild);
+  /*  t.insertBefore(p.cloneNode(true), t.firstChild); */
   b.appendChild(p);
 }
 

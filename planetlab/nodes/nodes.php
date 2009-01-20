@@ -7,7 +7,7 @@ require_once 'plc_login.php';
 
 // Get session and API handles
 require_once 'plc_session.php';
-global $plc, $api, $adm;
+global $plc, $api;
 
 // Print header
 require_once 'plc_drupal.php';
@@ -18,10 +18,6 @@ require_once 'plc_functions.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 
-// find person roles
-$_person= $plc->person;
-$_roles= $_person['role_ids'];
-
 // -------------------- 
 // recognized URL arguments
 $peerscope=$_GET['peerscope'];
@@ -31,8 +27,8 @@ $slice_id=intval($_GET['slice_id']);
 
 // --- decoration
 $title="Nodes";
-$tabs=array("Old page"=>l_nodes(),
-	    "Logout"=>"/planetlab/logout.php");
+$tabs["Logout"]=array('url'=>l_logout(),
+		      'bubble'=>'Logout ' . $plc->person['email']);
 
 // -------------------- 
 $peer_filter=array();

@@ -201,6 +201,8 @@ function l_person2 ($person_id,$text) { return href (l_person_u($person_id),$tex
 function l_event ($type,$param,$id) { return '/db/events/index.php?type=' . $type . '&' . $param . '=' . $id; }
 function l_comon($id_name,$id_value) { return '/db/nodes/comon.php?' . $id_name . "=" . $id_value; }
 
+function l_logout() { return "/planetlab/logout.php"; }
+
 //////////////////////////////////////////////////////////// titles
 function t_site($site) { return " on site " . $site['name'] . " (" . $site['login_base'] .")"; }
 function t_slice ($slice) { return " running slice " . $slice['name'] . " (" . $slice['slice_id'] . ")"; }
