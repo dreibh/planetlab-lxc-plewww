@@ -107,20 +107,19 @@ if (empty($nodes)) {
   // available actions
   if ( ! $peer_id  && $extra_privileges ) {
     
-    $tabs["All nodes"]=l_nodes();
-    // xxx subject to roles
-    $tabs["Add Interface"]=l_interface_add_u($node_id);
-    $tabs["Comon"]=l_comon("node_id",$node_id);
-    if ($extra_privileges) {
-      $tabs["Events"]=l_event("Node","node",$node_id);
-    }
-
     $tabs['Update'] = array ('url'=>"/db/nodes/node_actions.php",
 			     'method'=>'POST',
 			     'values'=>array('action'=>'prompt-update','node_id'=>$node_id));
-    $tabs['Delete (no confirm)'] = array ('url'=>"/db/nodes/node_actions.php",
+    $tabs['Delete'] = array ('url'=>"/db/nodes/node_actions.php",
 			     'method'=>'POST',
-			     'values'=>array('action'=>'delete','node_id'=>$node_id));
+			     'values'=>array('action'=>'delete','node_id'=>$node_id),
+			     'confirm'=>'Are you sure to delete ' . $hostname. ' ?');
+    // xxx subject to roles
+    $tabs["Add Interface"]=l_interface_add_u($node_id);
+    $tabs["Comon"]=l_comon("node_id",$node_id);
+    $tabs["Events"]=l_event("Node","node",$node_id);
+
+    $tabs["All nodes"]=l_nodes();
 
     plc_tabs($tabs);
 
