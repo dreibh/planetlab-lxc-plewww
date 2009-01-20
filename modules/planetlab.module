@@ -149,7 +149,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
 	$tag_item .= "<li><a href='/db/tags/index.php?type=node'>Node Tags</a></li>";
 	$tag_item .= "<li><a href='/db/tags/index.php?type=interface'>Interface Tags</a></li>";
 	$tag_item .= "<li><a href='/db/tags/index.php?type=slice'>Slice Tags</a></li>";
-	$tag_item .= "<li><a href='/db/tags/nodegroups.php'>Node groups (xxx)<a></li>";
+	$tag_item .= "<li><a href='/db/tags/nodegroups.php'>Node groups (xxx)</a></li>";
 	$tag_item .= '</ul>';
 	$items [] = $tag_item;
       }
