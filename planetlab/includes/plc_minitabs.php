@@ -16,8 +16,6 @@ drupal_set_html_head('
 //     (*) 'method': 'POST' or 'GET' -- default is 'GET'
 //     (*) 'url': where to go
 //     (*) 'values': an associative array of (key,value) pairs to send to the URL; values are strings
-//     (*) 'active': if set, this entry is the default one on startup
-//		     (not supported yet)
 
 
 function plc_tabs($array) {
@@ -35,12 +33,10 @@ function plc_tabs($array) {
     // set values
     if ( $todo['values'] ) {
       foreach ($todo['values'] as $key=>$value) {
-	printf('<input class="minitabs" type=hidden name="%s" value="%s" />',$key,$value);
+	printf('<input class="minitabs-hidden" type=hidden name="%s" value="%s" />',$key,$value);
       }
     }
-    $class_value="minitabs";
-    if ($todo['active']) $class_value += ' active';
-    // onmouseover="over()" onmouseout="out()"
+    $class_value="minitabs-submit";
     printf('<input class="%s" value="%s" type=submit />',$class_value,$label);
     printf("</form></li>\n");
   }

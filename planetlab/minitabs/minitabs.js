@@ -30,11 +30,12 @@ var miniTab = {
  
     miniTab.ul          = document.getElementById("miniflex");
     miniTab.liArr       = miniTab.ul.getElementsByTagName("li");
-    // Thierry: the original impl. relied on <a> links rather than forms
-    miniTab.aArr        = miniTab.ul.getElementsByTagName("input");
+    // Thierry: the original impl. relied on <a> links rather than forms - we use ids
+    miniTab.aArr        = miniTab.ul.getElementsByClassName("minitabs-submit");
  
     for(var i = 0, li; li = miniTab.liArr[i]; i++) {
       li.onmouseover = miniTab.aArr[i].onfocus = function(e) {
+	window.console.log('onmouseover/onfocus');
 	var pos = 0;
 	var elem = this.nodeName == "LI" ? this : this.parentNode;
 	while(elem.previousSibling) {
@@ -48,6 +49,7 @@ var miniTab = {
  
     miniTab.ul.onmouseout = function(e) {
       miniTab.initSlide(miniTab.currentTab);
+      miniTab.setActive (miniTab.activeTab,false);
     };
  
     for(var i = 0, a; a = miniTab.aArr[i]; i++) {
@@ -79,21 +81,23 @@ var miniTab = {
  
  initSlide: function(pos, force) {
     if(!force && pos == miniTab.activeTab) return;
+    miniTab.setActive (miniTab.activeTab,false);
     miniTab.activeTab = pos;
+    miniTab.setActive (miniTab.activeTab,true);
     miniTab.initAnim();
   },
  
- /* search for input with type != hidden */
- locateSubmitInput: function () {
-    inputs=miniTab.liArr[miniTab.activeTab].getElementsByTagName("input");
-    for(var i=0,input; inputs[i]; i++) {
-      input=inputs[i];
-      if (input.type == "submit") return input;
-    }
+ setActive: function (pos,active) {
+    var input=miniTab.liArr[pos].getElementsByClassName("minitabs-submit")[0];
+    var cn=input.className;
+    cn=cn.replace(" active","");
+    if (active) cn += " active";
+    input.className=cn;
   },
-    
+ 
  initAnim: function() {
-    var input=miniTab.locateSubmitInput();
+    /* search for the input with type != hidden */
+    var input=miniTab.liArr[miniTab.activeTab].getElementsByClassName("minitabs-submit")[0];
     miniTab.destX = parseInt(miniTab.liArr[miniTab.activeTab].offsetLeft + input.offsetLeft + miniTab.ul.offsetLeft);
     miniTab.destW = parseInt(input.offsetWidth);
     miniTab.t = 0;

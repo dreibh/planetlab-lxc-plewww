@@ -114,6 +114,14 @@ if (empty($nodes)) {
     if ($extra_privileges) {
       $tabs["Events"]=l_event("Node","node",$node_id);
     }
+
+    $tabs['Update'] = array ('url'=>"/db/nodes/node_actions.php",
+			     'method'=>'POST',
+			     'values'=>array('action'=>'prompt-update','node_id'=>$node_id));
+    $tabs['Delete (no confirm)'] = array ('url'=>"/db/nodes/node_actions.php",
+			     'method'=>'POST',
+			     'values'=>array('action'=>'delete','node_id'=>$node_id));
+
     plc_tabs($tabs);
 
     // the javascript callback we set on the form; this
@@ -123,17 +131,6 @@ if (empty($nodes)) {
     //     so submit only when value is not empty
     $change='if (document.actions.action.value=="delete") if (! confirm("Are you sure you want to delete ' . $hostname . ' ? ") ) return false; if (document.actions.action.value!="") submit();';
     
-    echo "<table><tr><td>";
-    echo "</td><td>";
-    echo "<form name='actions' action='/db/nodes/node_actions.php' method='post'>\n";
-    echo "<input type=hidden name='node_id' value='$node_id'></input>\n";
-    echo "<select name='action' onChange='$change'>\n";
-    echo "<option value='' selected='selected'> Choose Action </option>\n";
-    echo "<option value='prompt-update'> Update $hostname </option>\n";
-    echo "<option value='delete'> Delete $hostname </option>\n";
-    echo "</select></form>\n";
-    
-    echo "</td></tr></table>";
   }    
   
   echo "<hr />";

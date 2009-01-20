@@ -7,20 +7,22 @@
 #miniflex {
     width: 100%;
     float: left;
-    font-size: small; /* could be specified at a higher level */
+    font-size: small;  /* could be specified at a higher level */
     margin: 0;
     padding: 0 10px 0 10px;
+    /* thickness and color for the fixed thin horizontal bar */
     border-bottom: 1px solid #696;
     position:relative;
     z-index:2;
 }
 
-input.minitabs, li.minitabs {
+input.minitabs-submit {
     font-family: verdana, sans-serif;
     font-size: 14px;
     text-align: center;
     font-style: oblique;
     border: 0;
+    /* buttons are normally outlined */
     background-color: transparent;
 }    
 #miniflex li {
@@ -32,7 +34,7 @@ input.minitabs, li.minitabs {
     position:relative;
 }
 
-#miniflex input.minitabs {
+#miniflex input.minitabs-submit {
     float: left;
     font-size: 85%;
     line-height: 20px;
@@ -44,22 +46,19 @@ input.minitabs, li.minitabs {
 }
 
 #miniflex input.active {
-    border-bottom: 4px solid #696;
+    /* border-bottom: 4px solid #696; */
     padding-bottom: 2px;
     /* color when mouse is on button */
     color: #696;
 }
 
-#miniflex input[type=hidden] {
-    padding-bottom: 0px;
-}
-        
 #animated-tab {
     position: absolute;
     z-index: 1;
     font-size: 85%;
     line-height: 20px;
     padding-bottom: 2px;
+    /* color for the sliding bar */
     border-bottom: 4px solid #696;
 }
 
