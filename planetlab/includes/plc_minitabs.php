@@ -15,8 +15,8 @@ drupal_set_html_head('
 // (*) or an associative array with the following keys
 //     (*) 'method': 'POST' or 'GET' -- default is 'GET'
 //     (*) 'url': where to go
+//     (*) 'confirm': a question to display before actually triggering
 //     (*) 'values': an associative array of (key,value) pairs to send to the URL; values are strings
-
 
 function plc_tabs($array) {
   print '<div id="minitabs_container">';
@@ -37,7 +37,12 @@ function plc_tabs($array) {
       }
     }
     $class_value="minitabs-submit";
-    printf('<input class="%s" value="%s" type=submit />',$class_value,$label);
+    if (! $todo['confirm'] ) {
+	printf('<input class="%s" value="%s" type=submit />',$class_value,$label);
+    } else { 
+      /*      printf('<input class="%s" value="%s" type=button onclick="miniTab.submit(\"%s\")" />',$class_value,$label,$todo['confirm']); */
+      printf('<input class="%s" value="%s" type=button onclick=\'miniTab.submit("%s");\' />',$class_value,$label,$todo['confirm']);
+    }
     printf("</form></li>\n");
   }
   print '</ul>';

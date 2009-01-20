@@ -6,6 +6,8 @@
   derived from the original idea of Stephen Clark (http://www.sgclark.com/sandbox/minislide/)
  
   Adjusted by Thierry Parmentelat -- INRIA - uses only forms rather than <a> tags, for supporting http-POST
+  
+  $Id$
 
 */
  
@@ -23,7 +25,7 @@ var miniTab = {
  aHeight:        0,
  ul:             [],
  liArr:          [],
- aArr:           [],
+ inputArr:       [],
         
  init: function() {
     if(!document.getElementById || !document.getElementById("miniflex")) return;
@@ -31,11 +33,10 @@ var miniTab = {
     miniTab.ul          = document.getElementById("miniflex");
     miniTab.liArr       = miniTab.ul.getElementsByTagName("li");
     // Thierry: the original impl. relied on <a> links rather than forms - we use ids
-    miniTab.aArr        = miniTab.ul.getElementsByClassName("minitabs-submit");
+    miniTab.inputArr        = miniTab.ul.getElementsByClassName("minitabs-submit");
  
     for(var i = 0, li; li = miniTab.liArr[i]; i++) {
-      li.onmouseover = miniTab.aArr[i].onfocus = function(e) {
-	window.console.log('onmouseover/onfocus');
+      li.onmouseover = miniTab.inputArr[i].onfocus = function(e) {
 	var pos = 0;
 	var elem = this.nodeName == "LI" ? this : this.parentNode;
 	while(elem.previousSibling) {
@@ -52,7 +53,7 @@ var miniTab = {
       miniTab.setActive (miniTab.activeTab,false);
     };
  
-    for(var i = 0, a; a = miniTab.aArr[i]; i++) {
+    for(var i = 0, a; a = miniTab.inputArr[i]; i++) {
       if(a.className.search("active") != -1) {
 	miniTab.activeTab = miniTab.currentTab = i;
       }
@@ -63,10 +64,10 @@ var miniTab = {
     miniTab.slideObj                = miniTab.ul.parentNode.appendChild(document.createElement("div"));
     miniTab.slideObj.appendChild(document.createTextNode(String.fromCharCode(160)));
     miniTab.slideObj.id             = "animated-tab";
-    miniTab.slideObj.style.top      = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.aArr[miniTab.activeTab].offsetTop) + "px";
-    miniTab.slideObj.style.left     = (miniTab.ul.offsetLeft + miniTab.liArr[miniTab.activeTab].offsetLeft + miniTab.aArr[miniTab.activeTab].offsetLeft) + "px";
-    miniTab.slideObj.style.width    = miniTab.aArr[miniTab.activeTab].offsetWidth + "px";
-    miniTab.aHeight                 = miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.aArr[miniTab.activeTab].offsetTop;
+    miniTab.slideObj.style.top      = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop) + "px";
+    miniTab.slideObj.style.left     = (miniTab.ul.offsetLeft + miniTab.liArr[miniTab.activeTab].offsetLeft + miniTab.inputArr[miniTab.activeTab].offsetLeft) + "px";
+    miniTab.slideObj.style.width    = miniTab.inputArr[miniTab.activeTab].offsetWidth + "px";
+    miniTab.aHeight                 = miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop;
  
     miniTab.initSlide(miniTab.activeTab, true);
  
@@ -107,15 +108,15 @@ var miniTab = {
     miniTab.bW = miniTab.slideObj.offsetWidth;
     miniTab.cW = miniTab.destW - miniTab.bW;
  
-    miniTab.slideObj.style.top = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.aArr[miniTab.activeTab].offsetTop) + "px";
+    miniTab.slideObj.style.top = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop) + "px";
   },
  
  slideIt:function() {
  
     // Has the browser text size changed?
-    if(miniTab.aHeight != miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.aArr[miniTab.activeTab].offsetTop) {
+    if(miniTab.aHeight != miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop) {
       miniTab.initAnim();
-      miniTab.aHeight = miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.aArr[miniTab.activeTab].offsetTop
+      miniTab.aHeight = miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop
     };
  
     if(miniTab.t++ < miniTab.d) {
@@ -133,7 +134,12 @@ var miniTab = {
  animate: function(t,b,c,d) {
     if ((t/=d/2) < 1) return c/2*t*t + b;
     return -c/2 * ((--t)*(t-2) - 1) + b;
-  }
+  },
+
+ submit: function (message) {
+    if ( ! confirm (message) ) return;
+    this.inputArr[this.activeTab].parentNode.submit();
+  },
 }
  
 window.onload = miniTab.init;
