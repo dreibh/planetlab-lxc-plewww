@@ -38,7 +38,10 @@ var miniTab = {
     for(var i = 0, li; li = miniTab.liArr[i]; i++) {
       li.onmouseover = miniTab.inputArr[i].onfocus = function(e) {
 	var pos = 0;
-	var elem = this.nodeName == "LI" ? this : this.parentNode;
+	var elem = this;
+	/* move up twice until we find the 'LI' tag */
+	elem = (elem.nodeName == "LI") ? this : this.parentNode;
+	elem = (elem.nodeName == "LI") ? this : this.parentNode;
 	while(elem.previousSibling) {
 	  elem = elem.previousSibling;
 	  if(elem.tagName && elem.tagName == "LI") pos++;
