@@ -104,6 +104,11 @@ function plc_in_site ($site_id) {
   return in_array( $site_id, $plc->person['site_ids']);
 }
 
+function plc_my_site_id () {
+  global $plc;
+  return $plc->person['site_ids'][0];
+}
+
 ////////////////////////////////////////////////////////////  peer & peerscopes
 // when shortnames are needed on peers
 function plc_peer_get_hash ($api) {
@@ -139,9 +144,9 @@ function plc_peer_block_end () {
   print "</div>\n";
 }
 
-//// standard peerscope syntax
+// interpret standard syntax for peerscope
 function plc_peer_info ($api,$peerscope) {
-  switch ($_GET['peerscope']) {
+  switch ($peerscope) {
   case '':
     $peer_filter=array();
     $peer_label="all peers";
@@ -155,10 +160,21 @@ function plc_peer_info ($api,$peerscope) {
     $peer_label="foreign peers";
     break;
   default:
-    $peer_id=intval($_GET['peerscope']);
-    $peer_filter=array("peer_id"=>$peer_id);
-    $peer=$api->GetPeers(array("peer_id"=>$peer_id));
-    $peer_label='peer "' . $peer[0]['peername'] . '"';
+    if (is_int ($peerscope)) {
+      $peer_id=intval($peerscope);
+      $peers=$api->GetPeers(array("peer_id"=>$peer_id));
+    } else {
+      $peers=$api->GetPeers(array("shortname"=>$peerscope));
+    }
+    if ($peers) {
+      $peer=$peers[0];
+      $peer_id=$peer['peer_id'];
+      $peer_filter=array("peer_id"=>$peer_id);
+      $peer_label='peer "' . $peer['shortname'] . '"';
+    } else {
+      $peer_filter=array();
+      $peer_label="[no such peer " . $peerscope . "]";
+    }
     break;
   }
   return array ($peer_filter,$peer_label);
@@ -167,7 +183,8 @@ function plc_peer_info ($api,$peerscope) {
 //////////////////////////////////////////////////////////// links    
 function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; }
 
-function l_nodes () { return "/db/nodes/newindex.php"; }
+function l_nodes () { return "/db/nodes/index.php"; }
+function l_nodes_site ($site_id) { return "/db/nodes/index.php?site_id=" . $site_id; }
 function l_node_u ($node_id) { return "/db/nodes/node.php?id=" . $node_id; }
 function l_node ($node_id) { return href (l_node_u($node_id),$node_id); }
 function l_node2 ($node_id,$text) { return href (l_node_u($node_id),$text); }
@@ -245,23 +262,34 @@ function plc_comon_button ($id_name, $id_value,$target="") {
   return $result;
 }
 
-function plc_make_table ($class, $messages) {
+function plc_vertical_table ($messages, $class="") {
   // pretty print the cell
+  if ( empty( $messages) ) return "";
   $formatted = "";
-  if (! empty ($messages)) {
-    $formatted="<table class='" . $class . "'>";
-    foreach ($messages as $message) {
-      $formatted .= "<tr><td>" . $message . "</td></tr>";
-    }
-    $formatted .= "</table>";
+  $formatted .= "<table ";
+  if ($class) $formatted .= "class='" . $class . "'";
+  $formatted .= ">";
+  foreach ($messages as $message) {
+    $formatted .= "<tr><td>" . $message . "</td></tr>";
   }
+  $formatted .= "</table>";
   return $formatted;
 }
 
 ////////////////////////////////////////////////////////////
 function plc_error ($text) {
   // should use the same channel as the php errors..
-  print "<div class='plc-warning'> Error " . $text . "</div>";
+  print "<div class='plc-error'> Error " . $text . "</div>";
+}
+
+function plc_errors ($list) {
+  print( "<div class='plc-error'>" );
+  print( "<p style='font-weight:bold'>The following errors occured:</p>" );
+  print("<ul>");
+  foreach( $errors as $err ) {
+    print( "<li>$err</li>\n" );
+  }
+  print( "</ul></div>\n" );
 }
 
 function plc_warning ($text) {

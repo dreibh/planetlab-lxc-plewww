@@ -1,6 +1,6 @@
 <?php
 
-   // Require login
+// Require login
 require_once 'plc_login.php';
 
 // Get session and API handles
@@ -31,7 +31,7 @@ $site_wno_nodes = array();
 $sitemembers_nodes= array();
 $nodes_ids=array();
 $site_up=array();
-function layout(&$param){
+function layout(&$param) {
 
   $class='plc-foreign';
   $messages=array();
@@ -40,7 +40,7 @@ function layout(&$param){
   $messages[]=$temp;
   echo $new_site;
   //unset ($param['time']);
-  $param[$j]['abbreviated_name']=plc_make_table($class,$messages);
+  $param[$j]['abbreviated_name']=plc_vertical_table($messages,$class);
   $j++;
 
 }

@@ -77,7 +77,7 @@ function layout_person ($person) {
   // cleanup $person columns
   unset ($person['slice_ids']);
   //display the extra status column
-  $person['status'] = plc_make_table($class,$messages);
+  $person['status'] = plc_vertical_table($messages,$class);
   return $person;
 }
 

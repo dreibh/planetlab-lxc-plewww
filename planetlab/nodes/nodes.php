@@ -27,9 +27,11 @@ $slice_id=intval($_GET['slice_id']);
 
 // --- decoration
 $title="Nodes";
-$tabs["Logout"]=array('url'=>l_logout(),
-		      'bubble'=>'Logout ' . $plc->person['email']);
-
+$tabs=array();
+$mysite_id=plc_my_site_id();
+$tabs['My nodes'] = array('url'=>l_nodes(),
+			  'values'=>array('site_id'=>plc_my_site_id()),
+			  'bubble'=>'Lists nodes on site ' . $mysite_id);
 // -------------------- 
 $peer_filter=array();
 $node_filter=array();
@@ -47,12 +49,13 @@ function node_status ($node) {
       $messages [] = "No interface";
     }
   }
-  return plc_make_table('plc-warning',$messages);
+  return plc_vertical_table($messages,'plc-warning');
 }
 
 
-// fetch nodes - set pattern in the url for server-side filtering
+// fetch nodes 
 $node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id');
+// server-side filtering - set pattern in $_GET for filtering on hostname
 if ($pattern) {
   $node_filter['hostname']=$pattern;
   $title .= " matching " . $pattern;
@@ -173,5 +176,8 @@ foreach ($nodes as $node) {
 plc_table_end();
 
 plc_table_notes();
-?>
 
+// Print footer
+include 'plc_footer.php';
+
+?>

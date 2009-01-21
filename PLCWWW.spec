@@ -81,11 +81,17 @@ if [ ! -f settings.php.distrib ] ; then
 fi
 popd
 # append our own database creation hacks to the drupal database schema
-drupal_database_dir=/var/www/html/database
-pushd $drupal_database_dir
+pushd /var/www/html/database
 if [ ! -f database.pgsql.distrib ] ; then
     cp database.pgsql database.pgsql.distrib
     cat database.pgsql.distrib ../drupal-hacks/database.pgsql > database.pgsql
+fi
+popd
+# hack the welcome page for MyPLC
+pushd /var/www/html/modules
+if [ ! -f node.module.distrib ] ; then
+    cp node.module node.module.distrib
+    [ -f /var/www/html/drupal-hacks/node.module ] && cp -f /var/www/html/drupal-hacks/node.module /var/www/html/module/node.module
 fi
 popd
 

@@ -71,10 +71,6 @@ global $plc, $api;
 require_once 'plc_functions.php';
 require_once 'plc_sorts.php';
 
-// find person roles
-$_person= $plc->person;
-$_roles= $_person['role_ids'];
-
 // NOTE: this function exits() after it completes its job, 
 // simply returning leads to html decorations being added around the contents
 function deliver_and_unlink ($filename) {
@@ -105,7 +101,7 @@ function deliver_and_unlink ($filename) {
   exit();
 }
 
-function show_download_confirm_button($api, $node_id, $action, $can_gen_config, $show_details) {
+function show_download_confirm_button ($api, $node_id, $action, $can_gen_config, $show_details) {
 
   if( $can_gen_config ) {
     if ($show_details) {
@@ -156,7 +152,7 @@ switch ($action) {
    echo "<form method=post action='node_actions.php'>\n";
    echo "<input type=hidden name='node_id' value='$node_id'></input>\n";
    echo "<input type=hidden name='action' value='update'></input>\n";
-   if( $_POST['error'] ) echo "<font color=red>". unserialize( $_POST['error'] ."</font>\n" );
+   if( $_POST['error'] ) plc_error(unserialize( $_POST['error']));
    echo "<p><table cellpadding=2><tbody>\n
        <tr><th>Hostname: </th><td> <input type=text size=35 name='hostname' value='". $node_info[0]['hostname'] ."'></td></tr>\n
        <tr><th>Model: </th><td> <input type=text size=35 name='model' value='". $node_info[0]['model'] ."'></td></tr>\n
@@ -258,9 +254,9 @@ switch ($action) {
    $node_detail= $return[0];
 
    // non-admin people need to be affiliated with the right site
-   if( !in_array( 10, $_roles ) ) {
+   if( ! plc_is_admin() ) {
      $node_site_id = $node_detail['site_id'];
-     $in_site = in_array ($node_site_id,$_person['site_ids']);
+     $in_site = plc_in_site($node_site_id);
      if( ! $in_site) {
        $error= "Insufficient permission. You cannot create configuration files for this node.";
      }

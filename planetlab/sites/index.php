@@ -91,7 +91,7 @@ function layout_site ($site) {
   unset ($site['max_slices']);
   unset ($site['slice_ids']);
   unset ($site['node_ids']);
-  $site['sanity check'] = plc_make_table($class,$messages);
+  $site['sanity check'] = plc_vertical_table($messages,$class);
   
   return $site;
 }

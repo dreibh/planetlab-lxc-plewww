@@ -1,34 +1,31 @@
 /* $Id$ */
-table.plc_table
-        {
-        width: auto;
-        padding: 0;
-        margin: 0 auto 1.5em auto;
-        border-left: 1px solid #C1DAD7;
-        border-collapse:collapse;
-        }
-th.plc_table
-        {
-        font: bold 10px/22px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-        color: #4f6b72;
-        border-right: 1px solid #C1DAD7;
-        border-bottom: 1px solid #C1DAD7;
-        border-top: 1px solid #C1DAD7;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        text-align: left;
-        padding: 8px 12px 4px 12px;
-        background: #CAE8EA url(/planetlab/icons/tablesort_header.jpg) no-repeat;
-        vertical-align:middle;
-        }
-td.plc_table
-        {
-        font: normal 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
-        border-right: 1px solid #C1DAD7;
-        border-bottom: 1px solid #C1DAD7;
-        padding: 6px 12px 6px 12px;
-        color: #4f6b72;
-        }
+table.plc_table {
+    width: auto;
+    padding: 0;
+    margin: 0 auto 1.5em auto;
+    border-left: 1px solid #C1DAD7;
+    border-collapse:collapse;
+}
+th.plc_table {
+    font: bold 10px/22px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+    color: #4f6b72;
+    border-right: 1px solid #C1DAD7;
+    border-bottom: 1px solid #C1DAD7;
+    border-top: 1px solid #C1DAD7;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 8px 12px 4px 12px;
+    background: #CAE8EA url(/planetlab/icons/tablesort_header.jpg) no-repeat;
+    vertical-align:middle;
+}
+td.plc_table {
+    font: normal 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+    border-right: 1px solid #C1DAD7;
+    border-bottom: 1px solid #C1DAD7;
+    padding: 6px 12px 6px 12px;
+    color: #4f6b72;
+}
 th.sortable,
 th.sortable-text,
 th.sortable-date,
@@ -43,57 +40,47 @@ th.sortable-sortScientificNotation,
 th.sortable-sortImage,
 th.sortable-sortFileSize,
 th.sortable-sortAlphaNumeric,
-th.sortable-sortEnglishDateTime
-
-        {
-        cursor:pointer;
-        background: #CAE8EA url(/planetlab/icons/tablesort_header_sortable.jpg) no-repeat;
-        padding: 8px 12px 4px 16px;
-        }
-th.forwardSort
-        {
-        background:#CAE8EA url(/planetlab/icons/tablesort_header_down.jpg) no-repeat 0 0;
-        }
-th.reverseSort
-        {
-        background:#CAE8EA url(/planetlab/icons/tablesort_header_up.jpg) no-repeat 0 0;
-        }
+th.sortable-sortEnglishDateTime {
+    cursor:pointer;
+    background: #CAE8EA url(/planetlab/icons/tablesort_header_sortable.jpg) no-repeat;
+    padding: 8px 12px 4px 16px;
+}
+th.forwardSort {
+    background:#CAE8EA url(/planetlab/icons/tablesort_header_down.jpg) no-repeat 0 0;
+}
+th.reverseSort {
+    background:#CAE8EA url(/planetlab/icons/tablesort_header_up.jpg) no-repeat 0 0;
+}
 table thead th.forwardSort a,
-table thead th.reverseSort a
-        {
-        color:#000;
-        text-decoration:none;
-        }
+table thead th.reverseSort a {
+    color:#000;
+    text-decoration:none;
+}
 /* rows with odd index */
-tr.alt
-        {
-        background: #F5FAFA;
-        color: #797268;
-        }
+tr.alt {
+    background: #F5FAFA;
+    color: #797268;
+}
 
 /* sort columns */
 /* Poor old Internet Explorer 6 has a bug that means we can't use background images for the table rows
    as it trys to download the image each and every time that it is used (which means a 1000 row table
    will produce 1000 http requests for the image in question) */
-tr[class="alt"] td
-        {
-        background: #F5FAFA url(/planetlab/icons/tablesort_td_alt.jpg) no-repeat;
-        }
-td.plc_table [class~="alt"]
-        {
-        background: #edf3f3 url(/planetlab/icons/tablesort_col_alt.jpg) no-repeat !important;
-        }
+tr[class="alt"] td {
+    background: #F5FAFA url(/planetlab/icons/tablesort_td_alt.jpg) no-repeat;
+}
+td.plc_table [class~="alt"] {
+    background: #edf3f3 url(/planetlab/icons/tablesort_col_alt.jpg) no-repeat !important;
+}
 /* Poor old Internet Explorer won't see the next two rules either as it doesn't get :first-child */
-table.plc_table tbody tr.alt td:first-child
-        {
-        background: #F5FAFA url(/planetlab/icons/tablesort_bullet2.gif) no-repeat;
-        font-weight:bold;
-        }
-table.plc_table tbody tr td:first-child
-        {
-        background: #fff url(/planetlab/icons/tablesort_bullet1.gif) no-repeat;
-        font-weight:bold;
-        }
+table.plc_table tbody tr.alt td:first-child {
+    background: #F5FAFA url(/planetlab/icons/tablesort_bullet2.gif) no-repeat;
+    font-weight:bold;
+}
+table.plc_table tbody tr td:first-child {
+    background: #fff url(/planetlab/icons/tablesort_bullet1.gif) no-repeat;
+    font-weight:bold;
+}
 
 td.table_flushleft {
     text-align:left;
@@ -118,104 +105,90 @@ table.table_dialogs {
 }
 
 /* Pagination list styles */
-ul.fdtablePaginater
-        {
-        display:table;
-        list-style:none;
-        padding:0;
-        margin:0 auto;
-        text-align:center;
-        height:1.5em;
-        width:auto;
-        margin-bottom:1em;
-        }
-ul.fdtablePaginater li
-        {
-        display:table-cell;
-        padding-right:4px;
-        color:#666;
-        list-style:none;
-        
-        -moz-user-select:none;
-        -khtml-user-select:none;
-        }
-ul.fdtablePaginater li a.currentPage
-        {
-        border-color:#a84444 !important;
-        color:#000;
-        }
-ul.fdtablePaginater li a:active
-        {
-        border-color:#222 !important;
-        color:#222;
-        }
+ul.fdtablePaginater {
+    display:table;
+    list-style:none;
+    padding:0;
+    margin:0 auto;
+    text-align:center;
+    height:1.5em;
+    width:auto;
+    margin-bottom:1em;
+}
+ul.fdtablePaginater li {
+    display:table-cell;
+    padding-right:4px;
+    color:#666;
+    list-style:none;
+    
+    -moz-user-select:none;
+    -khtml-user-select:none;
+}
+ul.fdtablePaginater li a.currentPage {
+    border-color:#a84444 !important;
+    color:#000;
+}
+ul.fdtablePaginater li a:active {
+    border-color:#222 !important;
+    color:#222;
+}
 ul.fdtablePaginater li a,
-ul.fdtablePaginater li div
-        {
-        display:block;
-        width:2em;
-        font-size:1em;
-        color:#666;
-        padding:0;
-        margin:0;
-        text-decoration:none;
-        outline:none;
-        border:1px solid #ccc;
-        font-family:georgia, serif;
-        }
-ul.fdtablePaginater li div
-        {
-        cursor:normal;
-        opacity:.5;
-        filter:alpha(opacity=50);
-        }
+ul.fdtablePaginater li div {
+    display:block;
+    width:2em;
+    font-size:1em;
+    color:#666;
+    padding:0;
+    margin:0;
+    text-decoration:none;
+    outline:none;
+    border:1px solid #ccc;
+    font-family:georgia, serif;
+}
+ul.fdtablePaginater li div {
+    cursor:normal;
+    opacity:.5;
+    filter:alpha(opacity=50);
+}
 ul.fdtablePaginater li a span,
-ul.fdtablePaginater li div span
-        {
-        display:block;
-        line-height:2em;
-        border:1px solid #fff;
-        background:#fff url(/planetlab/icons/tablesort_gradient.gif) repeat-x 0 -20px;
-        }
-ul.fdtablePaginater li a
-        {
-        cursor:pointer;
-        }
-ul.fdtablePaginater li a:focus
-        {
-        color:#333;
-        text-decoration:none;
-        border-color:#aaa;
-        }
-.fdtablePaginaterWrap
-        {
-        text-align:center;
-        clear:both;
-        text-decoration:none;
-        }
+ul.fdtablePaginater li div span {
+    display:block;
+    line-height:2em;
+    border:1px solid #fff;
+    background:#fff url(/planetlab/icons/tablesort_gradient.gif) repeat-x 0 -20px;
+}
+ul.fdtablePaginater li a {
+    cursor:pointer;
+}
+ul.fdtablePaginater li a:focus {
+    color:#333;
+    text-decoration:none;
+    border-color:#aaa;
+}
+.fdtablePaginaterWrap {
+    text-align:center;
+    clear:both;
+    text-decoration:none;
+}
 ul.fdtablePaginater li .next-page span,
 ul.fdtablePaginater li .previous-page span,
 ul.fdtablePaginater li .first-page span,
-ul.fdtablePaginater li .last-page span
-        {
-        font-weight:bold !important;
-        }
+ul.fdtablePaginater li .last-page span {
+    font-weight:bold !important;
+}
 /* Keep the table columns an equal size during pagination */
-td.sized1
-        {
-        width:16em;
+td.sized1 {
+    width:16em;
+    text-align:left;
+}
+td.sized2 {
+    width:10em;
+    text-align:left;
+}
+td.sized3 {
+    width:7em;
         text-align:left;
-        }
-td.sized2
-        {
-        width:10em;
-        text-align:left;
-        }
-td.sized3
-        {
-        width:7em;
-        text-align:left;
-        }
+}
 /*
    tfoot td
         {
@@ -225,32 +198,27 @@ td.sized3
         letter-spacing:1px;
         }
    */
-#visibleTotal
-        {
-        text-align:center;
-        letter-spacing:auto;
-        }
+#visibleTotal {
+    text-align:center;
+    letter-spacing:auto;
+}
 * html ul.fdtablePaginater li div span,
-* html ul.fdtablePaginater li div span
-        {
-        background:#eee;
-        }
-tr.invisibleRow
-        {
-        display:none;
-        visibility:hidden;
-        }
-p.paginationText
-        {
-        font-style:oblique;
-        }
-p.plc_filter_note
-	{
+* html ul.fdtablePaginater li div span {
+    background:#eee;
+}
+tr.invisibleRow {
+    display:none;
+    visibility:hidden;
+}
+p.paginationText {
+    font-style:oblique;
+}
+p.plc_filter_note {
     font-style:oblique;
     font-size:0.6em;
     font-family: georgia;
     text-align: center
-	}
+}
 
 <!--[if IE]>
 <style type="text/css">

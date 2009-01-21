@@ -1,6 +1,6 @@
 <?php
 
-// $Id: plc_sorts.php 11578 2009-01-16 09:38:48Z thierry $
+// $Id$
 
 // person sort on last name, first name, email
 function __cmp_persons($a, $b) {

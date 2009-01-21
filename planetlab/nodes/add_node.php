@@ -11,31 +11,25 @@ global $plc, $api;
 require_once 'plc_functions.php';
 require_once 'plc_sorts.php';
   
-// find person roles
-$_person= $plc->person;
-$_roles= $_person['role_ids'];
-
 // if not a admin, pi, or tech then redirect to node index
-if( !(in_array( 10, $plc->person['role_ids'] ) || in_array( 20, $plc->person['role_ids'] ) || in_array( 40, $plc->person['role_ids'] )) ) {
+// xxx does not take site into account
+$has_privileges=plc_is_admin() || plc_is_pi() || plc_is_tech();
+if( ! $has_privileges) {
   header( "index.php" );
- }
-
+}
 
 // this sets up which box is to be checked the first time the page is loaded
 $method= $_POST['method'];
-if( $method == "" )
-  $method= "static";
+if( $method == "" ) $method= "static";
 
 $model= $_POST['model'];
-if( $model == "" )
-  $model= "Custom";
+if( $model == "" ) $model= "Custom";
 
 
 $submitted = false;
 
 // if submitted validate and add
-if( $_POST['submitted'] )
-{
+if ( $_POST['submitted'] )  {
   $submitted = true;
 
   $errors= array();
@@ -59,53 +53,38 @@ if( $_POST['submitted'] )
   $static_fields['broadcast']= "Broadcast address";
   $static_fields['dns1']= "Primary DNS address";
   
-  if( $method == 'static' )
-  {
-    foreach( $static_fields as $field => $desc )
-    {
-      if( trim($_POST[$field]) == "" )
-      {
+  if( $method == 'static' ) {
+    foreach( $static_fields as $field => $desc ) {
+      if( trim($_POST[$field]) == "" ) {
         $errors[] = "$desc is required";
-      }
-      elseif( !is_valid_ip(trim($_POST[$field])) )
-      {
+      } elseif( !is_valid_ip(trim($_POST[$field])) ) {
         $errors[] = "$desc is not a valid address";
       }
     }
-
-    if( !is_valid_network_addr($network,$netmask) )
-    {
+    
+    if( !is_valid_network_addr($network,$netmask) ) {
       $errors[] = "The network address does not coorespond to the netmask";
     }
   }
-
-  if( $hostname == "" )
-  {
+  
+  if( $hostname == "" ) {
     $errors[] = "Hostname is required";
   }
-
-  if( $ip == "" )
-  {
+  if( $ip == "" ) {
     $errors[] = "IP is required";
   }
-
-  if( count($errors) == 0 )
-  {
+  if( count($errors) == 0 ) {
     $success= 1;
 
     // add new node and its interface
     $optional_vals= array( "hostname"=>$hostname, "model"=>$model );
-
-    $site_id= $_person['site_ids'][0];
-
+    $site_id= plc_my_site_id();
     $node_id= $api->AddNode( intval( $site_id ), $optional_vals );
 
     if ( $api->error() ) {
        $errors[] = "Hostname already present or not valid";
        $success= 0;
-    }
-    else
-    {
+    } else {
       // now, try to add the network.
       $optional_vals= array();
       $optional_vals['is_primary']= true;
@@ -113,9 +92,7 @@ if( $_POST['submitted'] )
       $optional_vals['type']= 'ipv4';
       $optional_vals['method']= $method;
     
-      if( $method == 'static' )
-      {
-      
+      if( $method == 'static' ) {
         $optional_vals['gateway']= $gateway;
         $optional_vals['network']= $network;
         $optional_vals['broadcast']= $broadcast;
@@ -135,21 +112,17 @@ if( $_POST['submitted'] )
       // an error on download of the configuration file
     }
   }
-
 }
-
 
 // Print header
 require_once 'plc_drupal.php';
 drupal_set_title('Nodes');
 include 'plc_header.php';
 
-
 ?>
 
 <script language="javascript">
-function updateStaticFields()
-{
+function updateStaticFields() {
   var is_dhcp= document.fm.method[0].checked;
 
   document.fm.netmask.disabled= is_dhcp;
@@ -163,22 +136,18 @@ function updateStaticFields()
 
 <?php
 
-if( $success )
-{
-?>
+if ( $success ) {
+  $link=l_node2($node_id,"here");
+  print <<< EOF
 <h2>Node Created</h2>
 
 <p>The node has been successfully added.
 
 <p>View node details and download a configuration 
-file <a href="/db/nodes/index.php?id=<?php echo $node_id ?>">here</a>.
-
-<?
-}
-else
-{
-?>
-
+    file $link.
+EOF;
+ } else {
+  print <<< EOF
 <h2>Add A New Node</h2>
 
 <p>This page will allow you to add a new machine to your site. This must
@@ -186,17 +155,10 @@ be done before the machine is turned on, as it will allow you to download
 a configuration file when complete for this node.
 
 <p>Even for DHCP, you must enter the IP address of the node.
+EOF;
 
-<?php
-if( count($errors) > 0 )
-{
-  print( "<p><strong>The following errors occured:</strong>" );
-  print( "<font color='red' size='-1'><ul>\n" );
-  foreach( $errors as $err )
-    {
-      print( "<li>$err\n" );
-    }
-  print( "</ul></font>\n" );
+if( count($errors) > 0 ) {
+  plc_errors ($errors);
 }
 
 $self = $_SERVER['PHP_SELF'];
@@ -231,7 +193,7 @@ value="<?php print($model); ?>" size="40" maxlength="256"></td>
 </table>
 
 
-<h3>Network Settings</h3>
+<h3>Interface Settings</h3>
 
 <table width="100%" cellspacing="0" cellpadding="4" border="0">
 

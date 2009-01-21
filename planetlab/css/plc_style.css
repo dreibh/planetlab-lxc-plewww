@@ -295,3 +295,7 @@ html>body #clearmenu{ /* non IE browsers
 *.plc-warning a:link { text-decoration: none; color:white }
 *.plc-warning a:visited { text-decoration: none; color:white }
 *.plc-warning a:hover { text-decoration: none; color:black }
+
+.plc-error {
+    background: red;
+}

@@ -1,6 +1,6 @@
 <?php
 
-// $Id: index.php 11577 2009-01-16 06:29:51Z thierry $
+// $Id$
 
 // Require login
 require_once 'plc_login.php';
@@ -17,12 +17,7 @@ include 'plc_header.php';
 require_once 'plc_functions.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
-
-// tmp 
-//require_once 'plc_sorts.php';
-// find person roles
-$_person= $plc->person;
-$_roles= $_person['role_ids'];
+require_once 'plc_details.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -61,6 +56,7 @@ if (empty($nodes)) {
   $site_name= $site['name'];
   $site_node_ids= $site['node_ids'];
 
+  // hash node_id=>hostname for this site's nodes
   $site_node_hash=array();
   if( !empty( $site_node_ids ) ) {
     // get site node info basics
@@ -75,10 +71,6 @@ if (empty($nodes)) {
   if( !empty( $slice_ids ) )
     $slices= $api->GetSlices( $slice_ids, array( "slice_id", "name" , "peer_id" ) );
 
-  // gets conf file info
-  if( !empty( $conf_file_ids ) )
-    $conf_files= $api->GetConfFiles( $conf_file_ids );
-
   // get interface info
   if( !empty( $interface_ids ) )
     $interfaces= $api->GetInterfaces( $interface_ids );
@@ -87,15 +79,22 @@ if (empty($nodes)) {
   if( !empty( $nodegroup_ids ) )
     $nodegroups= $api->GetNodeGroups( $nodegroup_ids, array("groupname","tag_type_id","value"));
 
-  // xxx Thierry : disabling call to GetEvents, that gets the session deleted in the DB
-  // needs being reworked
-
+  // xxx Thierry : remaining stuff
+  // (*) events: should display the latest events relating to that node.
+  // disabling call to GetEvents, that gets the session deleted in the DB
+  // (*) conf_files: is fetched but not displayed
+  if( !empty( $conf_file_ids ) )
+    $conf_files= $api->GetConfFiles( $conf_file_ids );
+  // (*) idem for PCUs
   // gets pcu and port info key to both is $pcu_id
   if( !empty( $pcu_ids ) )
     $PCUs= $api->GetPCUs( $pcu_ids );
 
+  //////////////////// display node info
 
-  // display node info
+  // fetches peers and initialize hash peer_id->peer
+  $peer_hash = plc_peer_get_hash ($api);
+  // show gray background on foreign objects : start a <div> with proper class
   plc_peer_block_start ($peer_hash,$peer_id);
   
   drupal_set_title("Details for node " . $hostname);
@@ -118,21 +117,22 @@ if (empty($nodes)) {
     $tabs["Add Interface"]=l_interface_add_u($node_id);
     $tabs["Comon"]=l_comon("node_id",$node_id);
     $tabs["Events"]=l_event("Node","node",$node_id);
+  }
 
-    $tabs["All nodes"]=l_nodes();
+  $tabs["All nodes"]=l_nodes();
 
-    plc_tabs($tabs);
+  plc_tabs($tabs);
 
-  }    
-  
   echo "<hr />";
-  echo "<table><tbody>\n";
   
-  echo "<tr><th>Hostname: </th><td> $hostname </td></tr>\n";
-  echo "<tr><th>Type: </th><td> $node_type</td></tr>\n";
-  echo "<tr><th>Model: </th><td> $model</td></tr>\n";
-  echo "<tr><th>Version: </th><td> $version</td></tr>\n";
-    
+  plc_details_start ();
+  plc_details_line("Hostname",$hostname);
+  plc_details_line("Type",$node_type);
+  plc_details_line("Model",$model);
+  plc_details_line("Version",$version);
+
+  // no tool to implement this multiple-choice setting yet
+  // xxx would need at least to use the proper class, like plc_details_class() or something
   echo "<tr><th>Boot State: </th><td>";
   if ($peer_id) {
     echo $boot_state;
@@ -153,11 +153,11 @@ if (empty($nodes)) {
       echo ">$val</option>\n";
       
     }
-  
     echo "</select></input></form>";
   }
   echo "</td></tr>\n";
 
+  // same here for the download area
   if ( ! $peer_id  && $extra_privileges) {
 
     echo "<tr><th>Download </th><td>";
@@ -178,20 +178,18 @@ if (empty($nodes)) {
   }
 
   // site info and all site nodes
-  echo "<tr><td colspan=2>&nbsp;</td></tr>\n";
-  echo "<tr><th>Site: </th><td> <a href='/db/sites/index.php?id=$site_id'>$site_name</a></td></tr>\n";
-  echo "<tr><th>All site nodes: </th><td>";
-  if (empty($site_node_hash)) {
-    echo "<span class='plc-warning'>Site has no node</span>";
-  } else {
-    foreach( $site_node_hash as $key => $val ) {
-      echo "<a href=index.php?id=$key>$val</a><br />";
-    }
+  plc_details_space_line ();
+  plc_details_line("Site",l_site2($site_id,$site_name));
+		   
+  // build list of node links
+  $nodes_area=array();
+  foreach ($site_node_hash as $hash_node_id => $hash_hostname) {
+    $nodes_area []= l_node2($hash_node_id,$hash_hostname);
   }
-  echo "</td></tr>\n";
+  plc_details_line_list ("All site nodes",$nodes_area);
 
-  echo "</tbody></table><br />\n";
-    
+  plc_details_end ();
+
   //////////////////////////////////////////////////////////// interfaces
   if ( ! $peer_id ) {
 
@@ -255,7 +253,6 @@ if (empty($nodes)) {
 
   //////////////////////////////////////////////////////////// slices
   // display slices
-  $peer_hash = plc_peer_get_hash ($api);
 
   print "<hr/>\n";
   plc_table_title ("Slices");
