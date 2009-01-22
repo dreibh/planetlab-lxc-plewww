@@ -74,23 +74,23 @@ if [ ! -d $drupal_settings_dir ] ; then
 fi
 pushd $drupal_settings_dir
 # tune $db_url
-if [ ! -f settings.php.distrib ] ; then
-    cp settings.php settings.php.distrib
+if [ ! -f settings.php.drupal ] ; then
+    cp settings.php settings.php.drupal
     sed -e 's|^[ \t]*\$db_url.*|require_once("plc_config.php");$db_url="pgsql://" . PLC_DB_USER . ":" . PLC_DB_PASSWORD . "@" . PLC_DB_HOST . ":" . PLC_DB_PORT . "/drupal";|' \
-        settings.php.distrib > settings.php
+        settings.php.drupal > settings.php
 fi
 popd
 # append our own database creation hacks to the drupal database schema
 pushd /var/www/html/database
-if [ ! -f database.pgsql.distrib ] ; then
-    cp database.pgsql database.pgsql.distrib
-    cat database.pgsql.distrib ../drupal-hacks/database.pgsql > database.pgsql
+if [ ! -f database.pgsql.drupal ] ; then
+    cp database.pgsql database.pgsql.drupal
+    cat database.pgsql.drupal ../drupal-hacks/database.pgsql > database.pgsql
 fi
 popd
 # hack the welcome page for MyPLC
 pushd /var/www/html/modules
-if [ ! -f node.module.distrib ] ; then
-    cp node.module node.module.distrib
+if [ ! -f node.module.drupal ] ; then
+    cp node.module node.module.drupal
     [ -f /var/www/html/drupal-hacks/node.module ] && cp -f /var/www/html/drupal-hacks/node.module /var/www/html/module/node.module
 fi
 popd
