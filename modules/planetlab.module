@@ -10,6 +10,7 @@
 
 require_once 'plc_config.php';
 require_once 'plc_session.php';
+require_once 'plc_functions.php';
 
 function planetlab_help($section) {
   switch ($section) {
@@ -51,6 +52,21 @@ function planetlab_menu($may_cache) {
   return $items;
 }
 
+// formatting helpers
+function ul_start () { return '<ul class=menu>'; }
+function ul_end () { return '</ul>'; }
+function leaf($text) { return '<li class=leaf>' . $text . '</li>'; }
+function expanded($text) { return '<li class=expanded>' . $text . '</li>'; }
+function p($text) { return '<p>' . $text . '</p>'; }
+// fake theme to look like menu
+function menu_theme ($menu) {
+  $result = '';
+  $result .= ul_start();
+  foreach ($menu as $item) $result .= $item;
+  $result .= ul_end();
+  return $result;
+}
+
 function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
   global $user, $plc;
 
@@ -84,9 +100,10 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
 
       $block['subject'] = t('%s login', array('%s' => variable_get('site_name', 'local')));
       $block['content'] = drupal_get_form('planetlab_login_block', $form, 'planetlab_login');
-      $block['content'] .= '<p><p><a href="/db/persons/reset_password.php">Forgot your password?</a></p>';
-      $block['content'] .= '<p><a href="/db/persons/register.php">Create an account</a></p>';
-      $block['content'] .= '<p><a href="/db/sites/register.php">File a site registration</a></p>';
+      $block['content'] .= p('');
+      $block['content'] .= p( href (l_reset_password(),"Forgot your password?") );
+      $block['content'] .= p( href(l_person_register(),"Create an account") );
+      $block['content'] .= p( href(l_site_register(),"File a site registration") );
     } else {
       $block['subject'] = $plc->person['email'];
       $is_admin = in_array(10,$plc->person['role_ids']);
@@ -95,83 +112,88 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $is_tech  = in_array(40,$plc->person['role_ids']);
 
       $site_item = '';
-      $site_item .= '<a href="/db/sites/">Sites</a>';
-      $site_item .= '<ul>';
-      $site_item .= '<li><a href="/db/sites/index.php?id='. $plc->person['site_ids'][0] .'">My Site</a></li>';
+      $site_item .= href(l_sites(),"Sites");
+      $site_item .= ul_start();
+      $site_item .= leaf( href(l_site_u(plc_my_site_id()),"My site"));
       if ( $is_admin ) 
-	$site_item .= "<li><a href='/db/sites/join_request.php'>Join Requests</a></li>";
+	$site_item .= leaf( href(l_site_pending(),"Pending Requests"));
       if( $is_admin )
-	$site_item .= "<li><a href='/db/sites/peers.php'>Migration Status</a></li>";
-      $site_item .= "</ul>";
-      $items[] = $site_item;
+	$site_item .= leaf( href(l_site_status(),"Migration Status"));
+      $site_item .= ul_end();
+      $items[] = expanded($site_item);
 
       $user_item = '';
-      $user_item .= '<a href="/db/persons/">Users</a>';
-      $user_item .= '<ul>';
-      $user_item .= '<li><a href="/db/persons/index.php?id='. $plc->person['person_id'] .'">My account</a></li>';
+      $user_item .= href(l_persons(),'Users');
+      $user_item .= ul_start();
+      $user_item .= leaf( href(l_person_u(plc_my_person_id()),"My account"));
       if (is_pi) 
-	$user_item .= '<li><a href="/db/persons/index.php?site_id='. $plc->person['site_ids'][0] .'">My users</a></li>';
+	$user_item .= leaf( href( l_persons_site(plc_my_site_id()), "My users"));
       if ( $plc->alt_person && $plc->alt_auth) {
 	$email = $plc->person['email']; 
-	$user_item .= "<li><a href='/db/sulogout.php'>Log out of $email </a></li>";
+	$user_item .= leaf( href( l_sulogout(),"Log out of $email"));
       }	
-
-
-      $user_item .= '</ul>';
-      $items [] = $user_item;
+      $user_item .= ul_end();
+      $items [] = expanded($user_item);
 
       $node_item = '';
-      $node_item .= '<a href="/db/nodes/">Nodes</a>';
-      $node_item .= '<ul>';
-      $node_item .= '<li><a href="/db/nodes/index.php?site_id='. $plc->person['site_ids'][0] .'">My Site Nodes</a></li>';
-      $node_item .= "<li><a href='/db/nodes/add_node.php'>Add Node</a></li>";
+      $node_item .= href(l_nodes(),"Nodes");
+      $node_item .= ul_start();
+      $node_item .= leaf( href (l_nodes_site (plc_my_site_id()),"My Site Nodes"));
+      $node_item .= leaf( href (l_node_add(),"Add Node"));
       if ( $is_admin) 
-	$node_item .= "<li> <a href='/db/nodes/settings.php'> Setting Types </a> </li>";
-      $node_item .= '</ul>';
-      $items [] = $node_item;
+	$node_item .= leaf (href(l_peers(),'Peers'));
+      $node_item .= ul_end();
+      $items [] = expanded($node_item);
 
       $slice_item = '';
       //if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
-      $slice_item .= '<a href="/db/slices/">Slices</a>';
-      $slice_item .= '<ul>';
+      $slice_item .= href(l_slices(),"Slices");
+      $slice_item .= ul_start();
       if( $is_admin || $is_pi ) {
-	$slice_item .= "<li><a href='/db/slices/add_slice.php'>Create Slice</a></li>";
+	$slice_item .= leaf(href(l_slice_add(),"Create Slice"));
       }
       if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
-	$slice_item .= '<li><a href="/db/sirius/index.php">Sirius</a></li>';
-      $slice_item .= '</ul>';
-      $items [] = $slice_item;
+	$slice_item .= leaf(href(l_sirius(),"Sirius"));
+      $slice_item .= ul_end();
+      $items [] = expanded($slice_item);
 
       if( $is_admin || $is_pi ) {
 	$tag_item = '';
-	$tag_item .= '<a href="/db/slices/tags.php?type=all">Tags</a>';
-	$tag_item .= '<ul>';
-	$tag_item .= "<li><a href='/db/tags/index.php?type=node'>Node Tags</a></li>";
-	$tag_item .= "<li><a href='/db/tags/index.php?type=interface'>Interface Tags</a></li>";
-	$tag_item .= "<li><a href='/db/tags/index.php?type=slice'>Slice Tags</a></li>";
-	$tag_item .= "<li><a href='/db/tags/nodegroups.php'>Node groups (xxx)</a></li>";
-	$tag_item .= '</ul>';
-	$items [] = $tag_item;
+	$tag_item .= href(l_tags(),"All Tag Types");
+	$tag_item .= ul_start();
+	$tag_item .= leaf( href( l_tags_slice(),"Slice Tags"));
+	$tag_item .= leaf( href( l_tags_interface(),"Interface Tags"));
+	$tag_item .= leaf( href (l_tags_interface(),"Setting Types (dup xxx)"));
+	$tag_item .= leaf( href( l_tags_node(),"Node Tags"));
+	$tag_item .= leaf( href( l_nodegroups(),"Node groups (xxx)"));
+	$tag_item .= ul_end();
+	$items [] = expanded($tag_item);
       }
-      
+
+      $doc_item = '';
+      $doc_item .= href(l_about(),'About MyPLC');
+      $doc_item .= ul_start();
+      $doc_item .= leaf ( href (l_doc_plcapi(),"PLCAPI doc"));
+      $doc_item .= leaf ( href (l_doc_nmapi(),"NMAPI doc"));
+      $doc_item .= ul_end();
+      $items[] = expanded($doc_item);
 
       if ( $is_admin )
-	$items[] = l(t('Peers'),'db/peers/');
-     
-      if ( $is_admin )
-	$items[] = l(t('Events'),'db/events/');
+	$items[] = leaf (href(l_events(),'Events'));
       
-      $items[] = l(t('About'),'db/about.php');
-
       if ($user->uid) {
 	// Drupal logout (destroys the session and cleans up $user)
-	$items[] = l(t('Log out of %s', array('%s' => variable_get('site_name', 'local'))), 'logout');
+	// Thierry unclear when this triggers, I suspect this is obsolete
+	$items[] = leaf (l(t('Log out of %s', 
+			     array('%s' => variable_get('site_name', 'local'))), 'logout'));
       } else {
 	// PlanetLab logout (just destroy the session)
-	$items[] = l(t('Log out'), 'planetlab/logout');
+	$items[] = leaf ( href (l_logout(),'Log out'));
       }
-
-      $block['content'] = theme('item_list', $items);
+      
+      //$block['content'] = theme('list_item', $items);
+      $block['content'] = menu_theme($items);
+      //      plc_debug("content",$block['content']);
     }
 
     /*
@@ -272,8 +294,7 @@ function planetlab_logout() {
   drupal_goto(NULL, 'time='. time());
 }
 
-function planetlab_user($type, &$edit, &$user, $category = NULL)
-{
+function planetlab_user($type, &$edit, &$user, $category = NULL) {
   switch ($type) {
   case 'logout':
     if ($plc->person) {
@@ -284,8 +305,7 @@ function planetlab_user($type, &$edit, &$user, $category = NULL)
   }
 }
 
-function planetlab_page()
-{
+function planetlab_page() {
   $path = $_SERVER['DOCUMENT_ROOT'] . preg_replace('/^db\//', '/planetlab/', $_GET['q']);
 
   // error_log("Requested " . $_GET['q'] . " -> $path");
@@ -314,8 +334,7 @@ function planetlab_page()
   drupal_not_found();
 }
 
-function theme_planetlab($content)
-{
+function theme_planetlab($content) {
   return $content;
 }
 

@@ -5,6 +5,99 @@
 // will trash this eventually
 require_once 'plc_functions_trash.php';
 
+//////////////////////////////////////////////////////////// roles & other checks on global $plc
+function plc_is_admin () {
+  global $plc;
+  return in_array( 10, $plc->person['role_ids']);
+}
+function plc_is_pi () {
+  global $plc;
+  return in_array( 20, $plc->person['role_ids']);
+}
+function plc_is_tech () {
+  global $plc;
+  return in_array( 40, $plc->person['role_ids']);
+}
+function plc_in_site ($site_id) {
+  global $plc;
+  return in_array( $site_id, $plc->person['site_ids']);
+}
+
+function plc_my_site_id () {
+  global $plc;
+  return $plc->person['site_ids'][0];
+}
+
+function plc_my_person_id () {
+  global $plc;
+  return $plc->person['person_id'];
+}
+
+//////////////////////////////////////////////////////////// links    
+function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; }
+
+function l_nodes () { return "/db/nodes/index.php"; }
+function l_node_u ($node_id) { return "/db/nodes/node.php?id=" . $node_id; }
+function l_node ($node_id) { return href (l_node_u($node_id),$node_id); }
+function l_node2 ($node_id,$text) { return href (l_node_u($node_id),$text); }
+function l_nodes_site ($site_id) { return "/db/nodes/index.php?site_id=" . $site_id; }
+function l_node_add () { return "/db/nodes/add_node.php"; }
+
+function l_interface_u ($interface_id) { return "/db/nodes/interfaces.php?id=" . $interface_id; }
+function l_interface_add_u($node_id) { return "/db/nodes/interfaces.php?node_id=" . $node_id; }
+function l_interface ($interface_id) { return href (l_interface_u($interface_id),$interface_id); }
+function l_interface2 ($interface_id,$text) { return href (l_interface_u($interface_id),$text); }
+
+function l_sites () { return "/db/sites/index.php"; }
+function l_site_u ($site_id) { return "/db/persons/index.php?id=" . $site_id; }
+function l_site ($site_id) { return href (l_site_u($site_id),$site_id); }
+function l_site2 ($site_id,$text) { return href (l_site_u($site_id),$text); }
+
+function l_slices () { return "/db/slices/index.php"; }
+function l_slice_u ($slice_id) { return "/db/slices/index.php?id=" . $slice_id; }
+function l_slice ($slice_id) { return href (l_slice_u($slice_id),$slice_id); }
+function l_slice2 ($slice_id,$text) { return href (l_slice_u($slice_id),$text); }
+function l_slice_add () { return "/db/slices/add_slice.php"; }
+
+function l_sliver_u ($node_id,$slice_id) { return "/db/nodes/slivers.php?node_id=" . $node_id. "&slice_id=" . $slice_id; }
+function l_sliver3 ($node_id,$slice_id,$text) { return href (l_sliver_u($node_id,$slice_id),$text) ; }
+
+function l_persons () { return "/db/persons/index.php"; }
+function l_persons_site ($site_id) { return "/db/persons/index.php?site_id=" . $site_id; }
+function l_person_u ($person_id) { return "/db/persons/index.php?id=" . $person_id; }
+function l_person ($person_id) { return href (l_person_u($person_id),$person_id); }
+function l_person2 ($person_id,$text) { return href (l_person_u($person_id),$text); }
+
+function l_tags () { return "/db/tags/index.php"; }
+function l_tags_node () { return "/db/tags/index.php?type=node"; }
+# xxx cleanup duplicate pages
+#function l_tags_interface () { return "/db/tags/index.php?type=interface"; }
+function l_tags_interface () { return "/db/nodes/settings.php"; }
+function l_tags_slice () { return "/db/tags/index.php?type=slice"; }
+
+function l_nodegroups () { return "/db/tags/node_groups.php"; }
+function l_nodegroup_u ($nodegroup_id) { return "/db/tags/node_groups.php?id=" . $nodegroup_id; }
+function l_nodegroup2 ($nodegroup_id,$text) { return href(l_nodegroup_u($nodegroup_id),$text); }
+
+function l_events () { return '/db/events/index.php'; }
+function l_event ($type,$param,$id) { return '/db/events/index.php?type=' . $type . '&' . $param . '=' . $id; }
+
+function l_peers() { return "/db/peers/index.php"; }
+function l_peer_u($peer_id) { return "/db/peers/index.php?id=" . $peer_id; }
+function l_comon($id_name,$id_value) { return '/db/nodes/comon.php?' . $id_name . "=" . $id_value; }
+function l_sirius() { return "/db/sirius/index.php"; }
+function l_about() { return "/db/about.php"; }
+function l_doc_plcapi() { return "/db/doc/PLCAPI.php"; }
+function l_doc_nmapi() { return "/db/doc/NMAPI.php"; }
+
+function l_logout() { return "/planetlab/logout.php"; }
+function l_sulogout() { return "/planetlab/sulogout.php"; }
+function l_reset_password() { return "/db/persons/reset_password.php"; }
+function l_person_register() { return "/db/persons/register.php"; }
+function l_site_register() { return "/db/sites/register.php"; }
+function l_site_pending() { return "/db/sites/join_request.php"; }
+function l_site_status() { return "/db/sites/peers.php"; }
+
 //////////////////////////////////////////////////////////// validation functions
 function topdomain ($hostname) {
   $exploded=array_reverse(explode(".",$hostname));
@@ -86,29 +179,6 @@ function is_reserved_network_addr($network_addr) {
   return false;
 }
 
-//////////////////////////////////////////////////////////// roles & other checks on global $plc
-function plc_is_admin () {
-  global $plc;
-  return in_array( 10, $plc->person['role_ids']);
-}
-function plc_is_pi () {
-  global $plc;
-  return in_array( 20, $plc->person['role_ids']);
-}
-function plc_is_tech () {
-  global $plc;
-  return in_array( 40, $plc->person['role_ids']);
-}
-function plc_in_site ($site_id) {
-  global $plc;
-  return in_array( $site_id, $plc->person['site_ids']);
-}
-
-function plc_my_site_id () {
-  global $plc;
-  return $plc->person['site_ids'][0];
-}
-
 ////////////////////////////////////////////////////////////  peer & peerscopes
 // when shortnames are needed on peers
 function plc_peer_get_hash ($api) {
@@ -179,46 +249,6 @@ function plc_peer_info ($api,$peerscope) {
   }
   return array ($peer_filter,$peer_label);
 }
-
-//////////////////////////////////////////////////////////// links    
-function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; }
-
-function l_nodes () { return "/db/nodes/index.php"; }
-function l_nodes_site ($site_id) { return "/db/nodes/index.php?site_id=" . $site_id; }
-function l_node_u ($node_id) { return "/db/nodes/node.php?id=" . $node_id; }
-function l_node ($node_id) { return href (l_node_u($node_id),$node_id); }
-function l_node2 ($node_id,$text) { return href (l_node_u($node_id),$text); }
-
-function l_interface_u ($interface_id) { return "/db/nodes/interfaces.php?id=" . $interface_id; }
-function l_interface_add_u($node_id) { return "/db/nodes/interfaces.php?node_id=" . $node_id; }
-function l_interface ($interface_id) { return href (l_interface_u($interface_id),$interface_id); }
-function l_interface2 ($interface_id,$text) { return href (l_interface_u($interface_id),$text); }
-
-function l_nodegroup_u ($nodegroup_id) { return "/db/nodes/node_groups.php?id=" . $nodegroup_id; }
-function l_nodegroup2 ($nodegroup_id,$text) { return href(l_nodegroup_u($nodegroup_id),$text); }
-
-function l_sites () { return "/db/sites/index.php"; }
-function l_site_u ($site_id) { return "/db/persons/index.php?id=" . $site_id; }
-function l_site ($site_id) { return href (l_site_u($site_id),$site_id); }
-function l_site2 ($site_id,$text) { return href (l_site_u($site_id),$text); }
-
-function l_slices () { return "/db/slices/index.php"; }
-function l_slice_u ($slice_id) { return "/db/slices/index.php?id=" . $slice_id; }
-function l_slice ($slice_id) { return href (l_slice_u($slice_id),$slice_id); }
-function l_slice2 ($slice_id,$text) { return href (l_slice_u($slice_id),$text); }
-
-function l_sliver_u ($node_id,$slice_id) { return "/db/nodes/slivers.php?node_id=" . $node_id. "&slice_id=" . $slice_id; }
-function l_sliver3 ($node_id,$slice_id,$text) { return href (l_sliver_u($node_id,$slice_id),$text) ; }
-
-function l_persons () { return "/db/persons/index.php"; }
-function l_person_u ($person_id) { return "/db/persons/index.php?id=" . $person_id; }
-function l_person ($person_id) { return href (l_person_u($person_id),$person_id); }
-function l_person2 ($person_id,$text) { return href (l_person_u($person_id),$text); }
-
-function l_event ($type,$param,$id) { return '/db/events/index.php?type=' . $type . '&' . $param . '=' . $id; }
-function l_comon($id_name,$id_value) { return '/db/nodes/comon.php?' . $id_name . "=" . $id_value; }
-
-function l_logout() { return "/planetlab/logout.php"; }
 
 //////////////////////////////////////////////////////////// titles
 function t_site($site) { return " on site " . $site['name'] . " (" . $site['login_base'] .")"; }

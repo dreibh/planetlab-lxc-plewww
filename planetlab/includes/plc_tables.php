@@ -18,12 +18,18 @@ function plc_table_cell($cell) {
 // table_id: <table>'s id tag
 // headers: an associative array "label"=>"type" 
 // column_sort: the column to sort on at load-time
-// search_area : boolean
-// pagesize: the initial pagination size
-// pagesize_def: the page size when one clicks the pagesize reset button
-// max_pages: the max number of pages to display in the paginator
+// options : an associative array to override options:
+//  - search_area : boolean
+//  - pagesize: the initial pagination size
+//  - pagesize_def: the page size when one clicks the pagesize reset button
+//  - max_pages: the max number of pages to display in the paginator
 function plc_table_start ($table_id, $headers, $column_sort,
-			  $search_area=true,$max_pages="10",$pagesize="25",$pagesize_def="999") {
+			  $options=array()) {
+  $search_area= array_key_exists('search_area',$options) ? $options['search_area'] : true;
+  $max_pages= array_key_exists('max_pages',$options) ? $options['max_pages'] : 10;
+  $pagesize= array_key_exists('pagesize',$options) ? $options['pagesize'] : 25;
+  $pagesize_def= array_key_exists('pagesize_def',$options) ? $options['pagesize_def'] : 999;
+
   if ($search_area) {
     plc_table_search_area($table_id,$pagesize,$pagesize_def);
   }
@@ -79,7 +85,7 @@ function plc_table_head ($table_id,$headers,$column_sort,$max_pages,$pagesize) {
   $classname.=" paginate-" . $pagesize;
   print <<< EOF
 <!-- instantiate paginator callback -->
-<script type"text/javascript"> 
+<script type="text/javascript"> 
 function $paginator (opts) { plc_table_paginator (opts,"$table_id"); }
 </script>
 <br/>
@@ -94,7 +100,7 @@ EOF;
     if ($type == "int") $type="";
     if ($type == "float") $type="";
     $class="sortable";
-    if ( ! empty($type)) $class .= "-" . $type;
+    if ( ! empty($type)) $class .= "-sort" . $type;
     print '<th class="' . $class . ' plc_table">' . $label . "</th>\n";
   }
 

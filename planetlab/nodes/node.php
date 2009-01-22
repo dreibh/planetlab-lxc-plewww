@@ -190,6 +190,30 @@ if (empty($nodes)) {
 
   plc_details_end ();
 
+  //////////////////////////////////////////////////////////// slices
+  // display slices
+
+  print "<hr/>\n";
+  plc_table_title ("Slices");
+  if ( ! $slices  ) {
+    echo "<p><span class='plc-warning'>This node is not associated to any slice.</span></p>\n";
+  } else {
+    $columns=array();
+    $columns['Peer']="string";
+    $columns['Name']="string";
+    $columns['Slivers']="string";
+    plc_table_start ("slivers",$columns,1);
+
+    foreach ($slices as $slice) {
+      plc_table_row_start($slice['name']);
+      plc_table_cell (plc_peer_shortname($peer_hash,$slice['peer_id']));
+      plc_table_cell (l_slice2 ($slice['slice_id'],$slice['name']));
+      plc_table_cell (l_sliver3 ($node_id,$slice['slice_id'],'view'));
+      plc_table_row_end();
+    }
+    plc_table_end();
+  }
+
   //////////////////////////////////////////////////////////// interfaces
   if ( ! $peer_id ) {
 
@@ -211,7 +235,7 @@ if (empty($nodes)) {
 
       print "<hr/>\n";
       plc_table_title('Interfaces');
-      plc_table_start("interfaces",$columns,2,false);
+      plc_table_start("interfaces",$columns,2,array('search_area'=>false));
 	
       foreach ( $interfaces as $interface ) {
 	$interface_id= $interface['interface_id'];
@@ -251,30 +275,6 @@ if (empty($nodes)) {
       
   }
 
-  //////////////////////////////////////////////////////////// slices
-  // display slices
-
-  print "<hr/>\n";
-  plc_table_title ("Slices");
-  if ( ! $slices  ) {
-    echo "<p><span class='plc-warning'>This node is not associated to any slice.</span></p>\n";
-  } else {
-    $columns=array();
-    $columns['Peer']="string";
-    $columns['Name']="string";
-    $columns['Slivers']="string";
-    plc_table_start ("slivers",$columns,1);
-
-    foreach ($slices as $slice) {
-      plc_table_row_start($slice['name']);
-      plc_table_cell (plc_peer_shortname($peer_hash,$slice['peer_id']));
-      plc_table_cell (l_slice2 ($slice['slice_id'],$slice['name']));
-      plc_table_cell (l_sliver3 ($node_id,$slice['slice_id'],'view'));
-      plc_table_row_end();
-    }
-    plc_table_end();
-  }
-
   //////////////////////////////////////////////////////////// nodegroups
   // display node group info
   if ( ! $nodegroups ) {
@@ -287,7 +287,7 @@ if (empty($nodes)) {
       
     print "<hr/>\n";
     plc_table_title("Nodegroups");
-    plc_table_start("nodegroups",$columns,0,false);
+    plc_table_start("nodegroups",$columns,0,array('search_area'=>false));
 
     foreach( $nodegroups as $nodegroup ) {
       plc_table_row_start();

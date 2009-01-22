@@ -1,6 +1,5 @@
 <?php
 // $Id$
-  //
 
 // Require login
 require_once 'plc_login.php';
@@ -11,24 +10,61 @@ global $plc, $api;
 
 //// Print header
 require_once 'plc_drupal.php';
-//set default title
-drupal_set_title('Events');
-
 include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_sorts.php';
   
-// find person roles
-$_person= $plc->person;
-$_roles= $_person['role_ids'];
+// needs much memory
+ini_set("memory_limit","128M");
+
+//set default title
+drupal_set_title('Events');
 
 // paginate unit
 $page_size=30;
 
 $messages = array ();
 
+////////////////////////////////////////
+// defaults for day ('j'), 3-letter month ('M') or year ('Y')
+function the_date ($key,$dateformat) { 
+  if ($_GET[$key]) return $_GET[$key];
+  else return date($dateformat);
+}
+
+// fill out dates from now if not specified
+$from_d = the_date('from_d','j');
+$from_m = the_date('from_m','M');
+$from_y = the_date('from_y','Y');
+$until_d = the_date('until_d','j');
+$until_m = the_date('until_m','M');
+$until_y = the_date('until_y','Y');
+
+// create the options area from a list and the selected entry
+function dropdown_options ($array,$selected) {
+  $result="";
+  foreach ($array as $item) {
+    $result.= "<option value=" . $item;
+    if ($item == $selected) $result .= ' selected=selected';
+    $result .= '>' . $item . '</option>';
+  }
+  return $result;
+}
+
+$days=range(1,31);
+$from_d_dropdown_options=dropdown_options($days,$from_d);
+$until_d_dropdown_options=dropdown_options($days,$until_d);
+$months=array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+$from_m_dropdown_options=dropdown_options($months,$from_m);
+$until_m_dropdown_options=dropdown_options($months,$until_m);
+// only propose years ranging from now + 3 full years back
+$this_year=date('Y');
+$years=range($this_year-3,$this_year);
+$from_y_dropdown_options=dropdown_options($years,$from_y);
+$until_y_dropdown_options=dropdown_options($years,$until_y);
+ 
 $event_form = <<< EOF
 <form method=get name='F' action='/db/events/index.php' >
 
@@ -58,132 +94,30 @@ $event_form = <<< EOF
 </td></tr>
 
 
-<tr><th>FROM</th> <th>UNTIL</th> </tr>
+<tr><th>FROM (inclusive)</th> <th>UNTIL (inclusive)</th> </tr>
 
 <tr>
       <td>    
-        <SELECT NAME='from_d' >
-	<OPTION>
-	<OPTION VALUE=' 1' >1
-	<OPTION VALUE=' 2' >2
-	<OPTION VALUE=' 3' >3
-	<OPTION VALUE=' 4' >4
-	<OPTION VALUE=' 5' >5
-	<OPTION VALUE=' 6' >6
-	<OPTION VALUE=' 7' >7
-	<OPTION VALUE=' 8' >8
-	<OPTION VALUE=' 9' >9
-	<OPTION VALUE=' 10' >10
-	<OPTION VALUE=' 11' >11
-	<OPTION VALUE=' 12' >12
-	<OPTION VALUE=' 13' >13
-	<OPTION VALUE=' 14' >14
-	<OPTION VALUE=' 15' >15
-	<OPTION VALUE=' 16' >16
-	<OPTION VALUE=' 17' >17
-	<OPTION VALUE=' 18' >18
-	<OPTION VALUE=' 19' >19
-	<OPTION VALUE=' 20' >20
-	<OPTION VALUE=' 21' >21
-	<OPTION VALUE=' 22' >22
-	<OPTION VALUE=' 23' >23
-	<OPTION VALUE=' 24' >24
-	<OPTION VALUE=' 25' >25
-	<OPTION VALUE=' 26' >26
-	<OPTION VALUE=' 27' >27
-	<OPTION VALUE=' 28' >28
-	<OPTION VALUE=' 29' >29
-	<OPTION VALUE=' 30' >30
-	<OPTION VALUE=' 31' >31
+        <SELECT NAME='from_d'>
+$from_d_dropdown_options								 
         </SELECT>
-
         <SELECT NAME='from_m' >
-	<OPTION>
-	<OPTION VALUE=' Jan' >January
-	<OPTION VALUE=' Feb' >February
-	<OPTION VALUE=' Mar' >March
-	<OPTION VALUE=' Apr' >April
-	<OPTION VALUE=' May' >May
-	<OPTION VALUE=' Jun' >June
-	<OPTION VALUE=' Jul' >July
-	<OPTION VALUE=' Aug' >August
-	<OPTION VALUE=' Sep' >September
-	<OPTION VALUE=' Oct' >October
-	<OPTION VALUE=' Nov' >November
-	<OPTION VALUE=' Dec' >December
+$from_m_dropdown_options
         </SELECT>
-
         <SELECT NAME='from_y' >
-	<OPTION>
-	<OPTION VALUE='2006' >2006
-	<OPTION VALUE='2007' >2007
-	<OPTION VALUE='2008' >2008
-	<OPTION VALUE='2009' >2009
-	<OPTION VALUE='2010' >2010
-	<OPTION VALUE='2011' >2011
+$from_y_dropdown_options
         </SELECT>
-
 </td>
 
 <TD>
    <SELECT NAME=' until_d' >
-	<OPTION>
-	<OPTION VALUE='1' >1
-	<OPTION VALUE='2' >2
-	<OPTION VALUE='3' >3
-	<OPTION VALUE='4' >4
-	<OPTION VALUE='5' >5
-	<OPTION VALUE='6' >6
-	<OPTION VALUE='7' >7
-	<OPTION VALUE='8' >8
-	<OPTION VALUE='9' >9
-	<OPTION VALUE='10' >10
-	<OPTION VALUE='11' >11
-	<OPTION VALUE='12' >12
-	<OPTION VALUE='13' >13
-	<OPTION VALUE='14' >14
-	<OPTION VALUE='15' >15
-	<OPTION VALUE='16' >16
-	<OPTION VALUE='17' >17
-	<OPTION VALUE='18' >18
-	<OPTION VALUE='19' >19
-	<OPTION VALUE='20' >20
-	<OPTION VALUE='21' >21
-	<OPTION VALUE='22' >22
-	<OPTION VALUE='23' >23
-	<OPTION VALUE='24' >24
-	<OPTION VALUE='25' >25
-	<OPTION VALUE='26' >26
-	<OPTION VALUE='27' >27
-	<OPTION VALUE='28' >28
-	<OPTION VALUE='29' >29
-	<OPTION VALUE='30' >30
-	<OPTION VALUE='31' >31
+$until_d_dropdown_options
     </SELECT>
     <SELECT NAME=' until_m' >
-	<OPTION>
-	<OPTION VALUE='Jan' >January
-	<OPTION VALUE='Feb' >February
-	<OPTION VALUE='Mar' >March
-	<OPTION VALUE='Apr' >April
-	<OPTION VALUE='May' >May
-	<OPTION VALUE='Jun' >June
-	<OPTION VALUE='Jul' >July
-	<OPTION VALUE='Aug' >August
-	<OPTION VALUE='Sep' >September
-	<OPTION VALUE='Oct' >October
-	<OPTION VALUE='Nov' >November
-	<OPTION VALUE='Dec' >December
+$until_m_dropdown_options
    </SELECT>
- 
     <SELECT NAME=' until_y' >
-	<OPTION>
-	<OPTION VALUE='2006' >2006
-	<OPTION VALUE='2007' >2007
-	<OPTION VALUE='2008' >2008
-	<OPTION VALUE='2009' >2009
-	<OPTION VALUE='2010' >2010
-	<OPTION VALUE='2011' >2011
+$until_y_dropdown_options
     </SELECT>
 </td></tr>
 
@@ -278,12 +212,11 @@ function layout ($param){
 
 //plc_debug('GET',$_GET);
 
-if ( !in_array ('10', $_roles)) {
+if ( ! plc_is_admin()) {
   echo "<div class='plc-warning'> You need admin role to see this page. </div>";
 
- } else if (!$_GET['type']) {
-
-  echo "<h2>What events would you like to consult :</h2>";
+ } else if (! $_GET['type']) {
+  echo "<h2>Select the events to focus on :</h2>";
   // print the selection frame
   echo $event_form;
   
@@ -291,11 +224,15 @@ if ( !in_array ('10', $_roles)) {
 
   // handle dates
   list($from_date,$from_time,$until_date,$until_time) = parse_dates ();
+  // add one day to until_time - otherwise this corresponds to 0:0
+  $until_time += (24*60*60);
   if ( ($from_time != 0) && ($until_time != 0) && ($from_time > $until_time) ) {
     $messages[] = "Warning - wrong date selection";
   }
   
   $filter=array();
+  // sort events by time is not good enough, let's use event_id
+  $filter['-SORT']='event_id';
   if ($from_time != 0) {
     $filter[']time']=$from_time;
   }
@@ -330,13 +267,9 @@ if ( !in_array ('10', $_roles)) {
     }
 
     // Show messages
-    if (!empty($messages)) {
-      print '<div class="messages plc-warning"><ul>';
-      foreach ($messages as $line) {
-	print "<li> $line";
-      }
-      print "</ul></div>";
-    }
+    if (!empty($messages)) 
+      foreach ($messages as $line) 
+	drupal_set_message($line);
 	
     if ( ! empty ($events)) {
       $events= array_map(layout,$events);

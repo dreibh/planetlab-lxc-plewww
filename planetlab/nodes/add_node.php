@@ -9,7 +9,6 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
   
 // if not a admin, pi, or tech then redirect to node index
 // xxx does not take site into account
@@ -116,7 +115,6 @@ if ( $_POST['submitted'] )  {
 
 // Print header
 require_once 'plc_drupal.php';
-drupal_set_title('Nodes');
 include 'plc_header.php';
 
 ?>
@@ -138,8 +136,8 @@ function updateStaticFields() {
 
 if ( $success ) {
   $link=l_node2($node_id,"here");
+  drupal_set_title('Node created');
   print <<< EOF
-<h2>Node Created</h2>
 
 <p>The node has been successfully added.
 
@@ -147,8 +145,11 @@ if ( $success ) {
     file $link.
 EOF;
  } else {
+  $sites=$api->GetSites(array(plc_my_site_id()));
+  $sitename=$sites[0]['name'];
+		       
+  drupal_set_title('Add a new node in site "' . $sitename . '"');
   print <<< EOF
-<h2>Add A New Node</h2>
 
 <p>This page will allow you to add a new machine to your site. This must
 be done before the machine is turned on, as it will allow you to download 
