@@ -91,7 +91,7 @@ popd
 pushd /var/www/html/modules
 if [ ! -f node.module.drupal ] ; then
     cp node.module node.module.drupal
-    [ -f /var/www/html/drupal-hacks/node.module ] && cp -f /var/www/html/drupal-hacks/node.module /var/www/html/module/node.module
+    [ -f /var/www/html/drupal-hacks/node.module ] && cp -f /var/www/html/drupal-hacks/node.module /var/www/html/modules/node.module
 fi
 popd
 
