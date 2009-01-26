@@ -42,7 +42,7 @@ drupal_set_title("Details for Peer " . $peername);
 plc_details_start();
 plc_details_line("Peer name",$peer['peername']);
 plc_details_line("Short name",$peer['shortname']);
-plc_details_line("Hierarchical name","not implemented yet");
+plc_details_line("Hierarchical name",$peer['hrn_root']);
 plc_details_line("API URL",$peer['peer_url']);
 
 plc_details_line("Number of sites",sizeof($peer['site_ids']));

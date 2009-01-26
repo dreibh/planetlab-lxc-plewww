@@ -18,26 +18,28 @@ function plc_table_cell($cell) {
 // table_id: <table>'s id tag
 // headers: an associative array "label"=>"type" 
 // column_sort: the column to sort on at load-time
-// options : an associative array to override options:
-//  - search_area : boolean
+// options : an associative array to override options (should be passed to both _stsart and _end)
+//  - search_area : boolean (default true)
+//  - notes_area : boolean (default true)
 //  - pagesize: the initial pagination size
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
-function plc_table_start ($table_id, $headers, $column_sort,
-			  $options=array()) {
-  $search_area= array_key_exists('search_area',$options) ? $options['search_area'] : true;
-  $max_pages= array_key_exists('max_pages',$options) ? $options['max_pages'] : 10;
-  $pagesize= array_key_exists('pagesize',$options) ? $options['pagesize'] : 25;
-  $pagesize_def= array_key_exists('pagesize_def',$options) ? $options['pagesize_def'] : 999;
+function plc_table_start ($table_id, $headers, $column_sort, $options) {
+  $search_area = array_key_exists('search_area',$options) ? $options['search_area'] : true;
+  $max_pages = array_key_exists('max_pages',$options) ? $options['max_pages'] : 10;
+  $pagesize = array_key_exists('pagesize',$options) ? $options['pagesize'] : 25;
+  $pagesize_def = array_key_exists('pagesize_def',$options) ? $options['pagesize_def'] : 999;
 
-  if ($search_area) {
+  if ($search_area) 
     plc_table_search_area($table_id,$pagesize,$pagesize_def);
-  }
   plc_table_head($table_id,$headers,$column_sort,$max_pages,$pagesize);
 }
 
-function plc_table_end () {
+function plc_table_end ($options) {
   plc_table_foot();
+  $notes_area = array_key_exists('notes_area',$options) ? $options['notes_area'] : true;
+  if ($notes_area) 
+    plc_table_notes();
 }
 		    
 ////////////////////

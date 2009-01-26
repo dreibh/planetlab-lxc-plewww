@@ -135,7 +135,7 @@ function updateStaticFields() {
 <?php
 
 if ( $success ) {
-  $link=l_node2($node_id,"here");
+  $link=l_node_t($node_id,"here");
   drupal_set_title('Node created');
   print <<< EOF
 

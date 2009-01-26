@@ -102,20 +102,20 @@ if( $_GET['dis_id'] ) {
 }
 
 // if action exists figure out what to do
-if( $_POST['actions'] ) {
+if( $_POST['action'] ) {
 
   // depending on action, run function
-  switch( $_POST['actions'] ) {
+  switch( $_POST['action'] ) {
     case "delete":
-      header( "location: person_action.php?del_id=$person_id" );
+      header( "location: person_actions.php?del_id=$person_id" );
       exit();
       break;
     case "disable":
-      header( "location: person_action.php?dis_id=$person_id" );
+      header( "location: person_actions.php?dis_id=$person_id" );
       exit();
       break;
     case "enable":
-      header( "location: person_action.php?enab_id=$person_id" );
+      header( "location: person_actions.php?enab_id=$person_id" );
       exit();
       break;
     case "su":
@@ -199,7 +199,7 @@ if( $_GET['del_id'] ) {
   $person_info= $api->GetPersons( array( intval( $person_id ) ), array( "first_name", "last_name", "email", "roles" ) );
 
   // start form
-  echo "<form action='person_action.php?per_id=$person_id' method=post>\n";
+  echo "<form action='person_actions.php?per_id=$person_id' method=post>\n";
 
   // show delete confirmation
   echo "<h2>Delete ". $person_info[0]['first_name'] ." ". $person_info[0]['last_name'] ."</h2>\n";

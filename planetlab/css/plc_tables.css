@@ -94,8 +94,9 @@ table.table_dialogs {
     width:100%;
     border:1px;
 }
-.pagesize_label{
-    font-weight:bold;
+.pagesize_label, .pagesize_input {
+    font-style: oblique;
+    font-size: .5em;
 }
 .table_search_label{
     font-weight:bold;
@@ -187,7 +188,7 @@ td.sized2 {
 }
 td.sized3 {
     width:7em;
-        text-align:left;
+    text-align:left;
 }
 /*
    tfoot td

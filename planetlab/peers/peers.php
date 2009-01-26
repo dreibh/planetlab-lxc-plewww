@@ -37,10 +37,11 @@ if ( empty($peers)) {
 		  'URL'=>'string',
 		  'Comon'=>'string');
 		  
-  plc_table_start ("peers",$columns,1);
+  $table_options=array('search_area'=>false, 'notes_area'=>false);
+  plc_table_start ("peers",$columns,1,$table_options);
   foreach ($peers as $peer) {
     plc_table_row_start();
-    plc_table_cell (href(l_peer_u($peer['peer_id']),$peer['peername']));
+    plc_table_cell (href(l_peer($peer['peer_id']),$peer['peername']));
     plc_table_cell ($peer['shortname']);
 // xxx no HRN yet
     plc_table_cell ('?');
@@ -48,6 +49,7 @@ if ( empty($peers)) {
     plc_table_cell (href(l_comon("peer_id",$peer['peer_id']),'Comon'));
     plc_table_row_end();
   }
+  plc_table_end($table_options);
  }
 		    
 // Print footer

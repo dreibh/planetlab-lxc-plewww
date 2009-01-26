@@ -2053,7 +2053,7 @@ function node_page_default() {
       <ol>
         <li>
           <strong>Use your administrator account</strong>
-          Enter the site using the credentials that you have provided when configuring MyPLC (see PLC_ROOT_USER and PLC_ROOT_PASSWORD). This account has full administration rights and will allows to configure your website using Drupal tools.
+          Enter the site using the credentials that you have provided when configuring MyPLC (see PLC_ROOT_USER and PLC_ROOT_PASSWORD). This account has full administration rights and allows you to configure your website using Drupal tools.
         </li>
         <li>
           <strong>Configure your website</strong>

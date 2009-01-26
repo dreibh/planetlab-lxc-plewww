@@ -100,11 +100,11 @@ if (empty($nodes)) {
   drupal_set_title("Details for node " . $hostname);
   
   // extra privileges to admins, and (pi||tech) on this site
-  $extra_privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
+  $privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
   
   $tabs=array();
   // available actions
-  if ( ! $peer_id  && $extra_privileges ) {
+  if ( ! $peer_id  && $privileges ) {
     
     $tabs['Update'] = array ('url'=>"/db/nodes/node_actions.php",
 			     'method'=>'POST',
@@ -114,7 +114,7 @@ if (empty($nodes)) {
 			     'values'=>array('action'=>'delete','node_id'=>$node_id),
 			     'confirm'=>'Are you sure to delete ' . $hostname. ' ?');
     // xxx subject to roles
-    $tabs["Add Interface"]=l_interface_add_u($node_id);
+    $tabs["Add Interface"]=l_interface_add($node_id);
     $tabs["Comon"]=l_comon("node_id",$node_id);
     $tabs["Events"]=l_event("Node","node",$node_id);
   }
@@ -158,7 +158,7 @@ if (empty($nodes)) {
   echo "</td></tr>\n";
 
   // same here for the download area
-  if ( ! $peer_id  && $extra_privileges) {
+  if ( ! $peer_id  && $privileges) {
 
     echo "<tr><th>Download </th><td>";
     echo "<form name='download' action='/db/nodes/node_actions.php' method='post'>\n";
@@ -179,12 +179,12 @@ if (empty($nodes)) {
 
   // site info and all site nodes
   plc_details_space_line ();
-  plc_details_line("Site",l_site2($site_id,$site_name));
+  plc_details_line("Site",l_site_t($site_id,$site_name));
 		   
   // build list of node links
   $nodes_area=array();
   foreach ($site_node_hash as $hash_node_id => $hash_hostname) {
-    $nodes_area []= l_node2($hash_node_id,$hash_hostname);
+    $nodes_area []= l_node_t($hash_node_id,$hash_hostname);
   }
   plc_details_line_list ("All site nodes",$nodes_area);
 
@@ -202,16 +202,17 @@ if (empty($nodes)) {
     $columns['Peer']="string";
     $columns['Name']="string";
     $columns['Slivers']="string";
-    plc_table_start ("slivers",$columns,1);
+    $table_options = array('notes_area'=>false);
+    plc_table_start ("slivers",$columns,1,$table_options);
 
     foreach ($slices as $slice) {
       plc_table_row_start($slice['name']);
       plc_table_cell (plc_peer_shortname($peer_hash,$slice['peer_id']));
-      plc_table_cell (l_slice2 ($slice['slice_id'],$slice['name']));
-      plc_table_cell (l_sliver3 ($node_id,$slice['slice_id'],'view'));
+      plc_table_cell (l_slice_t ($slice['slice_id'],$slice['name']));
+      plc_table_cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
       plc_table_row_end();
     }
-    plc_table_end();
+    plc_table_end($table_options);
   }
 
   //////////////////////////////////////////////////////////// interfaces
@@ -222,7 +223,7 @@ if (empty($nodes)) {
       echo "<p><span class='plc-warning'>No interface</span>.  Please add an interface to make this a usable PLC node</p>.\n";
     } else {
       $columns=array();
-      if ( $extra_privileges ) {
+      if ( $privileges ) {
 	// a single symbol, marking 'p' for primary and a delete button for non-primary
 	$columns[' ']='string';
       }
@@ -235,7 +236,8 @@ if (empty($nodes)) {
 
       print "<hr/>\n";
       plc_table_title('Interfaces');
-      plc_table_start("interfaces",$columns,2,array('search_area'=>false));
+      $table_options=array('search_area'=>false);
+      plc_table_start("interfaces",$columns,2,$table_options);
 	
       foreach ( $interfaces as $interface ) {
 	$interface_id= $interface['interface_id'];
@@ -254,7 +256,7 @@ if (empty($nodes)) {
 	$interface_method= $interface['method'];
 
 	plc_table_row_start($interface['ip']);
-	if ( $extra_privileges ) {
+	if ( $privileges ) {
 	  if (!$interface_primary) {
 	    // xxx 
 	    plc_table_cell (plc_delete_link_button ('interfaces.php?id=' . $interface_id . '&delete=1&submitted=1', 
@@ -263,14 +265,14 @@ if (empty($nodes)) {
 	    plc_table_cell('p');
 	  }
 	}
-	plc_table_cell(l_interface2($interface_id,$interface_ip));
+	plc_table_cell(l_interface_t($interface_id,$interface_ip));
 	plc_table_cell($interface_method);
 	plc_table_cell($interface_type);
 	plc_table_cell($interface_mac);
 	plc_table_cell($interface_bwlimit);
 	plc_table_row_end();
       }
-      plc_table_end();
+      plc_table_end($table_options);
     }
       
   }
@@ -287,17 +289,18 @@ if (empty($nodes)) {
       
     print "<hr/>\n";
     plc_table_title("Nodegroups");
-    plc_table_start("nodegroups",$columns,0,array('search_area'=>false));
+    $table_options = array('search_area'=>false);
+    plc_table_start("nodegroups",$columns,0,$table_options);
 
     foreach( $nodegroups as $nodegroup ) {
       plc_table_row_start();
-      plc_table_cell(l_nodegroup2($nodegroup_id,$nodegroup['groupname']));
+      plc_table_cell(l_nodegroup_t($nodegroup_id,$nodegroup['groupname']));
       $tag_types=$api->GetTagTypes(array($nodegroup['tag_type_id']));
       plc_table_cell($tag_types[0]['tagname']);
       plc_table_cell($nodegroup['value']);
       plc_table_row_end();
     }
-    plc_table_end();
+    plc_table_end($table_options);
   }    
 
   ////////////////////////////////////////////////////////////

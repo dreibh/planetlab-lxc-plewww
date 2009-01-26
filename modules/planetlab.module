@@ -114,7 +114,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $site_item = '';
       $site_item .= href(l_sites(),"Sites");
       $site_item .= ul_start();
-      $site_item .= leaf( href(l_site_u(plc_my_site_id()),"My site"));
+      $site_item .= leaf( href(l_site(plc_my_site_id()),"My site"));
       if ( $is_admin ) 
 	$site_item .= leaf( href(l_site_pending(),"Pending Requests"));
       if( $is_admin )
@@ -125,7 +125,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $user_item = '';
       $user_item .= href(l_persons(),'Users');
       $user_item .= ul_start();
-      $user_item .= leaf( href(l_person_u(plc_my_person_id()),"My account"));
+      $user_item .= leaf( l_person_t(plc_my_person_id(),"My account"));
       if (is_pi) 
 	$user_item .= leaf( href( l_persons_site(plc_my_site_id()), "My users"));
       if ( $plc->alt_person && $plc->alt_auth) {
