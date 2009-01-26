@@ -11,7 +11,9 @@ global $plc, $api;
 
 // Print header
 require_once 'plc_drupal.php';
-include 'plc_header.php'; 
+require_once 'plc_minitabs.php';
+require_once 'plc_tables.php';
+
 
 // Common functions
 require_once 'plc_functions.php';
