@@ -48,16 +48,17 @@ function person_status ($person) {
     $class='plc-foreign';
   } else {
     $class='plc-warning';
-    // check that the person has keys
-    if ( count($person['key_ids']) == 0)
-      $messages [] = "No Key";
-    if ( ! $person['enabled'] ) 
-      $messages[] = "Disabled";
-    //detect tech-only people involved in slices. 
   }
-  if( ( count($person['roles'])==1 ) && ( in_array('tech',$person['roles']) )  && (! empty($person["slice_ids"])) ) {
+  // check that the person has keys
+  if ( count($person['key_ids']) == 0)
+    $messages [] = "No Key";
+  if ( ! $person['enabled'] ) 
+    $messages[] = "Disabled";
+  //detect tech-only people involved in slices. 
+  if ( ( count($person['roles'])==1 ) && 
+       ( in_array('tech',$person['roles']) )  && 
+       (! empty($person["slice_ids"])) ) 
     $messages[]="Tech involved in a Slice";  
-  }
   return plc_vertical_table($messages,$class);
 }
 
@@ -159,7 +160,7 @@ foreach ($persons as $person) {
     plc_table_cell($roles);
     plc_table_cell ($person['first_name']);
     plc_table_cell ($person['last_name']);
-    plc_table_cell($email);
+    plc_table_cell(l_person_t($person_id,$email));
     plc_table_cell($login_base);
     plc_table_cell(person_status($person));
     plc_table_row_end();
