@@ -1,6 +1,6 @@
 <?php
 
-// $Id: index.php 11645 2009-01-21 23:09:49Z thierry $
+// $Id$
 
 // Require login
 require_once 'plc_login.php';
