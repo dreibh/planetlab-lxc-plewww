@@ -54,7 +54,7 @@ function l_interface_t ($interface_id,$text) {
 function l_interface_add($node_id)	{ return "/db/nodes/interfaces.php?node_id=" . $node_id; }
 
 function l_sites ()			{ return "/db/sites/index.php"; }
-function l_site ($site_id)		{ return "/db/persons/index.php?id=" . $site_id; }
+function l_site ($site_id)		{ return "/db/sites/index.php?id=" . $site_id; }
 function l_site_t ($site_id,$text)	{ return href (l_site($site_id),$text); }
 
 function l_slices ()			{ return "/db/slices/index.php"; }
@@ -330,8 +330,11 @@ function plc_errors ($list) {
   print( "</ul></div>\n" );
 }
 
+function plc_warning_div ($text) {
+  return "<div class='plc-warning'>" . $text . "</div>";
+}
 function plc_warning ($text) {
-  print "<div class='plc-warning'> Warning " . $text . "</div>";
+  print plc_warning_div("Warning " . $text);
 }
 
 // shows a php variable verbatim with a heading message

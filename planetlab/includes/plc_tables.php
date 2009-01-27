@@ -21,6 +21,7 @@ function plc_table_cell($cell) {
 // options : an associative array to override options (should be passed to both _stsart and _end)
 //  - search_area : boolean (default true)
 //  - notes_area : boolean (default true)
+//  - notes : an array of additional notes
 //  - pagesize: the initial pagination size
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
@@ -39,7 +40,7 @@ function plc_table_end ($options) {
   plc_table_foot();
   $notes_area = array_key_exists('notes_area',$options) ? $options['notes_area'] : true;
   if ($notes_area) 
-    plc_table_notes();
+    plc_table_notes($options);
 }
 		    
 ////////////////////
@@ -98,12 +99,16 @@ class="plc_table sortable-onload-$column_sort rowstyle-alt colstyle-alt no-arrow
 EOF;
 
   foreach ($headers as $label => $type) {
-    if ($type == "string") $type="";
-    if ($type == "int") $type="";
-    if ($type == "float") $type="";
-    $class="sortable";
-    if ( ! empty($type)) $class .= "-sort" . $type;
-    print '<th class="' . $class . ' plc_table">' . $label . "</th>\n";
+    if ($type == "none" ) {
+      $class="";
+    } else {
+      if ($type == "string") $type="";
+      if ($type == "int") $type="";
+      if ($type == "float") $type="";
+      $class="sortable";
+      if ( ! empty($type)) $class .= "-sort" . $type;
+    }
+    printf ('<th class="%s plc_table">%s</th>',$class,$label);
   }
 
   print <<< EOF
@@ -124,14 +129,19 @@ EOF;
 }
 
 ////////////////////////////////////////
-function plc_table_notes () {
+function plc_table_notes ($options) {
   print <<< EOF
 <p class='plc_filter_note'> 
 Notes: Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes
 <br/> 
 Hold down the shift key to select multiple columns to sort 
-</p>
 EOF;
+  if (array_key_exists('notes',$options)) {
+    foreach ($options['notes'] as $line) {
+      print "<br/>" . $line . "\n";
+    }
+  }
+  print "</p>";
 }
 
 ////////////////////////////////////////

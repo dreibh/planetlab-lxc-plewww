@@ -64,7 +64,7 @@ function person_status ($person) {
 
 
 // fetch persons 
-$person_columns=array('person_id','first_name','last_name','email','roles','peer_id','key_ids','site_ids');
+$person_columns=array('person_id','first_name','last_name','email','roles','peer_id','key_ids','site_ids','enabled');
 // PIs and admins can see users not yet enabled
 $privileges=plc_is_admin() || plc_is_pi();
 if ( ! $privileges ) 

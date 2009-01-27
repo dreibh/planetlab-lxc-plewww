@@ -14,10 +14,11 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
+require_once 'plc_tables.php';
+require_once 'plc_minitabs.php';
   
 // needs much memory
-ini_set("memory_limit","128M");
+ini_set("memory_limit","256M");
 
 //set default title
 drupal_set_title('Events');
@@ -27,7 +28,8 @@ $page_size=30;
 
 $messages = array ();
 
-////////////////////////////////////////
+//////////////////////////////////////////////////////////// form
+
 // defaults for day ('j'), 3-letter month ('M') or year ('Y')
 function the_date ($key,$dateformat) { 
   if ($_GET[$key]) return $_GET[$key];
@@ -129,6 +131,7 @@ $until_y_dropdown_options
 
 EOF;
 
+//////////////////////////////////////////////////////////// dates
 function parse_date ($day,$month,$year) {
   // if everything empty -> unspecified date, return 0
   if ( empty($day) && empty($month) && empty($year)) {
@@ -154,6 +157,7 @@ function my_is_int ($x) {
     return (is_numeric($x) ? intval($x) == $x : false);
 }
 
+//////////////////////////////////////////////////////////// layout
 function truncate ($text,$numb,$etc = "...") {
   if (strlen($text) > $numb) {
     $text = substr($text, 0, $numb);
@@ -162,58 +166,67 @@ function truncate ($text,$numb,$etc = "...") {
   return $text;
 }
 
-// layout function to refine a row's content
-function layout ($param){
- 
-  // format time
-  $time=$param['time'];
-  $date= date('d M Y H:i' ,$time);
-  $param['time']=$date;
-
-  // the call button
-  $message=htmlentities($param['message'], ENT_QUOTES);
-  $call=htmlentities($param['call'], ENT_QUOTES);
-  $detail_text=sprintf("message=<<%s>>\\n\\ncall=<<%s>>\\n\\nruntime=<<%f>>\\n",$message,$call,$param['runtime']);
-  $detail="<input type=button name='call' value='" . $param['call_name'] ."' onclick='alert(\"" . $detail_text . "\")'";
-  $detail=sprintf('<span title="%s">%s</span>',$call,$detail);
-  $param['call_name']=$detail;
-  unset ($param['call']);
-
-  // the message button
-  $trunc_mess=htmlentities(truncate($param['message'],40),ENT_QUOTES);
-  $detail="<input type=button name='message' value='" . $trunc_mess ."' onclick='alert(\"" . $detail_text . "\")'";
-  $detail=sprintf('<span title="%s">%s</span>',$message,$detail);
-  $param['message']=$detail;
-
-  // shrink column name : event_id -> id - paginate_id used in paginate and does not show up
-  $param['<span title="event_id">id</span>']=$param['event_id'] ; 
-  // so that event_id shows up
-  $param['paginate_id']=$param['event_id']; unset($param['event_id']);
-
-  //// shrink column names 
-  $param['<span title="fault_code">fault</span>']=$param['fault_code'] ; unset($param['fault_code']);
-  // seem empty on all rows - probably something that I screwed when importing tony's stuff
-  //  $param['<span title="object_type">oty</span>']=$param['object_type'] ; unset($param['object_type']);
-  //  $param['<span title="object_id">oid</span>']=$param['object_id'] ; unset($param['object_id']);
-  $param['<span title="object_types">otys</span>']=$param['object_types'] ; unset($param['object_types']);
-  $param['<span title="object_ids">oids</span>']=$param['object_ids'] ; unset($param['object_ids']);
-  $param['<span title="node_id">nid</span>']=plc_node_link($param['node_id']) ; unset($param['node_id']);
-  $param['<span title="person_id">pid</span>']= plc_person_link($param['person_id']) ; unset($param['person_id']);
-  if (array_key_exists('auth_type',$param)) {
-    $param['<span title="auth_type">at</span>']=$param['auth_type'] ; unset($param['auth_type']);
-  }
-
-  // clears
-  unset($param['object_type']);
-  unset($param['object_id']);
-  unset($param['runtime']);
-  return $param;
+// outline node ids and person ids with a link
+function e_node ($node_id) {
+  if (! $node_id) return "";
+  return l_node_t($node_id,$node_id);
+}
+function e_person ($person_id) {
+  if (! $person_id) return "";
+  return l_person_t($person_id,$person_id);
+}
+// xxx broken
+function e_event ($event_id) {
+  if (! $event_id) return "";
+  return href(l_event("Event","event",$event_id),$event_id);
 }
 
-//plc_debug('GET',$_GET);
+function e_link ($type,$id) {
+  $mess=$type . " " . $id;
+  switch ($type) {
+  case 'Node': return l_node_t ($id,$mess);
+  case 'Site': return l_site_t ($id,$mess);
+  case 'Person': return l_person_t ($id,$mess);
+  case 'Slice': return l_slice_t ($id,$mess);
+  case 'Role': case 'Key': case 'PCU': case 'Interface': case 'NodeGroup':
+    return "$mess";
+  default: return "Unknown $type" . "-" . $id;
+  }
+}
+
+// synthesize links to the subject objects from types and ids
+function e_subjects ($param) {
+  $types=$param['object_types'];
+  $ids=$param['object_ids'];
+  if ( ! $types) return "";
+  return plc_vertical_table(array_map ("e_link",$types,$ids));
+}
+
+function e_issuer ($param) {
+  if ($param['node_id'])	return e_link('Node',$param['node_id']);
+  if ($param['person_id'])	return e_link('Person',$param['person_id']);
+  return '???';
+}
+
+function e_auth ($event) {
+  if (array_key_exists('auth_type',$event)) 
+    return $event['auth_type'];
+    else
+      return "";
+}
+
+function e_fault ($event) {
+  $f=$event['fault_code'];
+  if ($f==0) return "OK";
+  else return $f;
+}
+
+////////////////////////////////////////////////////////////
+// for convenience, add 1 day to the 'until' date as otherwise this corresponds to 0:00
+$STEP=24*60*60;
 
 if ( ! plc_is_admin()) {
-  echo "<div class='plc-warning'> You need admin role to see this page. </div>";
+  plc_warning("You need admin role to see this page.");
 
  } else if (! $_GET['type']) {
   echo "<h2>Select the events to focus on :</h2>";
@@ -222,21 +235,25 @@ if ( ! plc_is_admin()) {
   
  } else {
 
+  $tabs=array();
+  $tabs['Back to events form']=l_events();
+  plc_tabs($tabs);
+
   // handle dates
   list($from_date,$from_time,$until_date,$until_time) = parse_dates ();
   // add one day to until_time - otherwise this corresponds to 0:0
-  $until_time += (24*60*60);
-  if ( ($from_time != 0) && ($until_time != 0) && ($from_time > $until_time) ) {
-    $messages[] = "Warning - wrong date selection";
+  $until_time += $STEP;
+  if ( ($from_time != 0) && ($until_time != $STEP) && ($from_time > $until_time) ) {
+    $messages[] = "Warning - <from> is after <until>";
   }
   
   $filter=array();
   // sort events by time is not good enough, let's use event_id
-  $filter['-SORT']='event_id';
+  $filter['-SORT']='-event_id';
   if ($from_time != 0) {
     $filter[']time']=$from_time;
   }
-  if ($until_time != 0) {
+  if ($until_time != $STEP) {
     $filter['[time']=$until_time;
   }
 
@@ -255,26 +272,14 @@ if ( ! plc_is_admin()) {
       $filter[']time']=0;
     }
     $events = $api->GetEvents($filter); 
-    if (empty($events)) {
-      $messages[] = "No event found - user input was [" . $user_desc . "]";
-    } else {
-      $title="Events matching " . ($user_desc ? $user_desc : "everything");
-      if ($from_time != 0) 
-	$title .= " From " . $from_date;
-      if ($until_time != 0) 
-	$title .= " Until " . $until_date;
-      drupal_set_title ($title);
-    }
+    $title="Events matching " . ($user_desc ? $user_desc : "everything");
+    if ($from_time != 0) 
+      $title .= " From " . $from_date;
+    if ($until_time != $STEP) 
+      $title .= " Until " . $until_date;
 
-    // Show messages
-    if (!empty($messages)) 
-      foreach ($messages as $line) 
-	drupal_set_message($line);
-	
-    if ( ! empty ($events)) {
-      $events= array_map(layout,$events);
-      echo paginate( $events, "paginate_id", "Events", $page_size, "event_id");
-    }
+    // see actual display of $title and $events below
+    
   } else {
 
     switch ($type) {
@@ -336,25 +341,71 @@ if ( ! plc_is_admin()) {
 	}
       }
     }
-      
-    // Show messages
-    if (!empty($messages)) {
-      print '<div class="messages plc-warning"><ul>';
-      foreach ($messages as $line) {
-	print "<li> $line";
-      }
-      print "</ul></div>";
-    }
-	
-    drupal_set_title($title);
-    $events = $api->GetEventObjects(array('object_id'=>$object_ids,'object_type'=>$object_type));
 
-    $events=array_map(layout,$events);
-    echo paginate( $events, "paginate_id", "--------" . $type . " EVENTS---------", $page_size, "hostname");
+    $event_objs = $api->GetEventObjects(array('object_id'=>$object_ids,'object_type'=>$object_type),array('event_id'));
+    // get set of event_ids
+    $event_ids = array_map ( create_function ('$eo','return $eo["event_id"];') , $event_objs);
+    
+    $events = $api->GetEvents (array('event_id'=>$event_ids));
+
+    // see actual display of $title and $events below
+
   }
+
+  drupal_set_title ($title);
+  // Show messages
+  if (!empty($messages)) 
+    foreach ($messages as $line) 
+      drupal_set_message($line);
+
+  $columns=array(
+		 "Id"=>"int",
+		 "Time"=>"EnglishDateTime",
+		 "Method"=>"string",
+		 "Message"=>"string",
+		 "Subjects"=>"string",
+		 "Issuer"=>"string",
+		 "Auth"=>"string",
+		 "R"=>"string",
+		 "D"=>"none",
+		 );
+
+  $table_options=array('notes'=>array("The R column shows the call result value, a.k.a. fault_code",
+				      "Click the button in the D(etails) columns to get more details",
+				      ),
+		       'max_pages'=>20);
+  plc_table_start("events",$columns,"0r",$table_options);
+  foreach ($events as $event) {
+
+    // the call button
+    $message = htmlentities($event['message'], ENT_QUOTES);
+    $call = htmlentities($event['call'], ENT_QUOTES);
+    $text = sprintf("message=<<%s>>\\n\\ncall=<<%s>>\\n\\nruntime=<<%f>>\\n",$message,$call,$event['runtime']);
+    $method = "<input type=button name='call' value='" . $event['call_name'] ."' onclick='alert(\"" . $text . "\")'";
+    //    $method = sprintf('<span title="%s">%s</span>',$call,$method);
+
+  // the message button
+    $trunc_mess=htmlentities(truncate($event['message'],40),ENT_QUOTES);
+    $message="<input type=button name='message' value='" . $trunc_mess ."' onclick='alert(\"" . $text . "\")'";
+    $details="<input type=button name='message' value='X' onclick='alert(\"" . $text . "\")'";
+    //    $message=sprintf('<span title="%s">%s</span>',$message,$message);
+
+    $message=truncate($event['message'],40);
+    plc_table_row_start($event['event_id']);
+    plc_table_cell(e_event($event['event_id']));
+    plc_table_cell(date('M/d/Y H:i', $event['time']));
+    plc_table_cell($event['call_name']);
+    plc_table_cell($message);
+    plc_table_cell(e_subjects($event));
+    plc_table_cell(e_issuer($event));
+    plc_table_cell(e_auth($event));
+    plc_table_cell(e_fault($event));
+    plc_table_cell($details);
+    plc_table_row_end();
+  }
+  plc_table_end($table_options);
  }
 
-echo "<br /><p><a href='/db/events/index.php'>Back to Events</a>";
 
   // Print footer
 include 'plc_footer.php';

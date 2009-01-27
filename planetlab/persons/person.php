@@ -102,7 +102,14 @@ if (empty($persons)) {
 
   plc_tabs($tabs);
     
+  if ($privileges && ! $enabled ) 
+    drupal_set_message ("$first_name $last_name is not enabled yet, please use the 'Enable' button below");
+
+  $enabled_text="Enabled";
+  if ( ! $enabled ) $enabled_text = plc_warning_div("Disabled");
+
   plc_details_start();
+  plc_details_line("Enabled",$enabled_text);
   plc_details_line("First Name",$first_name);
   plc_details_line("Last Name",$last_name);
   plc_details_line("Title",$title);
