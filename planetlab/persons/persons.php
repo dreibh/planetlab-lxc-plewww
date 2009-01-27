@@ -64,7 +64,7 @@ function person_status ($person) {
 
 
 // fetch persons 
-$person_columns=array('first_name','last_name','email','roles','peer_id','key_ids','site_ids');
+$person_columns=array('person_id','first_name','last_name','email','roles','peer_id','key_ids','site_ids');
 // PIs and admins can see users not yet enabled
 $privileges=plc_is_admin() || plc_is_pi();
 if ( ! $privileges ) 
@@ -89,6 +89,8 @@ if ($site_id) {
   $title .= t_site($site);
   $tabs = array_merge($tabs,tabs_site($site));
   $person_filter['person_id']=$site['person_ids'];
+  if ($site_id == plc_my_site_id()) 
+    unset($tabs['My accounts']);
 }
 
 if ($slice_id) {
@@ -140,7 +142,7 @@ $columns = array ("Peer"=>"string",
 
 // initial sort on email
 $table_options=array();
-plc_table_start("persons",$columns,5,$table_options);
+plc_table_start("persons",$columns,4,$table_options);
 
 $peer_hash = plc_peer_get_hash ($api);
 // write rows

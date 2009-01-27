@@ -21,13 +21,13 @@ require_once 'plc_sorts.php';
 $_person= $plc->person;
 $_roles= $_person['role_ids'];
 
-
+//////////////////////////////
 // get person id
 if( $_POST['person_id'] )
   $person_id= $_POST['person_id'];
 
 
-// if site_id submitted add the person to that site_id
+//////////////////// add in site
 if( $_POST['site_add'] ) {
   $site_id= $_POST['site_add'];
 
@@ -37,6 +37,7 @@ if( $_POST['site_add'] ) {
 
 }
 
+//////////////////// remove from sites
 if ( $_POST['Remove_Sites']){
   if( $_POST['rem_site'] ) {
     foreach( $_POST['rem_site'] as $site_id ) {
@@ -47,9 +48,11 @@ if ( $_POST['Remove_Sites']){
   }else{
     echo "<h3><span class='plc-warning'>Please select one or more Sites to  remove.<br /></h3> </span>\n";
     echo "<br /><hr /><p><a href='/db/persons/index.php?id=$person_id'>Back to person page</a></div>";
+    return;
   }
 }
 
+//////////////////// remove roles
 // remove role
 if ( $_POST['Remove_Roles']){
   if($_POST['rem_role']) {
@@ -65,7 +68,7 @@ if ( $_POST['Remove_Roles']){
   }
 }
 
-// add roles
+//////////////////// add roles
 if( $_POST['add_role'] ) {
   $role_id= $_POST['add_role'];
 
@@ -75,8 +78,9 @@ if( $_POST['add_role'] ) {
   exit();
 }
 
+//////////////////// enable
 // enable person
-if( $_GET['enab_id'] ) {
+if ( $_GET['enab_id'] ) {
   $per_id= $_GET['enab_id'];
 
   $fields= array( "enabled"=>true );
@@ -88,7 +92,7 @@ if( $_GET['enab_id'] ) {
 
 }
 
-// disable person
+//////////////////// disable person
 if( $_GET['dis_id'] ) {
   $per_id= $_GET['dis_id'];
 
@@ -96,7 +100,7 @@ if( $_GET['dis_id'] ) {
 
   $api->UpdatePerson( intval( $per_id ), $fields );
 
-  header( "location: index.php?id=$person_id" );
+  header( "location: index.php?id=$per_id" );
   exit();
   
 }
@@ -127,11 +131,11 @@ if( $_POST['action'] ) {
 
 }
 
-// delete person
+//////////////////// delete person
 if( $_GET['per_id'] ) {
-  $person_id= $_GET['per_id'];
+  $per_id= $_GET['per_id'];
 
-  $api->DeletePerson( intval( $person_id ) );
+  $api->DeletePerson( intval( $per_id ) );
 
   header( "location: index.php" );
   exit();

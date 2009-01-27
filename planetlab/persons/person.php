@@ -11,9 +11,7 @@ global $plc, $api;
 
 // Print header
 require_once 'plc_drupal.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_tables.php';
-
+include 'plc_header.php'; 
 
 // Common functions
 require_once 'plc_functions.php';
@@ -69,16 +67,18 @@ if (empty($persons)) {
 
   if ($local_peer && $privileges) {
     if (plc_is_admin())
-	$tabs['Events'] = array('url'=>l_event("Person","person",$person_id),
-				'bubble'=>'Related events',
-				'image'=>'/planetlab/icons/event.png',
-				'height'=>18);
+      $tabs['Events'] = array('url'=>l_events(),
+			      'values'=>array('type'=>'Person','person'=>$person_id),
+			      'bubble'=>'Related events',
+			      'image'=>'/planetlab/icons/event.png',
+			      'height'=>18);
     if ($enabled) 
       $tabs['Disable'] = array ('method'=>'POST',
 				'url'=>'/db/persons/person_actions.php',
 				'values'=> array ('person_id'=>$person_id,
 						  'action'=>'disable'),
-				'bubble'=>"Disable $first_name");
+				'bubble'=>"Disable $first_name",
+				'confirm'=>"Are you sure you want to disable $first_name $last_name");
     else 
       $tabs['Enable'] = array ('method'=>'POST',
 				'url'=>'/db/persons/person_actions.php',
@@ -98,7 +98,7 @@ if (empty($persons)) {
 			    'values'=>array('id'=>$person_id),
 			    'bubble'=>"Update $first_name");
 
-  $tabs['Persons'] = array ('url'=>l_persons());
+  $tabs['All Users'] = array ('url'=>l_persons());
 
   plc_tabs($tabs);
     

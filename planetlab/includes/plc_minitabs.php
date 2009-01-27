@@ -57,7 +57,9 @@ function plc_tabs($array) {
       $type='type=button value="' . $label . '"';
     }
     printf('<span title="%s">',$todo['bubble']);
-    printf('<input %s %s onclick=\'miniTab.submit("%s");\' />',$tracer,$type,$todo['confirm']);
+    $message="";
+    if ($todo['confirm']) $message=$todo['confirm'] . " ?";
+    printf('<input %s %s onclick=\'miniTab.submit("%s");\' />',$tracer,$type,$message);
     printf('</span>',$todo['bubble']);
     printf("</form></li>\n");
   }
