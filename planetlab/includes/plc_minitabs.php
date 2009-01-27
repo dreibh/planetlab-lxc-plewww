@@ -28,11 +28,14 @@ drupal_set_html_head('
 
 
 function plc_tabs($array) {
-  print '<div id="minitabs_container">';
-  print '<ul id="miniflex">';
+  print '<div id="minitabs-container">';
+  print '<ul id="minitabs-list">';
   print "\n";
   foreach ($array as $label=>$todo) {
-    print '<li class="minitabs">';
+    $tracer="class=minitabs";
+    if ($todo['id']) 
+      $tracer .= " id=".$todo['id'];
+    printf ("<li %s>\n",$tracer);
     // in case we have a string, rewrite it as an array
     if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
     // set default method
@@ -45,7 +48,7 @@ function plc_tabs($array) {
 	printf('<input class="minitabs-hidden" type=hidden name="%s" value="%s" />',$key,$value);
       }
     }
-    $class_value="minitabs-submit";
+    $tracer="class=minitabs-submit";
     // image and its companions 'height' 
     if ($todo['image']) {
       $type='type=image src="' . $todo['image'] . '"';
@@ -54,7 +57,7 @@ function plc_tabs($array) {
       $type='type=button value="' . $label . '"';
     }
     printf('<span title="%s">',$todo['bubble']);
-    printf('<input class="%s" %s onclick=\'miniTab.submit("%s");\' />',$class_value,$type,$todo['confirm']);
+    printf('<input %s %s onclick=\'miniTab.submit("%s");\' />',$tracer,$type,$todo['confirm']);
     printf('</span>',$todo['bubble']);
     printf("</form></li>\n");
   }

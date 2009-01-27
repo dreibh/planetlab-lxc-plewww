@@ -1,12 +1,12 @@
 /* $Id$ */
 
-#minitabs_container {
+#minitabs-container {
     padding: 20px;
     margin: 8px 0;
     width:80%;
     margin:8px auto;
 }
-#miniflex {
+#minitabs-list {
     width: 100%;
     float: left;
     font-size: small;  /* could be specified at a higher level */
@@ -27,7 +27,7 @@ input.minitabs-submit {
     /* buttons are normally outlined */
     background-color: transparent;
 }    
-#miniflex li {
+#minitabs-list li {
     float: left;
     margin: 0;
     padding: 0 8px 0 8px;
@@ -36,7 +36,7 @@ input.minitabs-submit {
     position:relative;
 }
 
-#miniflex input.minitabs-submit {
+#minitabs-list input.minitabs-submit {
     float: left;
     font-size: 85%;
     line-height: 20px;
@@ -47,14 +47,14 @@ input.minitabs-submit {
     color: #9c9;  
 }
 
-#miniflex input.active {
+#minitabs-list input.active {
     /* border-bottom: 4px solid #696; */
     padding-bottom: 2px;
     /* color when mouse is on button */
     color: #696;
 }
 
-#animated-tab {
+#minitabs-sliding {
     position: absolute;
     z-index: 1;
     font-size: 85%;

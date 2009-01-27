@@ -10,7 +10,33 @@
   $Id$
 
 */
- 
+
+function plc_debug (txt,value) {
+  window.console.log (txt + ' => ' + value);
+}  
+
+function plc_element (txt,elem) {
+  var message=txt + ':';
+  message += ' type=' + elem.nodeName;
+  message += ' id=' + elem.id;
+  message += ' cls=' + elem.className;
+  window.console.log (message);
+}  
+
+/* lists all attributes - or the specified one - 
+ * verbose means the attribute value gets printed as well */
+function plc_introspect (txt,obj,verbose,attribute) {
+  window.console.log ('=== beg intro ' + txt);
+  for (var prop in obj) {
+    if ( (attribute === undefined) || ( prop == attribute ) ) 
+      if (verbose) 
+	window.console.log (prop + '=' + obj[prop]);
+      else
+	window.console.log (prop);
+  }
+  window.console.log ('=== end intro ' + txt);
+}
+
 var miniTab = {
  currentTab:     0,
  activeTab:      0,
@@ -28,20 +54,36 @@ var miniTab = {
  inputArr:       [],
         
  init: function() {
-    if(!document.getElementById || !document.getElementById("miniflex")) return;
- 
-    miniTab.ul          = document.getElementById("miniflex");
+
+    /* define getElementsByClassName on Element if missing */
+    if ( ! Element.prototype.getElementsByClassName ) {
+      Element.prototype.getElementsByClassName = function (cls) {
+	var retVal = new Array();
+	var elements = this.getElementsByTagName("*");
+	for (var i = 0; i < elements.length; i++) {
+	  var element = elements[i];
+	  var classes = element.className.split(" ");
+	  for (var c = 0; c < classes.length; c++) 
+	    if (classes[c] == cls) 
+	      retVal.push(elements[i]);
+	}
+	return retVal;
+      }
+    }
+
+    miniTab.ul          = document.getElementById("minitabs-list");
     miniTab.liArr       = miniTab.ul.getElementsByTagName("li");
-    // Thierry: the original impl. relied on <a> links rather than forms - we use ids
+    // Thierry: the original impl. relied on <a> links rather than forms 
+    // we use <input>s and there might be hidden ones, so use a class marker instead
     miniTab.inputArr        = miniTab.ul.getElementsByClassName("minitabs-submit");
  
     for(var i = 0, li; li = miniTab.liArr[i]; i++) {
       li.onmouseover = miniTab.inputArr[i].onfocus = function(e) {
 	var pos = 0;
 	var elem = this;
-	/* move up twice until we find the 'LI' tag */
-	elem = (elem.nodeName == "LI") ? this : this.parentNode;
-	elem = (elem.nodeName == "LI") ? this : this.parentNode;
+	/* some browsers - firefox - somehow trigger this on <input> */
+	if (this.nodeName != "LI") return;
+	/* move up until we find the 'LI' tag */
 	while(elem.previousSibling) {
 	  elem = elem.previousSibling;
 	  if(elem.tagName && elem.tagName == "LI") pos++;
@@ -66,11 +108,14 @@ var miniTab = {
  
     miniTab.slideObj                = miniTab.ul.parentNode.appendChild(document.createElement("div"));
     miniTab.slideObj.appendChild(document.createTextNode(String.fromCharCode(160)));
-    miniTab.slideObj.id             = "animated-tab";
-    miniTab.slideObj.style.top      = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop) + "px";
-    miniTab.slideObj.style.left     = (miniTab.ul.offsetLeft + miniTab.liArr[miniTab.activeTab].offsetLeft + miniTab.inputArr[miniTab.activeTab].offsetLeft) + "px";
+    miniTab.slideObj.id             = "minitabs-sliding";
+    miniTab.slideObj.style.top      = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + 
+				       miniTab.inputArr[miniTab.activeTab].offsetTop) + "px";
+    miniTab.slideObj.style.left     = (miniTab.ul.offsetLeft + miniTab.liArr[miniTab.activeTab].offsetLeft + 
+				       miniTab.inputArr[miniTab.activeTab].offsetLeft) + "px";
     miniTab.slideObj.style.width    = miniTab.inputArr[miniTab.activeTab].offsetWidth + "px";
-    miniTab.aHeight                 = miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop;
+    miniTab.aHeight                 = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + 
+				       miniTab.inputArr[miniTab.activeTab].offsetTop);
  
     miniTab.initSlide(miniTab.activeTab, true);
  
@@ -140,9 +185,11 @@ var miniTab = {
   },
 
  submit: function (message) {
+    /* save activeTab before confirmation; some browsers - firefox - send mouseout during confirm .. */
+    var submitTab = this.activeTab;
     /* ask for confirmation if message is not empty */
     if (message && ! confirm (message) ) return;
-    this.inputArr[this.activeTab].parentNode.parentNode.submit();
+    this.inputArr[submitTab].parentNode.parentNode.submit();
   },
 }
  
