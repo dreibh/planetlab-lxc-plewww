@@ -173,12 +173,11 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $doc_item .= ul_start();
       $doc_item .= leaf ( href (l_doc_plcapi(),"PLCAPI doc"));
       $doc_item .= leaf ( href (l_doc_nmapi(),"NMAPI doc"));
+      if ( $is_admin )
+	$doc_item .= leaf (href(l_events(),'Events'));
       $doc_item .= ul_end();
       $items[] = expanded($doc_item);
 
-      if ( $is_admin )
-	$items[] = leaf (href(l_events(),'Events'));
-      
       if ($user->uid) {
 	// Drupal logout (destroys the session and cleans up $user)
 	// Thierry unclear when this triggers, I suspect this is obsolete
