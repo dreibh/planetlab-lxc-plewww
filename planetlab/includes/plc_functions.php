@@ -102,7 +102,6 @@ function l_reset_password()		{ return "/db/persons/reset_password.php"; }
 function l_person_register()		{ return "/db/persons/register.php"; }
 function l_site_register()		{ return "/db/sites/register.php"; }
 function l_site_pending()		{ return "/db/sites/join_request.php"; }
-function l_site_status()		{ return "/db/sites/peers.php"; }
 
 //////////////////////////////////////////////////////////// validation functions
 function topdomain ($hostname) {
