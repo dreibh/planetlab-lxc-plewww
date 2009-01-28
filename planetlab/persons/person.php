@@ -149,6 +149,8 @@ if( empty( $slices ) ) {
   drupal_set_message ("User has no slice");
  } else {
   $columns=array('Slice name'=>'string');
+  $table_options=array('notes_area'=>false,
+		       'pagesize'=>5);
   plc_table_start("person_slices",$columns,1,$table_options);
 
   foreach( $slices as $slice ) {
@@ -168,41 +170,42 @@ plc_table_title ("Keys");
 $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
 if ( empty( $key_ids ) ) {
   plc_warning("This user has no known key");
- } else {
-  // we don't set 'action', but use the submit button name instead
-  plc_form_start(l_person_actions(),
-		 array("person_id"=>$person_id));
+ } 
+// we don't set 'action', but use the submit button name instead
+plc_form_start(l_person_actions(),
+	       array("person_id"=>$person_id,
+		     //"action"=>"debug",
+		     ));
 
-  // the headers
-  $columns=array("Type"=>"string",
-		 "Key"=>"string");
-  if ($can_manage_keys) $columns['Remove']="none";
-  // table overall options
-  $table_options=array("search_area"=>false,"notes_area"=>false);
-  // add the 'remove site' button and key upload areas as the table footer
-  if ($can_manage_keys) {
-    $remove_keys_area=plc_form_submit_text ("delete-keys","Remove keys");
-    $upload_key_left_area= plc_form_label_text("Upload new key","key") . plc_form_file_text("key",60);
-    $upload_key_right_area=plc_form_submit_text("upload-key","Upload key");
-    $table_options['footer']="";
-    $table_options['footer'].="<tr><td colspan=3 style='text-align:right'> $remove_keys_area </td></tr>";
-    $table_options['footer'].="<tr><td colspan=2 style='text-align:right'> $upload_key_left_area </td>".
-      "<td> $upload_key_right_area </td></tr>";
-  }
-  plc_table_start("person_keys",$columns,"1",$table_options);
-    
-  foreach( $keys as $key ) {
-    $key_id=$key['key_id'];
-    plc_table_row_start($key_id);
-    plc_table_cell ($key['key_type']);
-    plc_table_cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
-    if ($can_manage_keys) 
-      plc_table_cell (plc_form_checkbox_text('key_ids[]',$key_id));
-    plc_table_row_end();
-  }
-  plc_table_end("person_keys");
-  plc_form_end();
+// the headers
+$columns=array("Type"=>"string",
+	       "Key"=>"string");
+if ($can_manage_keys) $columns['Remove']="none";
+// table overall options
+$table_options=array("search_area"=>false,"notes_area"=>false);
+// add the 'remove site' button and key upload areas as the table footer
+if ($can_manage_keys) {
+  $remove_keys_area=plc_form_submit_text ("delete-keys","Remove keys");
+  $upload_key_left_area= plc_form_label_text("Upload new key","key") . plc_form_file_text("key",60);
+  $upload_key_right_area=plc_form_submit_text("upload-key","Upload key");
+  $table_options['footer']="";
+  if ($keys) $table_options['footer'].="<tr><td colspan=3 style='text-align:right'> $remove_keys_area </td></tr>";
+  $table_options['footer'].="<tr><td colspan=2 style='text-align:right'> $upload_key_left_area </td>".
+    "<td> $upload_key_right_area </td></tr>";
  }
+plc_table_start("person_keys",$columns,"1",$table_options);
+    
+if ($keys) foreach ($keys as $key) {
+  $key_id=$key['key_id'];
+  plc_table_row_start($key_id);
+  plc_table_cell ($key['key_type']);
+  plc_table_cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
+  if ($can_manage_keys) 
+    plc_table_cell (plc_form_checkbox_text('key_ids[]',$key_id));
+  plc_table_row_end();
+}
+plc_table_end("person_keys");
+plc_form_end();
 
 // sites
 echo "<hr />\n";

@@ -43,7 +43,7 @@ $known_actions []= "upload-key";
 // sometimes we don't set 'action', but use the submit button name instead
 // so if 'action' not set, see if $_POST has one of the actions as a key
 if ($_POST['action']) 
-  $action=$_POST['action']
+  $action=$_POST['action'];
 else 
   foreach ($known_actions as $known_action) 
     if ($_POST[$known_action]) {

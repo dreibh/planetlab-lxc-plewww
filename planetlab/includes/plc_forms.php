@@ -17,7 +17,8 @@ function plc_form_end($options=array()) {
 }
 
 function plc_form_checkbox_text ($name,$value,$selected=false) {
-  return "<input type=checkbox name='$key' value='$value'>";
+  if ($selected) $xtra=" selected=selected";
+  return "<input type=checkbox name='$name' value='$value'$xtra>";
 }
 
 function plc_form_submit_text ($name,$display) {
