@@ -9,225 +9,185 @@ global $plc, $api;
 
 //print header
 require_once 'plc_drupal.php';
-//set default
-drupal_set_title('Persons');
-include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
 
-// find person roles
-$_person= $plc->person;
-$_roles= $_person['role_ids'];
+$known_actions=array();
+////////////////////////////////////////////////////////////
+// interface :
+// (*) use POST 
+// (*) set 'action' to one of the following
+$known_actions []= "add-person-to-site";
+//	  expects:	person_id & site_id
+$known_actions []= "remove-person-from-site";
+//	  expects:	person_id & site_ids
+$known_actions []= "remove-roles-from-person";
+//	  expects:	person_id & role_ids
+$known_actions []= "add-role-to-person";
+//	  expects:	role_person_id & id
+$known_actions []= "enable-person";
+//	  expects:	person_id
+$known_actions []= "disable-person";
+//	  expects:	person_id
+$known_actions []= "become-person";
+//	  expects:	person_id
+$known_actions []= "delete-person";
+//	  expects:	person_id
+$known_actions []= "delete-keys";
+//	  expects:	key_ids & person_id (for redirecting to the person's page)
+$known_actions []= "upload-key";
+//	  expects:	person_id & $_FILES['key']
 
 //////////////////////////////
-// get person id
-if( $_POST['person_id'] )
-  $person_id= $_POST['person_id'];
-
-
-//////////////////// add in site
-if( $_POST['site_add'] ) {
-  $site_id= $_POST['site_add'];
-
-  $api->AddPersonToSite( intval( $person_id ), intval( $site_id ) );
-  header( "location: index.php?id=$person_id" );
-  exit();
-
-}
-
-//////////////////// remove from sites
-if ( $_POST['Remove_Sites']){
-  if( $_POST['rem_site'] ) {
-    foreach( $_POST['rem_site'] as $site_id ) {
-      $api->DeletePersonFromSite( intval( $person_id ), intval( $site_id ) );
+// sometimes we don't set 'action', but use the submit button name instead
+// so if 'action' not set, see if $_POST has one of the actions as a key
+if ($_POST['action']) 
+  $action=$_POST['action']
+else 
+  foreach ($known_actions as $known_action) 
+    if ($_POST[$known_action]) {
+      $action=$known_action;
+      break;
     }
-    header( "location: index.php?id=$person_id" );
-    exit();
-  }else{
-    echo "<h3><span class='plc-warning'>Please select one or more Sites to  remove.<br /></h3> </span>\n";
-    echo "<br /><hr /><p><a href='/db/persons/index.php?id=$person_id'>Back to person page</a></div>";
-    return;
-  }
-}
 
-//////////////////// remove roles
-// remove role
-if ( $_POST['Remove_Roles']){
-  if($_POST['rem_role']) {
-    $rem_ids= $_POST['rem_role'];
-    foreach( $rem_ids as $role_id ) {
-      $api->DeleteRoleFromPerson( intval( $role_id ), intval( $person_id ) );
-    }
-    header( "location: index.php?id=$person_id" );
-    exit();
-  }else{
-    echo "<h3><span class='plc-warning'>Please select one or more Roles to  remove.<br /></h3> </span>\n";
-    echo "<br /><hr /><p><a href='/db/persons/index.php?id=$person_id'>Back to person page</a></div>";
-  }
-}
+//
+$person_id = $_POST['person_id'];	// usually needed
 
-//////////////////// add roles
-if( $_POST['add_role'] ) {
-  $role_id= $_POST['add_role'];
+if ( ! $action ) {
+  drupal_set_message ("person_actions.php: action not set");
+  return;
+ }
 
-  $api->AddRoleToPerson( intval( $role_id ), intval( $person_id ) );
+switch ($action) {
 
-  header( "location: index.php?id=$person_id" );
-  exit();
-}
+ case 'add-person-to-site': {
+   $site_id = $_POST['site_id'];
+   $api->AddPersonToSite( intval( $person_id ), intval( $site_id ) );
+   header( "location: " . l_person($person_id));
+   exit();
+ }
 
-//////////////////// enable
-// enable person
-if ( $_GET['enab_id'] ) {
-  $per_id= $_GET['enab_id'];
+ case 'remove-person-from-sites': {
+   $site_ids = $_POST['site_ids'];
+   if ( ! $site_ids) {
+     drupal_set_message("action=$action - No site selected");
+     return;
+   }
+   foreach ( $site_ids as $site_id ) {
+     $api->DeletePersonFromSite( intval( $person_id ), intval( $site_id ) );
+   }
+   header( "location: " . l_person($person_id));
+   exit();
+ }
 
-  $fields= array( "enabled"=>true );
+ case 'remove-roles-from-person' : {
+   $role_ids=$_POST['role_ids'];
+   if ( ! $role_ids) {
+     drupal_set_message("action=$action - No role selected");
+     return;
+   }
+   foreach( $role_ids as $role_id)  {
+     $api->DeleteRoleFromPerson( intval( $role_id ), intval( $person_id ) );
+   }
+   header( "location: " . l_person($person_id));
+   exit();
+ }
+     
+ case 'add-role-to-person' : {
+   $role_id=$_POST['role_id'];
+   $api->AddRoleToPerson( intval( $role_id ), intval( $person_id ) );
+   header( "location: " . l_person($person_id));
+   exit();
+ }
 
-  $api->UpdatePerson( intval( $per_id ), $fields );
+ case 'enable-person' : {
+   $fields = array( "enabled"=>true );
+   $api->UpdatePerson( intval( $person_id ), $fields );
+   header( "location: " . l_person($person_id));
+   exit();
+ }
 
-  header( "location: index.php?id=$per_id" );
-  exit();
+ case 'disable-person' : {
+   $fields = array( "enabled"=>false );
+   $api->UpdatePerson( intval( $person_id ), $fields );
+   header( "location: " . l_person($person_id));
+   exit();
+ }
 
-}
+ case 'become-person' : {
+   $plc->BecomePerson (intval($person_id));
+   header ("location: " . l_persons());
+   exit();
+ }
 
-//////////////////// disable person
-if( $_GET['dis_id'] ) {
-  $per_id= $_GET['dis_id'];
-
-  $fields= array( "enabled"=>false );
-
-  $api->UpdatePerson( intval( $per_id ), $fields );
-
-  header( "location: index.php?id=$per_id" );
-  exit();
-  
-}
-
-// if action exists figure out what to do
-if( $_POST['action'] ) {
-
-  // depending on action, run function
-  switch( $_POST['action'] ) {
-    case "delete":
-      header( "location: person_actions.php?del_id=$person_id" );
-      exit();
-      break;
-    case "disable":
-      header( "location: person_actions.php?dis_id=$person_id" );
-      exit();
-      break;
-    case "enable":
-      header( "location: person_actions.php?enab_id=$person_id" );
-      exit();
-      break;
-    case "su":
-      plc_debug('plc',$plc);
-      $plc->BecomePerson (intval($person_id));
-      header ( "location: index.php" );
-      break;
-  }
-
-}
-
-//////////////////// delete person
-if( $_GET['per_id'] ) {
-  $per_id= $_GET['per_id'];
-
-  $api->DeletePerson( intval( $per_id ) );
-
-  header( "location: index.php" );
+ case 'delete-person' : {
+  $api->DeletePerson( intval( $person_id ) );
+  header( "location: " . l_persons() );
   exit();
  }
 
-//delete a key
-if ( $_POST['Remove_keys'] ){
-  if( $_POST['rem_key'] ) {
-    $key_ids= $_POST['rem_key'];
-    
-    foreach( $key_ids AS $key_id ) {
-      $api->DeleteKey( intval( $key_id ) );
-    }
-    header( "location: index.php?id=$person_id" );
-    exit();
-  }else{
-    echo "<h3><span class='plc-warning'>Please select one or more keys to remove.<br /></h3> </span>\n";
-    echo "<br /><hr /><p><a href='/db/persons/index.php?id=$person_id'>Back to person page</a></div>";
-  }
+ case 'delete-keys' : {
+   $key_ids=$_POST['key_ids'];
+   if ( ! $key_ids) {
+     drupal_set_message("action=$action - No key selected");
+     return;
+   }
+   foreach( $key_ids as $key_id ) {
+     $api->DeleteKey( intval( $key_id ) );
+   }
+   header( "location: " . l_person($person_id));
+   exit();
  }
 
-// upload a key if the user submitted one
-if ( $_POST['Upload']){
-  if( isset( $_FILES['key'] ) ) {
-    $key_file= $_FILES['key']['tmp_name'];
-    if( $key_file ){
-      $fp = fopen( $key_file, "r" );
-      $key = "";
-      if( $fp ) {
-	// opened the key file, read the one line of contents
-	// The POST operation always creates a file even if the filename
-	// the user specified was garbage.  If there was some problem
-	// with the source file, we'll get a zero length read here.
-	$key = fread($fp, filesize($key_file));
-	fclose($fp);
-	
-	$key_id= $api->AddPersonKey( intval( $person_id ), array( "key_type"=> 'ssh', "key"=> $key ) );
-	
-	if (!$key_id){
-	  $error=  $api->error();
-	  echo "<h3><span class='plc-warning'> Please verify your SSH  file content.<br /></h3> </span>\n";
-	  print '<br /><div class="messages error">' . $error . '</div>';
-	  echo "<br /><hr /><p><a href='/db/persons/index.php?id=$person_id'>Back to person page</a></div>";
-	}
-	else{
-	  header( "location: index.php?id=$person_id" );
-	  exit();
-	}
-      }else {
-	$error= "Unable to open key file.";
-	print '<div class="messages error">' . $error . '</div>';
-      }
-    }else{
-      echo "<h3><span class='plc-warning'>Please select a valid SSH key file to upload.<br /></h3> </span>\n";
-      echo "<br /><hr /><p><a href='/db/persons/index.php?id=$person_id'>Back to person page</a></div>";
-    }
-  }
+ case 'upload-key' : {
+   if ( ! isset( $_FILES['key'] ) ) {
+     drupal_set_message ("action=$action, no key file set");
+     return;
+   }
+   
+   $key_file= $_FILES['key']['tmp_name'];
+   if ( ! $key_file ) {
+     plc_error("Please select a valid SSH key file to upload");
+     return;
+   } 
+   $fp = fopen( $key_file, "r" );
+   $key = "";
+   if( ! $fp ) {
+     plc_error("Unable to open key file $key_file");
+     return;
+   }
+   // opened the key file, read the one line of contents
+   // The POST operation always creates a file even if the filename
+   // the user specified was garbage.  If there was some problem
+   // with the source file, we'll get a zero length read here.
+   $key = fread($fp, filesize($key_file));
+   fclose($fp);
+   
+   $key_id= $api->AddPersonKey( intval( $person_id ), array( "key_type"=> 'ssh', "key"=> $key ) );
+   
+   if ( ! $key_id ) {
+     $error=  $api->error();
+     plc_error("$error");
+     plc_error("Please verify your SSH  file content");
+     return;
+   }
+   header( "location: " . l_person($person_id));
+   exit();
  }
 
-// delete person confimation
-if( $_GET['del_id'] ) {
-  $person_id= $_GET['del_id'];
+ case 'debug': {
+   plc_debug('GET',$_GET);
+   plc_debug('POST',$_POST);
+   plc_debug('FILES',$_FILES);
+   return;
+ }
 
-  // get person info from API
-  $person_info= $api->GetPersons( array( intval( $person_id ) ), array( "first_name", "last_name", "email", "roles" ) );
+ default: {
+   plc_error ("Unknown action $action in person_actions.php");
+   return;
+ }
 
-  // start form
-  echo "<form action='person_actions.php?per_id=$person_id' method=post>\n";
-
-  // show delete confirmation
-  echo "<h2>Delete ". $person_info[0]['first_name'] ." ". $person_info[0]['last_name'] ."</h2>\n";
-  echo "<p>Are you sure you want to delete this user?\n";
-
-  echo "<table><tbody>\n";
-  echo "<tr><th>Email: </th><td> ". $person_info[0]['email'] ."</td></tr>\n";
-  echo "<tr><th>Roles: </th><td> ";
-
-  foreach( $person_info[0]['roles'] as $role ) {
-    echo "$role<br />\n";
-  }
-
-  echo "</td></tr>\n";
-
-  echo "</tbody></table>\n";
-  echo "<p><input type=submit value='Delete User' name='delete'>\n";
-  echo "</form>\n";
-
-
-}
-
-// Print footer
-include 'plc_footer.php';
-
+ }
 
 ?>

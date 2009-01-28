@@ -139,7 +139,7 @@ You can directly access your site information at
 https://%s:%d/db/sites/index.php?id=%d
 
 Please start with adding nodes for this site with
-https://%s:%d/db/nodes/add_node.php
+https://%s:%d/db/nodes/node_add.php
 
 Our support team will be glad to answer any question that you might have
 They are reachable at mailto:%s

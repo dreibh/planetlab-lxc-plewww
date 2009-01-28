@@ -45,7 +45,7 @@ function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; 
 function l_nodes ()			{ return "/db/nodes/index.php"; }
 function l_node ($node_id)		{ return "/db/nodes/node.php?id=" . $node_id; }
 function l_node_t ($node_id,$text)	{ return href (l_node($node_id),$text); }
-function l_node_add ()			{ return "/db/nodes/add_node.php"; }
+function l_node_add ()			{ return "/db/nodes/node_add.php"; }
 function l_nodes_site ($site_id)	{ return "/db/nodes/index.php?site_id=" . $site_id; }
 
 function l_interface ($interface_id)	{ return "/db/nodes/interfaces.php?id=" . $interface_id; }
@@ -70,6 +70,7 @@ function l_persons ()			{ return "/db/persons/index.php"; }
 function l_person ($person_id)		{ return "/db/persons/index.php?id=" . $person_id; }
 function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text); }
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=" . $site_id; }
+function l_person_actions()		{ return "/db/persons/person_actions.php"; }
 
 function l_tags ()			{ return "/db/tags/index.php"; }
 function l_tags_node ()			{ return "/db/tags/index.php?type=node"; }

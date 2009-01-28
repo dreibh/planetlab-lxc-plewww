@@ -31,10 +31,9 @@ $slice_id=intval($_GET['slice_id']);
 // --- decoration
 $title="Accounts";
 $tabs=array();
-$mysite_id=plc_my_site_id();
 $tabs['My accounts'] = array('url'=>l_persons(),
 			     'values'=>array('site_id'=>plc_my_site_id()),
-			     'bubble'=>'Lists accounts on site ' . $mysite_id);
+			     'bubble'=>'Lists accounts on site ' . plc_my_site_id());
 // -------------------- 
 $peer_filter=array();
 $person_filter=array();
@@ -141,8 +140,7 @@ $columns = array ("Peer"=>"string",
 		  );
 
 // initial sort on email
-$table_options=array();
-plc_table_start("persons",$columns,4,$table_options);
+plc_table_start("persons",$columns,4);
 
 $peer_hash = plc_peer_get_hash ($api);
 // write rows
@@ -169,7 +167,7 @@ foreach ($persons as $person) {
 				 
 }
 
-plc_table_end($table_options);
+plc_table_end("persons");
 
 // Print footer
 include 'plc_footer.php';

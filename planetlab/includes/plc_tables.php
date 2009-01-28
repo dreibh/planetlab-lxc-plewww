@@ -9,6 +9,11 @@ drupal_set_html_head('
 ');
 
 
+//// hash to retrieve the columns and options as passed at table-creation time
+// this means that table_id's need to be different across the page,
+// which is required anyway for the search and pagesize areas to work properly
+$plc_table_hash=array();
+
 ////////////////////////////////////////
 function plc_table_cell($cell) {
   printf ('<td class="plc_table"> %s </td>',$cell);
@@ -25,7 +30,10 @@ function plc_table_cell($cell) {
 //  - pagesize: the initial pagination size
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
-function plc_table_start ($table_id, $headers, $column_sort, $options) {
+function plc_table_start ($table_id, $headers, $column_sort, $options=NULL) {
+  if ( ! $options ) $options = array();
+  global $plc_table_hash;
+  $plc_table_hash[$table_id]=array($headers,$options);
   $search_area = array_key_exists('search_area',$options) ? $options['search_area'] : true;
   $max_pages = array_key_exists('max_pages',$options) ? $options['max_pages'] : 10;
   $pagesize = array_key_exists('pagesize',$options) ? $options['pagesize'] : 25;
@@ -36,8 +44,11 @@ function plc_table_start ($table_id, $headers, $column_sort, $options) {
   plc_table_head($table_id,$headers,$column_sort,$max_pages,$pagesize);
 }
 
-function plc_table_end ($options) {
-  plc_table_foot();
+function plc_table_end ($table_id) {
+  global $plc_table_hash;
+  list($headers,$options) = $plc_table_hash[$table_id];
+
+  plc_table_foot($options);
   $notes_area = array_key_exists('notes_area',$options) ? $options['notes_area'] : true;
   if ($notes_area) 
     plc_table_notes($options);
@@ -119,13 +130,10 @@ EOF;
 }
 
 ////////////////////////////////////////
-function plc_table_foot () {
-  print <<< EOF
-</tbody>
-<tfoot>
-</tfoot>
-</table>
-EOF;
+function plc_table_foot ($options) {
+  print "</tbody><tfoot>";
+  print $options['footer'];
+  print "</tfoot></table>\n";
 }
 
 ////////////////////////////////////////

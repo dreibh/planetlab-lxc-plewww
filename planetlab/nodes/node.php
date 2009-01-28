@@ -212,7 +212,7 @@ if (empty($nodes)) {
       plc_table_cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
       plc_table_row_end();
     }
-    plc_table_end($table_options);
+    plc_table_end("slivers");
   }
 
   //////////////////////////////////////////////////////////// interfaces
@@ -272,7 +272,7 @@ if (empty($nodes)) {
 	plc_table_cell($interface_bwlimit);
 	plc_table_row_end();
       }
-      plc_table_end($table_options);
+      plc_table_end("interfaces");
     }
       
   }
@@ -300,7 +300,7 @@ if (empty($nodes)) {
       plc_table_cell($nodegroup['value']);
       plc_table_row_end();
     }
-    plc_table_end($table_options);
+    plc_table_end("nodegroups");
   }    
 
   ////////////////////////////////////////////////////////////

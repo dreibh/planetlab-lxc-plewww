@@ -49,7 +49,7 @@ if ( empty($peers)) {
     plc_table_cell (href(l_comon("peer_id",$peer['peer_id']),'Comon'));
     plc_table_row_end();
   }
-  plc_table_end($table_options);
+  plc_table_end("peers");
  }
 		    
 // Print footer

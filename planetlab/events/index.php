@@ -181,14 +181,14 @@ function e_event ($event_id) {
   return href(l_event("Event","event",$event_id),$event_id);
 }
 
-function e_link ($type,$id) {
+function e_subject ($type,$id) {
   $mess=$type . " " . $id;
   switch ($type) {
   case 'Node': return l_node_t ($id,$mess);
   case 'Site': return l_site_t ($id,$mess);
   case 'Person': return l_person_t ($id,$mess);
   case 'Slice': return l_slice_t ($id,$mess);
-  case 'Role': case 'Key': case 'PCU': case 'Interface': case 'NodeGroup':
+  case 'Role': case 'Key': case 'PCU': case 'Interface': case 'NodeGroup': case "Address":
     return "$mess";
   default: return "Unknown $type" . "-" . $id;
   }
@@ -199,12 +199,12 @@ function e_subjects ($param) {
   $types=$param['object_types'];
   $ids=$param['object_ids'];
   if ( ! $types) return "";
-  return plc_vertical_table(array_map ("e_link",$types,$ids));
+  return plc_vertical_table(array_map ("e_subject",$types,$ids));
 }
 
 function e_issuer ($param) {
-  if ($param['node_id'])	return e_link('Node',$param['node_id']);
-  if ($param['person_id'])	return e_link('Person',$param['person_id']);
+  if ($param['node_id'])	return e_subject('Node',$param['node_id']);
+  if ($param['person_id'])	return e_subject('Person',$param['person_id']);
   return '???';
 }
 
@@ -358,8 +358,7 @@ if ( ! plc_is_admin()) {
     foreach ($messages as $line) 
       drupal_set_message($line);
 
-  $columns=array(
-		 "Id"=>"int",
+  $columns=array("Id"=>"int",
 		 "Time"=>"EnglishDateTime",
 		 "Method"=>"string",
 		 "Message"=>"string",
@@ -403,7 +402,7 @@ if ( ! plc_is_admin()) {
     plc_table_cell($details);
     plc_table_row_end();
   }
-  plc_table_end($table_options);
+  plc_table_end("events");
  }
 
 

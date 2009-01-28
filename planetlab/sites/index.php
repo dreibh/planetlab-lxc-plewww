@@ -382,8 +382,8 @@ else {
       $right_role = in_array(30,$_roles) || in_array(40,$_roles);
       $can_add = $right_site && $right_role;
       if ($can_add) {
-	$href_add_node = "'/db/nodes/add_node.php'";
-	printf ("<td><a href=%s>0 <span class='plc-warning'>Site has no node, please add one</span></a></td>",$href_add_node); 
+	$href_node_add = "'/db/nodes/node_add.php'";
+	printf ("<td><a href=%s>0 <span class='plc-warning'>Site has no node, please add one</span></a></td>",$href_node_add); 
       } else {
 	printf ("<td><a href=%s>0 <span class='plc-warning'>Site has no node</span></a></td>",$href);
       }

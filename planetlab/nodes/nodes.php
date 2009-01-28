@@ -138,8 +138,7 @@ $columns = array ("Peer"=>"string",
 		  "Float"=>"float");
 
 # initial sort on hostnames
-$table_options=array();
-plc_table_start("nodes",$columns,4,$table_options);
+plc_table_start("nodes",$columns,4);
 
 $peer_hash = plc_peer_get_hash ($api);
 // write rows
@@ -174,7 +173,7 @@ foreach ($nodes as $node) {
     $fake_i += 1;
 }
 
-plc_table_end($table_options);
+plc_table_end("nodes");
 
 // Print footer
 include 'plc_footer.php';
