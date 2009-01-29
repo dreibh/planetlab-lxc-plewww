@@ -104,6 +104,20 @@ function l_person_register()		{ return "/db/persons/register.php"; }
 function l_site_register()		{ return "/db/sites/register.php"; }
 function l_site_pending()		{ return "/db/sites/join_request.php"; }
 
+// returns array ['url' => path, 'values' => hash (key=>value)* ]
+function split_url ($full_url) {
+  list($url,$args) = explode("?",$full_url);
+  $values=array();
+  if ($args) {
+    $pairs=explode("&",$args);
+    foreach ($pairs as $pair) {
+      list ($name,$value) = explode("=",$pair);
+      $values[$name]=$value;
+    }
+  }
+  return array("url"=>$url,"values"=>$values);
+}
+
 //////////////////////////////////////////////////////////// validation functions
 function topdomain ($hostname) {
   $exploded=array_reverse(explode(".",$hostname));

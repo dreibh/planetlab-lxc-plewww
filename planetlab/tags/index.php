@@ -14,10 +14,13 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 
+// add or update
 if ( $_GET['action'] ) {
-  include 'tag_edit.php';
+  include 'tag_form.php';
+// list all
  } else if ( ! $_GET['add'] ) {
   include 'tags.php';
+// actually set a tag on an object
  } else {
   include 'tag_set.php';
  }

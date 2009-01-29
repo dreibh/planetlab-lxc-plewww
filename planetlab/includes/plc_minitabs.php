@@ -27,7 +27,7 @@ drupal_set_html_head('
 // (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
 
 
-function plc_tabs($array) {
+function plc_tabs ($array) {
   print '<div id="minitabs-container">';
   print '<ul id="minitabs-list">';
   print "\n";
@@ -40,14 +40,21 @@ function plc_tabs($array) {
     if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
     // set default method
     if ( ! $todo['method'] ) $todo['method']='GET';
+    // extract var=value settings from url if any
+    $full_url=$todo['url'];
+    $split=split_url($full_url);
+    $url=$split['url'];
+    $url_values=$split['values'];
+
     // create form
-    printf ('<form name="%s" action="%s" method="%s">',$label,$todo['url'],$todo['method']);
+    printf ('<form name="%s" action="%s" method="%s">',$label,$url,$todo['method']);
     // set values
-    if ( $todo['values'] ) {
-      foreach ($todo['values'] as $key=>$value) {
+    $values=$todo['values'];
+    if ( ! $values) $values = array();
+    if ($url_values) $values = array_merge($values,$url_values);
+    if ( $values ) foreach ($values as $key=>$value) {
 	printf('<input class="minitabs-hidden" type=hidden name="%s" value="%s" />',$key,$value);
       }
-    }
     $tracer="class=minitabs-submit";
     // image and its companions 'height' 
     if ($todo['image']) {

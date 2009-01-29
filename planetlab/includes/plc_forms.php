@@ -8,17 +8,19 @@ require_once 'plc_functions.php';
 // the first functions that we had were actually printing the stuff instead of returning it
 // so basically the foo (...) function should do ``print (foo_text(...))''
 
-function plc_form_hidden_text ($key,$value) {
-  return "<input type=hidden name='$key' value='$value'/>";  
-}
-function plc_form_hidden ($key,$value) { print plc_form_hidden_text($key,$value); }
-  
 // options unused so far
-function plc_form_start ($url, $values, $options=array()) {
+function plc_form_start ($full_url, $values, $options=array()) {
+  if ( ! $values ) $values = array();
+  // extract var=value settings from url if any
+  $split=split_url($full_url);
+  $url=$split['url'];
+  $url_values=$split['values'];
+  if ( $url_values ) $values=array_merge($values,$url_values);
   $method = array_key_exists('method',$options) ? $options['method'] : 'POST';
   print "<form method=$method action='$url' enctype='multipart/form-data'>";
-  foreach ($values as $key=>$value) {
-    print plc_form_hidden_text($ke,$value);
+  plc_debug('values',$values);
+  if ($values) foreach ($values as $key=>$value) {
+    print plc_form_hidden_text($key,$value);
   }
 }
 
@@ -26,6 +28,11 @@ function plc_form_end($options=array()) {
   print "</form>";
 }
 
+function plc_form_hidden_text ($key,$value) {
+  return "<input type=hidden name='$key' value='$value'/>";  
+}
+function plc_form_hidden ($key,$value) { print plc_form_hidden_text($key,$value); }
+  
 function plc_form_checkbox_text ($name,$value,$selected=false) {
   if ($selected) $xtra=" selected=selected";
   return "<input type=checkbox name='$name' value='$value'$xtra/>";
@@ -67,8 +74,13 @@ function plc_form_select_text ($name,$values,$label="") {
   return $selector;
 }
 
-function plc_form_simple_button ($url,$text,$method="POST") {
+function plc_form_simple_button ($full_url,$text,$method="POST") {
+  $split=split_url($full_url);
+  $url=$split['url'];
+  $values=$split['values'];
   $button=plc_form_submit_text("anonymous",$text);
+  if ($values) foreach ($values as $key=>$value) 
+      $button .= plc_form_hidden_text($key,$value);
   return "<form method=$method action=$url>$button</form>";
 }
 
