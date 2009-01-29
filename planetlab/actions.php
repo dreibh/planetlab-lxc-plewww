@@ -19,25 +19,29 @@ $known_actions=array();
 // (*) use POST 
 // (*) set 'action' to one of the following
 $known_actions []= "add-person-to-site";
-//	  expects:	person_id & site_id
+//	expects:	person_id & site_id
 $known_actions []= "remove-person-from-sites";
-//	  expects:	person_id & site_ids
+//	expects:	person_id & site_ids
 $known_actions []= "remove-roles-from-person";
-//	  expects:	person_id & role_ids
+//	expects:	person_id & role_ids
 $known_actions []= "add-role-to-person";
-//	  expects:	role_person_id & id
+//	expects:	role_person_id & id
 $known_actions []= "enable-person";
-//	  expects:	person_id
+//	expects:	person_id
 $known_actions []= "disable-person";
-//	  expects:	person_id
+//	expects:	person_id
 $known_actions []= "become-person";
-//	  expects:	person_id
+//	expects:	person_id
 $known_actions []= "delete-person";
-//	  expects:	person_id
+//	expects:	person_id
 $known_actions []= "delete-keys";
-//	  expects:	key_ids & person_id (for redirecting to the person's page)
+//	expects:	key_ids & person_id (for redirecting to the person's page)
 $known_actions []= "upload-key";
-//	  expects:	person_id & $_FILES['key']
+//	expects:	person_id & $_FILES['key']
+$known_actions []= "update-tag-type";
+//	expects:	tag_type_id & name & description & category & min_role_id  
+$known_actions []= "add-tag-type";
+//	expects:	tag_type_id & name & description & category & min_role_id  
 
 //////////////////////////////
 // sometimes we don't set 'action', but use the submit button name instead
@@ -55,7 +59,7 @@ else
 $person_id = $_POST['person_id'];	// usually needed
 
 if ( ! $action ) {
-  drupal_set_message ("person_actions.php: action not set");
+  drupal_set_message ("actions.php: action not set");
   plc_debug('POST',$_POST);
   return;
  }
@@ -177,6 +181,50 @@ switch ($action) {
    exit();
  }
 
+ case 'update-tag-type': {
+  // get post vars 
+   $tag_type_id= intval( $_POST['tag_type_id'] );
+   $name = $_POST['name'];
+   $min_role_id= intval( $_POST['min_role_id'] );
+   $description= $_POST['description'];  
+   $category= $_POST['category'];  
+  
+   // make tag_type_fields dict
+   $tag_type_fields= array( "min_role_id" => $min_role_id, 
+			    "tagname" => $name, 
+			    "description" => $description,
+			    "category" => $category,
+			    );
+
+   // Update it!
+   $api->UpdateTagType( $tag_type_id, $tag_type_fields );
+   
+   header( "location: " . l_tag($tag_type_id));
+   exit();
+ }
+
+ case 'add-tag-type': {
+  // get post vars 
+   $name = $_POST['name'];
+   $min_role_id= intval( $_POST['min_role_id'] );
+   $description= $_POST['description'];  
+   $category= $_POST['category'];  
+  
+   // make tag_type_fields dict
+   $tag_type_fields= array( "min_role_id" => $min_role_id, 
+			    "tagname" => $name, 
+			    "description" => $description,
+			    "category" => $category,
+			    );
+
+  // Add it!
+   $id=$api->AddTagType( $tag_type_fields );
+   drupal_set_message ("tag type $id created");
+  
+   header( "location: " . l_tag($id));
+   exit();
+ }
+
  case 'debug': {
    plc_debug('GET',$_GET);
    plc_debug('POST',$_POST);
@@ -185,7 +233,7 @@ switch ($action) {
  }
 
  default: {
-   plc_error ("Unknown action $action in person_actions.php");
+   plc_error ("Unknown action $action in actions.php");
    return;
  }
 

@@ -195,6 +195,7 @@ print "<hr />";
 if (empty ($interface['interface_tag_ids'])) {
   print "<p> This network interface has no additional setting</p>";
   if( $is_admin || $is_pi )
+    // xxx check the destination page
     echo "<p><a href='settings.php?add=$id'>Add an Interface Setting</a></p>\n";
  } else {
   $interface_tags = $api->GetInterfaceTags($interface['interface_tag_ids']);
@@ -214,6 +215,7 @@ if (empty ($interface['interface_tag_ids'])) {
       echo("</td>");
     }
     if ($is_admin || $is_pi) 
+    // xxx check the destination page
       printf ("<td class='list_set'> <a href='settings.php?id=%s'>%s </a></td>",$setting['interface_tag_id'],$setting['tagname']);
     else
       printf ("<td class='list_set'> %s </td>",$setting['tagname']);
@@ -223,6 +225,7 @@ if (empty ($interface['interface_tag_ids'])) {
 	    $setting['value']);
   }
   if( $is_admin || $is_pi )
+    // xxx check the destination page
     echo "<tr><td colspan=4><a href='settings.php?add=$id'>Add a Network Setting</td</tr>\n";
   
   print "</tbody></table>";

@@ -82,14 +82,14 @@ if ($privileges || $is_my_account)
 if ($local_peer && $privileges) 
   if ($enabled) 
     $tabs['Disable'] = array ('method'=>'POST',
-			      'url'=>l_person_actions(),
+			      'url'=>l_actions(),
 			      'values'=> array ('person_id'=>$person_id,
 						'action'=>'disable-person'),
 			      'bubble'=>"Disable $first_name $last_name",
 			      'confirm'=>"Are you sure you want to disable $first_name $last_name");
   else 
     $tabs['Enable'] = array ('method'=>'POST',
-			     'url'=>l_person_actions(),
+			     'url'=>l_actions(),
 			     'values'=> array ('person_id'=>$person_id,
 					       'action'=>'enable-person'),
 			     'bubble'=>"Enable $first_name $last_name",
@@ -97,7 +97,7 @@ if ($local_peer && $privileges)
 
 // become
 if (plc_is_admin() && ! $is_my_account) 
-  $tabs['Become'] = array('url'=>l_person_actions(),
+  $tabs['Become'] = array('url'=>l_actions(),
 			  'values'=>array('action'=>'become-person',
 					  'person_id'=>$person_id),
 			  'bubble'=>"Become $first_name $last_name",
@@ -106,7 +106,7 @@ if (plc_is_admin() && ! $is_my_account)
 // delete
 if ($local_peer && $privileges) 
   $tabs['Delete'] = array ('method'=>'POST',
-			   'url'=>l_person_actions(),
+			   'url'=>l_actions(),
 			   'values'=> array ('person_id'=>$person_id,
 					     'action'=>'delete-person'),
 			   'bubble'=>"Delete $first_name $last_name",
@@ -165,7 +165,7 @@ if( ! $slices) {
  }
 
 // we don't set 'action', but use the submit button name instead
-plc_form_start(l_person_actions(),
+plc_form_start(l_actions(),
 	       array("person_id"=>$person_id,
 		     // uncomment this to run the 'debug' action 
 		     //"action"=>"debug",

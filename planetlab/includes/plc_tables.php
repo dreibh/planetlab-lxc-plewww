@@ -176,5 +176,14 @@ function plc_table_row_end () {
   print "</tr>\n";
 }
 
+function plc_table_td_text ($text,$colspan=0,$align=NULL) {
+  $result="";
+  $result .= "<td";
+  if ($colspan) $result .= " colspan=$colspan";
+  if ($align) $result .= " style='text-align:$align'";
+  $result .= ">$text</td>";
+  return $result;
+}
+
 ?>
 

@@ -45,7 +45,7 @@ if( $_GET['rem_id'] ) {
 
 // tag updates
 if( $_POST['edit_tag'] ) {
-  // get the id of the tag to update and teh value from POST
+  // get the id of the tag to update and the value from POST
   $tag_id= intval( $_POST['tag_id'] );
   $value= $_POST['value'];
   $slice_id= $_POST['slice_id'];

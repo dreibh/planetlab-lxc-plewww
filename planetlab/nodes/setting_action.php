@@ -9,13 +9,6 @@ require_once 'plc_login.php';
 require_once 'plc_session.php';
 global $plc, $api;
 
-/*
-// Print header
-require_once 'plc_drupal.php';
-drupal_set_title('Slices');
-include 'plc_header.php';
-*/
-
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_sorts.php';
@@ -42,6 +35,7 @@ if( $_POST['edit_type'] ) {
     print "<div class='plc-error'>" . $api_error . "</div>";
   }
   
+  // xxx check the destination page
   header( "location: settings.php" );
   exit();
 }
@@ -55,6 +49,7 @@ if( $_POST['add_type'] ) {
   // add it!!
   $api->AddTagType( $setting_type );
 
+  // xxx check the destination page
   header( "location: settings.php" );
   exit();
 }
@@ -116,6 +111,7 @@ if( $_GET['del_type'] ) {
   // delete it!
   $api->DeleteTagType( $type_id );
   
+  // xxx check the destination page
   header( "location: settings.php" );
   exit();
 }
