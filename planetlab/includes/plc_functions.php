@@ -95,7 +95,7 @@ function l_sirius()			{ return "/db/sirius/index.php"; }
 function l_about()			{ return "/db/about.php"; }
 function l_doc_plcapi()			{ return "/db/doc/PLCAPI.php"; }
 function l_doc_nmapi()			{ return "/db/doc/NMAPI.php"; }
-function l_admin()			{ return "/db/admin-not-yet-implemented-see-plcwww"; }
+function l_admin()			{ return "/db/adminsearch.php"; }
 
 function l_logout()			{ return "/planetlab/logout.php"; }
 function l_sulogout()			{ return "/planetlab/sulogout.php"; }
