@@ -111,15 +111,19 @@ if ( ! $peer_id  && $privileges ) {
     
   $tabs['Update'] = array ('url'=>"/db/nodes/node_actions.php",
 			   'method'=>'POST',
-			   'values'=>array('action'=>'prompt-update','node_id'=>$node_id));
+			   'values'=>array('action'=>'prompt-update','node_id'=>$node_id),
+			   'bubble'=>"Update details of $hostname");
   $tabs['Delete'] = array ('url'=>"/db/nodes/node_actions.php",
 			   'method'=>'POST',
 			   'values'=>array('action'=>'delete','node_id'=>$node_id),
+			   'bubble'=>"Delete $hostname",
 			   'confirm'=>'Are you sure to delete ' . $hostname. ' ?');
   // xxx subject to roles
   $tabs["Add Interface"]=l_interface_add($node_id);
-  $tabs["Comon"]=l_comon("node_id",$node_id);
-  $tabs["Events"]=l_event("Node","node",$node_id);
+  $tabs["Comon"]=array('url'=>l_comon("node_id",$node_id),
+		       'buble'=>"Comon page for $hostname");
+  $tabs["Events"]=array('url'=>l_event("Node","node",$node_id),
+			'bubble'=>"Events for node $hostname");
  }
 
 $tabs["All nodes"]=l_nodes();
