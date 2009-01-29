@@ -20,7 +20,7 @@ $known_actions=array();
 // (*) set 'action' to one of the following
 $known_actions []= "add-person-to-site";
 //	  expects:	person_id & site_id
-$known_actions []= "remove-person-from-site";
+$known_actions []= "remove-person-from-sites";
 //	  expects:	person_id & site_ids
 $known_actions []= "remove-roles-from-person";
 //	  expects:	person_id & role_ids
@@ -56,6 +56,7 @@ $person_id = $_POST['person_id'];	// usually needed
 
 if ( ! $action ) {
   drupal_set_message ("person_actions.php: action not set");
+  plc_debug('POST',$_POST);
   return;
  }
 

@@ -57,13 +57,14 @@ $slice_ids= $person['slice_ids'];
 $key_ids= $person['key_ids'];
 
 // gets more data from API calls
-$sites= $api->GetSites( $site_ids, array( "site_id", "name", "login_base" ) );
+$site_columns=array( "site_id", "name", "login_base" );
+$sites= $api->GetSites( $site_ids, $site_columns);
 $slices= $api->GetSlices( $slice_ids, array( "slice_id", "name" ) );
 $keys= $api->GetKeys( $key_ids );
 
 drupal_set_title("Details for account " . $first_name . " " . $last_name);
 
-$plc_hash=plc_peer_get_hash($api);
+$plc_hash=plc_peer_global_hash($api);
 
 $local_peer = plc_peer_block_start ($peer_hash,$peer_id);
 $is_my_account = plc_my_person_id() == $person_id;
@@ -145,13 +146,13 @@ plc_details_end();
 echo "<hr />\n";
 plc_table_title('Slices');
 
-if( empty( $slices ) ) {
-  drupal_set_message ("User has no slice");
+if( ! $slices) {
+  plc_warning ("User has no slice");
  } else {
-  $columns=array('Slice name'=>'string');
+  $headers=array('Slice name'=>'string');
   $table_options=array('notes_area'=>false,
 		       'pagesize'=>5);
-  plc_table_start("person_slices",$columns,1,$table_options);
+  plc_table_start("person_slices",$headers,1,$table_options);
 
   foreach( $slices as $slice ) {
     $slice_name= $slice['name'];
@@ -163,7 +164,14 @@ if( empty( $slices ) ) {
   plc_table_end("person_slices");
  }
 
-////////// keys	  
+// we don't set 'action', but use the submit button name instead
+plc_form_start(l_person_actions(),
+	       array("person_id"=>$person_id,
+		     // uncomment this to run the 'debug' action 
+		     //"action"=>"debug",
+		     ));
+
+//////////////////// keys
 echo "<hr />\n";
 plc_table_title ("Keys");
 		
@@ -171,29 +179,14 @@ $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
 if ( empty( $key_ids ) ) {
   plc_warning("This user has no known key");
  } 
-// we don't set 'action', but use the submit button name instead
-plc_form_start(l_person_actions(),
-	       array("person_id"=>$person_id,
-		     //"action"=>"debug",
-		     ));
 
-// the headers
-$columns=array("Type"=>"string",
+// headers
+$headers=array("Type"=>"string",
 	       "Key"=>"string");
-if ($can_manage_keys) $columns['Remove']="none";
+if ($can_manage_keys) $headers['Remove']="none";
 // table overall options
 $table_options=array("search_area"=>false,"notes_area"=>false);
-// add the 'remove site' button and key upload areas as the table footer
-if ($can_manage_keys) {
-  $remove_keys_area=plc_form_submit_text ("delete-keys","Remove keys");
-  $upload_key_left_area= plc_form_label_text("Upload new key","key") . plc_form_file_text("key",60);
-  $upload_key_right_area=plc_form_submit_text("upload-key","Upload key");
-  $table_options['footer']="";
-  if ($keys) $table_options['footer'].="<tr><td colspan=3 style='text-align:right'> $remove_keys_area </td></tr>";
-  $table_options['footer'].="<tr><td colspan=2 style='text-align:right'> $upload_key_left_area </td>".
-    "<td> $upload_key_right_area </td></tr>";
- }
-plc_table_start("person_keys",$columns,"1",$table_options);
+plc_table_start("person_keys",$headers,"1",$table_options);
     
 if ($keys) foreach ($keys as $key) {
   $key_id=$key['key_id'];
@@ -204,125 +197,127 @@ if ($keys) foreach ($keys as $key) {
     plc_table_cell (plc_form_checkbox_text('key_ids[]',$key_id));
   plc_table_row_end();
 }
-plc_table_end("person_keys");
-plc_form_end();
+// the footer area is used for displaying key-management buttons
+$footers=array();
+// add the 'remove keys' button and key upload areas as the table footer
+if ($can_manage_keys) {
+  $remove_keys_area=plc_form_submit_text ("delete-keys","Remove keys");
+  $upload_key_left_area= plc_form_label_text("key","Upload new key") . plc_form_file_text("key",60);
+  $upload_key_right_area=plc_form_submit_text("upload-key","Upload key");
+  // no need to remove if there's no key
+  if ($keys) 
+    $footers[]="<td colspan=3 style='text-align:right'> $remove_keys_area </td>";
+  // upload a new key
+  $footers []="<td colspan=2 style='text-align:right'> $upload_key_left_area </td>".
+    "<td> $upload_key_right_area </td>";
+}
 
-// sites
+plc_table_end("person_keys",array("footers"=>$footers));
+
+//////////////////// sites
 echo "<hr />\n";
 plc_table_title('Sites');
   
 // sites
 if (empty( $sites ) ) {
   plc_warning('This user is not affiliated with a site !!');
- } else {
-  $columns=array();
-  $columns['Name']="string";
-  $columns['Login_base']="string";
-  $columns['Remove']="string";
-  $table_options = array('notes_area'=>false,'search_area'=>false);
-  plc_table_start ("person_sites",$columns,1,$table_options);
-  foreach( $sites as $site ) {
-    $site_name= $site['name'];
-    $site_id= $site['site_id'];
-    $login_base=$site['login_base'];
-    plc_table_row_start();
-    plc_table_cell (l_site_t($site_id,$site_name));
-    plc_table_cell ($login_base);
-    plc_table_cell ("<input id=" . $login_base . " type=checkbox name='rem_site[]' value=" . $site_id . ">");
-    plc_table_row_end ();
-  }
-  plc_table_end("person_sites");
- }
+ } 
+$can_manage_sites = $local_peer && plc_is_admin() || $is_my_account;
+$headers=array();
+$headers['Login_base']="string";
+$headers['Name']="string";
+if ($can_manage_sites) 
+  $headers['Remove']="string";
+$table_options = array('notes_area'=>false,'search_area'=>false);
+plc_table_start ("person_sites",$headers,0,$table_options);
+foreach( $sites as $site ) {
+  $site_name= $site['name'];
+  $site_id= $site['site_id'];
+  $login_base=$site['login_base'];
+  plc_table_row_start();
+  plc_table_cell ($login_base);
+  plc_table_cell (l_site_t($site_id,$site_name));
+  if ($can_manage_sites)
+    plc_table_cell (plc_form_checkbox_text('site_ids[]',$site_id));
+  plc_table_row_end ();
+}
+// footers : the remove and add buttons
+$footers=array();
+if ($can_manage_sites) {
+  // remove selected sites
+  $remove_sites_area = plc_form_submit_text("remove-person-from-sites","Remove Sites");
 
-echo "<input type=submit name='Remove_Sites' value='Remove Sites'>\n";
-  
-	
-// diplay site select list to add another site for user
-if ($local_peer && plc_is_admin()) {
-  // get site info
-  $all_sites= $api->GetSites( NULL, array( "site_id", "name" ) );
-    
-  if( $sites )
-    $person_site= arr_diff( $all_sites, $sites );
-  else
-    $person_site= $all_sites;
-    
-  //    sort_sites( $person_site );
-    
-  echo "<p>Select a site to add this user to: ";
-  echo "<select name='site_add' onChange='submit()'>\n<option value=''>Choose a site to add:</option>\n";
-    
-  foreach( $person_site as $site ) {
-    echo "<option value=". $site['site_id'] .">". $site['name'] ."</option>\n";
-      
-  }
-    
-  echo "</select>";
-    
+  // add a site : the button
+  $add_site_left_area=plc_form_submit_text("add-person-to-site","Add in site");
+  // get list of local sites that the person is not in
+  $person_site_ids=array_map("get_site_id",$sites);
+  $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
+
+  // xxx cannot use onchange=submit() - would need to somehow pass action name 
+  $selector=array();
+  foreach ($relevant_sites as $site) 
+    $selector[]= array('display'=>$site['name'],"value"=>$site['site_id']);
+  $add_site_right_area=plc_form_select_text("site_id",$selector,"Choose a site to add");
+  if ($sites) 
+    $footers[]="<td colspan=3 style='text-align:right'> $remove_sites_area </td>";
+  // add a new site
+  $footers []="<td style='text-align:right'> $add_site_left_area </td>".
+    "<td colspan=2> $add_site_right_area </td>";
  }
+plc_table_end("person_sites",array("footers"=>$footers));
+
+//////////////////// roles
 echo "<hr />\n";
-  
-// roles
-echo "<h3>Roles</h3>\n";
-echo "<p><table>\n";
-echo "<thead><tr><th>Role</th>";
-if( plc_is_admin())
-  echo "<th>Remove</th>";
-echo "</tr></thead><tbody>\n";
-  
-// construct role array
-for( $n=0; $n<count($roles); $n++ ) {
-  $proles[]= array( 'role_id'=>$role_ids[$n], 'name'=>$roles[$n] );
- }
-    
-$button_shown=0;
-if ( !empty ($roles) ) {
-  foreach( $proles as $role ) {
-    $role_name= $role['name'];
-    $role_id= $role['role_id'];
-      
-    echo "<tr><td>$role_name";
-	      
+plc_table_title("Roles");
+if (! $roles) plc_warning ("This user has no role !");
 
-    if( plc_is_admin()) {
-      echo "</td><td><input type=checkbox name='rem_role[]' value='$role_id'>";
-      if ( ! $button_shown ) {
-	$rowspan=count($roles);
-	echo "</td><td rowspan=$rowspan valign=center><input type=submit name='Remove_Roles' value='Remove Roles'></td></tr>\n";
-	$button_shown=1;
-      }
-    }
-      
-    echo "</td></tr>\n";
-  }
- } else {
-  echo "<span class='plc-warning'> This user has no known role !!</span>";
- }
-echo "</tbody></table>\n";
-	  
-// if admin show roles to add
-if( plc_is_admin()) {
-  $all_roles= $api->GetRoles();
-  $addable_roles= arr_diff( $all_roles, $proles );
-  ##when the proles array is empty strangely the method arr_diff($all_roles, $proles )
-  ##return an empty array and the scrolling roles list is not displayed in this case
-  ##assign to addablerole all the roles
-  if (count($proles)==0)
-    $addable_roles=$all_roles;
-    
-  if( !empty( $addable_roles ) ) {
-    echo "<p>Add role: <select name='add_role' onChange='submit()'>\n<option value=''>Choose a Role to add:</option>\n";
-      
-    foreach( $addable_roles as $arole ) {
-      echo "<option value=". $arole['role_id'] .">". $arole['name'] ."</option>\n";
-	
-    }
-      
-    echo "</select>\n";
-      
-  }
- }
+$can_manage_roles= ($local_peer && plc_is_admin());
+$table_options=array("search_area"=>false,"notes_area"=>false);
+
+$headers=array("Role"=>"none");
+if ($can_manage_roles) $headers ["Remove"]="none";
+
+plc_table_start("person_roles",$headers,0,$table_options);  
   
+// construct array of role objs
+$role_objs=array();
+for ($n=0; $n<count($roles); $n++) {
+  $role_objs[]= array('role_id'=>$role_ids[$n], 'name'=>$roles[$n]);
+ }
+
+if ($role_objs) foreach ($role_objs as $role_obj) {
+  plc_table_row_start();
+  plc_table_cell($role_obj['name']);
+  if ($can_manage_roles) plc_table_cell (plc_form_checkbox_text('role_ids[]',$role_obj['role_id']));
+  plc_table_row_end();
+ }
+
+// footers : the remove and add buttons
+$footers=array();
+if ($can_manage_roles) {
+  // remove selected roles
+  $remove_roles_area = plc_form_submit_text("remove-roles-from-person","Remove Roles");
+
+  // add a role : the button
+  $add_role_left_area=plc_form_submit_text("add-role-to-person","Add role");
+  // get list of local roles that the person has not yet
+  // xxx this does not work because GetRoles does not support filters
+  $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
+
+  $selector=array();
+  foreach ($relevant_roles as $role) 
+    $selector[]= array('display'=>$role['name'],"value"=>$role['role_id']);
+  $add_role_right_area=plc_form_select_text("role_id",$selector,"Choose a role to add");
+  if ($roles) 
+    $footers[]="<td colspan=3 style='text-align:right'> $remove_roles_area </td>";
+  // add a new role
+  $footers []="<td style='text-align:right'> $add_role_left_area </td>".
+    "<td colspan=2> $add_role_right_area </td>";
+ }
+plc_table_end("person_roles",array("footers"=>$footers));
+
+//////////////////////////////
+plc_form_end();
 plc_peer_block_end();
   
 // Print footer

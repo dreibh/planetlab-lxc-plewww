@@ -95,6 +95,7 @@ function l_sirius()			{ return "/db/sirius/index.php"; }
 function l_about()			{ return "/db/about.php"; }
 function l_doc_plcapi()			{ return "/db/doc/PLCAPI.php"; }
 function l_doc_nmapi()			{ return "/db/doc/NMAPI.php"; }
+function l_admin()			{ return "/db/admin-not-yet-implemented-see-plcwww"; }
 
 function l_logout()			{ return "/planetlab/logout.php"; }
 function l_sulogout()			{ return "/planetlab/sulogout.php"; }
@@ -186,7 +187,7 @@ function is_reserved_network_addr($network_addr) {
 
 ////////////////////////////////////////////////////////////  peer & peerscopes
 // when shortnames are needed on peers
-function plc_peer_get_hash ($api) {
+function plc_peer_global_hash ($api) {
   $peer_columns=array('peer_id','shortname');
   $peer_filter=array();
   $peers = $api->GetPeers($peer_filter,$peer_columns);
@@ -313,6 +314,9 @@ function plc_vertical_table ($messages, $class="") {
   $formatted .= "</table>";
   return $formatted;
 }
+
+//////////////////////////////////////////////////////////// various mappers
+function get_site_id ($site) { return $site['site_id'];}
 
 ////////////////////////////////////////////////////////////
 function plc_error ($text) {

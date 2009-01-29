@@ -3,9 +3,12 @@ table.plc_table {
     width: auto;
     padding: 0;
     margin: 0 auto 1.5em auto;
-    border-left: 1px solid #C1DAD7;
     border-collapse:collapse;
 }
+table.plc_table thead tr, table.plc_table tbody tr {
+    border-left: 1px solid #C1DAD7; 
+}    
+
 th.plc_table {
     font: bold 10px/22px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
     color: #4f6b72;

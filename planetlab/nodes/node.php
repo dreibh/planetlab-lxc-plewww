@@ -93,7 +93,7 @@ if (empty($nodes)) {
   //////////////////// display node info
 
   // fetches peers and initialize hash peer_id->peer
-  $peer_hash = plc_peer_get_hash ($api);
+  $peer_hash = plc_peer_global_hash ($api);
   // show gray background on foreign objects : start a <div> with proper class
   plc_peer_block_start ($peer_hash,$peer_id);
   
@@ -198,12 +198,12 @@ if (empty($nodes)) {
   if ( ! $slices  ) {
     echo "<p><span class='plc-warning'>This node is not associated to any slice.</span></p>\n";
   } else {
-    $columns=array();
-    $columns['Peer']="string";
-    $columns['Name']="string";
-    $columns['Slivers']="string";
+    $headers=array();
+    $headers['Peer']="string";
+    $headers['Name']="string";
+    $headers['Slivers']="string";
     $table_options = array('notes_area'=>false);
-    plc_table_start ("slivers",$columns,1,$table_options);
+    plc_table_start ("slivers",$headers,1,$table_options);
 
     foreach ($slices as $slice) {
       plc_table_row_start($slice['name']);
@@ -222,22 +222,22 @@ if (empty($nodes)) {
     if( ! $interfaces ) {
       echo "<p><span class='plc-warning'>No interface</span>.  Please add an interface to make this a usable PLC node</p>.\n";
     } else {
-      $columns=array();
+      $headers=array();
       if ( $privileges ) {
 	// a single symbol, marking 'p' for primary and a delete button for non-primary
-	$columns[' ']='string';
+	$headers[' ']='string';
       }
 	 
-      $columns["IP"]="IPAddress";
-      $columns["Method"]="string";
-      $columns["Type"]="string";
-      $columns["MAC"]="string";
-      $columns["bw limit"]="FileSize";
+      $headers["IP"]="IPAddress";
+      $headers["Method"]="string";
+      $headers["Type"]="string";
+      $headers["MAC"]="string";
+      $headers["bw limit"]="FileSize";
 
       print "<hr/>\n";
       plc_table_title('Interfaces');
       $table_options=array('search_area'=>false);
-      plc_table_start("interfaces",$columns,2,$table_options);
+      plc_table_start("interfaces",$headers,2,$table_options);
 	
       foreach ( $interfaces as $interface ) {
 	$interface_id= $interface['interface_id'];
@@ -282,15 +282,15 @@ if (empty($nodes)) {
   if ( ! $nodegroups ) {
     echo "<p><span class='plc-warning'>This node is not in any nodegroup.</span></p>\n";
   } else {
-    $columns=array();
-    $columns['Name']="string";
-    $columns['Tag']="string";
-    $columns['Value']="string";
+    $headers=array();
+    $headers['Name']="string";
+    $headers['Tag']="string";
+    $headers['Value']="string";
       
     print "<hr/>\n";
     plc_table_title("Nodegroups");
     $table_options = array('search_area'=>false);
-    plc_table_start("nodegroups",$columns,0,$table_options);
+    plc_table_start("nodegroups",$headers,0,$table_options);
 
     foreach( $nodegroups as $nodegroup ) {
       plc_table_row_start();

@@ -27,10 +27,10 @@ $_roles= $_person['role_ids'];
 // The set of columns to fetch
 // and the filter applied for fetching sites
 if ( !in_array( '10', $_roles ) ) {
-  $columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" );
+  $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" );
   $filter = array ("enabled" => TRUE);
  } else {
-  $columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" , "enabled", "person_ids", "max_slices", "slice_ids", "node_ids");
+  $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" , "enabled", "person_ids", "max_slices", "slice_ids", "node_ids");
   $filter = array ();
  }
 
@@ -126,7 +126,7 @@ if( $_GET['sitepattern'] || $_GET['peerscope']) {
     break;
   }
 
-  $sites= $api->GetSites( $filter , $columns);
+  $sites= $api->GetSites( $filter , $site_columns);
   $sites = array_map(layout_site,$sites);
 
   $sites_count = count ($sites);
@@ -148,7 +148,7 @@ elseif( !$_GET['id'] ) {
 
   // GetSites API call
   // careful, need to pass NULL and *not* array() if no filter is given
-  $sites= $api->GetSites( empty($filter) ? NULL : $filter, $columns );
+  $sites= $api->GetSites( empty($filter) ? NULL : $filter, $site_columns );
   $sites = array_map(layout_site,$sites);
   if ( empty ($sites)) {
     echo "No site to display";

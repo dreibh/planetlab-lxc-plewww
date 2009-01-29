@@ -31,14 +31,14 @@ if ( empty($peers)) {
   drupal_set_message ("You seem to be running a standalone deployment");
   } else {
   
-  $columns=array( 'Name'=>'string',
+  $headers=array( 'Name'=>'string',
 		  'SN' =>'string',
 		  'HRN' => 'string',
 		  'URL'=>'string',
 		  'Comon'=>'string');
 		  
   $table_options=array('search_area'=>false, 'notes_area'=>false);
-  plc_table_start ("peers",$columns,1,$table_options);
+  plc_table_start ("peers",$headers,1,$table_options);
   foreach ($peers as $peer) {
     plc_table_row_start();
     plc_table_cell (href(l_peer($peer['peer_id']),$peer['peername']));

@@ -4,6 +4,10 @@
 
 require_once 'plc_functions.php';
 
+// the rationale behind having function names with _text is that
+// the first functions that we had were actually printing the stuff instead of returning it
+// so basically the foo (...) function should do ``print (foo_text(...))''
+
 function plc_form_start ($url, $values, $options=array()) {
   $method = array_key_exists('method',$options) ? $options['method'] : 'POST';
   print "<form method=$method action='$url' enctype='multipart/form-data'>";
@@ -29,8 +33,22 @@ function plc_form_file_text ($name,$size) {
   return "<input type=file name='$name' size=$size>";
 }
 
-function plc_form_label_text ($label,$name) {
-  return "<label for=$name>$text </label>";
+function plc_form_label_text ($name,$display) {
+  return "<label for=$name>$display </label>";
 }
  
+function plc_form_select_text ($name,$values,$label="") {
+  $selector="";
+  $selector.="<select name='$name'>";
+  if ($label) 
+    $selector.="<option value=''>$label</option>";
+  foreach ($values as $chunk) {
+    $display=$chunk['display'];
+    $value=$chunk['value'];
+    $selector .= "<option value='$value'>$display</option>\n";
+  }
+  $selector .= "</select>";
+  return $selector;
+}
+
 ?>

@@ -111,6 +111,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $is_user  = in_array(30,$plc->person['role_ids']);
       $is_tech  = in_array(40,$plc->person['role_ids']);
 
+      //////////////////// Sites
       $site_item = '';
       $site_item .= href(l_sites(),"Sites");
       $site_item .= ul_start();
@@ -120,6 +121,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $site_item .= ul_end();
       $items[] = expanded($site_item);
 
+      //////////////////// Users
       $user_item = '';
       $user_item .= href(l_persons(),'Users');
       $user_item .= ul_start();
@@ -133,16 +135,16 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $user_item .= ul_end();
       $items [] = expanded($user_item);
 
+      //////////////////// Nodes
       $node_item = '';
       $node_item .= href(l_nodes(),"Nodes");
       $node_item .= ul_start();
       $node_item .= leaf( href (l_nodes_site (plc_my_site_id()),"My Site Nodes"));
       $node_item .= leaf( href (l_node_add(),"Add Node"));
-      if ( $is_admin) 
-	$node_item .= leaf (href(l_peers(),'Peers'));
       $node_item .= ul_end();
       $items [] = expanded($node_item);
 
+      //////////////////// Slices
       $slice_item = '';
       //if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
       $slice_item .= href(l_slices(),"Slices");
@@ -155,17 +157,21 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $slice_item .= ul_end();
       $items [] = expanded($slice_item);
 
+      //////////////////// Admin
       if( $is_admin || $is_pi ) {
-	$tag_item = '';
-	$tag_item .= href(l_tags(),"All Tag Types");
-	$tag_item .= ul_start();
-	$tag_item .= leaf( href( l_tags_slice(),"Slice Tags"));
-	$tag_item .= leaf( href( l_tags_interface(),"Interface Tags"));
-	$tag_item .= leaf( href (l_tags_interface(),"Setting Types (dup xxx)"));
-	$tag_item .= leaf( href( l_tags_node(),"Node Tags"));
-	$tag_item .= leaf( href( l_nodegroups(),"Node groups (xxx)"));
-	$tag_item .= ul_end();
-	$items [] = expanded($tag_item);
+	$admin_item = '';
+	$admin_item .= href(l_admin(),"Admin");
+	$admin_item .= ul_start();
+	$admin_item .= leaf( href( l_tags(),"Tags"));
+	$admin_item .= leaf( href( l_nodegroups(),"Node groups (xxx)"));
+	// xxx need to cleanup
+	//$admin_item .= leaf( href( l_tags_slice(),"Slice Tags"));
+	//$admin_item .= leaf( href( l_tags_interface(),"Interface Tags"));
+	//$admin_item .= leaf( href (l_tags_interface(),"Setting Types (dup xxx)"));
+	//$admin_item .= leaf( href( l_tags_node(),"Node Tags"));
+	$admin_item .= leaf (href(l_peers(),'Peers'));
+	$admin_item .= ul_end();
+	$items [] = expanded($admin_item);
       }
 
       $doc_item = '';

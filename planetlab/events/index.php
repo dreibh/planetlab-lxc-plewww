@@ -358,7 +358,7 @@ if ( ! plc_is_admin()) {
     foreach ($messages as $line) 
       drupal_set_message($line);
 
-  $columns=array("Id"=>"int",
+  $headers=array("Id"=>"int",
 		 "Time"=>"EnglishDateTime",
 		 "Method"=>"string",
 		 "Message"=>"string",
@@ -370,10 +370,10 @@ if ( ! plc_is_admin()) {
 		 );
 
   $table_options=array('notes'=>array("The R column shows the call result value, a.k.a. fault_code",
-				      "Click the button in the D(etails) columns to get more details",
+				      "Click the button in the D(etails) column to get more details",
 				      ),
 		       'max_pages'=>20);
-  plc_table_start("events",$columns,"0r",$table_options);
+  plc_table_start("events",$headers,"0r",$table_options);
   foreach ($events as $event) {
 
     // the call button

@@ -24,7 +24,7 @@ $_roles= $_person['role_ids'];
 
 //plc_debug("person", $_person );
 
-$columns=array( "tag_type_id", "category", "tagname", "description", "min_role_id" );
+$tag_columns=array( "tag_type_id", "category", "tagname", "description", "min_role_id" );
 
 // prepare dict role_id => role_name
 global $roles;
@@ -65,7 +65,7 @@ if( !$_GET['id'] && !$_GET['add'] && !$_GET['add_type'] && !$_GET['edit_type'] )
   // get types
   global $person_role;
   $filter = array (']min_role_id'=>$person_role,'category'=>'interface*');
-  $setting_types= $api->GetTagTypes( $filter, $columns );
+  $setting_types= $api->GetTagTypes( $filter, $tag_columns );
   $setting_types = array_map(layout_setting_type,$setting_types);
   sort_interface_tags ($setting_types);
   

@@ -53,17 +53,20 @@ function person_status ($person) {
     $messages [] = "No Key";
   if ( ! $person['enabled'] ) 
     $messages[] = "Disabled";
-  //detect tech-only people involved in slices. 
+  // for tech-only people: outline user if in a slice
   if ( ( count($person['roles'])==1 ) && 
-       ( in_array('tech',$person['roles']) )  && 
-       (! empty($person["slice_ids"])) ) 
-    $messages[]="Tech involved in a Slice";  
+       ( in_array('tech',$person['roles']) ) ) {
+    if (! empty($person["slice_ids"]) ) $messages[]="Tech in a Slice";  
+  } else {
+    // or for other kind of people, if they have no slice
+    if ( count($person['slice_ids']) == 0) $messages [] = "No Slice";
+  }
   return plc_vertical_table($messages,$class);
 }
 
 
 // fetch persons 
-$person_columns=array('person_id','first_name','last_name','email','roles','peer_id','key_ids','site_ids','enabled');
+$person_columns=array('person_id','first_name','last_name','email','roles','peer_id','key_ids','site_ids','enabled','slice_ids');
 // PIs and admins can see users not yet enabled
 $privileges=plc_is_admin() || plc_is_pi();
 if ( ! $privileges ) 
@@ -130,7 +133,7 @@ if ( ! $persons ) {
   return;
  }
   
-$columns = array ("Peer"=>"string",
+$headers = array ("Peer"=>"string",
 		  "Roles"=>"string",
 		  "First"=>"string",
 		  "Last"=>"string",
@@ -140,9 +143,9 @@ $columns = array ("Peer"=>"string",
 		  );
 
 // initial sort on email
-plc_table_start("persons",$columns,4);
+plc_table_start("persons",$headers,4);
 
-$peer_hash = plc_peer_get_hash ($api);
+$peer_hash = plc_peer_global_hash ($api);
 // write rows
 
 foreach ($persons as $person) {

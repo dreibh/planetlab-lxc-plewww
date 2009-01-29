@@ -9,7 +9,7 @@ drupal_set_html_head('
 ');
 
 
-//// hash to retrieve the columns and options as passed at table-creation time
+//// hash to retrieve the headers and options as passed at table-creation time
 // this means that table_id's need to be different across the page,
 // which is required anyway for the search and pagesize areas to work properly
 $plc_table_hash=array();
@@ -30,6 +30,7 @@ function plc_table_cell($cell) {
 //  - pagesize: the initial pagination size
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
+//  - footers: a list of table rows (<tr> will be added) for building the table's tfoot area
 function plc_table_start ($table_id, $headers, $column_sort, $options=NULL) {
   if ( ! $options ) $options = array();
   global $plc_table_hash;
@@ -44,9 +45,14 @@ function plc_table_start ($table_id, $headers, $column_sort, $options=NULL) {
   plc_table_head($table_id,$headers,$column_sort,$max_pages,$pagesize);
 }
 
-function plc_table_end ($table_id) {
+// for convenience, the options that apply to the footer only can be passed in plc_table_end()
+// they add up to the ones provided to the begin clause
+// makes code more readable, as preparing the footer before the table is displayed is confusing
+function plc_table_end ($table_id,$options_end=NULL) {
   global $plc_table_hash;
   list($headers,$options) = $plc_table_hash[$table_id];
+  if ($options_end) 
+    $options=array_merge($options,$options_end);
 
   plc_table_foot($options);
   $notes_area = array_key_exists('notes_area',$options) ? $options['notes_area'] : true;
@@ -132,7 +138,9 @@ EOF;
 ////////////////////////////////////////
 function plc_table_foot ($options) {
   print "</tbody><tfoot>";
-  print $options['footer'];
+  if ($options['footers']) 
+    foreach ($options['footers'] as $footer) 
+      print "<tr> $footer </tr>";
   print "</tfoot></table>\n";
 }
 

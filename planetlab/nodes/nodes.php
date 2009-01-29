@@ -102,9 +102,7 @@ $interface_filter=array('is_primary'=>TRUE,'interface_id'=>$interface_ids);
 $interfaces=$api->GetInterfaces($interface_filter,$interface_columns);
 
 $interface_hash=array();
-foreach ($interfaces as $interface) {
-    $interface_hash[$interface['node_id']]=$interface;
-}
+foreach ($interfaces as $interface) $interface_hash[$interface['node_id']]=$interface;
 
 // fetch related sites
 $site_columns=array('site_id','login_base');
@@ -112,9 +110,7 @@ $site_filter=array('site_id'=>$site_ids);
 $sites=$api->GetSites($site_filter,$site_columns);
 
 $site_hash=array();
-foreach ($sites as $site) {
-    $site_hash[$site['site_id']]=$site;
-}
+foreach ($sites as $site) $site_hash[$site['site_id']]=$site;
 
 // --------------------
 drupal_set_title($title);
@@ -126,7 +122,7 @@ if ( ! $nodes ) {
   return;
  }
   
-$columns = array ("Peer"=>"string",
+$headers = array ("Peer"=>"string",
 		  "Region"=>"string",
 		  "Site"=>"string",
 		  "State"=>"string",
@@ -138,9 +134,9 @@ $columns = array ("Peer"=>"string",
 		  "Float"=>"float");
 
 # initial sort on hostnames
-plc_table_start("nodes",$columns,4);
+plc_table_start("nodes",$headers,4);
 
-$peer_hash = plc_peer_get_hash ($api);
+$peer_hash = plc_peer_global_hash ($api);
 // write rows
 $fake1=1; $fake2=3.14; $fake_i=0;
 foreach ($nodes as $node) {
