@@ -97,7 +97,8 @@ if ($local_peer && $privileges)
 
 // become
 if (plc_is_admin() && ! $is_my_account) 
-  $tabs['Become'] = array('url'=>l_actions(),
+  $tabs['Become'] = array('method'=>'POST',
+			  'url'=>l_actions(),
 			  'values'=>array('action'=>'become-person',
 					  'person_id'=>$person_id),
 			  'bubble'=>"Become $first_name $last_name",

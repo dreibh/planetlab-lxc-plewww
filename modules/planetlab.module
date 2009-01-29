@@ -164,12 +164,9 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
 	$admin_item .= ul_start();
 	$admin_item .= leaf( href( l_tags(),"Tags"));
 	$admin_item .= leaf( href( l_nodegroups(),"Node groups (xxx)"));
-	// xxx need to cleanup
-	//$admin_item .= leaf( href( l_tags_slice(),"Slice Tags"));
-	//$admin_item .= leaf( href( l_tags_interface(),"Interface Tags"));
-	//$admin_item .= leaf( href (l_tags_interface(),"Setting Types (dup xxx)"));
-	//$admin_item .= leaf( href( l_tags_node(),"Node Tags"));
 	$admin_item .= leaf (href(l_peers(),'Peers'));
+	if ( $is_admin )
+	  $admin_item .= leaf (href(l_events(),'Events'));
 	$admin_item .= ul_end();
 	$items [] = expanded($admin_item);
       }
@@ -179,8 +176,6 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $doc_item .= ul_start();
       $doc_item .= leaf ( href (l_doc_plcapi(),"PLCAPI doc"));
       $doc_item .= leaf ( href (l_doc_nmapi(),"NMAPI doc"));
-      if ( $is_admin )
-	$doc_item .= leaf (href(l_events(),'Events'));
       $doc_item .= ul_end();
       $items[] = expanded($doc_item);
 
