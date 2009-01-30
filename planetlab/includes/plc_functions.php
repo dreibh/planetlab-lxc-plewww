@@ -109,6 +109,9 @@ function l_person_register()		{ return "/db/persons/register.php"; }
 function l_site_register()		{ return "/db/sites/register.php"; }
 function l_sites_pending()		{ return "/db/sites/join_request.php"; }
 
+function tabs_events()			{ return array('image'=>'/planetlab/icons/event.png','height'=>18);}
+function tabs_comon()			{ return array('image'=>'/planetlab/icons/comon.png','height'=>18);}
+
 // returns array ['url' => path, 'values' => hash (key=>value)* ]
 function split_url ($full_url) {
   list($url,$args) = explode("?",$full_url);
@@ -395,9 +398,9 @@ function plc_errors ($list) {
   print( "</ul></div>\n" );
 }
 
-function plc_warning_text ($text)	{ return "<div class='plc-warning'>" . $text . "</div>";}
+function plc_warning_text ($text)	{ return "<span class='plc-warning'>" . $text . "</span>";}
 function plc_warning ($text)		{ print plc_warning_text("Warning " . $text); }
-function plc_foreign_text($text)	{ return "<div class=plc-foreign>$text</div>"; }
+function plc_foreign_text($text)	{ return "<span class=plc-foreign>$text</span>"; }
 
 // shows a php variable verbatim with a heading message
 function plc_debug ($message,$object) {

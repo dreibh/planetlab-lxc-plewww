@@ -65,6 +65,10 @@ $keys= $api->GetKeys( $key_ids );
 drupal_set_title("Details for account " . $first_name . " " . $last_name);
 
 $plc_hash=plc_peer_global_hash($api);
+if ($peer_id) {
+  $peers=$api->GetPeers(array($peer_id));
+  $peer=$peers[0];
+}
 
 $local_peer = plc_peer_block_start ($peer_hash,$peer_id);
 $is_my_account = plc_my_person_id() == $person_id;
@@ -117,8 +121,7 @@ if ( $privileges)
   $tabs['Events'] = array('url'=>l_events(),
 			  'values'=>array('type'=>'Person','person'=>$person_id),
 			  'bubble'=>"Events about $first_name $last_name",
-			  'image'=>'/planetlab/icons/event.png',
-			  'height'=>18);
+			  'image'=>'/planetlab/icons/event.png','height'=>18);
 
 // Back button
 $tabs['All Users'] = array ('url'=>l_persons(),
@@ -141,6 +144,7 @@ plc_details_line("URL",$url);
 plc_details_line("Phone",$phone);
 plc_details_line("Title",$title);
 plc_details_line("Bio",wordwrap($bio,50,"<br/>"));
+plc_details_line("Peer",plc_peer_label($peer));
 plc_details_end();
 
 //////////////////// slices
@@ -150,7 +154,12 @@ if( ! $slices) {
   plc_warning ("User has no slice");
  } else {
   $headers=array('Slice name'=>'string');
-  $table_options=array('notes_area'=>false, 'pagesize_area'=>false, 'pagesize'=>999, 'search_width'=>10);
+  $reasonable_page=5;
+  $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
+  if (count ($slices) <= $reasonable_page) {
+    $table_options['search_area']=false;
+    $table_options['pagesize_area']=false;
+  }
   plc_table_start("person_slices",$headers,1,$table_options);
 
   foreach( $slices as $slice ) {

@@ -102,7 +102,7 @@ if( !empty( $pcu_ids ) )
 // fetches peers and initialize hash peer_id->peer
 $peer_hash = plc_peer_global_hash ($api);
 // show gray background on foreign objects : start a <div> with proper class
-plc_peer_block_start ($peer_hash,$peer_id);
+$local_peer = plc_peer_block_start ($peer_hash,$peer_id);
   
 drupal_set_title("Details for node " . $hostname);
   
@@ -111,7 +111,7 @@ $privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc
   
 $tabs=array();
 // available actions
-if ( ! $peer_id  && $privileges ) {
+if ( $local_peer  && $privileges ) {
     
   $tabs['Update'] = array ('url'=>"/db/nodes/node_actions.php",
 			   'method'=>'POST',
@@ -120,14 +120,17 @@ if ( ! $peer_id  && $privileges ) {
   $tabs['Delete'] = array ('url'=>"/db/nodes/node_actions.php",
 			   'method'=>'POST',
 			   'values'=>array('action'=>'delete','node_id'=>$node_id),
-			   'bubble'=>"Delete $hostname",
+			   'bubble'=>"Delete node $hostname",
 			   'confirm'=>'Are you sure to delete ' . $hostname. ' ?');
   // xxx subject to roles
-  $tabs["Add Interface"]=l_interface_add($node_id);
-  $tabs["Comon"]=array('url'=>l_comon("node_id",$node_id),
-		       'buble'=>"Comon page for $hostname");
-  $tabs["Events"]=array('url'=>l_event("Node","node",$node_id),
-			'bubble'=>"Events for node $hostname");
+  $tabs["Add Interface"]=array('url'=>l_interface_add($node_id),
+			       'bubble'=>"Declare new network interface on $hostname");
+  $tabs["Events"]=array_merge(tabs_events(),
+			      array('url'=>l_event("Node","node",$node_id),
+				    'bubble'=>"Events for node $hostname"));
+  $tabs["Comon"]=array_merge(tabs_comon(),
+			     array('url'=>l_comon("node_id",$node_id),
+				   'bubble'=>"Comon page about node $hostname"));
  }
 
 $tabs["All nodes"]=l_nodes();
@@ -135,16 +138,16 @@ $tabs["All nodes"]=l_nodes();
 plc_tabs($tabs);
 
 plc_details_start ();
-plc_details_line("Peer",plc_peer_label($peer));
 plc_details_line("Hostname",$hostname);
 plc_details_line("Type",$node_type);
 plc_details_line("Model",$model);
 plc_details_line("Version",$version);
+plc_details_line("Peer",plc_peer_label($peer));
 
 // no tool to implement this multiple-choice setting yet
 // xxx would need at least to use the proper class, like plc_details_class() or something
 echo "<tr><th>Boot State: </th><td>";
-if ($peer_id) {
+if ( ! $local_peer) {
   echo $boot_state;
  } else {
   echo "<form name='bootstate' action='/db/nodes/node_actions.php' method=post>\n";
@@ -168,7 +171,7 @@ if ($peer_id) {
 echo "</td></tr>\n";
 
 // same here for the download area
-if ( ! $peer_id  && $privileges) {
+if ( $local_peer  && $privileges) {
 
   echo "<tr><th>Download </th><td>";
   echo "<form name='download' action='/db/nodes/node_actions.php' method='post'>\n";
@@ -234,13 +237,18 @@ plc_table_end("node_tags");
 
 plc_section ("Slices");
 if ( ! $slices  ) {
-  echo "<p><span class='plc-warning'>This node is not associated to any slice.</span></p>\n";
+  plc_warning ("This node is not associated to any slice");
  } else {
   $headers=array();
   $headers['Peer']="string";
   $headers['Name']="string";
   $headers['Slivers']="string";
-  $table_options = array('notes_area'=>false,"search_width"=>10);
+  $reasonable_page=10;
+  $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
+  if (count ($slices) <= $reasonable_page) {
+    $table_options['search_area']=false;
+    $table_options['pagesize_area']=false;
+  }
   plc_table_start ("node_slices",$headers,1,$table_options);
 
   foreach ($slices as $slice) {
@@ -254,7 +262,7 @@ if ( ! $slices  ) {
  }
 
 //////////////////////////////////////////////////////////// interfaces
-if ( ! $peer_id ) {
+if ( $local_peer ) {
 
   // display interfaces
   if( ! $interfaces ) {

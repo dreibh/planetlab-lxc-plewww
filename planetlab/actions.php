@@ -57,7 +57,9 @@ else
       break;
     }
 
-//
+//debug
+//$action='debug';
+
 $person_id = $_POST['person_id'];	// usually needed
 
 if ( ! $action ) {
@@ -242,7 +244,7 @@ switch ($action) {
    }
    // update site to not allow slice creation or renewal
    $api->UpdateSite( $site_id, array( "max_slices" => 0 )) ;
-   header ("location: " l_site($site_id));
+   header ("location: " . l_site($site_id));
    exit(0);
  }
 

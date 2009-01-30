@@ -103,7 +103,8 @@ $tabs=array();
 // available actions
 if ( ! $peer_id  && $privileges ) {
   
-  $tabs['Update']=array('url'=>l_site_update($site_id));
+  $tabs['Update']=array('url'=>l_site_update($site_id),
+			'bubble'=>"Update details of $sitename");
   // not avail to PI
   $tabs['Expire slices'] = array('url'=>l_actions(),
 				 'values'=>array('site_id'=>$site_id,
@@ -114,12 +115,14 @@ if ( ! $peer_id  && $privileges ) {
     $tabs['Delete']=array('url'=>l_actions(),
 			  'values'=>array('site_id'=>$site_id,
 					  'action'=>'delete-site'),
-			  'bubble'=>"Delete site $login_base",
+			  'bubble'=>"Delete site $sitename",
 			  'confirm'=>"Are you sure you want to delete site $login_base");
-  $tabs["Events"]=array('url'=>l_event("Site","site",$site_id),
-			'bubble'=>"Events for site $hostname");
-  $tabs["Comon"]=array('url'=>l_comon("site_id",$site_id),
-		       'buble'=>"Comon page for $hostname");
+  $tabs["Events"]=array_merge (tabs_events(),
+			       array('url'=>l_event("Site","site",$site_id),
+				     'bubble'=>"Events for site $sitename"));
+  $tabs["Comon"]=array_merge(tabs_comon(),
+			     array('url'=>l_comon("site_id",$site_id),
+				   'bubble'=>"Comon page for $sitename"));
 
   if (plc_is_admin()) 
     $tabs['Pending'] = array ('url'=>l_sites_pending(),
@@ -136,15 +139,31 @@ if ( ! $enabled )
 	       " to review pending applications.");
 
 plc_details_start();
-plc_details_line("Peer",plc_peer_label($peer));
 plc_details_line("Full name",$sitename);
 plc_details_line("Login base",$login_base);
 plc_details_line("Abbreviated name",$abbrev_name);
 plc_details_line("URL",$site_url);
 plc_details_line("Latitude",$site_lat);
 plc_details_line("Longitude",$site_long);
+plc_details_line("Peer",plc_peer_label($peer));
 
 if ( ! $peer_id ) {
+
+  // Addresses
+  if ($addresses) {
+    plc_details_space_line();
+    plc_details_line("Addresses","");
+    foreach ($addresses as $address) {
+      plc_details_line(plc_vertical_table($address['address_types']),
+		       plc_vertical_table($address['line1'],
+					  $address['line2'],
+					  $address['line3'],
+					  $address['city'],
+					  $address['state'],
+					  $address['postalcode'],
+					  $address['country']));
+    }
+  }
 
   // Nodes
   plc_details_space_line();
