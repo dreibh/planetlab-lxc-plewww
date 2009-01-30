@@ -130,8 +130,6 @@ $tabs["All nodes"]=l_nodes();
 
 plc_tabs($tabs);
 
-echo "<hr />";
-  
 plc_details_start ();
 plc_details_line("Hostname",$hostname);
 plc_details_line("Type",$node_type);
@@ -200,8 +198,7 @@ plc_details_end ();
 //////////////////////////////////////////////////////////// slices
 // display slices
 
-print "<hr/>\n";
-plc_table_title ("Slices");
+plc_section ("Slices");
 if ( ! $slices  ) {
   echo "<p><span class='plc-warning'>This node is not associated to any slice.</span></p>\n";
  } else {
@@ -241,8 +238,7 @@ if ( ! $peer_id ) {
     $headers["MAC"]="string";
     $headers["bw limit"]="FileSize";
 
-    print "<hr/>\n";
-    plc_table_title('Interfaces');
+    plc_section('Interfaces');
     $table_options=array('search_area'=>false);
     plc_table_start("interfaces",$headers,2,$table_options);
 	
@@ -290,8 +286,7 @@ if ( ! $peer_id ) {
 
 //////////////////////////////////////////////////////////// nodegroups
 // display node group info
-print "<hr/>\n";
-plc_table_title("Nodegroups");
+plc_section("Nodegroups");
 if ( ! $nodegroups ) {
   echo "<p><span class='plc-warning'>This node is not in any nodegroup.</span></p>\n";
  } 

@@ -50,7 +50,7 @@ if ($update_mode) {
  }  
 
 // display form for tag types
-plc_table_title($label);
+plc_section($label,false);
 
 plc_form_start (l_actions(),array());
 plc_details_start();

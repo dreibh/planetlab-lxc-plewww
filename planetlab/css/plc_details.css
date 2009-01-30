@@ -1,0 +1,7 @@
+/* $Id: plc_tables.css 11750 2009-01-29 10:11:53Z thierry $ */
+table.plc_details {
+    width:auto;
+    padding: 0;
+    margin: 0 auto 1.5em auto;
+    border-collapse:collapse;
+}

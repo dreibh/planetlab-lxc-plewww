@@ -18,7 +18,7 @@ function plc_form_start ($full_url, $values, $options=array()) {
   if ( $url_values ) $values=array_merge($values,$url_values);
   $method = array_key_exists('method',$options) ? $options['method'] : 'POST';
   print "<form method=$method action='$url' enctype='multipart/form-data'>";
-  plc_debug('values',$values);
+  //  plc_debug('values',$values);
   if ($values) foreach ($values as $key=>$value) {
     print plc_form_hidden_text($key,$value);
   }

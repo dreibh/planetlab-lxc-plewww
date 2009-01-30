@@ -4,11 +4,15 @@
 
 require_once 'plc_functions.php';
 
+drupal_set_html_head('
+<link href="/planetlab/css/plc_details.css" rel="stylesheet" type="text/css" />
+');
+
 // rough implem, no class for now
 
 // start the details area, with an optional caption
 function plc_details_start ($title="") {
-  print "<table><thead>";
+  print "<table class=plc_details><thead>";
   if ($caption) {
     printf ("<caption>%s</caption>\n",$caption);
   }

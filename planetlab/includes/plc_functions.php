@@ -343,6 +343,11 @@ function plc_vertical_table ($messages, $class="") {
 function get_site_id ($site) { return $site['site_id'];}
 
 ////////////////////////////////////////////////////////////
+function plc_section ($text,$line=true) {
+  if ($line) { print "<hr/>";}
+  print "<h2 class=plc> $text </h2>\n";
+}
+
 function plc_error ($text) {
   // should use the same channel as the php errors..
   print "<div class='plc-error'> Error " . $text . "</div>";

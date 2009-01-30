@@ -283,19 +283,23 @@ html>body #clearmenu{ /* non IE browsers
  * $Id$
  */
 
-/* Thierry : class used for showing foreign items */
+h2.plc { 
+    text-align: center;
+}
+
+
 .plc-foreign {
   background:  #d0d0d0;
 }
 
-/* Thierry : class used for showing various warnings */
 .plc-warning {
   background:  orange;
 }
+.plc-error {
+    background: red;
+}
+
 *.plc-warning a:link { text-decoration: none; color:white }
 *.plc-warning a:visited { text-decoration: none; color:white }
 *.plc-warning a:hover { text-decoration: none; color:black }
 
-.plc-error {
-    background: red;
-}

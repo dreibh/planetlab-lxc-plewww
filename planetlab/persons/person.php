@@ -144,8 +144,7 @@ plc_details_line("Bio",wordwrap($bio,50,"<br/>"));
 plc_details_end();
 
 //////////////////// slices
-echo "<hr />\n";
-plc_table_title('Slices');
+plc_section('Slices');
 
 if( ! $slices) {
   plc_warning ("User has no slice");
@@ -173,8 +172,7 @@ plc_form_start(l_actions(),
 		     ));
 
 //////////////////// keys
-echo "<hr />\n";
-plc_table_title ("Keys");
+plc_section ("Keys");
 		
 $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
 if ( empty( $key_ids ) ) {
@@ -216,8 +214,7 @@ if ($can_manage_keys) {
 plc_table_end("person_keys",array("footers"=>$footers));
 
 //////////////////// sites
-echo "<hr />\n";
-plc_table_title('Sites');
+plc_section('Sites');
   
 // sites
 if (empty( $sites ) ) {
@@ -268,8 +265,7 @@ if ($can_manage_sites) {
 plc_table_end("person_sites",array("footers"=>$footers));
 
 //////////////////// roles
-echo "<hr />\n";
-plc_table_title("Roles");
+plc_section("Roles");
 if (! $roles) plc_warning ("This user has no role !");
 
 $can_manage_roles= ($local_peer && plc_is_admin());
