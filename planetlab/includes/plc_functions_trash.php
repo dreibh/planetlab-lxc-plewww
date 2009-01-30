@@ -3,7 +3,7 @@
 // this will be trashed eventually
 
 // pagination function
-function paginate( $fn_array, $table_id, $caption, $limit, $main_field, $other_func= NULL, $fid= NULL ) {
+function paginate_trash ( $fn_array, $table_id, $caption, $limit, $main_field, $other_func= NULL, $fid= NULL ) {
   // get vars from call adjust them
   $dir= strtolower( $caption );
   $echo= "";

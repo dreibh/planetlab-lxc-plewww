@@ -130,7 +130,7 @@ if ($local_peer && $privileges && ! $enabled )
   drupal_set_message ("$first_name $last_name is not enabled yet, you can enable her/him with the 'Enable' button below");
 
 $enabled_text="Enabled";
-if ( ! $enabled ) $enabled_text = plc_warning_div("Disabled");
+if ( ! $enabled ) $enabled_text = plc_warning_text("Disabled");
 
 plc_details_start();
 plc_details_line("Enabled",$enabled_text);

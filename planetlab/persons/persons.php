@@ -35,7 +35,6 @@ $tabs['My accounts'] = array('url'=>l_persons(),
 			     'values'=>array('site_id'=>plc_my_site_id()),
 			     'bubble'=>'Lists accounts on site ' . plc_my_site_id());
 // -------------------- 
-$peer_filter=array();
 $person_filter=array();
 
 ////////////////////

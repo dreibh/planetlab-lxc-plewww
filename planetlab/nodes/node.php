@@ -2,7 +2,7 @@
 
   // $Id$
 
-  // Require login
+// Require login
 require_once 'plc_login.php';
 
 // Get session and API handles
@@ -51,7 +51,11 @@ $nodegroup_ids= $node['nodegroup_ids'];
 $pcu_ids= $node['pcu_ids'];
 
 // get peer
-$peer_id= $node['peer_id'];
+$peer_id = $node['peer_id'];
+if ($peer_id) {
+  $peers=$api->GetPeers(array($peer_id));
+  $peer=$peers[0];
+ }
 
 // gets site info
 $sites= $api->GetSites( array( $site_id ) );
@@ -131,6 +135,7 @@ $tabs["All nodes"]=l_nodes();
 plc_tabs($tabs);
 
 plc_details_start ();
+plc_details_line("Peer",plc_peer_label($peer));
 plc_details_line("Hostname",$hostname);
 plc_details_line("Type",$node_type);
 plc_details_line("Model",$model);

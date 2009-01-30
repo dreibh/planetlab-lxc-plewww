@@ -23,7 +23,7 @@ ini_set("memory_limit","256M");
 //set default title
 drupal_set_title('Events');
 
-// paginate unit
+// page size
 $page_size=30;
 
 $messages = array ();

@@ -19,18 +19,19 @@ require_once 'plc_objects.php';
 require_once 'plc_sorts.php';
 
 function is_possible_domainname($token) {
-  if( strpos ( $token, "@" ) === False && substr_count($token, ".") >= 2 ) {
+  if ( strpos ( $token, "@" ) === False && substr_count($token, ".") >= 2 ) {
     return true;
   } else {
     return false;
   }
 }
+
 function get_and_print_site($site_array) {
   global $api;
   $sites = $api->GetSites( $site_array, array( "name", "site_id", 
 					       "url", "enabled", "node_ids", "person_ids", "date_created", 
 					       "slice_ids", "max_slivers", "max_slices", "login_base" ) );
-  if( count($sites) > 0 ) {
+  if ( count($sites) > 0 ) {
     foreach( $sites as $site) {
       $name = $site['name'];
       $site_id = $site['site_id'];
@@ -64,8 +65,8 @@ function get_and_print_site($site_array) {
       echo "</td></tr>\n";
     }
   }
-
 }
+
 function get_and_print_hostname($host_array) {
   global $api;
   $nodes = $api->GetNodes( $host_array, array( "hostname", "node_id", 
@@ -95,7 +96,7 @@ function get_and_print_hostname($host_array) {
   return $nodes;
 }
 
-function get_and_print_user($user_array) {
+function get_and_print_user ($user_array) {
   global $api;
   $persons= $api->GetPersons( $user_array, array( "person_id", "first_name", 
 						  "last_name", "email", "roles", "enabled", "date_created", 
@@ -277,7 +278,7 @@ if (false) {
 
     sort_persons( $persons );
 
-    echo paginate( $persons, "person_id", "Persons", 25, "email" );
+    echo paginate_trash ( $persons, "person_id", "Persons", 25, "email" );
 
   }
   // if no person id, display list of persons to choose

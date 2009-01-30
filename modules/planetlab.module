@@ -117,7 +117,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $site_item .= ul_start();
       $site_item .= leaf( href(l_site(plc_my_site_id()),"My site"));
       if ( $is_admin ) 
-	$site_item .= leaf( href(l_site_pending(),"Pending Requests"));
+	$site_item .= leaf( href(l_sites_pending(),"Pending Requests"));
       $site_item .= ul_end();
       $items[] = expanded($site_item);
 

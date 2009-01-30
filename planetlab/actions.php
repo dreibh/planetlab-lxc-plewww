@@ -42,6 +42,8 @@ $known_actions []= "update-tag-type";
 //	expects:	tag_type_id & name & description & category & min_role_id  
 $known_actions []= "add-tag-type";
 //	expects:	tag_type_id & name & description & category & min_role_id  
+$known_actions []= "expire-all-slices-in-site";
+//	expects:	slice_ids
 
 //////////////////////////////
 // sometimes we don't set 'action', but use the submit button name instead
@@ -223,6 +225,25 @@ switch ($action) {
   
    header( "location: " . l_tag($id));
    exit();
+ }
+
+ case 'expire-all-slices-in-site': {
+   drupal_set_message("action $action not implemented in actions.php -- need tweaks and test");
+   return;
+
+   //// old code from sites/expire.php
+   $sites = $api->GetSites( array( intval( $site_id )));
+   $site=$sites[0];
+   // xxx why not 'now?'
+   $expiration= strtotime( $_POST['expires'] );
+   // loop through all slices for site
+   foreach ($site['slice_ids'] as $slice_id) {
+     $api->UpdateSlice( $slice_id, array( "expires" => $expiration ) );
+   }
+   // update site to not allow slice creation or renewal
+   $api->UpdateSite( $site_id, array( "max_slices" => 0 )) ;
+   header ("location: " l_site($site_id));
+   exit(0);
  }
 
  case 'debug': {

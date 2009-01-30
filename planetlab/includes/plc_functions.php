@@ -57,13 +57,18 @@ function l_interface_t ($interface_id,$text) {
 function l_interface_add($node_id)	{ return "/db/nodes/interfaces.php?node_id=$node_id"; }
 
 function l_sites ()			{ return "/db/sites/index.php"; }
+function l_sites_local ()		{ return "/db/sites/index.php?peerscope=local"; }
 function l_site ($site_id)		{ return "/db/sites/index.php?id=$site_id"; }
 function l_site_t ($site_id,$text)	{ return href (l_site($site_id),$text); }
+function l_site_update($site_id)	{ return "/xxx-undefined"; }
 
 function l_slices ()			{ return "/db/slices/index.php"; }
 function l_slice ($slice_id)		{ return "/db/slices/index.php?id=$slice_id"; }
 function l_slice_t ($slice_id,$text)	{ return href (l_slice($slice_id),$text); }
 function l_slice_add ()			{ return "/db/slices/add_slice.php"; }
+function l_slices_site($site_id)	{ return "/db/slices/index.php?site_id=$site_id"; }
+// from an object
+function l_slice_text ($slice)		{ return l_slice_t ($slice['slice_id'],$slice['name']); }
 
 function l_sliver ($node_id,$slice_id)	{ return "/db/nodes/slivers.php?node_id=$node_id&slice_id=$slice_id"; }
 function l_sliver_t ($node_id,$slice_id,$text) { 
@@ -102,7 +107,7 @@ function l_sulogout()			{ return "/planetlab/sulogout.php"; }
 function l_reset_password()		{ return "/db/persons/reset_password.php"; }
 function l_person_register()		{ return "/db/persons/register.php"; }
 function l_site_register()		{ return "/db/sites/register.php"; }
-function l_site_pending()		{ return "/db/sites/join_request.php"; }
+function l_sites_pending()		{ return "/db/sites/join_request.php"; }
 
 // returns array ['url' => path, 'values' => hash (key=>value)* ]
 function split_url ($full_url) {
@@ -228,6 +233,15 @@ function plc_peer_shortname ($peer_hash,$peer_id) {
   } else {
      return $peer_hash[$node['peer_id']]['shortname'];
   }
+}
+
+function plc_peer_label ($peer) { 
+  if (! $peer) {
+    return "Local object on " . PLC_NAME . " (" . PLC_SHORTNAME . ")";
+  }
+  $result= $peer['peername'] . " (" . $peer['shortname'] . ")";
+  $result= href(l_peer($peer['peer_id']),$result);
+  return plc_foreign_text($result);
 }
 
 // to set the background to grey on foreign objects
@@ -381,12 +395,9 @@ function plc_errors ($list) {
   print( "</ul></div>\n" );
 }
 
-function plc_warning_div ($text) {
-  return "<div class='plc-warning'>" . $text . "</div>";
-}
-function plc_warning ($text) {
-  print plc_warning_div("Warning " . $text);
-}
+function plc_warning_text ($text)	{ return "<div class='plc-warning'>" . $text . "</div>";}
+function plc_warning ($text)		{ print plc_warning_text("Warning " . $text); }
+function plc_foreign_text($text)	{ return "<div class=plc-foreign>$text</div>"; }
 
 // shows a php variable verbatim with a heading message
 function plc_debug ($message,$object) {
@@ -394,5 +405,6 @@ function plc_debug ($message,$object) {
   print_r ($object);
   print "</pre>";
 }
+
 
 ?>

@@ -33,7 +33,6 @@ $tabs['My nodes'] = array('url'=>l_nodes(),
 			  'values'=>array('site_id'=>plc_my_site_id()),
 			  'bubble'=>'Lists nodes on site ' . $mysite_id);
 // -------------------- 
-$peer_filter=array();
 $node_filter=array();
 
 //////////////////
@@ -54,7 +53,7 @@ function node_status ($node) {
 
 
 // fetch nodes 
-$node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id');
+$node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id', "arch");
 // server-side filtering - set pattern in $_GET for filtering on hostname
 if ($pattern) {
   $node_filter['hostname']=$pattern;
@@ -129,16 +128,15 @@ $headers = array ("Peer"=>"string",
 		  "Hostname"=>"string",
 		  "IP"=>"IPAddress",
 		  "Type"=>"string",
+		  "Arch"=>"string",
 		  "?"=>"string",
-		  "Int"=>"int",
-		  "Float"=>"float");
+		  );
 
 # initial sort on hostnames
 plc_table_start("nodes",$headers,4);
 
 $peer_hash = plc_peer_global_hash ($api);
 // write rows
-$fake1=1; $fake2=3.14; $fake_i=0;
 foreach ($nodes as $node) {
     $hostname=$node['hostname'];
     $node_id=$node['node_id'];
@@ -159,14 +157,10 @@ foreach ($nodes as $node) {
     plc_table_cell (l_node_t($node_id,$hostname));
     plc_table_cell (l_interface_t($interface_id,$ip));
     plc_table_cell ($node_type);
+    plc_table_cell ($node['arch']);
     plc_table_cell (node_status($node));
-    plc_table_cell ($fake1);
-    plc_table_cell ($fake2);
     plc_table_row_end();
 				 
-    if ($fake_i % 5 == 0) $fake1 += 3; 
-    if ($fake_i % 3 == 0) $fake2 +=5; else $fake2 -= $fake_i;
-    $fake_i += 1;
 }
 
 plc_table_end("nodes");
