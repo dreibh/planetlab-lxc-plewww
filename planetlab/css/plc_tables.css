@@ -224,3 +224,13 @@ p.plc_filter_note {
     font-family: georgia;
     text-align: center
 }
+
+<!--[if IE]>
+<style type="text/css">
+ul.fdtablePaginater {display:inline-block;}
+mul.fdtablePaginater {display:inline;}
+ul.fdtablePaginater li {float:left;}
+ul.fdtablePaginater {text-align:center;}
+table { border-bottom:1px solid #C1DAD7; }
+</style>
+<![endif]-->

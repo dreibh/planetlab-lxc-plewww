@@ -37,6 +37,28 @@ function plc_introspect (txt,obj,verbose,attribute) {
   window.console.log ('=== end intro ' + txt);
 }
 
+/* I'm done with this - write it ourselves - don't care about perfs so much anyway */
+/* define getElementsByClassName on Element if missing */
+function getElementsByClassName (elt,cls) {
+  try {
+    var retval= elt.getElementsByClassName(cls);
+    plc_debug ('getElementsByClassName','used native method');
+    return retval;
+    } catch (err) {
+    plc_debug ('getElementsByClassName','running custom method');
+    var retVal = new Array();
+    var elements = elt.getElementsByTagName("*");
+    for (var i = 0; i < elements.length; i++) {
+      var element = elements[i];
+      var classes = element.className.split(" ");
+      for (var c = 0; c < classes.length; c++) 
+	if (classes[c] == cls) 
+	  retVal.push(elements[i]);
+    }
+    return retVal;
+  }
+}
+
 var miniTab = {
  currentTab:     0,
  activeTab:      0,
@@ -55,27 +77,11 @@ var miniTab = {
         
  init: function() {
 
-    /* define getElementsByClassName on Element if missing */
-    if ( ! Element.prototype.getElementsByClassName ) {
-      Element.prototype.getElementsByClassName = function (cls) {
-	var retVal = new Array();
-	var elements = this.getElementsByTagName("*");
-	for (var i = 0; i < elements.length; i++) {
-	  var element = elements[i];
-	  var classes = element.className.split(" ");
-	  for (var c = 0; c < classes.length; c++) 
-	    if (classes[c] == cls) 
-	      retVal.push(elements[i]);
-	}
-	return retVal;
-      }
-    }
-
     miniTab.ul          = document.getElementById("minitabs-list");
     miniTab.liArr       = miniTab.ul.getElementsByTagName("li");
     // Thierry: the original impl. relied on <a> links rather than forms 
     // we use <input>s and there might be hidden ones, so use a class marker instead
-    miniTab.inputArr        = miniTab.ul.getElementsByClassName("minitabs-submit");
+    miniTab.inputArr        = getElementsByClassName(miniTab.ul,"minitabs-submit");
  
     for(var i = 0, li; li = miniTab.liArr[i]; i++) {
       li.onmouseover = miniTab.inputArr[i].onfocus = function(e) {
@@ -137,7 +143,7 @@ var miniTab = {
   },
  
  setActive: function (pos,active) {
-    var input=miniTab.liArr[pos].getElementsByClassName("minitabs-submit")[0];
+    var input=getElementsByClassName(miniTab.liArr[pos],"minitabs-submit")[0];
     var cn=input.className;
     cn=cn.replace(" active","");
     if (active) cn += " active";
@@ -146,7 +152,7 @@ var miniTab = {
  
  initAnim: function() {
     /* search for the input with type != hidden */
-    var input=miniTab.liArr[miniTab.activeTab].getElementsByClassName("minitabs-submit")[0];
+    var input=getElementsByClassName(miniTab.liArr[miniTab.activeTab],"minitabs-submit")[0];
     miniTab.destX = parseInt(miniTab.liArr[miniTab.activeTab].offsetLeft + input.offsetLeft + miniTab.ul.offsetLeft);
     miniTab.destW = parseInt(input.offsetWidth);
     miniTab.t = 0;
@@ -190,7 +196,7 @@ var miniTab = {
     /* ask for confirmation if message is not empty */
     if (message && ! confirm (message) ) return;
     this.inputArr[submitTab].parentNode.parentNode.submit();
-  },
+  }
 }
  
 window.onload = miniTab.init;

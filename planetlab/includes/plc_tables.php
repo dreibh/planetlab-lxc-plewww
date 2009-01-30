@@ -49,8 +49,8 @@ function plc_table_start ($table_id, $headers, $column_sort, $options=NULL) {
   $classname="paginationcallback-".$paginator;
   $classname.=" max-pages-" . $max_pages;
   $classname.=" paginate-" . $pagesize;
+  // instantiate paginator callback
   print <<< EOF
-<!-- instantiate paginator callback -->
 <script type="text/javascript"> 
 function $paginator (opts) { plc_table_paginator (opts,"$table_id"); }
 </script>
