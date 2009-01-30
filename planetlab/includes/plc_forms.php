@@ -59,12 +59,13 @@ function plc_form_textarea_text ($name,$value,$cols,$rows) {
 }
  
 function plc_form_select_text ($name,$values,$label="") {
+  $encoded=htmlentities($label,ENT_QUOTES);
   $selector="";
   $selector.="<select name='$name'>";
   if ($label) 
-    $selector.="<option value=''>$label</option>";
+    $selector.="<option value=''>$encoded</option>";
   foreach ($values as $chunk) {
-    $display=$chunk['display'];
+    $display=htmlentities($chunk['display'],ENT_QUOTES);
     $value=$chunk['value'];
     $selector .= "<option value='$value'";
     if ($chunk['selected']) $selector .= " selected=selected";

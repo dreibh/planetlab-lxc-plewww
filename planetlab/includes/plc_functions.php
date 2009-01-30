@@ -345,8 +345,8 @@ function plc_vertical_table ($messages, $class="") {
   // pretty print the cell
   if ( empty( $messages) ) return "";
   $formatted = "";
-  $formatted .= "<table ";
-  if ($class) $formatted .= "class='" . $class . "'";
+  $formatted .= "<table";
+  if ($class) $formatted .= " class='" . $class . "'";
   $formatted .= ">";
   foreach ($messages as $message) {
     $formatted .= "<tr><td>" . $message . "</td></tr>";

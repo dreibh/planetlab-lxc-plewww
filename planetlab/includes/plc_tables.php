@@ -16,11 +16,12 @@ $plc_table_hash=array();
 
 ////////////////////////////////////////
 function plc_table_cell($cell) {
-  printf ('<td class="plc_table"> %s </td>',$cell);
+  //  printf ('<td class="plc_table"> %s </td>',$cell);
+  printf ('<td>%s</td>',$cell);
 }
 
 ////////////////////////////////////////
-// table_id: <table>'s id tag
+// table_id: <table>'s id tag - WARNING : do not use '-' in table ids as it's used for generating javascript code
 // headers: an associative array "label"=>"type" 
 // column_sort: the column to sort on at load-time
 // options : an associative array to override options (should be passed to both _stsart and _end)

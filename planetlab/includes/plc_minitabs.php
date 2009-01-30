@@ -72,8 +72,7 @@ function plc_tabs ($array) {
   }
   print '</ul>';
   print '</div>';
-  print "\n";
-  print "<br/>\n";
+  print "<p style='height:15px'></p>\n";
 }
 
 ?>

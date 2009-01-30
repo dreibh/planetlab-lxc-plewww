@@ -26,7 +26,7 @@ th.plc_table {
     background: #CAE8EA url(/planetlab/icons/tablesort_header.jpg) no-repeat;
     vertical-align:middle;
 }
-td.plc_table {
+table.plc_table>tbody>tr>td {
     font: normal 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
     border-right: 1px solid #C1DAD7;
     border-bottom: 1px solid #C1DAD7;
@@ -76,7 +76,7 @@ tr.alt {
 tr[class="alt"]>td {
     background: #F5FAFA url(/planetlab/icons/tablesort_td_alt.jpg) no-repeat;
 }
-td.plc_table [class~="alt"] {
+table.plc_table>tbody>tr>td [class~="alt"] {
     background: #edf3f3 url(/planetlab/icons/tablesort_col_alt.jpg) no-repeat !important;
 }
 /* Poor old Internet Explorer won't see the next two rules either as it doesn't get :first-child */
@@ -89,15 +89,7 @@ table.plc_table>tbody>tr>td:first-child {
     font-weight:bold;
 }
 
-/*td.table_flushleft {
-    text-align:left;
-    padding-left: 30px;
-}
-table.table_dialogs {
-    width:100%;
-    border:1px;
-}
-*/
+/* table decorations */
 td.search_area {
     text-align:right;
     padding-right: 30px;

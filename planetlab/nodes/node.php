@@ -209,7 +209,7 @@ $headers=array("Name"=>"string",
 	       "Nodegroup"=>"string");
 
 $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
-plc_table_start("node-tags",$headers,0,$table_options);
+plc_table_start("node_tags",$headers,0,$table_options);
 if ($tags) foreach ($tags as $tag) {
   // does this match a nodegroup ?
   $nodegroup_name="n/a";
@@ -222,7 +222,7 @@ if ($tags) foreach ($tags as $tag) {
   plc_table_cell($nodegroup_name);
   plc_table_row_end();
 }
-plc_table_end("node-tags");
+plc_table_end("node_tags");
 
 //////////////////////////////////////////////////////////// slices
 // display slices
@@ -236,7 +236,7 @@ if ( ! $slices  ) {
   $headers['Name']="string";
   $headers['Slivers']="string";
   $table_options = array('notes_area'=>false,"search_width"=>10);
-  plc_table_start ("node-slices",$headers,1,$table_options);
+  plc_table_start ("node_slices",$headers,1,$table_options);
 
   foreach ($slices as $slice) {
     plc_table_row_start($slice['name']);
@@ -245,7 +245,7 @@ if ( ! $slices  ) {
     plc_table_cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
     plc_table_row_end();
   }
-  plc_table_end("node-slices");
+  plc_table_end("node_slices");
  }
 
 //////////////////////////////////////////////////////////// interfaces
@@ -269,7 +269,7 @@ if ( ! $peer_id ) {
 
     plc_section('Interfaces');
     $table_options=array('search_area'=>false,"pagesize_area"=>false,'notes_area'=>false);
-    plc_table_start("node-interfaces",$headers,2,$table_options);
+    plc_table_start("node_interfaces",$headers,2,$table_options);
 	
     foreach ( $interfaces as $interface ) {
       $interface_id= $interface['interface_id'];
@@ -308,7 +308,7 @@ if ( ! $peer_id ) {
       $button=plc_form_simple_button(l_interface_add($node_id),"Add interface","GET");
       $footers=array(plc_table_td_text($button,6,"right"));
     }
-    plc_table_end("node-interfaces",array("footers"=>$footers));
+    plc_table_end("node_interfaces",array("footers"=>$footers));
   }
  }
       

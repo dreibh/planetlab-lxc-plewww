@@ -150,9 +150,8 @@ if( ! $slices) {
   plc_warning ("User has no slice");
  } else {
   $headers=array('Slice name'=>'string');
-  $table_options=array('notes_area'=>false,
-		       'pagesize'=>5);
-  plc_table_start("person-slices",$headers,1,$table_options);
+  $table_options=array('notes_area'=>false, 'pagesize_area'=>false, 'pagesize'=>999, 'search_width'=>10);
+  plc_table_start("person_slices",$headers,1,$table_options);
 
   foreach( $slices as $slice ) {
     $slice_name= $slice['name'];
@@ -161,7 +160,7 @@ if( ! $slices) {
     plc_table_cell(l_slice_t($slice_id,$slice_name));
     plc_table_row_end();
   }
-  plc_table_end("person-slices");
+  plc_table_end("person_slices");
  }
 
 // we don't set 'action', but use the submit button name instead
@@ -184,8 +183,8 @@ $headers=array("Type"=>"string",
 	       "Key"=>"string");
 if ($can_manage_keys) $headers['Remove']="none";
 // table overall options
-$table_options=array("search_area"=>false,"notes_area"=>false);
-plc_table_start("person-keys",$headers,"1",$table_options);
+$table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
+plc_table_start("person_keys",$headers,"1",$table_options);
     
 if ($keys) foreach ($keys as $key) {
   $key_id=$key['key_id'];
@@ -211,7 +210,7 @@ if ($can_manage_keys) {
     "<td> $upload_key_right_area </td>";
 }
 
-plc_table_end("person-keys",array("footers"=>$footers));
+plc_table_end("person_keys",array("footers"=>$footers));
 
 //////////////////// sites
 plc_section('Sites');
@@ -226,8 +225,8 @@ $headers['Login_base']="string";
 $headers['Name']="string";
 if ($can_manage_sites) 
   $headers['Remove']="string";
-$table_options = array('notes_area'=>false,'search_area'=>false);
-plc_table_start ("person-sites",$headers,0,$table_options);
+$table_options = array('notes_area'=>false,'search_area'=>false, 'pagesize_area'=>false);
+plc_table_start ("person_sites",$headers,0,$table_options);
 foreach( $sites as $site ) {
   $site_name= $site['name'];
   $site_id= $site['site_id'];
@@ -246,7 +245,7 @@ if ($can_manage_sites) {
   $remove_sites_area = plc_form_submit_text("remove-person-from-sites","Remove Sites");
 
   // add a site : the button
-  $add_site_left_area=plc_form_submit_text("add-person-to-site","Add in site");
+  $add_site_right_area=plc_form_submit_text("add-person-to-site","Add in site");
   // get list of local sites that the person is not in
   $person_site_ids=array_map("get_site_id",$sites);
   $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
@@ -255,14 +254,14 @@ if ($can_manage_sites) {
   $selector=array();
   foreach ($relevant_sites as $site) 
     $selector[]= array('display'=>$site['name'],"value"=>$site['site_id']);
-  $add_site_right_area=plc_form_select_text("site_id",$selector,"Choose a site to add");
+  $add_site_left_area=plc_form_select_text("site_id",$selector,"Choose a site to add");
+  $add_site_area = $add_site_left_area . $add_site_right_area;
   if ($sites) 
     $footers[]="<td colspan=3 style='text-align:right'> $remove_sites_area </td>";
   // add a new site
-  $footers []="<td style='text-align:right'> $add_site_left_area </td>".
-    "<td colspan=2> $add_site_right_area </td>";
+  $footers []="<td colspan=3 style='text-align:right'> $add_site_area </td>";
  }
-plc_table_end("person-sites",array("footers"=>$footers));
+plc_table_end("person_sites",array("footers"=>$footers));
 
 //////////////////// roles
 plc_section("Roles");
@@ -274,7 +273,8 @@ $table_options=array("search_area"=>false,"notes_area"=>false);
 $headers=array("Role"=>"none");
 if ($can_manage_roles) $headers ["Remove"]="none";
 
-plc_table_start("person-roles",$headers,0,$table_options);  
+$table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
+plc_table_start("person_roles",$headers,0,$table_options);  
   
 // construct array of role objs
 $role_objs=array();
@@ -296,7 +296,7 @@ if ($can_manage_roles) {
   $remove_roles_area = plc_form_submit_text("remove-roles-from-person","Remove Roles");
 
   // add a role : the button
-  $add_role_left_area=plc_form_submit_text("add-role-to-person","Add role");
+  $add_role_right_area=plc_form_submit_text("add-role-to-person","Add role");
   // get list of local roles that the person has not yet
   // xxx this does not work because GetRoles does not support filters
   $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
@@ -304,14 +304,14 @@ if ($can_manage_roles) {
   $selector=array();
   foreach ($relevant_roles as $role) 
     $selector[]= array('display'=>$role['name'],"value"=>$role['role_id']);
-  $add_role_right_area=plc_form_select_text("role_id",$selector,"Choose a role to add");
+  $add_role_left_area=plc_form_select_text("role_id",$selector,"Choose a role to add");
+  $add_role_area = $add_role_left_area . $add_role_right_area;
   if ($roles) 
     $footers[]="<td colspan=3 style='text-align:right'> $remove_roles_area </td>";
   // add a new role
-  $footers []="<td style='text-align:right'> $add_role_left_area </td>".
-    "<td colspan=2> $add_role_right_area </td>";
+  $footers[]="<td colspan=3 style='text-align:right'> $add_role_area </td>";
  }
-plc_table_end("person-roles",array("footers"=>$footers));
+plc_table_end("person_roles",array("footers"=>$footers));
 
 //////////////////////////////
 plc_form_end();
