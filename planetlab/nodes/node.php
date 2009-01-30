@@ -195,6 +195,35 @@ plc_details_line_list ("All site nodes",$nodes_area);
 
 plc_details_end ();
 
+//////////////////////////////////////////////////////////// Tags
+// get tags
+$tags=$api->GetNodeTags (array('node_id'=>$node_id));
+$tagnames = array_map ("get_tagname",$tags);
+//plc_debug('tagnames',$tagnames);
+$nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
+//plc_debug('hash',$nodegroups_hash);
+
+plc_section("Tags");
+$headers=array("Name"=>"string",
+	       "Value"=>"string",
+	       "Nodegroup"=>"string");
+
+$table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
+plc_table_start("node-tags",$headers,0,$table_options);
+if ($tags) foreach ($tags as $tag) {
+  // does this match a nodegroup ?
+  $nodegroup_name="n/a";
+  $nodegroup_key=$tag['tagname'] . "=" . $tag['value'];
+  $nodegroup=$nodegroups_hash[$nodegroup_key];
+  if ($nodegroup) $nodegroup_name=l_nodegroup_t($nodegroup['nodegroup_id'],$nodegroup['groupname']);
+  plc_table_row_start();
+  plc_table_cell($tag['tagname']);
+  plc_table_cell($tag['value']);
+  plc_table_cell($nodegroup_name);
+  plc_table_row_end();
+}
+plc_table_end("node-tags");
+
 //////////////////////////////////////////////////////////// slices
 // display slices
 
@@ -206,8 +235,8 @@ if ( ! $slices  ) {
   $headers['Peer']="string";
   $headers['Name']="string";
   $headers['Slivers']="string";
-  $table_options = array('notes_area'=>false);
-  plc_table_start ("slivers",$headers,1,$table_options);
+  $table_options = array('notes_area'=>false,"search_width"=>10);
+  plc_table_start ("node-slices",$headers,1,$table_options);
 
   foreach ($slices as $slice) {
     plc_table_row_start($slice['name']);
@@ -216,7 +245,7 @@ if ( ! $slices  ) {
     plc_table_cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
     plc_table_row_end();
   }
-  plc_table_end("slivers");
+  plc_table_end("node-slices");
  }
 
 //////////////////////////////////////////////////////////// interfaces
@@ -239,8 +268,8 @@ if ( ! $peer_id ) {
     $headers["bw limit"]="FileSize";
 
     plc_section('Interfaces');
-    $table_options=array('search_area'=>false);
-    plc_table_start("interfaces",$headers,2,$table_options);
+    $table_options=array('search_area'=>false,"pagesize_area"=>false,'notes_area'=>false);
+    plc_table_start("node-interfaces",$headers,2,$table_options);
 	
     foreach ( $interfaces as $interface ) {
       $interface_id= $interface['interface_id'];
@@ -279,34 +308,10 @@ if ( ! $peer_id ) {
       $button=plc_form_simple_button(l_interface_add($node_id),"Add interface","GET");
       $footers=array(plc_table_td_text($button,6,"right"));
     }
-    plc_table_end("interfaces",array("footers"=>$footers));
+    plc_table_end("node-interfaces",array("footers"=>$footers));
   }
-      
  }
-
-//////////////////////////////////////////////////////////// nodegroups
-// display node group info
-plc_section("Nodegroups");
-if ( ! $nodegroups ) {
-  echo "<p><span class='plc-warning'>This node is not in any nodegroup.</span></p>\n";
- } 
-$headers=array();
-$headers['Name']="string";
-$headers['Tag']="string";
-$headers['Value']="string";
-  
-$table_options = array('search_area'=>false);
-plc_table_start("nodegroups",$headers,0,$table_options);
-
-if ($nodegroups) foreach( $nodegroups as $nodegroup ) {
-  plc_table_row_start();
-  plc_table_cell(l_nodegroup_t($nodegroup_id,$nodegroup['groupname']));
-  $tag_types=$api->GetTagTypes(array($nodegroup['tag_type_id']));
-  plc_table_cell($tag_types[0]['tagname']);
-  plc_table_cell($nodegroup['value']);
-  plc_table_row_end();
-		 }
-plc_table_end("nodegroups");
+      
 ////////////////////////////////////////////////////////////
 plc_peer_block_end();
 

@@ -79,8 +79,8 @@ function l_tag ($tag_type_id)		{ return "/db/tags/index.php"; }
 function l_tag_add()			{ return "/db/tags/tag_form.php"; }
 function l_tag_update($id)		{ return "/db/tags/tag_form.php&action=update-tag-type&id=$id"; }
 
-function l_nodegroups ()		{ return "/db/tags/node_groups.php"; }
-function l_nodegroup ($nodegroup_id)	{ return "/db/tags/node_groups.php?id=$nodegroup_id"; }
+function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
+function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroups.php?id=$nodegroup_id"; }
 function l_nodegroup_t ($nodegroup_id,$text) { 
 					  return href(l_nodegroup($nodegroup_id),$text); }
 
@@ -283,6 +283,22 @@ function plc_peer_info ($api,$peerscope) {
   return array ($peer_filter,$peer_label);
 }
 
+//////////////////////////////////////////////////////////// nodegroups
+// hash by 'tagname=value'
+function plc_nodegroup_global_hash ($api,$tagnames=NULL) {
+  $filter=NULL;
+  // xxx somehow this does not work; I've checked that the feature is working from plcsh
+  // but I suspect the php marshalling or something; no time to fix, get all nodegroups for now
+  // if ($tagnames) $filter=array("tagname"=>$tagnames);
+  $nodegroups=$api->GetNodeGroups($filter);
+  $hash=array();
+  if ($nodegroups) foreach ($nodegroups as $nodegroup) {
+      $key=$nodegroup['tagname']."=".$nodegroup['value'];
+      $hash[$key]=$nodegroup;
+    }
+  return $hash;
+}
+  
 //////////////////////////////////////////////////////////// titles
 function t_site($site) { return " on site " . $site['name'] . " (" . $site['login_base'] .")"; }
 function t_slice ($slice) { return " running slice " . $slice['name'] . " (" . $slice['slice_id'] . ")"; }
@@ -340,7 +356,9 @@ function plc_vertical_table ($messages, $class="") {
 }
 
 //////////////////////////////////////////////////////////// various mappers
+// could not figure how to use anonymous lambdas..
 function get_site_id ($site) { return $site['site_id'];}
+function get_tagname ($tag) { return $tag['tagname'];}
 
 ////////////////////////////////////////////////////////////
 function plc_section ($text,$line=true) {

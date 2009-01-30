@@ -27,11 +27,12 @@ function plc_table_cell($cell) {
 //  - search_area : boolean (default true)
 //  - pagesize_area : boolean (default true)
 //  - notes_area : boolean (default true)
+//  - search_width : size in chars of the search text dialog
 //  - notes : an array of additional notes
 //  - pagesize: the initial pagination size
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
-//  - footers: a list of table rows (<tr> will be added) for building the table's tfoot area
+//  - footers: an array of table rows (<tr> will be added) for building the table's tfoot area
 function plc_table_start ($table_id, $headers, $column_sort, $options=NULL) {
   if ( ! $options ) $options = array();
   global $plc_table_hash;
@@ -41,6 +42,7 @@ function plc_table_start ($table_id, $headers, $column_sort, $options=NULL) {
   $max_pages = array_key_exists('max_pages',$options) ? $options['max_pages'] : 10;
   $pagesize = array_key_exists('pagesize',$options) ? $options['pagesize'] : 25;
   $pagesize_def = array_key_exists('pagesize_def',$options) ? $options['pagesize_def'] : 999;
+  $search_width = array_key_exists('search_width',$options) ? $options['search_width'] : 40;
 
   $paginator=$table_id."_paginator";
   $classname="paginationcallback-".$paginator;
@@ -58,7 +60,7 @@ class="plc_table sortable-onload-$column_sort rowstyle-alt colstyle-alt no-arrow
 EOF;
 
   if ($pagesize_area) plc_table_pagesize_area ($table_id,$headers,$pagesize, $pagesize_def);
-  if ($search_area) plc_table_search_area ($table_id, $headers);
+  if ($search_area) plc_table_search_area ($table_id, $headers, $search_width);
 
   print "<tr>";
   foreach ($headers as $label => $type) {
@@ -98,7 +100,7 @@ EOF;
 }
 
 ////////////////////
-function plc_table_search_area ($table_id,$headers) {
+function plc_table_search_area ($table_id,$headers,$search_width) {
   $width=count($headers);
   $search_text_id = $table_id . "_search";
   $search_reset_id = $table_id . "_search_reset";
@@ -108,7 +110,7 @@ function plc_table_search_area ($table_id,$headers) {
    <label class='table_search_label'> Search </label> 
    <input class='table_search_input' type='text' id='$search_text_id'
       onkeyup='plc_table_filter("$table_id","$search_text_id","$search_and_id");'
-      size=40 maxlength=256 />
+      size=$search_width maxlength=256 />
    <label>and</label>
    <input id='$search_and_id' class='table_search_and' 
       type='checkbox' checked='checked' 

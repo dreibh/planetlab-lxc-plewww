@@ -152,7 +152,7 @@ if( ! $slices) {
   $headers=array('Slice name'=>'string');
   $table_options=array('notes_area'=>false,
 		       'pagesize'=>5);
-  plc_table_start("person_slices",$headers,1,$table_options);
+  plc_table_start("person-slices",$headers,1,$table_options);
 
   foreach( $slices as $slice ) {
     $slice_name= $slice['name'];
@@ -161,7 +161,7 @@ if( ! $slices) {
     plc_table_cell(l_slice_t($slice_id,$slice_name));
     plc_table_row_end();
   }
-  plc_table_end("person_slices");
+  plc_table_end("person-slices");
  }
 
 // we don't set 'action', but use the submit button name instead
@@ -185,7 +185,7 @@ $headers=array("Type"=>"string",
 if ($can_manage_keys) $headers['Remove']="none";
 // table overall options
 $table_options=array("search_area"=>false,"notes_area"=>false);
-plc_table_start("person_keys",$headers,"1",$table_options);
+plc_table_start("person-keys",$headers,"1",$table_options);
     
 if ($keys) foreach ($keys as $key) {
   $key_id=$key['key_id'];
@@ -211,7 +211,7 @@ if ($can_manage_keys) {
     "<td> $upload_key_right_area </td>";
 }
 
-plc_table_end("person_keys",array("footers"=>$footers));
+plc_table_end("person-keys",array("footers"=>$footers));
 
 //////////////////// sites
 plc_section('Sites');
@@ -227,7 +227,7 @@ $headers['Name']="string";
 if ($can_manage_sites) 
   $headers['Remove']="string";
 $table_options = array('notes_area'=>false,'search_area'=>false);
-plc_table_start ("person_sites",$headers,0,$table_options);
+plc_table_start ("person-sites",$headers,0,$table_options);
 foreach( $sites as $site ) {
   $site_name= $site['name'];
   $site_id= $site['site_id'];
@@ -262,7 +262,7 @@ if ($can_manage_sites) {
   $footers []="<td style='text-align:right'> $add_site_left_area </td>".
     "<td colspan=2> $add_site_right_area </td>";
  }
-plc_table_end("person_sites",array("footers"=>$footers));
+plc_table_end("person-sites",array("footers"=>$footers));
 
 //////////////////// roles
 plc_section("Roles");
@@ -274,7 +274,7 @@ $table_options=array("search_area"=>false,"notes_area"=>false);
 $headers=array("Role"=>"none");
 if ($can_manage_roles) $headers ["Remove"]="none";
 
-plc_table_start("person_roles",$headers,0,$table_options);  
+plc_table_start("person-roles",$headers,0,$table_options);  
   
 // construct array of role objs
 $role_objs=array();
@@ -311,7 +311,7 @@ if ($can_manage_roles) {
   $footers []="<td style='text-align:right'> $add_role_left_area </td>".
     "<td colspan=2> $add_role_right_area </td>";
  }
-plc_table_end("person_roles",array("footers"=>$footers));
+plc_table_end("person-roles",array("footers"=>$footers));
 
 //////////////////////////////
 plc_form_end();
