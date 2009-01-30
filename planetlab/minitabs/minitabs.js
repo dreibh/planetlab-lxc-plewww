@@ -42,10 +42,8 @@ function plc_introspect (txt,obj,verbose,attribute) {
 function getElementsByClassName (elt,cls) {
   try {
     var retval= elt.getElementsByClassName(cls);
-    plc_debug ('getElementsByClassName','used native method');
     return retval;
     } catch (err) {
-    plc_debug ('getElementsByClassName','running custom method');
     var retVal = new Array();
     var elements = elt.getElementsByTagName("*");
     for (var i = 0; i < elements.length; i++) {
