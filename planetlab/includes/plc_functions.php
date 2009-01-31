@@ -225,7 +225,7 @@ function plc_peer_global_hash ($api) {
   $peers = $api->GetPeers($peer_filter,$peer_columns);
   
   $peer_hash=array();
-  foreach ($peers as $peer) {
+  if ($peers) foreach ($peers as $peer) {
     $peer_hash[$peer['peer_id']]=$peer;
   }
 }

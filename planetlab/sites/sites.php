@@ -106,9 +106,9 @@ $sites= $api->GetSites( $site_filter , $site_columns);
 $peer_hash = plc_peer_global_hash ($api);
 
 $headers['Peer']="string";
-$headers['Name']="string";
-$headers['Login_base']="string";
-$headers['Abbreviated']="string";
+$headers['Full Name']="string";
+$headers['Login']="string";
+$headers['Abbrev.']="string";
 if (plc_is_admin()) {
   $headers['N']="int";
   $headers['U']="int";
@@ -116,7 +116,7 @@ if (plc_is_admin()) {
   $headers['?']="string";
  }
 
-plc_table_start("sites",$headers,3);
+plc_table_start("sites",$headers,2);
 if ($sites) foreach ($sites as $site) {
   $shortname = plc_peer_shortname ($peer_hash,$site['peer_id']);
   plc_table_row_start($site['login_base']);
