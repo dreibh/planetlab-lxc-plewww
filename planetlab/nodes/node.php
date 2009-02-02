@@ -15,6 +15,7 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'plc_peers.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
@@ -50,12 +51,9 @@ $interface_ids= $node['interface_ids'];
 $nodegroup_ids= $node['nodegroup_ids'];
 $pcu_ids= $node['pcu_ids'];
 
-// get peer
+// get peers
 $peer_id = $node['peer_id'];
-if ($peer_id) {
-  $peers=$api->GetPeers(array($peer_id));
-  $peer=$peers[0];
- }
+$peers=new Peers ($api);
 
 // gets site info
 $sites= $api->GetSites( array( $site_id ) );
@@ -99,11 +97,6 @@ if( !empty( $pcu_ids ) )
 
 //////////////////// display node info
 
-// fetches peers and initialize hash peer_id->peer
-$peer_hash = plc_peer_global_hash ($api);
-// show gray background on foreign objects : start a <div> with proper class
-$local_peer = plc_peer_block_start ($peer_hash,$peer_id);
-  
 drupal_set_title("Details for node " . $hostname);
   
 // extra privileges to admins, and (pi||tech) on this site
@@ -137,15 +130,22 @@ $tabs["All nodes"]=l_nodes();
 
 plc_tabs($tabs);
 
+// show gray background on foreign objects : start a <div> with proper class
+$local_peer = $peers->block_start ($peer_id);
+  
 plc_details_start ();
+if ( ! $local_peer) {
+  plc_details_line("Peer",$peers->peer_link($peer_id));
+  plc_details_space_line();
+ }
+
 plc_details_line("Hostname",$hostname);
 plc_details_line("Type",$node_type);
 plc_details_line("Model",$model);
 plc_details_line("Version",$version);
-plc_details_line("Peer",plc_peer_label($peer));
-
 // no tool to implement this multiple-choice setting yet
 // xxx would need at least to use the proper class, like plc_details_class() or something
+plc_details_space_line ();
 echo "<tr><th>Boot State: </th><td>";
 if ( ! $local_peer) {
   echo $boot_state;
@@ -205,32 +205,33 @@ plc_details_end ();
 
 //////////////////////////////////////////////////////////// Tags
 // get tags
-$tags=$api->GetNodeTags (array('node_id'=>$node_id));
-$tagnames = array_map ("get_tagname",$tags);
-//plc_debug('tagnames',$tagnames);
-$nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
-//plc_debug('hash',$nodegroups_hash);
-
-plc_section("Tags");
-$headers=array("Name"=>"string",
-	       "Value"=>"string",
-	       "Nodegroup"=>"string");
-
-$table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
-plc_table_start("node_tags",$headers,0,$table_options);
-if ($tags) foreach ($tags as $tag) {
-  // does this match a nodegroup ?
-  $nodegroup_name="n/a";
-  $nodegroup_key=$tag['tagname'] . "=" . $tag['value'];
-  $nodegroup=$nodegroups_hash[$nodegroup_key];
-  if ($nodegroup) $nodegroup_name=l_nodegroup_t($nodegroup['nodegroup_id'],$nodegroup['groupname']);
-  plc_table_row_start();
-  plc_table_cell($tag['tagname']);
-  plc_table_cell($tag['value']);
-  plc_table_cell($nodegroup_name);
-  plc_table_row_end();
-}
-plc_table_end("node_tags");
+if ( $local_peer ) {
+  $tags=$api->GetNodeTags (array('node_id'=>$node_id));
+  function get_tagname ($tag) { return $tag['tagname'];}
+  $tagnames = array_map ("get_tagname",$tags);
+  $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
+  
+  plc_section("Tags");
+  $headers=array("Name"=>"string",
+		 "Value"=>"string",
+		 "Nodegroup"=>"string");
+  
+  $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
+  plc_table_start("node_tags",$headers,0,$table_options);
+  if ($tags) foreach ($tags as $tag) {
+      // does this match a nodegroup ?
+      $nodegroup_name="n/a";
+      $nodegroup_key=$tag['tagname'] . "=" . $tag['value'];
+      $nodegroup=$nodegroups_hash[$nodegroup_key];
+      if ($nodegroup) $nodegroup_name=l_nodegroup_t($nodegroup['nodegroup_id'],$nodegroup['groupname']);
+      plc_table_row_start();
+      plc_table_cell($tag['tagname']);
+      plc_table_cell($tag['value']);
+      plc_table_cell($nodegroup_name);
+      plc_table_row_end();
+    }
+  plc_table_end("node_tags");
+ }
 
 //////////////////////////////////////////////////////////// slices
 // display slices
@@ -252,8 +253,8 @@ if ( ! $slices  ) {
   plc_table_start ("node_slices",$headers,1,$table_options);
 
   foreach ($slices as $slice) {
-    plc_table_row_start($slice['name']);
-    plc_table_cell (plc_peer_shortname($peer_hash,$slice['peer_id']));
+    plc_table_row_start();
+    plc_table_cell ($peers->shortname($peer_id));
     plc_table_cell (l_slice_t ($slice['slice_id'],$slice['name']));
     plc_table_cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
     plc_table_row_end();
@@ -300,7 +301,7 @@ if ( $local_peer ) {
       $interface_type= $interface['type'];
       $interface_method= $interface['method'];
 
-      plc_table_row_start($interface['ip']);
+      plc_table_row_start();
       if ( $privileges ) {
 	if (!$interface_primary) {
 	  // xxx 
@@ -326,7 +327,7 @@ if ( $local_peer ) {
  }
       
 ////////////////////////////////////////////////////////////
-plc_peer_block_end();
+$peers->block_end($peer_id);
 
 
 // Print footer

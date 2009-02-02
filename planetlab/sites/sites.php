@@ -15,6 +15,7 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'plc_peers.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 
@@ -80,8 +81,9 @@ if ($pattern) {
  }
 
 // server-side selection on peerscope
-list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
-$site_filter=array_merge($site_filter,$peer_filter);
+$peerscope = new PeerScope ($api,$peerscope);
+$site_filter=array_merge($site_filter,$peerscope->filter());
+$title .= ' - ' . $peerscope->label();
 
 if (! plc_is_admin()) {
   $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" );
@@ -92,7 +94,7 @@ if (! plc_is_admin()) {
  }
 
 $tabs['My site'] = array('url'=>l_site(plc_my_site_id()));
-$tabs['Local sites'] = array('url'=>l_sites_local());
+$tabs['Local sites'] = array('url'=>l_sites_peer('local'));
 if (plc_is_admin()) 
   $tabs['Pending'] = array ('url'=>l_sites_pending(),
 			    'bubble'=>'Review pending join requests');
@@ -103,7 +105,7 @@ plc_tabs($tabs);
 // go
 $sites= $api->GetSites( $site_filter , $site_columns);
 
-$peer_hash = plc_peer_global_hash ($api);
+$peers=new Peers($api);
 
 $headers['Peer']="string";
 $headers['Full Name']="string";
@@ -117,9 +119,10 @@ if (plc_is_admin()) {
  }
 
 plc_table_start("sites",$headers,2);
+
 if ($sites) foreach ($sites as $site) {
-  $shortname = plc_peer_shortname ($peer_hash,$site['peer_id']);
-  plc_table_row_start($site['login_base']);
+  $shortname = $peers->shortname($site['peer_id']);
+  plc_table_row_start();
   plc_table_cell($shortname);
   plc_table_cell (l_site_t($site['site_id'],$site['name']));
   plc_table_cell ($site['login_base']);
@@ -132,7 +135,9 @@ if ($sites) foreach ($sites as $site) {
   }
   plc_table_row_end();
 }
-plc_table_end("sites");
+$notes=array("N = number of sites / U = number of users / S = number of slices");
+
+plc_table_end("sites",array('notes'=>$notes));
 
 // Print footer
 include 'plc_footer.php';

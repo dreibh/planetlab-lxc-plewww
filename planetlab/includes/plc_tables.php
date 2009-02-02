@@ -149,28 +149,29 @@ function plc_table_foot ($options) {
 
 ////////////////////////////////////////
 function plc_table_notes ($options) {
-  print <<< EOF
-<p class='plc_filter_note'> 
-Notes: Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes
-<br/> 
-Hold down the shift key to select multiple columns to sort 
-EOF;
-  if (array_key_exists('notes',$options)) {
-    foreach ($options['notes'] as $line) {
-      print "<br/>" . $line . "\n";
-    }
-  }
+  $plc_table_default_notes =  array(
+	"Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes",
+	"Hold down the shift key to select multiple columns to sort");
+
+  if (array_key_exists('notes',$options)) 
+    $notes=$options['notes'];
+  else
+    $notes=array();
+  $notes=array_merge($notes,$plc_table_default_notes);
+  print "<p class='plc_table_note'> <span class='plc_table_note_title'>Notes</span>\n";
+  foreach ($notes as $note) 
+    print "<br/>$note\n";
   print "</p>";
 }
 
 ////////////////////////////////////////
-function plc_table_row_start ($id="") {
-  if ( $id) {
-    printf ('<tr id="%s">',$id);
-  } else {
-    print '<tr>';
-  }
+function plc_table_row_start ($id=NULL,$class=NULL) {
+  print "<tr";
+  if ( $id) print (" id=\"$id\"");
+  if ( $class) print (" class=\"$class\"");
+  print ">\n";
 }
+
 function plc_table_row_end () {
   print "</tr>\n";
 }

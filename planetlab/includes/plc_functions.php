@@ -5,6 +5,10 @@
 // will trash this eventually
 require_once 'plc_functions_trash.php';
 
+// utility
+function my_is_int ($x) {
+    return (is_numeric($x) ? intval($x) == $x : false);
+}
 //////////////////////////////////////////////////////////// roles & other checks on global $plc
 function plc_is_admin () {
   global $plc;
@@ -45,7 +49,7 @@ function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; 
 function l_actions ()			{ return "/db/actions.php"; }
 
 function l_nodes ()			{ return "/db/nodes/index.php"; }
-function l_nodes_local ()		{ return "/db/nodes/index.php?peerscope=local"; }
+function l_nodes_peer ($peer_id)	{ return "/db/nodes/index.php?peerscope=$peer_id"; }
 function l_node ($node_id)		{ return "/db/nodes/node.php?id=$node_id"; }
 function l_node_t ($node_id,$text)	{ return href (l_node($node_id),$text); }
 function l_node_add ()			{ return "/db/nodes/node_add.php"; }
@@ -57,12 +61,13 @@ function l_interface_t ($interface_id,$text) {
 function l_interface_add($node_id)	{ return "/db/nodes/interfaces.php?node_id=$node_id"; }
 
 function l_sites ()			{ return "/db/sites/index.php"; }
-function l_sites_local ()		{ return "/db/sites/index.php?peerscope=local"; }
+function l_sites_peer ($peer_id)	{ return "/db/sites/index.php?peerscope=$peer_id"; }
 function l_site ($site_id)		{ return "/db/sites/index.php?id=$site_id"; }
 function l_site_t ($site_id,$text)	{ return href (l_site($site_id),$text); }
 function l_site_update($site_id)	{ return "/xxx-undefined"; }
 
 function l_slices ()			{ return "/db/slices/index.php"; }
+function l_slices_peer ($peer_id)	{ return "/db/slices/index.php?peerscope=$peer_id"; }
 function l_slice ($slice_id)		{ return "/db/slices/index.php?id=$slice_id"; }
 function l_slice_t ($slice_id,$text)	{ return href (l_slice($slice_id),$text); }
 function l_slice_add ()			{ return "/db/slices/add_slice.php"; }
@@ -75,6 +80,7 @@ function l_sliver_t ($node_id,$slice_id,$text) {
 					  return href (l_sliver($node_id,$slice_id),$text) ; }
 
 function l_persons ()			{ return "/db/persons/index.php"; }
+function l_persons_peer ($peer_id)	{ return "/db/persons/index.php?peerscope=$peer_id"; }
 function l_person ($person_id)		{ return "/db/persons/index.php?id=$person_id"; }
 function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text); }
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
@@ -94,6 +100,7 @@ function l_event ($type,$param,$id)	{ return "/db/events/index.php?type=$type&$p
 
 function l_peers()			{ return "/db/peers/index.php"; }
 function l_peer($peer_id)		{ return "/db/peers/index.php?id=$peer_id"; }
+function l_peer_t($peer_id,$text)	{ return href(l_peer($peer_id),$text); }
 
 function l_comon($id_name,$id_value)	{ return "/db/nodes/comon.php?$id_name=$id_value"; }
 function l_sirius()			{ return "/db/sirius/index.php"; }
@@ -207,7 +214,7 @@ function is_reserved_network_addr($network_addr) {
   return false;
 }
 
-////////////////////////////////////////////////////////////  peer & peerscopes
+////////////////////////////////////////////////////////////  roles
 function plc_role_global_hash ($api) {
   $hash=array();
   $roles=$api->GetRoles();
@@ -217,88 +224,6 @@ function plc_role_global_hash ($api) {
   return $hash;
 }
   
-////////////////////////////////////////////////////////////  peer & peerscopes
-// when shortnames are needed on peers
-function plc_peer_global_hash ($api) {
-  $peer_columns=array('peer_id','shortname');
-  $peer_filter=array();
-  $peers = $api->GetPeers($peer_filter,$peer_columns);
-  
-  $peer_hash=array();
-  if ($peers) foreach ($peers as $peer) {
-    $peer_hash[$peer['peer_id']]=$peer;
-  }
-}
-
-function plc_peer_shortname ($peer_hash,$peer_id) {
-  if ( ! $peer_id ) {
-    return PLC_SHORTNAME;
-  } else {
-     return $peer_hash[$node['peer_id']]['shortname'];
-  }
-}
-
-function plc_peer_label ($peer) { 
-  if (! $peer) {
-    return "Local object on " . PLC_NAME . " (" . PLC_SHORTNAME . ")";
-  }
-  $result= $peer['peername'] . " (" . $peer['shortname'] . ")";
-  $result= href(l_peer($peer['peer_id']),$result);
-  return plc_foreign_text($result);
-}
-
-// to set the background to grey on foreign objects
-// return true if the peer is local 
-function plc_peer_block_start ($peer_hash,$peer_id) {
-  if ( ! $peer_id ) {
-    print "<div>";
-    return true;
-  } else {
-    // set two classes, one eneraic to all foreign, and one based on the peer's shortname for finer grain tuning
-    printf ('<div class="plc-foreign plc-%s>"',strtolower(plc_peer_shortname($peer_hash,$peer_id)));
-    return false;
-  }
-}
-
-function plc_peer_block_end () {
-  print "</div>\n";
-}
-
-// interpret standard syntax for peerscope
-function plc_peer_info ($api,$peerscope) {
-  switch ($peerscope) {
-  case '':
-    $peer_filter=array();
-    $peer_label="all peers";
-    break;
-  case 'local':
-    $peer_filter=array("peer_id"=>NULL);
-    $peer_label=PLC_SHORTNAME;
-    break;
-  case 'foreign':
-    $peer_filter=array("~peer_id"=>NULL);
-    $peer_label="foreign peers";
-    break;
-  default:
-    if (is_int ($peerscope)) {
-      $peer_id=intval($peerscope);
-      $peers=$api->GetPeers(array("peer_id"=>$peer_id));
-    } else {
-      $peers=$api->GetPeers(array("shortname"=>$peerscope));
-    }
-    if ($peers) {
-      $peer=$peers[0];
-      $peer_id=$peer['peer_id'];
-      $peer_filter=array("peer_id"=>$peer_id);
-      $peer_label='peer "' . $peer['shortname'] . '"';
-    } else {
-      $peer_filter=array();
-      $peer_label="[no such peer " . $peerscope . "]";
-    }
-    break;
-  }
-  return array ($peer_filter,$peer_label);
-}
 
 //////////////////////////////////////////////////////////// nodegroups
 // hash by 'tagname=value'
@@ -325,7 +250,59 @@ function tabs_node($node) { return array('Node ' . $node['hostname']=>l_node($no
 function tabs_site($site) { return array('Site ' . $site['name']=>l_site($site_id)); }
 function tabs_slice($slice) { return array('Slice ' . $slice['name']=>l_slice($slice_id)); }
 
-//////////////////////////////////////////////////////////// presentation
+//////////////////////////////////////////////////////////// html fragments
+function plc_vertical_table ($messages, $class="") {
+  // pretty print the cell
+  if ( empty( $messages) ) return "";
+  $formatted = "";
+  $formatted .= "<table";
+  if ($class) $formatted .= " class='" . $class . "'";
+  $formatted .= ">";
+  foreach ($messages as $message) {
+    $formatted .= "<tr><td>" . $message . "</td></tr>";
+  }
+  $formatted .= "</table>";
+  return $formatted;
+}
+
+function plc_section ($text,$line=true) {
+  if ($line) { print "<hr/>";}
+  print "<h2 class=plc> $text </h2>\n";
+}
+
+function plc_error ($text) {
+  // should use the same channel as the php errors..
+  print "<div class='plc-error'> Error " . $text . "</div>";
+}
+
+function plc_errors ($list) {
+  print( "<div class='plc-error'>" );
+  print( "<p style='font-weight:bold'>The following errors occured:</p>" );
+  print("<ul>");
+  foreach( $errors as $err ) {
+    print( "<li>$err</li>\n" );
+  }
+  print( "</ul></div>\n" );
+}
+
+function plc_warning_text ($text)	{ return "<span class='plc-warning'>" . $text . "</span>";}
+function plc_warning ($text)		{ print plc_warning_text("Warning " . $text); }
+function plc_foreign_text($text)	{ return "<span class=plc-foreign>$text</span>"; }
+
+// shows a php variable verbatim with a heading message
+function plc_debug ($message,$object) {
+  print "<br>" . $message . "<pre>";
+  print_r ($object);
+  print "</pre>";
+}
+
+if (! function_exists ("drupal_set_error")) {
+  function drupal_set_error ($text) {
+    drupal_set_message ("<span class=error>$text</span>");
+  }
+ }
+
+//////////////////////////////////////////////////////////// sort out for obsolete / trash
 // builds a table from an array of strings, with the given class
 // attempt to normalize the delete buttons and confirmations
 function plc_delete_button($width=15) {
@@ -356,57 +333,6 @@ function plc_comon_button ($id_name, $id_value,$target="") {
   $result.='href="' . l_comon($id_name,$id_value) . '">';
   $result.='<span title="Link to Comon"> <img src="/planetlab/icons/comon.png" width="18"></span></a>';
   return $result;
-}
-
-function plc_vertical_table ($messages, $class="") {
-  // pretty print the cell
-  if ( empty( $messages) ) return "";
-  $formatted = "";
-  $formatted .= "<table";
-  if ($class) $formatted .= " class='" . $class . "'";
-  $formatted .= ">";
-  foreach ($messages as $message) {
-    $formatted .= "<tr><td>" . $message . "</td></tr>";
-  }
-  $formatted .= "</table>";
-  return $formatted;
-}
-
-//////////////////////////////////////////////////////////// various mappers
-// could not figure how to use anonymous lambdas..
-function get_site_id ($site) { return $site['site_id'];}
-function get_tagname ($tag) { return $tag['tagname'];}
-
-////////////////////////////////////////////////////////////
-function plc_section ($text,$line=true) {
-  if ($line) { print "<hr/>";}
-  print "<h2 class=plc> $text </h2>\n";
-}
-
-function plc_error ($text) {
-  // should use the same channel as the php errors..
-  print "<div class='plc-error'> Error " . $text . "</div>";
-}
-
-function plc_errors ($list) {
-  print( "<div class='plc-error'>" );
-  print( "<p style='font-weight:bold'>The following errors occured:</p>" );
-  print("<ul>");
-  foreach( $errors as $err ) {
-    print( "<li>$err</li>\n" );
-  }
-  print( "</ul></div>\n" );
-}
-
-function plc_warning_text ($text)	{ return "<span class='plc-warning'>" . $text . "</span>";}
-function plc_warning ($text)		{ print plc_warning_text("Warning " . $text); }
-function plc_foreign_text($text)	{ return "<span class=plc-foreign>$text</span>"; }
-
-// shows a php variable verbatim with a heading message
-function plc_debug ($message,$object) {
-  print "<br>" . $message . "<pre>";
-  print_r ($object);
-  print "</pre>";
 }
 
 

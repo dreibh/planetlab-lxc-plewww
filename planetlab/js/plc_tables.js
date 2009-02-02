@@ -104,19 +104,25 @@ function plc_table_filter (table_id,pattern_id,and_id) {
   // remove whitespaces at the beginning and end
   pattern_text = pattern_text.replace(/[ \t]+$/,"");
   pattern_text = pattern_text.replace(/^[ \t]+/,"");
+  // normnalize to lowercase
+  pattern_text = pattern_text.toLowerCase();
   
   if (pattern_text.indexOf ("&") != -1) {
-    pattern_text = pattern_text.replace(/&$/,"").replace(/&/," ");
+    pattern_text = pattern_text.replace(/&/," ");
     pattern_area.value=pattern_text;
     and_button.checked=true;
     return;
   } else if (pattern_text.indexOf ("|") != -1 ) {
-    pattern_text = pattern_text.replace(/\|$/,"").replace(/\|/," ");
+    pattern_text = pattern_text.replace(/\|/," ");
     pattern_area.value=pattern_text;
     and_button.checked=false;
     return;
   }
     
+  // var counter=0;
+  //  window.console.log ("entering plc_table_filter " + table_id);
+
+  var re_brackets = new RegExp ('<[^>]*>','g');
   var patterns = pattern_text.split(" ");
 
   for (row_index = 0; row=rows[row_index]; row_index++) {
@@ -130,9 +136,13 @@ function plc_table_filter (table_id,pattern_id,and_id) {
       visible=true;
       for (i in patterns) {
 	var pattern_matched=false;
-	pattern=patterns[i];
+	pattern=new RegExp(patterns[i],"i");
 	for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
-	  if ( cell.innerHTML.match(pattern)) {
+	  var against=cell.innerHTML;
+	  against=against.replace(re_brackets,'');
+	  //counter++;
+	  //window.console.log ("plc_table_filter is matching " + against + " against " + pattern);
+	  if ( against.match(pattern)) {
 	    pattern_matched=true;
 	    // alert ('AND matched! p='+pattern+' c='+cell.innerHTML);
 	    break;	  
@@ -146,7 +156,8 @@ function plc_table_filter (table_id,pattern_id,and_id) {
       for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
 	for (i in patterns) {
 	  pattern=patterns[i];
-	  if (cell.innerHTML.match(pattern)) {
+	  //counter++;
+	  if (cell.innerHTML.toLowerCase().match(pattern)) {
 	    visible=true;
 	    // alert ('OR matched! p='+pattern+' c='+cell.innerHTML);
 	    break;
@@ -154,6 +165,7 @@ function plc_table_filter (table_id,pattern_id,and_id) {
 	}
       }
     }
+    //window.console.log ("plc_table_filter has done " + counter + " matches");
     plc_table_row_visible(row,visible);
     if (visible) matching_entries +=1;
   }

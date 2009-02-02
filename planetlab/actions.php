@@ -42,6 +42,8 @@ $known_actions []= "update-tag-type";
 //	expects:	tag_type_id & name & description & category & min_role_id  
 $known_actions []= "add-tag-type";
 //	expects:	tag_type_id & name & description & category & min_role_id  
+$known_actions []= "delete-site";	
+//	expects:	site_id
 $known_actions []= "expire-all-slices-in-site";
 //	expects:	slice_ids
 
@@ -226,6 +228,16 @@ switch ($action) {
    drupal_set_message ("tag type $id created");
   
    header( "location: " . l_tag($id));
+   exit();
+ }
+
+ case 'delete-site': {
+   $site_id = intval($_POST['site_id']);
+   if ($api->DeleteSite($site_id) ==1) 
+     drupal_set_message ("Site $site_id deleted");
+   else
+     drupal_set_error("Failed to delete site $site_id");
+   header ("location: " . l_sites());
    exit();
  }
 

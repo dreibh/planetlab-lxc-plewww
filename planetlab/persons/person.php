@@ -15,6 +15,7 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'plc_peers.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
@@ -64,13 +65,9 @@ $keys= $api->GetKeys( $key_ids );
 
 drupal_set_title("Details for account " . $first_name . " " . $last_name);
 
-$plc_hash=plc_peer_global_hash($api);
-if ($peer_id) {
-  $peers=$api->GetPeers(array($peer_id));
-  $peer=$peers[0];
-}
+$peers = new Peers ($api);
 
-$local_peer = plc_peer_block_start ($peer_hash,$peer_id);
+$local_peer = $peers->block_start ($peer_id);
 $is_my_account = plc_my_person_id() == $person_id;
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
 
@@ -144,7 +141,7 @@ plc_details_line("URL",$url);
 plc_details_line("Phone",$phone);
 plc_details_line("Title",$title);
 plc_details_line("Bio",wordwrap($bio,50,"<br/>"));
-plc_details_line("Peer",plc_peer_label($peer));
+plc_details_line("Peer",$peers->peer_link($peer_id));
 plc_details_end();
 
 //////////////////// slices
@@ -173,11 +170,8 @@ if( ! $slices) {
  }
 
 // we don't set 'action', but use the submit button name instead
-plc_form_start(l_actions(),
-	       array("person_id"=>$person_id,
-		     // uncomment this to run the 'debug' action 
-		     //"action"=>"debug",
-		     ));
+plc_form_start(l_actions(), 
+	       array("person_id"=>$person_id,));
 
 //////////////////// keys
 plc_section ("Keys");
@@ -197,7 +191,7 @@ plc_table_start("person_keys",$headers,"1",$table_options);
     
 if ($keys) foreach ($keys as $key) {
   $key_id=$key['key_id'];
-  plc_table_row_start($key_id);
+  plc_table_row_start();
   plc_table_cell ($key['key_type']);
   plc_table_cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
   if ($can_manage_keys) 
@@ -256,6 +250,7 @@ if ($can_manage_sites) {
   // add a site : the button
   $add_site_right_area=plc_form_submit_text("add-person-to-site","Add in site");
   // get list of local sites that the person is not in
+  function get_site_id ($site) { return $site['site_id'];}
   $person_site_ids=array_map("get_site_id",$sites);
   $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
 
@@ -324,7 +319,7 @@ plc_table_end("person_roles",array("footers"=>$footers));
 
 //////////////////////////////
 plc_form_end();
-plc_peer_block_end();
+$peers->block_end($peer_id);
   
 // Print footer
 include 'plc_footer.php';

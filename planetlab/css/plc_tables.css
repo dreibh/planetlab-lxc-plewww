@@ -5,11 +5,11 @@ table.plc_table {
     margin: 0 auto 1.5em auto;
     border-collapse:collapse;
 }
-table.plc_table thead tr, table.plc_table tbody tr {
+table.plc_table>thead>tr, table.plc_table>tbody>tr {
     border-left: 1px solid #C1DAD7; 
 }    
 /* remove border for search/pagesize area */
-table.plc_table thead tr.pagesize_area, table.plc_table thead tr.search_area {
+table.plc_table>thead>tr.pagesize_area, table.plc_table>thead>tr.search_area {
     border-left: 0px;
 }    
 
@@ -218,19 +218,22 @@ tr.invisibleRow {
 p.paginationText {
     font-style:oblique;
 }
-p.plc_filter_note {
+p.plc_table_note {
     font-style:oblique;
     font-size:0.6em;
     font-family: georgia;
-    text-align: center
+    text-align: center;
+}
+span.plc_table_note_title {
+    font-weight:bold;
+    font-size:1.5em;
+    font-family: georgia;
+    text-align: center;
 }
 
-<!--[if IE]>
-<style type="text/css">
+/* for IE */
 ul.fdtablePaginater {display:inline-block;}
 mul.fdtablePaginater {display:inline;}
 ul.fdtablePaginater li {float:left;}
 ul.fdtablePaginater {text-align:center;}
-table { border-bottom:1px solid #C1DAD7; }
-</style>
-<![endif]-->
+table.plc_table { border-bottom:1px solid #C1DAD7; }

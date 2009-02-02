@@ -93,8 +93,6 @@ foreach ($nns as $nn) {
   $local_ips[] = $nn['ip'];
 }
 
-//plc_debug('locals',$local_ips);
-
 // for foreign hosts we're left with dns resolving them
 $remote_ips=array();
 foreach ($hostnames as $hostname) {
@@ -106,15 +104,11 @@ foreach ($hostnames as $hostname) {
   }
 }
 
-//plc_debug('remote ips',$remote_ips);
-
-
 // add both lists
 $all_ips=$local_ips+$remote_ips;
 // compute comon URL
 $url = plc_comon_url_from_ips("http://comon.cs.princeton.edu",$all_ips);
 
-//plc_debug('url',$url);
 
 // redirect to comon
 header("Location: " . $url);

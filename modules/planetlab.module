@@ -111,6 +111,17 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $is_user  = in_array(30,$plc->person['role_ids']);
       $is_tech  = in_array(40,$plc->person['role_ids']);
 
+      //////////////////// Log out
+      if ($user->uid) {
+	// Drupal logout (destroys the session and cleans up $user)
+	// Thierry unclear when this triggers, I suspect this is obsolete
+	$items[] = leaf (l(t('Log out of %s', 
+			     array('%s' => variable_get('site_name', 'local'))), 'logout'));
+      } else {
+	// PlanetLab logout (just destroy the session)
+	$items[] = leaf ( href (l_logout(),'Log out'));
+      }
+      
       //////////////////// Sites
       $site_item = '';
       $site_item .= href(l_sites(),"Sites");
@@ -179,19 +190,8 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $doc_item .= ul_end();
       $items[] = expanded($doc_item);
 
-      if ($user->uid) {
-	// Drupal logout (destroys the session and cleans up $user)
-	// Thierry unclear when this triggers, I suspect this is obsolete
-	$items[] = leaf (l(t('Log out of %s', 
-			     array('%s' => variable_get('site_name', 'local'))), 'logout'));
-      } else {
-	// PlanetLab logout (just destroy the session)
-	$items[] = leaf ( href (l_logout(),'Log out'));
-      }
-      
       //$block['content'] = theme('list_item', $items);
       $block['content'] = menu_theme($items);
-      //      plc_debug("content",$block['content']);
     }
 
     /*

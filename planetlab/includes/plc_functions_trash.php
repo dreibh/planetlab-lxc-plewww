@@ -188,41 +188,6 @@ function paginate_trash ( $fn_array, $table_id, $caption, $limit, $main_field, $
   
 }
 
-
-
-function plc_peers_option_list ($api) {
-
-    // get list of peers
-    $peers=$api->GetPeers(NULL,array('peer_id','peername'));
-    if (count($peers)==0) {
-      $predef=array(array("peer_id"=>"","peername"=>"All (no known peers)"));
-    } else {
-      $predef=array(array("peer_id"=>"","peername"=>"All peers"),
-		    array("peer_id"=>"local","peername"=>"Local only"));
-      // show a 'foreign' button only if that makes sense
-      if (count($peers) >= 2) {
-	$predef [] = array("peer_id"=>"foreign","peername"=>"Foreign peers");
-      }
-    }
-    
-    $result="";
-    foreach ($predef as $a) {
-      $peer_line = "<option value='" . $a['peer_id'] . "'>" . $a['peername'] . "</option>\n";
-      $result .= $peer_line;
-    }
-
-    if (!empty($peers)) {
-      foreach ($peers as $a) {
-	$peer_line = "<option value='" . $a['peer_id'] . "'>" . $a['peername'] . "</option>\n";
-	$result .= $peer_line;
-      }
-    }
-
-    return $result;
-}
-
-
-
 // function for getting the diff of multi dimention array
 function arr_diff( $a1, $a2 ) {
   $diff= array();

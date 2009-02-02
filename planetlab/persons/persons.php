@@ -15,6 +15,7 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'plc_peers.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 
@@ -79,8 +80,9 @@ if ($pattern) {
  }
 
 // server-side selection on peerscope
-list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
-$person_filter=array_merge($person_filter,$peer_filter);
+$peerscope=new PeerScope ($api,$_GET['peerscope']);
+$person_filter=array_merge($person_filter,$peerscope->filter());
+$title .= ' - ' . $peerscope->label();
 
 if ($site_id) {
   $sites=$api->GetSites(array($site_id),array("name","login_base","person_ids"));
@@ -138,25 +140,26 @@ $headers = array ("Peer"=>"string",
 		  "Last"=>"string",
 		  "Email"=>"string",
 		  "Site" => "string",
+		  "S" => "int",
 		  "Status"=>"string",
 		  );
 
 // initial sort on email
 plc_table_start("persons",$headers,4);
 
-$peer_hash = plc_peer_global_hash ($api);
+$peers=new Peers ($api);
 // write rows
 
 foreach ($persons as $person) {
     $person_id=$person['person_id'];
     $email=$person['email'];
-    $shortname = plc_peer_shortname ($peer_hash,$person['peer_id']);
+    $shortname = $peers->shortname($person['peer_id']);
     $site_id=$person['site_ids'][0];
     $site=$site_hash[$site_id];
     $login_base = $site['login_base'];
     $roles = plc_vertical_table ($person['roles']);
 
-    plc_table_row_start($email);
+    plc_table_row_start();
     
     plc_table_cell($shortname);
     plc_table_cell($roles);
@@ -164,12 +167,13 @@ foreach ($persons as $person) {
     plc_table_cell ($person['last_name']);
     plc_table_cell(l_person_t($person_id,$email));
     plc_table_cell($login_base);
+    plc_table_cell(count($person['slice_ids']));
     plc_table_cell(person_status($person));
     plc_table_row_end();
 				 
 }
-
-plc_table_end("persons");
+$notes=array("The S column shows the number of slices for the given user");
+plc_table_end("persons",array('notes'=>$notes));
 
 // Print footer
 include 'plc_footer.php';

@@ -153,10 +153,6 @@ function parse_dates () {
   return array($from_date,$from_time,$until_date,$until_time);
 }
 
-function my_is_int ($x) {
-    return (is_numeric($x) ? intval($x) == $x : false);
-}
-
 //////////////////////////////////////////////////////////// layout
 function truncate ($text,$numb,$etc = "...") {
   if (strlen($text) > $numb) {
@@ -390,7 +386,7 @@ if ( ! plc_is_admin()) {
     //    $message=sprintf('<span title="%s">%s</span>',$message,$message);
 
     $message=truncate($event['message'],40);
-    plc_table_row_start($event['event_id']);
+    plc_table_row_start();
     plc_table_cell(e_event($event['event_id']));
     plc_table_cell(date('M/d/Y H:i', $event['time']));
     plc_table_cell($event['call_name']);

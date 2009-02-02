@@ -15,6 +15,7 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'plc_peers.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 
@@ -63,8 +64,9 @@ if ($pattern) {
  }
 
 // server-side selection on peerscope
-list ( $peer_filter, $peer_label) = plc_peer_info($api,$_GET['peerscope']);
-$node_filter=array_merge($node_filter,$peer_filter);
+$peerscope=new PeerScope($api,$_GET['peerscope']);
+$node_filter=array_merge($node_filter,$peerscope->filter());
+$title .= ' - ' . $peerscope->label();
 
 if ($site_id) {
   $sites=$api->GetSites(array($site_id),array("name","login_base"));
@@ -135,7 +137,7 @@ $headers = array ("Peer"=>"string",
 # initial sort on hostnames
 plc_table_start("nodes",$headers,4);
 
-$peer_hash = plc_peer_global_hash ($api);
+$peers = new Peers ($api);
 // write rows
 foreach ($nodes as $node) {
     $hostname=$node['hostname'];
@@ -146,11 +148,12 @@ foreach ($nodes as $node) {
     $node_id=$node['node_id'];
     $ip=$interface_hash[$node['node_id']]['ip'];
     $interface_id=$interface_hash[$node['node_id']]['interface_id'];
-    $shortname = plc_peer_shortname ($peer_hash,$node['peer_id']);
+    $peer_id=$node['peer_id'];
+    $shortname = $peers->shortname($peer_id);
     $node_type = $node['node_type'];
 
-    plc_table_row_start($hostname);
-    plc_table_cell ($shortname);
+    plc_table_row_start();
+    plc_table_cell ($peers->link($peer_id,$shortname));
     plc_table_cell (topdomain($hostname));
     plc_table_cell (l_site_t($site_id,$login_base));
     plc_table_cell ($node['boot_state']);

@@ -15,6 +15,7 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'plc_peers.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
@@ -36,8 +37,8 @@ if (empty($sites)) {
 
 $site=$sites[0];
 // var names to api return
-$sitename= $site['name'];
-$abbrev_name= $site['abbreviated_name'];
+$sitename= htmlentities($site['name']);
+$abbrev_name= htmlentities($site['abbreviated_name']);
 $site_url= $site['url'];
 $login_base= $site['login_base'];
 $site_lat= $site['latitude'];
@@ -47,12 +48,12 @@ $max_slices= $site['max_slices'];
 
 $enabled = $site['enabled'];
 
+// extra privileges to admins, and (pi||tech) on this site
+$privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
+  
 // get peer details
 $peer_id= $site['peer_id'];
-if ($peer_id) {
-  $peers=$api->GetPeers(array("peer_id"=>$peer_id));
-  $peer=$peers[0];
- }
+$peers = new Peers ($api);
 
 $adress_ids= $site['address_ids'];
 $pcu_ids= $site['pcu_ids'];
@@ -65,7 +66,8 @@ $api->begin();
 $api->GetAddresses( $adress_ids );
 
 // gets pcu info
-$api->GetPCUs( $pcu_ids );
+// GetPCUs is not accessible to the 'user' role
+//$api->GetPCUs( $pcu_ids );
 
 // gets node info
 $api->GetNodes( $node_ids, array( "node_id", "hostname", "boot_state" ) );
@@ -75,7 +77,8 @@ $api->GetPersons( $person_ids, array( "role_ids", "person_id", "first_name", "la
 
 $api->GetSlices ( $slice_ids, array ("slice_id", "name", "instantiation" ) );
 
-list( $addresses, $pcus, $nodes, $persons, $slices )= $api->commit();
+//list( $addresses, $pcus, $nodes, $persons, $slices )= $api->commit();
+list( $addresses, $nodes, $persons, $slices )= $api->commit();
   
 $techs = array();
 $pis = array();
@@ -90,10 +93,6 @@ foreach( $persons as $person ) {
 }
 
 // fetches peers and initialize hash peer_id->peer
-$peer_hash = plc_peer_global_hash ($api);
-// show gray background on foreign objects : start a <div> with proper class
-plc_peer_block_start ($peer_hash,$peer_id);
-
 drupal_set_title("Details for site " . $sitename);
   
 // extra privileges to admins, and pi on this site
@@ -107,12 +106,14 @@ if ( ! $peer_id  && $privileges ) {
 			'bubble'=>"Update details of $sitename");
   // not avail to PI
   $tabs['Expire slices'] = array('url'=>l_actions(),
+				 'method'=>'POST',
 				 'values'=>array('site_id'=>$site_id,
 						 'action'=>'expire-all-slices-in-site'),
 				 'bubble'=>"Expire all slices and prevent creation of new slices",
 				 'confirm'=>"Suspend all slices in $login_base");
   if (plc_is_admin())
     $tabs['Delete']=array('url'=>l_actions(),
+			  'method'=>'POST',
 			  'values'=>array('site_id'=>$site_id,
 					  'action'=>'delete-site'),
 			  'bubble'=>"Delete site $sitename",
@@ -133,6 +134,9 @@ $tabs["All sites"]=l_sites();
 
 plc_tabs($tabs);
 
+// show gray background on foreign objects : start a <div> with proper class
+$peers->block_start ($peer_id);
+
 if ( ! $enabled ) 
   plc_warning ("This site is not enabled - Please visit " . 
 	       href (l_sites_pending(),"this page") . 
@@ -145,7 +149,7 @@ plc_details_line("Abbreviated name",$abbrev_name);
 plc_details_line("URL",$site_url);
 plc_details_line("Latitude",$site_lat);
 plc_details_line("Longitude",$site_long);
-plc_details_line("Peer",plc_peer_label($peer));
+plc_details_line("Peer",$peers->peer_link($peer_id));
 
 if ( ! $peer_id ) {
 
@@ -155,13 +159,13 @@ if ( ! $peer_id ) {
     plc_details_line("Addresses","");
     foreach ($addresses as $address) {
       plc_details_line(plc_vertical_table($address['address_types']),
-		       plc_vertical_table($address['line1'],
-					  $address['line2'],
-					  $address['line3'],
-					  $address['city'],
-					  $address['state'],
-					  $address['postalcode'],
-					  $address['country']));
+		       plc_vertical_table(array($address['line1'],
+						$address['line2'],
+						$address['line3'],
+						$address['city'],
+						$address['state'],
+						$address['postalcode'],
+						$address['country'])));
     }
   }
 
@@ -206,7 +210,7 @@ if ( ! $peer_id ) {
 plc_details_end();
 
 ////////////////////////////////////////
-plc_peer_block_end();
+$peers->block_end($peer_id);
 
 // Print footer
 include 'plc_footer.php';
