@@ -91,7 +91,7 @@ function l_tag_add()			{ return "/db/tags/tag_form.php"; }
 function l_tag_update($id)		{ return "/db/tags/tag_form.php&action=update-tag-type&id=$id"; }
 
 function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
-function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroups.php?id=$nodegroup_id"; }
+function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroup.php?id=$nodegroup_id"; }
 function l_nodegroup_t ($nodegroup_id,$text) { 
 					  return href(l_nodegroup($nodegroup_id),$text); }
 
@@ -294,6 +294,14 @@ function plc_debug ($message,$object) {
   print "<br>" . $message . "<pre>";
   print_r ($object);
   print "</pre>";
+}
+
+function truncate ($text,$numb,$etc = "...") {
+  if (strlen($text) > $numb) {
+    $text = substr($text, 0, $numb);
+    $text = $text.$etc;
+  }
+  return $text;
 }
 
 if (! function_exists ("drupal_set_error")) {

@@ -33,6 +33,8 @@ $mysite_id=plc_my_site_id();
 $tabs['My nodes'] = array('url'=>l_nodes(),
 			  'values'=>array('site_id'=>plc_my_site_id()),
 			  'bubble'=>'Lists nodes on site ' . $mysite_id);
+$tabs['Local nodes'] = array ('url'=>l_nodes_peer('local'),
+			      'bubble' => 'Nodes local to this peer');
 // -------------------- 
 $node_filter=array();
 

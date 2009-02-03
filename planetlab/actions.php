@@ -46,6 +46,8 @@ $known_actions []= "delete-site";
 //	expects:	site_id
 $known_actions []= "expire-all-slices-in-site";
 //	expects:	slice_ids
+$known_actions []= "set-tag-on-node";
+//	expects:	node_id tagname value
 
 //////////////////////////////
 // sometimes we don't set 'action', but use the submit button name instead
@@ -242,6 +244,7 @@ switch ($action) {
  }
 
  case 'expire-all-slices-in-site': {
+   // xxx todo
    drupal_set_message("action $action not implemented in actions.php -- need tweaks and test");
    return;
 
@@ -259,6 +262,39 @@ switch ($action) {
    header ("location: " . l_site($site_id));
    exit(0);
  }
+
+ case 'set-tag-on-node': {
+
+   $node_id = intval($_POST['node_id']);
+   $tag_type_id = intval($_POST['tag_type_id']);
+   $value = $_POST['value'];
+
+   $tag_types=$api->GetTagTypes(array($tag_type_id));
+   if (count ($tag_types) != 1) {
+     drupal_set_error ("Could not locate tag_type_id $tag_type_id </br> Tag not set.");
+   } else {
+     $tags = $api->GetNodeTags (array('node_id'=>$node_id, 'tag_type_id'=> $tag_type_id));
+     if ( count ($tags) == 1) {
+       $tag=$tags[0];
+       $tag_id=$tag['node_tag_id'];
+       $result=$api->UpdateNodeTag($tag_id,$value);
+       if ($result == 1) 
+	 drupal_set_message ("Updated tag, new value = $value");
+       else
+	 drupal_set_error ("Could not update tag");
+     } else {
+       $tag_id = $api->AddNodeTag($node_id,$tag_type_id,$value);
+       if ($tag_id) 
+	 drupal_set_message ("Created tag, new value = $value");
+       else
+	 drupal_set_error ("Could not create tag");
+     }
+   }
+   
+   header ("location: " . l_node($node_id));
+   exit();
+ }
+
 
  case 'debug': {
    plc_debug('GET',$_GET);

@@ -154,14 +154,6 @@ function parse_dates () {
 }
 
 //////////////////////////////////////////////////////////// layout
-function truncate ($text,$numb,$etc = "...") {
-  if (strlen($text) > $numb) {
-    $text = substr($text, 0, $numb);
-    $text = $text.$etc;
-  }
-  return $text;
-}
-
 // outline node ids and person ids with a link
 function e_node ($node_id) {
   if (! $node_id) return "";

@@ -124,9 +124,9 @@ if ($sites) foreach ($sites as $site) {
   $shortname = $peers->shortname($site['peer_id']);
   plc_table_row_start();
   plc_table_cell($shortname);
-  plc_table_cell (l_site_t($site['site_id'],$site['name']));
+  plc_table_cell (l_site_t($site['site_id'],htmlentities($site['name'])));
   plc_table_cell ($site['login_base']);
-  plc_table_cell ($site['abbreviated_name']);
+  plc_table_cell (htmlentities($site['abbreviated_name']));
   if (plc_is_admin()) {
     plc_table_cell(count($site['node_ids']));
     plc_table_cell(count($site['person_ids']));

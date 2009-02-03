@@ -1,6 +1,6 @@
 <?php
 
-  // $Id$
+// $Id$
 
 // Require login
 require_once 'plc_login.php';
@@ -98,6 +98,8 @@ if( !empty( $pcu_ids ) )
 //////////////////// display node info
 
 drupal_set_title("Details for node " . $hostname);
+$local_peer= ! $peer_id;
+
   
 // extra privileges to admins, and (pi||tech) on this site
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
@@ -131,7 +133,7 @@ $tabs["All nodes"]=l_nodes();
 plc_tabs($tabs);
 
 // show gray background on foreign objects : start a <div> with proper class
-$local_peer = $peers->block_start ($peer_id);
+$peers->block_start ($peer_id);
   
 plc_details_start ();
 if ( ! $local_peer) {
@@ -203,9 +205,12 @@ plc_details_line_list ("All site nodes",$nodes_area);
 
 plc_details_end ();
 
+plc_form_start(l_actions(), array('node_id'=>$node_id));
+
 //////////////////////////////////////////////////////////// Tags
 // get tags
 if ( $local_peer ) {
+  
   $tags=$api->GetNodeTags (array('node_id'=>$node_id));
   function get_tagname ($tag) { return $tag['tagname'];}
   $tagnames = array_map ("get_tagname",$tags);
@@ -230,7 +235,25 @@ if ( $local_peer ) {
       plc_table_cell($nodegroup_name);
       plc_table_row_end();
     }
-  plc_table_end("node_tags");
+  
+  $footers=array();
+  if ($privileges) {
+    // remove selected sites
+    // get list of tag names in the node/* category    
+    $all_tags= $api->GetTagTypes( array ("category"=>"node*"), array("tagname","tag_type_id"));
+
+    // xxx cannot use onchange=submit() - would need to somehow pass action name 
+    function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
+    $selector=array_map("tag_selector",$all_tags);
+    $add_tag_name=plc_form_select_text("tag_type_id",$selector,"Choose");
+    $add_tag_value=plc_form_text_text("value","",8);
+    $add_tag_submit=plc_form_submit_text("set-tag-on-node","Set Tag");
+
+    $add_tag_footer=plc_table_td_text($add_tag_name).plc_table_td_text($add_tag_value).plc_table_td_text($add_tag_submit);
+    $footers[]= $add_tag_footer;
+  }
+  
+  plc_table_end("node_tags",array('footers'=>$footers));
  }
 
 //////////////////////////////////////////////////////////// slices
@@ -265,9 +288,12 @@ if ( ! $slices  ) {
 //////////////////////////////////////////////////////////// interfaces
 if ( $local_peer ) {
 
+  plc_section ("Interfaces");
   // display interfaces
   if( ! $interfaces ) {
-    echo "<p><span class='plc-warning'>No interface</span>.  Please add an interface to make this a usable PLC node</p>.\n";
+    echo '<p>';
+    plc_warning_text("This node has no interface");
+    echo "Please add an interface to make this a usable PLC node.</p>\n";
   } else {
     $headers=array();
     if ( $privileges ) {
@@ -281,7 +307,6 @@ if ( $local_peer ) {
     $headers["MAC"]="string";
     $headers["bw limit"]="FileSize";
 
-    plc_section('Interfaces');
     $table_options=array('search_area'=>false,"pagesize_area"=>false,'notes_area'=>false);
     plc_table_start("node_interfaces",$headers,2,$table_options);
 	
@@ -325,7 +350,9 @@ if ( $local_peer ) {
     plc_table_end("node_interfaces",array("footers"=>$footers));
   }
  }
-      
+
+plc_form_end();
+
 ////////////////////////////////////////////////////////////
 $peers->block_end($peer_id);
 

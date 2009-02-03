@@ -140,10 +140,10 @@ function plc_table_end ($table_id,$options_end=NULL) {
 		    
 ////////////////////////////////////////
 function plc_table_foot ($options) {
-  print "</tbody><tfoot>";
+  print "</tbody><tfoot>\n";
   if ($options['footers']) 
     foreach ($options['footers'] as $footer) 
-      print "<tr> $footer </tr>";
+      print "<tr> $footer </tr>\n";
   print "</tfoot></table>\n";
 }
 

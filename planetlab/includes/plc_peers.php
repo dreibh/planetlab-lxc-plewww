@@ -81,12 +81,10 @@ class Peers {
     // return true if the peer is local 
     if ( ! $peer_id ) {
       print "<div>";
-      return true;
     } else {
       $classname=strtolower($this->classname($peer_id));
       // set two classes, one generic to all foreign, and one based on the peer's shortname for finer grain tuning
       printf ("<div class=\"plc-foreign %s\">",$classname);
-      return false;
     }
   }
 
@@ -95,6 +93,7 @@ class Peers {
   }
 }
 
+////////////////////////////////////////////////////////////
 class PeerScope {
   var $filter;
   var $label;

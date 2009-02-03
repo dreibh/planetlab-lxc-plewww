@@ -105,7 +105,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $block['content'] .= p( href(l_person_register(),"Create an account") );
       $block['content'] .= p( href(l_site_register(),"File a site registration") );
     } else {
-      $block['subject'] = $plc->person['email'];
+      $block['subject'] = truncate($plc->person['email'],30);
       $is_admin = in_array(10,$plc->person['role_ids']);
       $is_pi    = in_array(20,$plc->person['role_ids']);
       $is_user  = in_array(30,$plc->person['role_ids']);
@@ -140,7 +140,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       if (is_pi) 
 	$user_item .= leaf( href( l_persons_site(plc_my_site_id()), "My users"));
       if ( $plc->alt_person && $plc->alt_auth) {
-	$email = $plc->person['email']; 
+	$email = truncate($plc->person['email'],20); 
 	$user_item .= leaf( href( l_sulogout(),"Log out of $email"));
       }	
       $user_item .= ul_end();
@@ -174,7 +174,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
 	$admin_item .= href(l_admin(),"Admin");
 	$admin_item .= ul_start();
 	$admin_item .= leaf( href( l_tags(),"Tags"));
-	$admin_item .= leaf( href( l_nodegroups(),"Node groups (xxx)"));
+	$admin_item .= leaf( href( l_nodegroups(),"Node groups"));
 	$admin_item .= leaf (href(l_peers(),'Peers'));
 	if ( $is_admin )
 	  $admin_item .= leaf (href(l_events(),'Events'));

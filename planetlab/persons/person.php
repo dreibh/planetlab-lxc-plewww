@@ -64,10 +64,10 @@ $slices= $api->GetSlices( $slice_ids, array( "slice_id", "name" ) );
 $keys= $api->GetKeys( $key_ids );
 
 drupal_set_title("Details for account " . $first_name . " " . $last_name);
+$local_peer = ! $peer_id;
 
 $peers = new Peers ($api);
 
-$local_peer = $peers->block_start ($peer_id);
 $is_my_account = plc_my_person_id() == $person_id;
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
 
@@ -126,6 +126,8 @@ $tabs['All Users'] = array ('url'=>l_persons(),
 
 plc_tabs($tabs);
     
+$peers->block_start ($peer_id);
+
 if ($local_peer && $privileges && ! $enabled ) 
   drupal_set_message ("$first_name $last_name is not enabled yet, you can enable her/him with the 'Enable' button below");
 
@@ -170,8 +172,7 @@ if( ! $slices) {
  }
 
 // we don't set 'action', but use the submit button name instead
-plc_form_start(l_actions(), 
-	       array("person_id"=>$person_id,));
+plc_form_start(l_actions(), array("person_id"=>$person_id,));
 
 //////////////////// keys
 plc_section ("Keys");
@@ -261,9 +262,9 @@ if ($can_manage_sites) {
   $add_site_left_area=plc_form_select_text("site_id",$selector,"Choose a site to add");
   $add_site_area = $add_site_left_area . $add_site_right_area;
   if ($sites) 
-    $footers[]="<td colspan=3 style='text-align:right'> $remove_sites_area </td>";
+    $footers[]=plc_table_td_text ($remove_sites_area,3,"right");
   // add a new site
-  $footers []="<td colspan=3 style='text-align:right'> $add_site_area </td>";
+  $footers []= plc_table_td_text ($add_site_right_area,3,"right");
  }
 plc_table_end("person_sites",array("footers"=>$footers));
 

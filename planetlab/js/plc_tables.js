@@ -14,15 +14,12 @@ function plc_table_paginator (opts,tablename) {
 
   /* get how many entries are matching:
      opts.visibleRows only holds the contents of the current page
-     so we store the number of matching entries in the tbody's classname
-     see plc_table_tbody_matching
+     so we store the number of matching entries in the tbody's 'matching' attribute
   */
   var totalMatches = opts.totalRows;
   var tbody=document.getElementById(tablename).getElementsByTagName("tbody")[0];
-  var cn=tbody.className;
-  if (cn.match (/matching-\d+/)) {
-    totalMatches=cn.match(/matching-\d+/)[0].replace("matching-","");
-  } 
+  var matching=tbody['matching'];
+  if (matching) totalMatches = matching;
 
   var label;
 
@@ -75,17 +72,16 @@ function plc_table_row_visible (row,visible) {
   row.className=cn;
 }
 
-/* maintain the number of matching entries in the <tbody> element's classname */
-function plc_table_tbody_matching (tbody, matching) {
-  var new_cn="matching-" + matching;
-  var cn=tbody.className;
-  if (cn.match("matching-")) {
-    cn=cn.replace(/matching-\d+/,new_cn);
-  } else {
-    cn=cn + " " + new_cn;
-  }
-  cn=cn.replace(/^ +/,"");
-  tbody.className=cn;
+// from a cell, extract visible text by removing <> and cache in 'plc_text' attribute
+var re_brackets = new RegExp ('<[^>]*>','g');
+
+function plc_table_cell_text (cell) {
+  if (cell['plc_text']) return cell['plc_text'];
+  var text = cell.innerHTML;
+  // remove what's between <>
+  text = text.replace(re_brackets,'');
+  cell['plc_text'] = text;
+  return text;
 }
 
 /* scan the table, and mark as visible 
@@ -96,7 +92,6 @@ function plc_table_filter (table_id,pattern_id,and_id) {
   var pattern_area = document.getElementById(pattern_id);
   var pattern_text = pattern_area.value;
   var row_index, row, cells, cell_index, cell, visible;
-  var pattern,i;
   var matching_entries=0;
   var and_button=document.getElementById(and_id);
   var and_if_true=and_button.checked;
@@ -104,8 +99,6 @@ function plc_table_filter (table_id,pattern_id,and_id) {
   // remove whitespaces at the beginning and end
   pattern_text = pattern_text.replace(/[ \t]+$/,"");
   pattern_text = pattern_text.replace(/^[ \t]+/,"");
-  // normnalize to lowercase
-  pattern_text = pattern_text.toLowerCase();
   
   if (pattern_text.indexOf ("&") != -1) {
     pattern_text = pattern_text.replace(/&/," ");
@@ -119,12 +112,17 @@ function plc_table_filter (table_id,pattern_id,and_id) {
     return;
   }
     
-  // var counter=0;
-  //  window.console.log ("entering plc_table_filter " + table_id);
+  var match_attempts=0;
+  var start=(new Date).getTime();
 
-  var re_brackets = new RegExp ('<[^>]*>','g');
-  var patterns = pattern_text.split(" ");
+  // re compile all patterns - ignore case
+  var pattern_texts = pattern_text.split(" ");
+  var patterns=new Array();
+  var i;
+  for (i in pattern_texts) 
+    patterns[i]=new RegExp(pattern_texts[i],"i");
 
+  // scan rows
   for (row_index = 0; row=rows[row_index]; row_index++) {
       cells=row.cells;
     
@@ -135,29 +133,27 @@ function plc_table_filter (table_id,pattern_id,and_id) {
       /* AND mode: all patterns must match */
       visible=true;
       for (i in patterns) {
-	var pattern_matched=false;
-	pattern=new RegExp(patterns[i],"i");
+	var matched=false;
+	var pattern=patterns[i];
 	for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
-	  var against=cell.innerHTML;
-	  against=against.replace(re_brackets,'');
-	  //counter++;
-	  //window.console.log ("plc_table_filter is matching " + against + " against " + pattern);
+	  var against=plc_table_cell_text (cell);
+	  match_attempts++;
 	  if ( against.match(pattern)) {
-	    pattern_matched=true;
-	    // alert ('AND matched! p='+pattern+' c='+cell.innerHTML);
+	    matched=true;
 	    break;	  
 	  }
 	}
-	if ( ! pattern_matched ) visible=false;
+	if ( ! matched ) visible=false;
       }
     } else {
       /* OR mode: any match is good enough */
       visible=false;
       for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
+	var against = cell.plc_table_cell_text(cell);
 	for (i in patterns) {
 	  pattern=patterns[i];
-	  //counter++;
-	  if (cell.innerHTML.toLowerCase().match(pattern)) {
+	  match_attempts++;
+	  if (against.match(pattern)) {
 	    visible=true;
 	    // alert ('OR matched! p='+pattern+' c='+cell.innerHTML);
 	    break;
@@ -165,11 +161,16 @@ function plc_table_filter (table_id,pattern_id,and_id) {
 	}
       }
     }
-    //window.console.log ("plc_table_filter has done " + counter + " matches");
     plc_table_row_visible(row,visible);
     if (visible) matching_entries +=1;
   }
-  plc_table_tbody_matching(tbody,matching_entries);
+  var end=(new Date).getTime();
+  var ms=end-start;
+  window.console.log ("plc_table_filter: " + 
+		      match_attempts + " matches - " +
+		      matching_entries + " lines - " + ms + " ms");
+  tbody['matching']=matching_entries;
+  tbody['match_attempts']=match_attempts;
   tablePaginater.init(table_id);
 }
 

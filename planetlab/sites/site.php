@@ -92,15 +92,15 @@ foreach( $persons as $person ) {
   
 }
 
-// fetches peers and initialize hash peer_id->peer
 drupal_set_title("Details for site " . $sitename);
+$local_peer = ! $peer_id;
   
 // extra privileges to admins, and pi on this site
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
   
 $tabs=array();
 // available actions
-if ( ! $peer_id  && $privileges ) {
+if ( $local_peer  && $privileges ) {
   
   $tabs['Update']=array('url'=>l_site_update($site_id),
 			'bubble'=>"Update details of $sitename");
@@ -151,7 +151,7 @@ plc_details_line("Latitude",$site_lat);
 plc_details_line("Longitude",$site_long);
 plc_details_line("Peer",$peers->peer_link($peer_id));
 
-if ( ! $peer_id ) {
+if ( $local_peer ) {
 
   // Addresses
   if ($addresses) {
