@@ -145,7 +145,8 @@ $headers = array ("Peer"=>"string",
 		  );
 
 // initial sort on email
-plc_table_start("persons",$headers,4);
+$table=new PlcTable("persons",$headers,4);
+$table->start();
 
 $peers=new Peers ($api);
 // write rows
@@ -159,21 +160,21 @@ foreach ($persons as $person) {
     $login_base = $site['login_base'];
     $roles = plc_vertical_table ($person['roles']);
 
-    plc_table_row_start();
+    $table->row_start();
     
-    plc_table_cell($shortname);
-    plc_table_cell($roles);
-    plc_table_cell ($person['first_name']);
-    plc_table_cell ($person['last_name']);
-    plc_table_cell(l_person_t($person_id,$email));
-    plc_table_cell($login_base);
-    plc_table_cell(count($person['slice_ids']));
-    plc_table_cell(person_status($person));
-    plc_table_row_end();
+    $table->cell($shortname);
+    $table->cell($roles);
+    $table->cell ($person['first_name']);
+    $table->cell ($person['last_name']);
+    $table->cell(l_person_t($person_id,$email));
+    $table->cell($login_base);
+    $table->cell(count($person['slice_ids']));
+    $table->cell(person_status($person));
+    $table->row_end();
 				 
 }
 $notes=array("The S column shows the number of slices for the given user");
-plc_table_end("persons",array('notes'=>$notes));
+$table->end(array('notes'=>$notes));
 
 // Print footer
 include 'plc_footer.php';

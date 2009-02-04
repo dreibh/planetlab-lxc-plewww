@@ -54,31 +54,32 @@ $headers['Description']="string";
 $headers['Min role']="string";
 $headers['Category']="string";
 
-plc_table_start("tags",$headers,1);
+$table = new PlcTable("tags",$headers,1);
+$table->start();
 
 $roles_hash=plc_role_global_hash($api);
 
 foreach( $tag_types as $tag_type ) {
   $role_name=$roles_hash[$tag_type['min_role_id']];
 
-  plc_table_row_start();
+  $table->row_start();
   $id=$tag_type['tag_type_id'];
   if (plc_is_admin()) 
     // xxx this is deprecated
-    plc_table_cell(plc_delete_link_button ('tag_action.php?del_type='. $id,
+    $table->cell(plc_delete_link_button ('tag_action.php?del_type='. $id,
 					   $tag_type['tagname']));
-  plc_table_cell($id);
-  plc_table_cell(href(l_tag_update($id),$tag_type['tagname']));
-  plc_table_cell(wordwrap($tag_type['description'],40,"<br/>"));
-  plc_table_cell($role_name);
-  plc_table_cell($tag_type['category']);
-  plc_table_row_end();
+  $table->cell($id);
+  $table->cell(href(l_tag_update($id),$tag_type['tagname']));
+  $table->cell(wordwrap($tag_type['description'],40,"<br/>"));
+  $table->cell($role_name);
+  $table->cell($tag_type['category']);
+  $table->row_end();
 }
 $footers=array();
 if (plc_is_admin()) 
-  $footers[]=plc_table_td_text(plc_form_simple_button(l_tag_add(),"Add a Tag Type","GET"),6,"right");
+  $footers[]=PlcTable::td_text(plc_form_simple_button(l_tag_add(),"Add a Tag Type","GET"),6,"right");
 
-plc_table_end("tags",array('footers'=>$footers));
+$table->end(array('footers'=>$footers));
 
 // Print footer
 include 'plc_footer.php';

@@ -66,14 +66,15 @@ plc_section("Nodes");
 
 $headers["Hostname"]="string";
 
-plc_table_start("nodegroup_nodes",$headers,0,array('search_width'=>15));
+$table = new PlcTable("nodegroup_nodes",$headers,0,array('search_width'=>15));
+$table->start();
 if ($nodes) foreach ($nodes as $node) {
-  plc_table_row_start ();
-  plc_table_cell ( href (l_node ($node['node_id']),$node['hostname']));
-  plc_table_row_end ();
+  $table->row_start ();
+  $table->cell ( href (l_node ($node['node_id']),$node['hostname']));
+  $table->row_end ();
 }
 
-plc_table_end ("nodegroup_nodes");
+$table->end ();
 // Print footer
 include 'plc_footer.php';
 

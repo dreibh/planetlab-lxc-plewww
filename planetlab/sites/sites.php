@@ -118,26 +118,27 @@ if (plc_is_admin()) {
   $headers['?']="string";
  }
 
-plc_table_start("sites",$headers,2);
+$table=new PlcTable("sites",$headers,2);
+$table->start();
 
 if ($sites) foreach ($sites as $site) {
   $shortname = $peers->shortname($site['peer_id']);
-  plc_table_row_start();
-  plc_table_cell($shortname);
-  plc_table_cell (l_site_t($site['site_id'],htmlentities($site['name'])));
-  plc_table_cell ($site['login_base']);
-  plc_table_cell (htmlentities($site['abbreviated_name']));
+  $table->row_start();
+  $table->cell($shortname);
+  $table->cell (l_site_t($site['site_id'],htmlentities($site['name'])));
+  $table->cell ($site['login_base']);
+  $table->cell (htmlentities($site['abbreviated_name']));
   if (plc_is_admin()) {
-    plc_table_cell(count($site['node_ids']));
-    plc_table_cell(count($site['person_ids']));
-    plc_table_cell(count($site['slice_ids']));
-    plc_table_cell(site_status($site));
+    $table->cell(count($site['node_ids']));
+    $table->cell(count($site['person_ids']));
+    $table->cell(count($site['slice_ids']));
+    $table->cell(site_status($site));
   }
-  plc_table_row_end();
+  $table->row_end();
 }
 $notes=array("N = number of sites / U = number of users / S = number of slices");
 
-plc_table_end("sites",array('notes'=>$notes));
+$table->end(array('notes'=>$notes));
 
 // Print footer
 include 'plc_footer.php';

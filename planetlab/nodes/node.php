@@ -222,18 +222,19 @@ if ( $local_peer ) {
 		 "Nodegroup"=>"string");
   
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
-  plc_table_start("node_tags",$headers,0,$table_options);
+  $table=new PlcTable("node_tags",$headers,0,$table_options);
+  $table->start();
   if ($tags) foreach ($tags as $tag) {
       // does this match a nodegroup ?
       $nodegroup_name="n/a";
       $nodegroup_key=$tag['tagname'] . "=" . $tag['value'];
       $nodegroup=$nodegroups_hash[$nodegroup_key];
       if ($nodegroup) $nodegroup_name=l_nodegroup_t($nodegroup['nodegroup_id'],$nodegroup['groupname']);
-      plc_table_row_start();
-      plc_table_cell($tag['tagname']);
-      plc_table_cell($tag['value']);
-      plc_table_cell($nodegroup_name);
-      plc_table_row_end();
+      $table->row_start();
+      $table->cell($tag['tagname']);
+      $table->cell($tag['value']);
+      $table->cell($nodegroup_name);
+      $table->row_end();
     }
   
   $footers=array();
@@ -249,11 +250,11 @@ if ( $local_peer ) {
     $add_tag_value=plc_form_text_text("value","",8);
     $add_tag_submit=plc_form_submit_text("set-tag-on-node","Set Tag");
 
-    $add_tag_footer=plc_table_td_text($add_tag_name).plc_table_td_text($add_tag_value).plc_table_td_text($add_tag_submit);
+    $add_tag_footer=PlcTable::td_text($add_tag_name).PlcTable::td_text($add_tag_value).PlcTable::td_text($add_tag_submit);
     $footers[]= $add_tag_footer;
   }
   
-  plc_table_end("node_tags",array('footers'=>$footers));
+  $table->end(array('footers'=>$footers));
  }
 
 //////////////////////////////////////////////////////////// slices
@@ -273,16 +274,17 @@ if ( ! $slices  ) {
     $table_options['search_area']=false;
     $table_options['pagesize_area']=false;
   }
-  plc_table_start ("node_slices",$headers,1,$table_options);
+  $table=new PlcTable("node_slices",$headers,1,$table_options);
+  $table->start();
 
   foreach ($slices as $slice) {
-    plc_table_row_start();
-    plc_table_cell ($peers->shortname($peer_id));
-    plc_table_cell (l_slice_t ($slice['slice_id'],$slice['name']));
-    plc_table_cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
-    plc_table_row_end();
+    $table->row_start();
+    $table->cell ($peers->shortname($peer_id));
+    $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
+    $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
+    $table->row_end();
   }
-  plc_table_end("node_slices");
+  $table->end();
  }
 
 //////////////////////////////////////////////////////////// interfaces
@@ -308,7 +310,8 @@ if ( $local_peer ) {
     $headers["bw limit"]="FileSize";
 
     $table_options=array('search_area'=>false,"pagesize_area"=>false,'notes_area'=>false);
-    plc_table_start("node_interfaces",$headers,2,$table_options);
+    $table=new PlcTable("node_interfaces",$headers,2,$table_options);
+    $table->start();
 	
     foreach ( $interfaces as $interface ) {
       $interface_id= $interface['interface_id'];
@@ -326,28 +329,28 @@ if ( $local_peer ) {
       $interface_type= $interface['type'];
       $interface_method= $interface['method'];
 
-      plc_table_row_start();
+      $table->row_start();
       if ( $privileges ) {
 	if (!$interface_primary) {
 	  // xxx 
-	  plc_table_cell (plc_delete_link_button ('interfaces.php?id=' . $interface_id . '&delete=1&submitted=1', 
+	  $table->cell (plc_delete_link_button ('interfaces.php?id=' . $interface_id . '&delete=1&submitted=1', 
 						  '\\nInterface ' . $interface_ip));
 	} else {
-	  plc_table_cell('p');
+	  $table->cell('p');
 	}
       }
-      plc_table_cell(l_interface_t($interface_id,$interface_ip));
-      plc_table_cell($interface_method);
-      plc_table_cell($interface_type);
-      plc_table_cell($interface_mac);
-      plc_table_cell($interface_bwlimit);
-      plc_table_row_end();
+      $table->cell(l_interface_t($interface_id,$interface_ip));
+      $table->cell($interface_method);
+      $table->cell($interface_type);
+      $table->cell($interface_mac);
+      $table->cell($interface_bwlimit);
+      $table->row_end();
     }
     if ($privileges) {
       $button=plc_form_simple_button(l_interface_add($node_id),"Add interface","GET");
-      $footers=array(plc_table_td_text($button,6,"right"));
+      $footers=array(PlcTable::td_text($button,6,"right"));
     }
-    plc_table_end("node_interfaces",array("footers"=>$footers));
+    $table->end(array("footers"=>$footers));
   }
  }
 

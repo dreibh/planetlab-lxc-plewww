@@ -159,16 +159,17 @@ if( ! $slices) {
     $table_options['search_area']=false;
     $table_options['pagesize_area']=false;
   }
-  plc_table_start("person_slices",$headers,1,$table_options);
+  $table=new PlcTable ("person_slices",$headers,1,$table_options);
+  $table->start();
 
   foreach( $slices as $slice ) {
     $slice_name= $slice['name'];
     $slice_id= $slice['slice_id'];
-    plc_table_row_start();
-    plc_table_cell(l_slice_t($slice_id,$slice_name));
-    plc_table_row_end();
+    $table->row_start();
+    $table->cell(l_slice_t($slice_id,$slice_name));
+    $table->row_end();
   }
-  plc_table_end("person_slices");
+  $table->end();
  }
 
 // we don't set 'action', but use the submit button name instead
@@ -188,16 +189,17 @@ $headers=array("Type"=>"string",
 if ($can_manage_keys) $headers['Remove']="none";
 // table overall options
 $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
-plc_table_start("person_keys",$headers,"1",$table_options);
+$table=new PlcTable("person_keys",$headers,"1",$table_options);
+$table->start();
     
 if ($keys) foreach ($keys as $key) {
   $key_id=$key['key_id'];
-  plc_table_row_start();
-  plc_table_cell ($key['key_type']);
-  plc_table_cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
+  $table->row_start();
+  $table->cell ($key['key_type']);
+  $table->cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
   if ($can_manage_keys) 
-    plc_table_cell (plc_form_checkbox_text('key_ids[]',$key_id));
-  plc_table_row_end();
+    $table->cell (plc_form_checkbox_text('key_ids[]',$key_id));
+  $table->row_end();
 }
 // the footer area is used for displaying key-management buttons
 $footers=array();
@@ -214,7 +216,7 @@ if ($can_manage_keys) {
     "<td> $upload_key_right_area </td>";
 }
 
-plc_table_end("person_keys",array("footers"=>$footers));
+$table->end(array("footers"=>$footers));
 
 //////////////////// sites
 plc_section('Sites');
@@ -230,17 +232,18 @@ $headers['Name']="string";
 if ($can_manage_sites) 
   $headers['Remove']="string";
 $table_options = array('notes_area'=>false,'search_area'=>false, 'pagesize_area'=>false);
-plc_table_start ("person_sites",$headers,0,$table_options);
+$table=new PlcTable ("person_sites",$headers,0,$table_options);
+$table->start();
 foreach( $sites as $site ) {
   $site_name= $site['name'];
   $site_id= $site['site_id'];
   $login_base=$site['login_base'];
-  plc_table_row_start();
-  plc_table_cell ($login_base);
-  plc_table_cell (l_site_t($site_id,$site_name));
+  $table->row_start();
+  $table->cell ($login_base);
+  $table->cell (l_site_t($site_id,$site_name));
   if ($can_manage_sites)
-    plc_table_cell (plc_form_checkbox_text('site_ids[]',$site_id));
-  plc_table_row_end ();
+    $table->cell (plc_form_checkbox_text('site_ids[]',$site_id));
+  $table->row_end ();
 }
 // footers : the remove and add buttons
 $footers=array();
@@ -262,11 +265,11 @@ if ($can_manage_sites) {
   $add_site_left_area=plc_form_select_text("site_id",$selector,"Choose a site to add");
   $add_site_area = $add_site_left_area . $add_site_right_area;
   if ($sites) 
-    $footers[]=plc_table_td_text ($remove_sites_area,3,"right");
+    $footers[]=PlcTable::td_text ($remove_sites_area,3,"right");
   // add a new site
-  $footers []= plc_table_td_text ($add_site_right_area,3,"right");
+  $footers []= PlcTable::td_text ($add_site_area,3,"right");
  }
-plc_table_end("person_sites",array("footers"=>$footers));
+$table->end(array("footers"=>$footers));
 
 //////////////////// roles
 plc_section("Roles");
@@ -279,7 +282,8 @@ $headers=array("Role"=>"none");
 if ($can_manage_roles) $headers ["Remove"]="none";
 
 $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
-plc_table_start("person_roles",$headers,0,$table_options);  
+$table=new PlcTable("person_roles",$headers,0,$table_options);  
+$table->start();
   
 // construct array of role objs
 $role_objs=array();
@@ -288,10 +292,10 @@ for ($n=0; $n<count($roles); $n++) {
  }
 
 if ($role_objs) foreach ($role_objs as $role_obj) {
-  plc_table_row_start();
-  plc_table_cell($role_obj['name']);
-  if ($can_manage_roles) plc_table_cell (plc_form_checkbox_text('role_ids[]',$role_obj['role_id']));
-  plc_table_row_end();
+  $table->row_start();
+  $table->cell($role_obj['name']);
+  if ($can_manage_roles) $table->cell (plc_form_checkbox_text('role_ids[]',$role_obj['role_id']));
+  $table->row_end();
  }
 
 // footers : the remove and add buttons
@@ -316,7 +320,7 @@ if ($can_manage_roles) {
   // add a new role
   $footers[]="<td colspan=3 style='text-align:right'> $add_role_area </td>";
  }
-plc_table_end("person_roles",array("footers"=>$footers));
+$table->end(array("footers"=>$footers));
 
 //////////////////////////////
 plc_form_end();

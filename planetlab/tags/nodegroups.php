@@ -65,12 +65,12 @@ $headers = array ( "Name"=>"string",
 plc_table_start("nodegroups",$headers,0);
 
 foreach ($nodegroups as $nodegroup) {
-  plc_table_row_start();
-  plc_table_cell (href(l_nodegroup($nodegroup['nodegroup_id']),$nodegroup['groupname']));
-  plc_table_cell ($nodegroup['tagname']);
-  plc_table_cell ($nodegroup['value']);
-  plc_table_cell (count($nodegroup['node_ids']));
-  plc_table_row_end();
+  $table->row_start();
+  $table->cell (href(l_nodegroup($nodegroup['nodegroup_id']),$nodegroup['groupname']));
+  $table->cell ($nodegroup['tagname']);
+  $table->cell ($nodegroup['value']);
+  $table->cell (count($nodegroup['node_ids']));
+  $table->row_end();
 }
 
 plc_table_end("nodegroups");

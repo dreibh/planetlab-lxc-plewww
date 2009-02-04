@@ -270,7 +270,7 @@ function planetlab_login_submit($form_id, $form_values) {
       if ($url[0] != "/") {
 	$url = "/$url";
       }
-      Header("Location: $url");
+      header("Location: $url");
       exit();
     }
   }

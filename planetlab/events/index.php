@@ -357,11 +357,9 @@ if ( ! plc_is_admin()) {
 		 "D"=>"none",
 		 );
 
-  $table_options=array('notes'=>array("The R column shows the call result value, a.k.a. fault_code",
-				      "Click the button in the D(etails) column to get more details",
-				      ),
-		       'max_pages'=>20);
-  plc_table_start("events",$headers,"0r",$table_options);
+  $table = new PlcTable ("events",$headers,"0r");
+  $table->set_options (array ('max_pages'=>20));
+  $table->start ();
   foreach ($events as $event) {
 
     // the call button
@@ -378,19 +376,22 @@ if ( ! plc_is_admin()) {
     //    $message=sprintf('<span title="%s">%s</span>',$message,$message);
 
     $message=truncate($event['message'],40);
-    plc_table_row_start();
-    plc_table_cell(e_event($event['event_id']));
-    plc_table_cell(date('M/d/Y H:i', $event['time']));
-    plc_table_cell($event['call_name']);
-    plc_table_cell($message);
-    plc_table_cell(e_subjects($event));
-    plc_table_cell(e_issuer($event));
-    plc_table_cell(e_auth($event));
-    plc_table_cell(e_fault($event));
-    plc_table_cell($details);
-    plc_table_row_end();
+    $table->row_start();
+    $table->cell(e_event($event['event_id']));
+    $table->cell(date('M/d/Y H:i', $event['time']));
+    $table->cell($event['call_name']);
+    $table->cell($message);
+    $table->cell(e_subjects($event));
+    $table->cell(e_issuer($event));
+    $table->cell(e_auth($event));
+    $table->cell(e_fault($event));
+    $table->cell($details);
+    $table->row_end();
   }
-  plc_table_end("events");
+  $table->set_options(array('notes'=>array("The R column shows the call result value, a.k.a. fault_code",
+					   "Click the button in the D(etails) column to get more details")));
+  $table->end();
+  
  }
 
 

@@ -137,7 +137,8 @@ $headers = array ("Peer"=>"string",
 		  );
 
 # initial sort on hostnames
-plc_table_start("nodes",$headers,4);
+$table=new PlcTable ("nodes",$headers,4);
+$table->start();
 
 $peers = new Peers ($api);
 // write rows
@@ -154,21 +155,21 @@ foreach ($nodes as $node) {
     $shortname = $peers->shortname($peer_id);
     $node_type = $node['node_type'];
 
-    plc_table_row_start();
-    plc_table_cell ($peers->link($peer_id,$shortname));
-    plc_table_cell (topdomain($hostname));
-    plc_table_cell (l_site_t($site_id,$login_base));
-    plc_table_cell ($node['boot_state']);
-    plc_table_cell (l_node_t($node_id,$hostname));
-    plc_table_cell (l_interface_t($interface_id,$ip));
-    plc_table_cell ($node_type);
-    plc_table_cell ($node['arch']);
-    plc_table_cell (node_status($node));
-    plc_table_row_end();
+    $table->row_start();
+    $table->cell ($peers->link($peer_id,$shortname));
+    $table->cell (topdomain($hostname));
+    $table->cell (l_site_t($site_id,$login_base));
+    $table->cell ($node['boot_state']);
+    $table->cell (l_node_t($node_id,$hostname));
+    $table->cell (l_interface_t($interface_id,$ip));
+    $table->cell ($node_type);
+    $table->cell ($node['arch']);
+    $table->cell (node_status($node));
+    $table->row_end();
 				 
 }
 
-plc_table_end("nodes");
+$table->end();
 
 // Print footer
 include 'plc_footer.php';
