@@ -202,21 +202,24 @@ if ($keys) foreach ($keys as $key) {
   $table->row_end();
 }
 // the footer area is used for displaying key-management buttons
-$footers=array();
 // add the 'remove keys' button and key upload areas as the table footer
 if ($can_manage_keys) {
-  $remove_keys_area=plc_form_submit_text ("delete-keys","Remove keys");
-  $upload_key_left_area= plc_form_label_text("key","Upload new key") . plc_form_file_text("key",60);
-  $upload_key_right_area=plc_form_submit_text("upload-key","Upload key");
+  $table->tfoot_start();
   // no need to remove if there's no key
-  if ($keys) 
-    $footers[]="<td colspan=3 style='text-align:right'> $remove_keys_area </td>";
-  // upload a new key
-  $footers []="<td colspan=2 style='text-align:right'> $upload_key_left_area </td>".
-    "<td> $upload_key_right_area </td>";
+  if ($keys) {
+    $table->row_start();
+    $table->cell(plc_form_submit_text ("delete-keys","Remove keys"),
+		 $table->columns(),"right");
+    $table->row_end();
+  }
+  $table->row_start();
+  $table->cell(plc_form_label_text("key","Upload new key") . plc_form_file_text("key",60),
+	       $table->columns()-1,"right");
+  $table->cell(plc_form_submit_text("upload-key","Upload key"));
+  $table->row_end();
 }
 
-$table->end(array("footers"=>$footers));
+$table->end();
 
 //////////////////// sites
 plc_section('Sites');
@@ -245,31 +248,31 @@ foreach( $sites as $site ) {
     $table->cell (plc_form_checkbox_text('site_ids[]',$site_id));
   $table->row_end ();
 }
-// footers : the remove and add buttons
-$footers=array();
 if ($can_manage_sites) {
-  // remove selected sites
-  $remove_sites_area = plc_form_submit_text("remove-person-from-sites","Remove Sites");
+  $table->tfoot_start();
 
-  // add a site : the button
-  $add_site_right_area=plc_form_submit_text("add-person-to-site","Add in site");
+  if ($sites) {
+    $table->row_start();
+    $table->cell(plc_form_submit_text("remove-person-from-sites","Remove Sites"),
+		 $table->columns(),"right");
+    $table->row_end();
+  }
+
+  $table->row_start();
+
   // get list of local sites that the person is not in
   function get_site_id ($site) { return $site['site_id'];}
   $person_site_ids=array_map("get_site_id",$sites);
   $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
-
   // xxx cannot use onchange=submit() - would need to somehow pass action name 
-  $selector=array();
-  foreach ($relevant_sites as $site) 
-    $selector[]= array('display'=>$site['name'],"value"=>$site['site_id']);
-  $add_site_left_area=plc_form_select_text("site_id",$selector,"Choose a site to add");
-  $add_site_area = $add_site_left_area . $add_site_right_area;
-  if ($sites) 
-    $footers[]=PlcTable::td_text ($remove_sites_area,3,"right");
-  // add a new site
-  $footers []= PlcTable::td_text ($add_site_area,3,"right");
+  function select_arguments($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
+  $selectors = array_map ("select_arguments",$relevant_sites);
+  $table->cell (plc_form_select_text("site_id",$selectors,"Choose a site to add").
+		plc_form_submit_text("add-person-to-site","Add in site"),
+		$table->columns(),"right");
+  $table->row_end();
  }
-$table->end(array("footers"=>$footers));
+$table->end();
 
 //////////////////// roles
 plc_section("Roles");
@@ -299,28 +302,29 @@ if ($role_objs) foreach ($role_objs as $role_obj) {
  }
 
 // footers : the remove and add buttons
-$footers=array();
 if ($can_manage_roles) {
-  // remove selected roles
-  $remove_roles_area = plc_form_submit_text("remove-roles-from-person","Remove Roles");
+  $table->tfoot_start();
+  if ($roles) {
+    $table->row_start();
+    $table->cell(plc_form_submit_text("remove-roles-from-person","Remove Roles"),
+		 $table->columns(),"right");
+    $table->row_end();
+  }
 
-  // add a role : the button
-  $add_role_right_area=plc_form_submit_text("add-role-to-person","Add role");
+  $table->row_start();
   // get list of local roles that the person has not yet
   // xxx this does not work because GetRoles does not support filters
   $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
-
-  $selector=array();
-  foreach ($relevant_roles as $role) 
-    $selector[]= array('display'=>$role['name'],"value"=>$role['role_id']);
-  $add_role_left_area=plc_form_select_text("role_id",$selector,"Choose a role to add");
-  $add_role_area = $add_role_left_area . $add_role_right_area;
-  if ($roles) 
-    $footers[]="<td colspan=3 style='text-align:right'> $remove_roles_area </td>";
-  // add a new role
-  $footers[]="<td colspan=3 style='text-align:right'> $add_role_area </td>";
+  function selector_argument ($role) { return array('display'=>$role['name'],"value"=>$role['role_id']); }
+  $selectors=array_map("selector_argument",$relevant_roles);
+  $add_role_left_area=plc_form_select_text("role_id",$selectors,"Choose a role to add");
+  // add a role : the button
+  $add_role_right_area=plc_form_submit_text("add-role-to-person","Add role");
+  $table->cell ($add_role_left_area . $add_role_right_area,
+		$table->columns(),"right");
+  $table->row_end();
  }
-$table->end(array("footers"=>$footers));
+$table->end();
 
 //////////////////////////////
 plc_form_end();

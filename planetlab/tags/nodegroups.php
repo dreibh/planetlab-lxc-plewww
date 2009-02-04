@@ -62,7 +62,8 @@ $headers = array ( "Name"=>"string",
 		   "Nodes"=>"int");
 
 # initial sort on groupname
-plc_table_start("nodegroups",$headers,0);
+$table=new PlcTable("nodegroups",$headers,0);
+$table->start();
 
 foreach ($nodegroups as $nodegroup) {
   $table->row_start();
@@ -73,7 +74,7 @@ foreach ($nodegroups as $nodegroup) {
   $table->row_end();
 }
 
-plc_table_end("nodegroups");
+$table->end();
 
 // Print footer
 include 'plc_footer.php';

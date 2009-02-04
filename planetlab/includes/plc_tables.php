@@ -21,7 +21,6 @@ drupal_set_html_head('
 //  - pagesize: the initial pagination size
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
-//  - footers: an array of table rows (<tr> will be added) for building the table's tfoot area
 
 class PlcTable {
   // mandatory
@@ -37,12 +36,14 @@ class PlcTable {
   var $pagesize_def;  // the page size when one clicks the pagesize reset button
   var $max_pages;     // the max number of pages to display in the paginator
   var $notes;         // an array of additional notes
-  var $footers;       // an array of table rows (<tr> will be added) for building the table's tfoot area
+  var $has_tfoot;
 
   function PlcTable ($table_id,$headers,$column_sort,$options=NULL) {
     $this->table_id = $table_id;
     $this->headers = $headers;
     $this->column_sort = $column_sort;
+    
+    $this->has_tfoot=false;
 
     $this->search_area = true;
     $this->pagesize_area = true;
@@ -52,7 +53,6 @@ class PlcTable {
     $this->pagesize_def = 999;
     $this->max_pages = 10;
     $this->notes = array();
-    $this->footers = array();
 
     $this->set_options ($options);
   }
@@ -69,7 +69,10 @@ class PlcTable {
     if (array_key_exists('max_pages',$options)) $this->max_pages=$options['max_pages'];
 
     if (array_key_exists('notes',$options)) $this->notes=array_merge($this->notes,$options['notes']);
-    if (array_key_exists('footers',$options)) $this->footers=array_merge($this->footers,$options['footers']);
+  }
+
+  public function columns () {
+    return count ($this->headers);
   }
 
   ////////////////////
@@ -116,12 +119,12 @@ EOF;
 }
 
   ////////////////////
-  // for convenience, the options that apply to the footer can be passed here
-  // typically footers or notes will add up to the ones provided so far
-  // makes code more readable, as preparing the footer before the table is displayed is confusing
+  // for convenience, the options that apply to the bottom area can be passed here
+  // typically notes will add up to the ones provided so far, and to the default ones 
+  // xxx default should be used only if applicable
   function end ($options=NULL) {
     $this->set_options($options);
-    print $this->foot_text();
+    print $this->bottom_text();
     if ($this->notes_area) 
       print $this->notes_area_text();
   }
@@ -166,14 +169,24 @@ EOF;
     return $result;
   }
 
+  //////////////////// start a <tfoot> section
+  function tfoot_start () {
+    print $this->tfoot_start_text();
+  }
+
+  function tfoot_start_text () {
+    $this->has_tfoot=true;
+    return "</tbody><tfoot>";
+  }
+
   ////////////////////////////////////////
-  function foot_text () {
+  function bottom_text () {
     $result="";
-    $result .= "</tbody><tfoot>\n";
-    if ($this->footers) 
-      foreach ($this->footers as $footer) 
-	$result .="<tr>$footer</tr>\n";
-    $result .= "</tfoot></table>\n";
+    if ($this->has_tfoot)
+      $result .= "</tfoot>";
+    else
+      $result .= "</tbody>";
+    $result .= "</table>\n";
     return $result;
   }
 
@@ -211,14 +224,10 @@ EOF;
   }
 
   ////////////////////
-  public function cell_text ($cell) {
-    return "<td>$cell</td>";
+  public function cell ($text,$colspan=0,$align=NULL) {
+    print $this->cell_text ($text,$colspan,$align);
   }
-  public function cell ($cell) {
-    print $this->cell_text($cell);
-  }
-  
-  public static function td_text ($text,$colspan=0,$align=NULL) {
+  public function cell_text ($text,$colspan=0,$align=NULL) {
     $result="";
     $result .= "<td";
     if ($colspan) $result .= " colspan=$colspan";

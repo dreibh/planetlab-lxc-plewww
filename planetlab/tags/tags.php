@@ -75,11 +75,15 @@ foreach( $tag_types as $tag_type ) {
   $table->cell($tag_type['category']);
   $table->row_end();
 }
-$footers=array();
-if (plc_is_admin()) 
-  $footers[]=PlcTable::td_text(plc_form_simple_button(l_tag_add(),"Add a Tag Type","GET"),6,"right");
+if (plc_is_admin()) {
+  $table->tfoot_start();
+  $table->row_start();
+  $table->cell (plc_form_simple_button(l_tag_add(),"Add a Tag Type","GET"),
+		$table->columns(),"right");
+  $table->row_end();
+ }
 
-$table->end(array('footers'=>$footers));
+$table->end();
 
 // Print footer
 include 'plc_footer.php';

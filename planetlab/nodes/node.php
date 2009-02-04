@@ -219,7 +219,9 @@ if ( $local_peer ) {
   plc_section("Tags");
   $headers=array("Name"=>"string",
 		 "Value"=>"string",
-		 "Nodegroup"=>"string");
+		 "Nodegroup"=>"string",
+		 "Remove"=>"string",
+		 );
   
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
   $table=new PlcTable("node_tags",$headers,0,$table_options);
@@ -234,27 +236,34 @@ if ( $local_peer ) {
       $table->cell($tag['tagname']);
       $table->cell($tag['value']);
       $table->cell($nodegroup_name);
+      $table->cell (plc_form_checkbox_text('node_tag_ids[]',$tag['node_tag_id']));
       $table->row_end();
     }
   
-  $footers=array();
   if ($privileges) {
-    // remove selected sites
+    $table->tfoot_start();
+
+    // remove tag 
+    $table->row_start();
+    $table->cell(plc_form_submit_text("remove-node-tags","Remove Tags"),
+		 // use the whole columns and right adjust
+		 $table->columns(), "right");
+    $table->row_end();
+
+    // set tag area
+    $table->row_start();
     // get list of tag names in the node/* category    
     $all_tags= $api->GetTagTypes( array ("category"=>"node*"), array("tagname","tag_type_id"));
-
     // xxx cannot use onchange=submit() - would need to somehow pass action name 
     function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
     $selector=array_map("tag_selector",$all_tags);
-    $add_tag_name=plc_form_select_text("tag_type_id",$selector,"Choose");
-    $add_tag_value=plc_form_text_text("value","",8);
-    $add_tag_submit=plc_form_submit_text("set-tag-on-node","Set Tag");
-
-    $add_tag_footer=PlcTable::td_text($add_tag_name).PlcTable::td_text($add_tag_value).PlcTable::td_text($add_tag_submit);
-    $footers[]= $add_tag_footer;
+    $table->cell(plc_form_select_text("tag_type_id",$selector,"Choose"));
+    $table->cell(plc_form_text_text("value","",8));
+    $table->cell(plc_form_submit_text("set-tag-on-node","Set Tag"),2,"left");
+    $table->row_end();
   }
   
-  $table->end(array('footers'=>$footers));
+  $table->end();
  }
 
 //////////////////////////////////////////////////////////// slices
@@ -347,10 +356,13 @@ if ( $local_peer ) {
       $table->row_end();
     }
     if ($privileges) {
-      $button=plc_form_simple_button(l_interface_add($node_id),"Add interface","GET");
-      $footers=array(PlcTable::td_text($button,6,"right"));
+      $table->tfoot_start();
+      $table->row_start();
+      $table->cell(plc_form_simple_button(l_interface_add($node_id),"Add interface","GET"),
+		   $table->columns(),"right");
+      $table->row_end();
     }
-    $table->end(array("footers"=>$footers));
+    $table->end();
   }
  }
 
