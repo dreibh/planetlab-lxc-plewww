@@ -18,10 +18,8 @@ $_roles= $_person['role_ids'];
 
 
 // if no site id redirect
-if( !$_GET['id'] ) {
-  header( "location: index.php" );
-  exit();
- }
+if( !$_GET['id'] ) 
+  plc_redirect(l_sites());
 
 // get site_id
 $site_id= $_GET['id'];

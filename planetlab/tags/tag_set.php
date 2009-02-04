@@ -18,6 +18,10 @@ require_once 'plc_functions.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 
+drupal_set_message ("xxx tag_set.php is deprecated - use planetlab/actions.php instead");
+return;
+
+
   // get slice id from GET
   $slice_id= intval( $_GET['add'] );
   

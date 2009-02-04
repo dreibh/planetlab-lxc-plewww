@@ -54,8 +54,7 @@ if( $_POST['submitted'] ) {
     // Update it!
     $api->UpdateSlice( $slice_id, $slice_fields );
     
-    header( "location: index.php?id=$slice_id" );
-    exit();
+    plc_redirect( l_slice($slice_id));
     
   }
   
@@ -63,8 +62,7 @@ if( $_POST['submitted'] ) {
 
 // if no id is set redirect back to slice index
 if( !$_POST['id'] && !$_GET['id'] ) {
-  header( "location: index.php" );
-  exit();
+  plc_redirect( l_slices());
  }
 
 // Print header

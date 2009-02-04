@@ -31,7 +31,7 @@ if (!empty($_REQUEST['email']) &&
 
     if (empty($_REQUEST['url'])) {
       // XXX Redirect to default home page
-      Header("Location: /");
+      header("Location: /");
       exit();
     } else {
       // Make sure that redirections are always local
@@ -39,7 +39,7 @@ if (!empty($_REQUEST['email']) &&
       if ($url[0] != "/") {
 	$url = "/$url";
       }
-      Header("Location: $url");
+      header("Location: $url");
       exit();
     }
   } else {

@@ -64,7 +64,7 @@ if( $_POST['add'] ) {
     $slice_new_id= $api->AddSlice( $fields );
 
     if( $slice_new_id ) {
-      header( "location: index.php?id=$slice_new_id" );
+      plc_redirect( "index.php?id=$slice_new_id" );
       exit();
     } else {
       $error['api']= $api->error();

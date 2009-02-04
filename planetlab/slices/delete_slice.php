@@ -27,9 +27,7 @@ $slice_id= $_GET['id'];
 // delete it!
 if( $_POST['delete'] ) {
   $api->DeleteSlice( intval( $slice_id ) );
-  
-  header( "location: index.php" );
-  exit();
+  plc_redirect(l_slices());
 }
 
 // Print header

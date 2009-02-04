@@ -30,16 +30,13 @@ if( $_POST['actions'] ) {
   // depending on action, run function
   switch( $_POST['actions'] ) {
     case "update":
-      header( "location: update_site.php?id=$site_id" );
-      exit();
+      plc_redirect( "update_site.php?id=$site_id" );
       break;
     case "delete":
-      header( "location: delete_site.php?id=$site_id" );
-      exit();
+      plc_redirect( "delete_site.php?id=$site_id" );
       break;
     case "expire":
-      header( "location: expire.php?id=$site_id" );
-      exit();
+      plc_redirect( "expire.php?id=$site_id" );
       break;
      
   }

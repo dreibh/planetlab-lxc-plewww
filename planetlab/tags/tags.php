@@ -64,6 +64,7 @@ foreach( $tag_types as $tag_type ) {
   plc_table_row_start();
   $id=$tag_type['tag_type_id'];
   if (plc_is_admin()) 
+    // xxx this is deprecated
     plc_table_cell(plc_delete_link_button ('tag_action.php?del_type='. $id,
 					   $tag_type['tagname']));
   plc_table_cell($id);

@@ -33,10 +33,11 @@ $_roles= $_person['role_ids'];
 if( $_POST['slicename'] ) {
   $slicename= $_POST['slicename'];
 
-  $slice_info= $api->GetSlices( array( $slicename ), array( "slice_id" ) );
+  $slices= $api->GetSlices( array( $slicename ), array( "slice_id" ) );
+  $slice=$slices[0];
+  $slice_id=$slice['slice_id'];
 
-  header( "location: index.php?id=". $slice_info[0]['slice_id'] );
-  exit();
+  plc_redirect(l_slice($slice_id));
 
 }
 
@@ -122,10 +123,11 @@ if( !$_GET['id'] ) {
     echo "<p><strong>No slice found, or all are expired.</strong>";
   } else {
   
-    $slice_info= $api->GetSlices( $slice_ids, array( "slice_id", "name", "site_id", "person_ids", "expires", "peer_id" ) );
+    $slices= $api->GetSlices( $slice_ids, array( "slice_id", "name", "site_id", "person_ids", "expires", "peer_id" ) );
+    $slice=$slices[0];
     //print '<pre>'; print_r( $api->trace() ) ; print '</pre>';
 
-    if ( ! $slice_info) {
+    if ( ! $slices) {
       echo "<p><strong>No Slices on site, or all are expired.</strong>\n";
     } else  {
       echo "<table class='list_set' border=0 cellpadding=2>\n";
@@ -137,7 +139,7 @@ if( !$_GET['id'] ) {
       
       // create a list of person_ids
       $person_ids = array();
-      foreach( $slice_info as $slice ) {
+      foreach( $slices as $slice ) {
 	  if ( !empty($slice['person_ids']) )
 	    $person_ids = array_merge($person_ids, $slice['person_ids']);
 	}
@@ -150,7 +152,7 @@ if( !$_GET['id'] ) {
 	  $persons[$person['person_id']] = $person;
 	}
       
-      foreach( $slice_info as $slice ) {
+      foreach( $slices as $slice ) {
 	$slice_id= $slice['slice_id'];
 	$slice_name= $slice['name'];
 	$slice_expires= date( "M j, Y", $slice['expires'] );
@@ -200,30 +202,28 @@ else {
   $slice_id= intval( $_GET['id'] );
 
   // GetSlices API call
-  $slice_info= $api->GetSlices( array( $slice_id ) );
+  $slices= $api->GetSlices( array( $slice_id ) );
 
-  if( empty( $slice_info ) ) {
-    header( "location: index.php" );
-    exit();
-  }
+  if( empty( $slices ) ) 
+    plc_redirect(l_slices());
 
   // pull all slice info to vars
-  $instantiation= $slice_info[0]['instantiation'];
-  $name= $slice_info[0]['name'];
-  $url= $slice_info[0]['url'];
-  $expires= date( "M j, Y", $slice_info[0]['expires'] );
-  $site_id= $slice_info[0]['site_id'];
-  $description= $slice_info[0]['description'];
-  $max_nodes= $slice_info[0]['max_nodes'];
-  $node_ids=$slice_info[0]['node_ids'];
-  $person_ids=$slice_info[0]['node_ids'];
+  $instantiation= $slice['instantiation'];
+  $name= $slice['name'];
+  $url= $slice['url'];
+  $expires= date( "M j, Y", $slice['expires'] );
+  $site_id= $slice['site_id'];
+  $description= $slice['description'];
+  $max_nodes= $slice['max_nodes'];
+  $node_ids=$slice['node_ids'];
+  $person_ids=$slice['node_ids'];
 
   // get peer id
-  $peer_id= $slice_info[0]['peer_id'];
+  $peer_id= $slice['peer_id'];
 
-  $person_ids= $slice_info[0]['person_ids'];
-  $node_ids= $slice_info[0]['node_ids'];
-  $slice_tag_ids= $slice_info[0]['slice_tag_ids'];
+  $person_ids= $slice['person_ids'];
+  $node_ids= $slice['node_ids'];
+  $slice_tag_ids= $slice['slice_tag_ids'];
 
 
   // node info
@@ -329,7 +329,7 @@ else {
 	<tr><th>Description: </th><td> $description </td></tr>\n
         <tr><th>URL: </th><td> <a href='$url'>$url</a> </td></tr>\n";
 	
-  if( gmmktime() > $slice_info[0]['expires'] ) { 
+  if( gmmktime() > $slice['expires'] ) { 
     $class1= ' style="color:red;"'; 
     $msg1= '(slice is expired)'; 
   }
@@ -407,6 +407,7 @@ else {
         if( $is_admin ) {
 	  printf("<td>");
 	  sprintf($label,"\\n [ %s = %s] \\n from %s",$tag['tagname'],$tag['value'],$name);
+	  // xxx this is deprecated
 	  echo plc_delete_link_button ('tag_action.php?rem_id=' . $tag['slice_tag_id'],
 				       $label);
 	  echo "</td>";

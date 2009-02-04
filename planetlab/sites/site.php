@@ -153,22 +153,6 @@ plc_details_line("Peer",$peers->peer_link($peer_id));
 
 if ( $local_peer ) {
 
-  // Addresses
-  if ($addresses) {
-    plc_details_space_line();
-    plc_details_line("Addresses","");
-    foreach ($addresses as $address) {
-      plc_details_line(plc_vertical_table($address['address_types']),
-		       plc_vertical_table(array($address['line1'],
-						$address['line2'],
-						$address['line3'],
-						$address['city'],
-						$address['state'],
-						$address['postalcode'],
-						$address['country'])));
-    }
-  }
-
   // Nodes
   plc_details_space_line();
   $nb_boot = 0;
@@ -179,6 +163,7 @@ if ( $local_peer ) {
   $nodes_text= plc_vertical_table(array_map ("n_link",$nodes));
   plc_details_line ("hostnames",$nodes_text);
 		   
+
   // Users
   plc_details_space_line();
   $user_text = count($person_ids) . " total / " .
@@ -195,6 +180,7 @@ if ( $local_peer ) {
   $tech_text = plc_vertical_table (array_map ("p_link",$techs));
   plc_details_line("techs's",$tech_text);
 
+
   // Slices
   plc_details_space_line();
   // summary on # slices
@@ -204,6 +190,22 @@ if ( $local_peer ) {
   if ($slices) foreach ($slices as $slice)
      plc_details_line($slice['instantiation'],l_slice_text($slice));
 
+
+  // Addresses
+  if ($addresses) {
+    plc_details_space_line();
+    plc_details_line("Addresses","");
+    foreach ($addresses as $address) {
+      plc_details_line(plc_vertical_table($address['address_types']),
+		       plc_vertical_table(array($address['line1'],
+						$address['line2'],
+						$address['line3'],
+						$address['city'],
+						$address['state'],
+						$address['postalcode'],
+						$address['country'])));
+    }
+  }
 
  }
 

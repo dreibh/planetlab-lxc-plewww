@@ -111,6 +111,6 @@ $url = plc_comon_url_from_ips("http://comon.cs.princeton.edu",$all_ips);
 
 
 // redirect to comon
-header("Location: " . $url);
+plc_redirect($url);
 
 ?>

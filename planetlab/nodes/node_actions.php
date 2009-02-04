@@ -129,8 +129,7 @@ function show_download_confirm_button ($api, $node_id, $action, $can_gen_config,
 // check arguments
 
 if (empty($_POST['node_id'])) {
-  header ('location:index.php');
-  exit();
+  plc_redirect (l_nodes());
  } else {
   $node_id = intval($_POST['node_id']);
 }
@@ -176,8 +175,7 @@ switch ($action) {
    $error= $api->error();
 
    if( empty( $error ) ) {
-     header( "location: index.php?id=$node_id" );
-     exit();
+     plc_redirect(l_node($node_id));
    } else {
      echo "<font color=red>". $error . "</font>\n" ;
      echo "<p> Press back to retry</p>";
@@ -189,8 +187,7 @@ switch ($action) {
    // from former node_actions.php
  case "delete":
    $api->DeleteNode( intval( $node_id ) );
-   header( "location: index.php" );
-   exit();
+   plc_redirect(l_nodes());
    break;
 
    // ACTION: boot-state
@@ -204,8 +201,7 @@ switch ($action) {
    case 'rcnf':
    case 'new':
      $api->UpdateNode( intval( $node_id ), array( "boot_state" => $_POST['boot_state'] ) );
-     header( "location: index.php?id=$node_id" );
-     exit();
+     plc_redirect (l_node($node_id));
      break;
    default:
      print "<div class='plc-error'> no such boot state " . $_POST['boot_state'] . "</div>";
@@ -420,8 +416,7 @@ if( $has_primary ) {
  
  default:
    echo "Unkown action <$action>.";
-   header("location:index.php?id=" . $node_id);
-   exit();
+   plc_redirect (l_node($node_id));
    break;
  }
 

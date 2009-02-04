@@ -25,6 +25,6 @@ if ($plc->person) {
 // Destroy PHP session
 session_destroy();
 
-Header("Location: /db/login.php");
+plc_redirect(l_login());
 
 ?>

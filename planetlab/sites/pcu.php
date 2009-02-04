@@ -34,7 +34,8 @@ if( !$_GET['id'] ) {
     $pcu_id= $api->AddPCU( $site_id, $fields );
     
     if( $pcu_id != 0 ) {
-      header( "location: /db/sites/pcu.php?id=$pcu_id" );
+      // xxx is l_pcu defined & effective ?
+      plc_redirect( l_pcu($pcu_id));
       exit();
     } else {
       $error= $api->error();
@@ -67,8 +68,7 @@ if( !$_GET['id'] ) {
     
     $api->DeleteNodeFromPCU( intval( $rem_id ), $pcu_id );
     
-    header( "Location: /db/sites/pcu.php?id=$pcu_id" );
-    exit();
+    plc_redirect (l_pcu ($pcu_id));
     
   }
   
@@ -84,8 +84,7 @@ if( !$_GET['id'] ) {
     
     $api->UpdatePCU( $pcu_id, array( "protocol"=>$protocol, "hostname"=>$hostname, "model"=>$model, "password"=>$password, "notes"=>$notes, "ip"=>$ipaddress ) );
 		
-    header( "Location: /db/sites/pcu.php?id=$pcu_id" );
-    exit();
+    plc_redirect (l_pcu($pcu_id));
 		
   }
 	

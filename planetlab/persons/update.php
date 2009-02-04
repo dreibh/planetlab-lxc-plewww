@@ -22,8 +22,7 @@ $is_submitted= isset($_POST['submitted']) ? $_POST['submitted'] : 0;
 if( isset($_GET['id']) && is_numeric($_GET['id']) ) {
   $person_id= intval($_GET['id']);
  } else {
-  header( "location: index.php" );
-  exit();
+  plc_redirect (l_sites());
  }
 
 $errors= array();
@@ -59,11 +58,9 @@ if( $is_submitted ) {
     
     $rc= $api->UpdatePerson( intval( $person_id ), $update_vals);
     
-    if( $rc == 1 ) {
-      Header( "Location: /db/persons/index.php?id=$person_id" );
-      exit();
-    }
-    elseif ($rc === NULL) {
+    if ( $rc == 1 ) {
+      plc_redirect(l_person($person_id));
+    } elseif ($rc === NULL) {
       $errors[] = $api->error();
     }
   }

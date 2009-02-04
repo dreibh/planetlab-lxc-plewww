@@ -50,8 +50,8 @@ foreach( array( 'method', 'type', 'ip', 'gateway', 'network', 'broadcast', 'netm
 
 // Either interface_id or node_id must be specified in URL
 if( !isset( $_GET['node_id'] ) && !( $nodes= $api->GetNodes( array( intval($node_id) ), array( 'node_id', 'hostname', 'site_id' ) ) ) ) {
-  Header( "Location: index.php" );
-  exit();
+  drupal_set_error ("Malformed URL");
+  plc_redirect(l_nodes());
 }
 
 
@@ -72,8 +72,7 @@ if( $can_update && (isset( $_POST['submitted'] ) || isset ($_GET['submitted'])) 
   elseif ( isset( $_POST['delete'] ) || isset( $_GET['delete']) || isset( $_POST['update'] ) ) {
     // interface_id must be specified in URL
     if( !isset( $id ) ) {
-      Header( "Location: index.php?id=$node_id" );
-      exit();
+      plc_redirect(l_node($node_id));
     }
     if( isset( $_POST['delete'] ) || isset ($_GET['delete']) ) {
       $api->DeleteInterface( $id );
@@ -88,8 +87,7 @@ if( $can_update && (isset( $_POST['submitted'] ) || isset ($_GET['submitted'])) 
   if( !empty( $error ) ) {
     echo '<div class="plc-warning">' . $error . '.</div>';
   } else {
-    Header( "Location: index.php?id=$node_id" );
-    exit();
+    plc_redirect(l_node($node_id));
   }
   
 }

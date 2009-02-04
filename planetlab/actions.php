@@ -77,8 +77,7 @@ switch ($action) {
  case 'add-person-to-site': {
    $site_id = $_POST['site_id'];
    $api->AddPersonToSite( intval( $person_id ), intval( $site_id ) );
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect (l_person($person_id));
  }
 
  case 'remove-person-from-sites': {
@@ -90,8 +89,7 @@ switch ($action) {
    foreach ( $site_ids as $site_id ) {
      $api->DeletePersonFromSite( intval( $person_id ), intval( $site_id ) );
    }
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect (l_person($person_id));
  }
 
  case 'remove-roles-from-person' : {
@@ -103,41 +101,35 @@ switch ($action) {
    foreach( $role_ids as $role_id)  {
      $api->DeleteRoleFromPerson( intval( $role_id ), intval( $person_id ) );
    }
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect (l_person($person_id));
  }
      
  case 'add-role-to-person' : {
    $role_id=$_POST['role_id'];
    $api->AddRoleToPerson( intval( $role_id ), intval( $person_id ) );
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect (l_person($person_id));
  }
 
  case 'enable-person' : {
    $fields = array( "enabled"=>true );
    $api->UpdatePerson( intval( $person_id ), $fields );
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect (l_person($person_id));
  }
 
  case 'disable-person' : {
    $fields = array( "enabled"=>false );
    $api->UpdatePerson( intval( $person_id ), $fields );
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect (l_person($person_id));
  }
 
  case 'become-person' : {
    $plc->BecomePerson (intval($person_id));
-   header ("location: " . l_persons());
-   exit();
+   plc_redirect (l_persons());
  }
 
  case 'delete-person' : {
   $api->DeletePerson( intval( $person_id ) );
-  header( "location: " . l_persons() );
-  exit();
+   plc_redirect (l_persons());
  }
 
  case 'delete-keys' : {
@@ -149,8 +141,7 @@ switch ($action) {
    foreach( $key_ids as $key_id ) {
      $api->DeleteKey( intval( $key_id ) );
    }
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect(l_person($person_id));
  }
 
  case 'upload-key' : {
@@ -185,8 +176,7 @@ switch ($action) {
      plc_error("Please verify your SSH  file content");
      return;
    }
-   header( "location: " . l_person($person_id));
-   exit();
+   plc_redirect(l_person($person_id));
  }
 
  case 'update-tag-type': {
@@ -207,8 +197,7 @@ switch ($action) {
    // Update it!
    $api->UpdateTagType( $tag_type_id, $tag_type_fields );
    
-   header( "location: " . l_tag($tag_type_id));
-   exit();
+   plc_redirect(l_tag($tag_type_id));
  }
 
  case 'add-tag-type': {
@@ -229,8 +218,7 @@ switch ($action) {
    $id=$api->AddTagType( $tag_type_fields );
    drupal_set_message ("tag type $id created");
   
-   header( "location: " . l_tag($id));
-   exit();
+   plc_redirect( l_tag($id));
  }
 
  case 'delete-site': {
@@ -239,8 +227,7 @@ switch ($action) {
      drupal_set_message ("Site $site_id deleted");
    else
      drupal_set_error("Failed to delete site $site_id");
-   header ("location: " . l_sites());
-   exit();
+   plc_redirect (l_sites());
  }
 
  case 'expire-all-slices-in-site': {
@@ -259,8 +246,7 @@ switch ($action) {
    }
    // update site to not allow slice creation or renewal
    $api->UpdateSite( $site_id, array( "max_slices" => 0 )) ;
-   header ("location: " . l_site($site_id));
-   exit(0);
+   plc_redirect (l_site($site_id));
  }
 
  case 'set-tag-on-node': {
@@ -291,8 +277,7 @@ switch ($action) {
      }
    }
    
-   header ("location: " . l_node($node_id));
-   exit();
+   plc_redirect (l_node($node_id));
  }
 
 

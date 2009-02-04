@@ -27,8 +27,7 @@ if( !empty( $_GET['id'] ) ) {
 
 // Invalid slice name
 if( !isset( $slice ) ) {
-  Header( "Location: index.php" );
-  exit();
+  plc_redirect( l_slices());
 }
 
 // Defaults
@@ -50,8 +49,7 @@ if( isset( $_POST['submitted'] ) ) {
     // Update the slice URL and description
     $fields= array( "description"=>$slice['description'], "url"=>$slice['url'] );
     $api->UpdateSlice( intval( $slice_id ), $fields );
-    Header( "Location: index.php?id=$slice_id" );
-    exit();
+    plc_redirect(l_slice($slice_id));
   }
 }
 

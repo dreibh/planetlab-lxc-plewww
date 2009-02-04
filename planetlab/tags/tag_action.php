@@ -23,6 +23,10 @@ $_person= $plc->person;
 $_roles= $_person['role_ids'];
 
 
+drupal_set_message ("xxx tag_action.php is deprecated - use planetlab/actions.php instead");
+return;
+
+
 // TAGS -------------------------------------------------
 
 // tag deletion
@@ -37,9 +41,7 @@ if( $_GET['rem_id'] ) {
   // delete the tag
   $api->DeleteSliceTag( $tag_id );
 
-
-  header( "location: index.php?id=$slice_id" );
-  exit();
+  plc_redirect( "index.php?id=$slice_id" );
 }
 
 
@@ -53,8 +55,7 @@ if( $_POST['edit_tag'] ) {
   // update it!
   $api->UpdateSliceTag( $tag_id, $value );
 
-  header( "location: index.php?id=$slice_id" );
-  exit();
+  plc_redirect( "index.php?id=$slice_id" );
 }
 
 
@@ -68,8 +69,7 @@ if( $_POST['add_tag'] ) {
   // add it!
   $api->AddSliceTag( $slice_id, $tag_type_id, $value );
 
-  header( "location: index.php?id=$slice_id" );
-  exit();
+  plc_redirect( "index.php?id=$slice_id" );
 }
 
 // TAG TYPES ---------------------------------------------------
@@ -90,8 +90,7 @@ if( $_POST['add_type'] ) {
   // add it!!
   $api->AddTagType( $tag_type_fields );
 
-  header( "location: tags.php?type=slice" );
-  exit();
+  plc_redirect( "tags.php?type=slice" );
 }
   
 
@@ -109,8 +108,7 @@ if( $_POST['edit_type'] ) {
   // Update it!
   $api->UpdateTagType( $tag_type_id, $tag_type_fields );
   
-  header( "location: tags.php?type=slice" );
-  exit();
+  plc_redirect( "tags.php?type=slice" );
 }
 
 
@@ -122,8 +120,7 @@ if( $_GET['del_type'] ) {
   // delete it!
   $api->DeleteTagType( $type_id );
   
-  header( "location: tags.php?type=slice" );
-  exit();
+  plc_redirect( "tags.php?type=slice" );
 }
 
   

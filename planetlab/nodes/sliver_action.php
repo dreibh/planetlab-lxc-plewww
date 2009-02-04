@@ -31,9 +31,9 @@ if( !empty( $_POST['add_sub'] ) ) {
 
   $api->AddSliceTag( intval( $slice_id ), intval( $tag_type ), $value, intval( $node_id ) );
 
-  header( "location: slivers.php?slice=$slice_id&node=$node_id" );
-  exit();
-  
+  // xxx l_sliver ?
+  plc_redirect (l_sliver ($node_id,$slice_id));
+  //header( "location: slivers.php?slice=$slice_id&node=$node_id" );
 }
 
 
@@ -42,13 +42,14 @@ if( $_GET['rem_id'] ) {
   $tag_id= $_GET['rem_id'];
   
   // get the slivers for this node
-  $sliver_info= $api->GetSliceTags( array( "slice_tag_id"=>intval( $tag_id ) ), array( "slice_id", "node_id" ) );
+  $slivers= $api->GetSliceTags( array( "slice_tag_id"=>intval( $tag_id ) ), array( "slice_id", "node_id" ) );
+  $sliver=$slivers[0];
   
   $api->DeleteSliceTag( intval( $tag_id ) );
 
-  header( "location: slivers.php?slice=". $sliver_info[0]['slice_id'] ."&node=". $sliver_info[0]['node_id'] );
-  exit();
-  
+  $node_id=$sliver['node_id'];
+  $slice_id=$sliver['slice_id'];
+  plc_redirect (l_sliver ($node_id,$slice_id));
 }
 
   

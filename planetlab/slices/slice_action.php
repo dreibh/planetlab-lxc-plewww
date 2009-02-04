@@ -35,20 +35,16 @@ if( $_POST['actions'] ) {
   // depending on action, run function
   switch( $_POST['actions'] ) {
     case "renew":
-      header( "location: renew_slice.php?id=$slice_id" );
-      exit();
+      plc_redirect("renew_slice.php?id=$slice_id" );
       break;
     case "delete":
-      header( "location: delete_slice.php?id=$slice_id" );
-      exit();
+      plc_redirect( "delete_slice.php?id=$slice_id" );
       break;
     case "nodes":
-      header( "location: slice_nodes.php?id=$slice_id" );
-      exit();
+      plc_redirect( "slice_nodes.php?id=$slice_id" );
       break;
     case "users":
-      header( "location: slice_users.php?id=$slice_id" );
-      exit();
+      plc_redirect( "slice_users.php?id=$slice_id" );
       break;
      
   }

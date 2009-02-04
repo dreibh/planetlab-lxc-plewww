@@ -32,8 +32,7 @@ $_roles= $_person['role_ids'];
 
 // if no id ... redirect to slice index
 if( !$_GET['id'] && !$_POST['id'] ) {
-  header( "location: index.php" );
-  exit();
+  plc_redirect( l_slices());
  }
 
 

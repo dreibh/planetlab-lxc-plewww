@@ -36,8 +36,7 @@ if( $_POST['edit_type'] ) {
   }
   
   // xxx check the destination page
-  header( "location: settings.php" );
-  exit();
+  plc_redirect ("settings.php");
 }
 
 // tag type adds
@@ -50,8 +49,7 @@ if( $_POST['add_type'] ) {
   $api->AddTagType( $setting_type );
 
   // xxx check the destination page
-  header( "location: settings.php" );
-  exit();
+  plc_redirect ("settings.php");
 }
   
 
@@ -67,8 +65,7 @@ if( $_GET['rem_id'] ) {
   // delete the tag
   $api->DeleteInterfaceTag( $setting_id );
 
-  header( "location: interfaces.php?id=$interface_id" );
-  exit();
+  plc_redirect (l_interface($interface_id));
 }
 
 // tag adds
@@ -81,8 +78,7 @@ if( $_POST['add_setting'] ) {
   // add it!
   $api->AddInterfaceTag( $interface_id, $interface_tag_type_id, $value );
 
-  header( "location: interfaces.php?id=$interface_id" );
-  exit();
+  plc_redirect (l_interface($interface_id));
 }
 
 // tag updates
@@ -95,8 +91,7 @@ if( $_POST['edit_setting'] ) {
   // update it!
   $api->UpdateInterfaceTag($setting_id, $value );
 
-  header( "location: interfaces.php?id=$interface_id" );
-  exit();
+  plc_redirect (l_interface($interface_id));
 }
 
 // Settings -------------------------------------------------
@@ -112,8 +107,7 @@ if( $_GET['del_type'] ) {
   $api->DeleteTagType( $type_id );
   
   // xxx check the destination page
-  header( "location: settings.php" );
-  exit();
+  plc_redirect ("settings.php" );
 }
   
 /*

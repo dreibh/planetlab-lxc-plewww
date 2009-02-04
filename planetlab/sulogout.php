@@ -23,6 +23,6 @@ if ($plc->person) {
 }
 
 
-Header("Location: /db/persons/index.php");
+plc_redirect(l_persons());
 
 ?>

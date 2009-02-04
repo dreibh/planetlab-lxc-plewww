@@ -38,6 +38,7 @@ h2.plc {
 }
 .plc-error {
     background: red;
+    font-weight:bold;
 }
 
 *.plc-warning a:link { text-decoration: none; color:white }

@@ -109,6 +109,7 @@ function l_doc_plcapi()			{ return "/db/doc/PLCAPI.php"; }
 function l_doc_nmapi()			{ return "/db/doc/NMAPI.php"; }
 function l_admin()			{ return "/db/adminsearch.php"; }
 
+function l_login()			{ return "/db/login.php"; }
 function l_logout()			{ return "/planetlab/logout.php"; }
 function l_sulogout()			{ return "/planetlab/sulogout.php"; }
 function l_reset_password()		{ return "/db/persons/reset_password.php"; }
@@ -275,14 +276,15 @@ function plc_error ($text) {
   print "<div class='plc-error'> Error " . $text . "</div>";
 }
 
-function plc_errors ($list) {
-  print( "<div class='plc-error'>" );
-  print( "<p style='font-weight:bold'>The following errors occured:</p>" );
-  print("<ul>");
-  foreach( $errors as $err ) {
-    print( "<li>$err</li>\n" );
+function plc_errors ($errors) {
+  if ($errors) {
+    print( "<div class='plc-error'>" );
+    print( "<p>The following errors occured:</p>" );
+    print("<ul>");
+    foreach( $errors as $error ) 
+      print( "<li>$error</li>\n" );
+    print( "</ul></div>\n" );
   }
-  print( "</ul></div>\n" );
 }
 
 function plc_warning_text ($text)	{ return "<span class='plc-warning'>" . $text . "</span>";}
@@ -343,5 +345,10 @@ function plc_comon_button ($id_name, $id_value,$target="") {
   return $result;
 }
 
+////////////////////
+function plc_redirect ($url) {
+  header ("Location: " . $url);
+  exit ();
+}
 
 ?>

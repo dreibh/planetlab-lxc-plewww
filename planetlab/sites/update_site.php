@@ -69,8 +69,7 @@ if( $_POST['submitted'] ) {
     $fields= array( "name" => $name, "url" => $url, "longitude" => floatval( $longitude ), "login_base" => $login_base, "latitude" => floatval( $latitude ), "is_public" => true, "abbreviated_name" => $abbrev_name, "max_slices" => intval( $max_slices ) );
     $api->UpdateSite( intval( $site_id ), $fields );
     // Thierry aug 31 07 - redirect to the site's details page
-    header("location: index.php?id=$site_id");
-    //echo "<pre>"; print_r( $fields ); echo "</pre>";
+    plc_redirect(l_site($site_id));
   }
   
 }
