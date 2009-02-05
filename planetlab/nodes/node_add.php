@@ -199,7 +199,7 @@ value="<?php print($model); ?>" size="40" maxlength="256"></td>
 <table width="100%" cellspacing="0" cellpadding="4" border="0">
 
 <tr>
-<td valign='top' width="250">Addressing Method</td>
+<td valign='top' width="250">Addressing method</td>
 <td>
 <input type="radio" name="method" value="dhcp" onChange='updateStaticFields()'
 <?php if($method == 'dhcp') { echo "checked"; } ?>>DHCP 
@@ -209,7 +209,7 @@ value="<?php print($model); ?>" size="40" maxlength="256"></td>
 </tr>
 
 <tr> 
-<td valign='top'>IP Address</td>
+<td valign='top'>IP address</td>
 <td><input type="text" name="ip" value="<?php print($ip); ?>"></td>
 </tr>
 
@@ -225,7 +225,7 @@ value="<?php print($model); ?>" size="40" maxlength="256"></td>
 </tr>
 
 <tr> 
-<td valign='top'>Gateway Address</td>
+<td valign='top'>Gateway address</td>
 <td><input type="text" name="gateway" value="<?php print($gateway); ?>"></td>
 </tr>
 

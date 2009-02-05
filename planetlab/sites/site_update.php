@@ -16,12 +16,12 @@ $_person= $plc->person;
 $_roles= $_person['role_ids'];
 
 // redirect if no site id is set add instead
-if( !$_GET['id'] )
-  $do= 'Add';
-else {
-  $site_id= $_GET['id'];
+if( $_GET['site_id'] ) {
+  $site_id= $_GET['site_id'];
   $do= 'Update';
-}
+ } else {
+  $do= 'Add';
+ }
 
 // if form not submitted get data from API
 if( $_POST['submitted'] ) {
@@ -59,14 +59,28 @@ if( $_POST['submitted'] ) {
   
   
   // if no errors add/update site
-  if( $do == 'Add' ) {
-    $fields= array( "name" => $name, "url" => $url, "longitude" => floatval( $longitude ), "login_base" => $login_base, "latitude" => floatval( $latitude ), "is_public" => true, "abbreviated_name" => $abbrev_name, "max_slices" => 0 );
-    $api->AddSite( $fields );
-    //echo "<pre>"; print_r( $fields ); echo "</pre>";
+  if ( $do == 'Add' ) {
+    $fields= array( "name" => $name, 
+		    "abbreviated_name" => $abbrev_name, 
+		    "url" => $url, 
+		    "login_base" => $login_base, 
+		    "latitude" => floatval( $latitude ), 
+		    "longitude" => floatval( $longitude ), 
+		    "max_slices" => 0,
+		    "is_public" => true);
+    $site_id=$api->AddSite( $fields );
+    plc_redirect(l_site($site_id));
   }
   
-  if( $do == 'Update' ) {
-    $fields= array( "name" => $name, "url" => $url, "longitude" => floatval( $longitude ), "login_base" => $login_base, "latitude" => floatval( $latitude ), "is_public" => true, "abbreviated_name" => $abbrev_name, "max_slices" => intval( $max_slices ) );
+  if ( $do == 'Update' ) {
+    $fields= array( "name" => $name, 
+		    "abbreviated_name" => $abbrev_name, 
+		    "url" => $url, 
+		    "login_base" => $login_base, 
+		    "latitude" => floatval( $latitude ), 
+		    "longitude" => floatval( $longitude ), 
+		    "max_slices" => intval( $max_slices ),
+		    "is_public" => true);
     $api->UpdateSite( intval( $site_id ), $fields );
     // Thierry aug 31 07 - redirect to the site's details page
     plc_redirect(l_site($site_id));
@@ -119,6 +133,9 @@ if( $error['max_slices'] )
   $max_err= " style='border: 1px solid red;'";
 
 // start form
+require_once 'plc_forms.php';
+
+plc_
 echo "<form action='update_site.php?id=$site_id' method='post'>\n";
 echo "<h2>$do $name</h2>\n";
 
@@ -138,10 +155,12 @@ else
 
 echo "<tr><td></td><td colspan=2><input type=submit name='submitted' value='$do Site'></td></tr>\n";
 echo "</tbody></table><br />\n";
-
-echo "<p><a href='index.php?id=$site_id'>Back to Site</a>\n";
-
 echo "</form>\n";
+
+if ($do == "Update")
+  print href(l_site($site_id),"Back to site");
+ else
+   print href(l_sites(),"Back to sites");
 
 
 // Print footer

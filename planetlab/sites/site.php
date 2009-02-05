@@ -188,7 +188,7 @@ if ( $local_peer ) {
   if (count($slice_ids) >= $max_slices) $slice_text = plc_warning_text ($slice_text);
   plc_details_line("# Slices", href(l_slices_site($site_id),$slice_text));
   if ($slices) foreach ($slices as $slice)
-     plc_details_line($slice['instantiation'],l_slice_text($slice));
+     plc_details_line($slice['instantiation'],l_slice_obj($slice));
 
 
   // Addresses

@@ -64,7 +64,7 @@ function l_sites ()			{ return "/db/sites/index.php"; }
 function l_sites_peer ($peer_id)	{ return "/db/sites/index.php?peerscope=$peer_id"; }
 function l_site ($site_id)		{ return "/db/sites/index.php?id=$site_id"; }
 function l_site_t ($site_id,$text)	{ return href (l_site($site_id),$text); }
-function l_site_update($site_id)	{ return "/xxx-undefined"; }
+function l_site_update($site_id)	{ return "/db/sites/site_update.php?site_id=$site_id"; }
 
 function l_slices ()			{ return "/db/slices/index.php"; }
 function l_slices_peer ($peer_id)	{ return "/db/slices/index.php?peerscope=$peer_id"; }
@@ -73,7 +73,7 @@ function l_slice_t ($slice_id,$text)	{ return href (l_slice($slice_id),$text); }
 function l_slice_add ()			{ return "/db/slices/add_slice.php"; }
 function l_slices_site($site_id)	{ return "/db/slices/index.php?site_id=$site_id"; }
 // from an object
-function l_slice_text ($slice)		{ return l_slice_t ($slice['slice_id'],$slice['name']); }
+function l_slice_obj ($slice)		{ return l_slice_t ($slice['slice_id'],$slice['name']); }
 
 function l_sliver ($node_id,$slice_id)	{ return "/db/nodes/slivers.php?node_id=$node_id&slice_id=$slice_id"; }
 function l_sliver_t ($node_id,$slice_id,$text) { 
