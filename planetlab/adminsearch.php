@@ -408,8 +408,8 @@ if (false) {
 	foreach( $key_info as $key ) {
 	  $key_type= $key['key_type'];
 	  $key_id= $key['key_id'];
-	  $key_text= wordwrap( $key['key'], 70, "<br />\n", 1 );
-	  echo "<tr><td>$key_type</td><td>$key_text</td></tr>\n";
+	  $key_html= wordwrap( $key['key'], 70, "<br />\n", 1 );
+	  echo "<tr><td>$key_type</td><td>$key_html</td></tr>\n";
 	}
 		
 	echo "</tbody></table>\n";

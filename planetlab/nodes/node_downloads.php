@@ -1,34 +1,9 @@
 <?php
 
   // $Id$
-  // This file was created when we decided to make the node page consistent with the other pages
-  // That is to say, we wanted the 'Update' and 'Delete' functions to appear in a drop-down
-  // menu like for the other objects
-  // It appeared after analysis that it was easier to have the following 
-  // functions gathered in a single php file 
-  // (*) node_update.php
-  //    (GET) id=node_id
-  //          displays current settings and prompt for changes before going to node_actions.php
-  // (*) node_actions.php 
-  //    (GET) 'del=node_id'
-  //    (GET) 'update=node_id' -> actual UpdateNode
-  //    (POST) node_id=node_id ng_add=nodegroup_id
-  //           AddNodeToNodeGroup
-  //    (POST) boot_state=boot_state node_id=node_id
-  //    (POST) ng_add=nodegroup_id
-  // (*) downloadconf.php
-  //     (GET) id=node_id [download=1]
-  //           either showed current status, or performed actual config download 
-  
-  // in this new version we support only POST behaviour with the following interface
+
+  // cleaned up, keep only the actions related to downloading stuff
   // REQUIRED : node_id=node_id
-  // (*) action='prompt-update' : former node_update.php
-  // (*) action='update'
-  //     hostname=
-  //	 model=			: actually updated the node
-  // (*) action='boot-state'
-  //	 boot_state=		: changes bootstate
-  // (*) action='delete'	: deletes node
   // (*) action='download-node-floppy' : 
   // (*) action='download-node-iso' : 
   // (*) action='download-node-usb' : 
@@ -38,12 +13,6 @@
   // (*) action='download-generic-iso':
   // (*) action='download-generic-usb':
   //				: performs actual generic download
-  // (*) action='add-in-nodegroup': should include this for compatibility, replaces ng_add, 
-  //				    though I could not figure where it's called
-
-
-  // TODO : manage a post field for displaying results of previous page
-  // see the special 'flash' in rails
 
 // delivering node-dependant images requires larger memory limit
 // trial and error, based on the current sizes
@@ -115,7 +84,7 @@ function show_download_confirm_button ($api, $node_id, $action, $can_gen_config,
 			    'download-node-usb' => 'USB image' );
     
     $format = $action_labels [ $action ] ;
-    print( "<p><form method='post' action='node_actions.php'>\n");
+    print( "<p><form method='post' action='node_downloads.php'>\n");
     print ("<input type='hidden' name='node_id' value='$node_id'>\n");
     print ("<input type='hidden' name='action' value='$action'>\n");
     print ("<input type='hidden' name='download' value='1'>\n");
@@ -138,78 +107,6 @@ $action=$_POST['action'];
 
 switch ($action) {
 
-  // ACTION: prompt-update
-  // from former node_update.php
- case "prompt-update":
-   
-   require_once('plc_drupal.php');
-   $node_info= $api->GetNodes( array( $node_id ), array( "hostname", "model" ) );
-   drupal_set_title("Updating " . $node_info[0]['hostname']);
-   include 'plc_header.php';
-   
-   // start form
-   echo "<form method=post action='node_actions.php'>\n";
-   echo "<input type=hidden name='node_id' value='$node_id'></input>\n";
-   echo "<input type=hidden name='action' value='update'></input>\n";
-   if( $_POST['error'] ) plc_error(unserialize( $_POST['error']));
-   echo "<p><table cellpadding=2><tbody>\n
-       <tr><th>Hostname: </th><td> <input type=text size=35 name='hostname' value='". $node_info[0]['hostname'] ."'></td></tr>\n
-       <tr><th>Model: </th><td> <input type=text size=35 name='model' value='". $node_info[0]['model'] ."'></td></tr>\n
-       </tbody></table>\n
-       <p><input type=submit value='Update Node'>\n
-       </form>\n";
-   
-   echo "<p><a href='index.php?id=$node_id'>Back to Node</a>\n";
-   
-   break;
-
-   // ACTION: update
-   // from former node_actions.php
- case "update":
-
-   $hostname= $_POST['hostname'];
-   $model= $_POST['model'];
-
-   $fields= array( "hostname"=>$hostname, "model"=>$model );
-   $api->UpdateNode( intval( $node_id ), $fields );
-   $error= $api->error();
-
-   if( empty( $error ) ) {
-     plc_redirect(l_node($node_id));
-   } else {
-     echo "<font color=red>". $error . "</font>\n" ;
-     echo "<p> Press back to retry</p>";
-   }
-
-   break;
-
-   // ACTION: delete
-   // from former node_actions.php
- case "delete":
-   $api->DeleteNode( intval( $node_id ) );
-   plc_redirect(l_nodes());
-   break;
-
-   // ACTION: boot-state
-   // from former node_actions.php
- case "boot-state":
-   switch( $_POST['boot_state'] ) {
-   case 'boot':
-   case 'dbg':
-   case 'inst':
-   case 'rins':
-   case 'rcnf':
-   case 'new':
-     $api->UpdateNode( intval( $node_id ), array( "boot_state" => $_POST['boot_state'] ) );
-     plc_redirect (l_node($node_id));
-     break;
-   default:
-     print "<div class='plc-error'> no such boot state " . $_POST['boot_state'] . "</div>";
-     break;
-   }
-   break;
-
-  // ACTION: download-generic
  case "download-generic-iso":
  case "download-generic-usb":
    
@@ -415,7 +312,7 @@ if( $has_primary ) {
  break;
  
  default:
-   echo "Unkown action <$action>.";
+   drupal-set_error("Unkown action $action in node_downloads.php");
    plc_redirect (l_node($node_id));
    break;
  }

@@ -18,6 +18,7 @@ $known_actions=array();
 // interface :
 // (*) use POST 
 // (*) set 'action' to one of the following
+//////////////////////////////////////// persons
 $known_actions []= "add-person-to-site";
 //	expects:	person_id & site_id
 $known_actions []= "remove-person-from-sites";
@@ -38,14 +39,27 @@ $known_actions []= "delete-keys";
 //	expects:	key_ids & person_id (for redirecting to the person's page)
 $known_actions []= "upload-key";
 //	expects:	person_id & $_FILES['key']
-$known_actions []= "update-tag-type";
-//	expects:	tag_type_id & name & description & category & min_role_id  
-$known_actions []= "add-tag-type";
-//	expects:	tag_type_id & name & description & category & min_role_id  
+$known_actions []= "update-person";
+//	expects:	person_id & first_name last_name title email phone url bio + [password1 password2]
+
+//////////////////////////////////////// nodes
+$known_actions []= "node-boot-state";	
+//	expects:	node_id boot_state
+$known_actions []= "delete-node";	
+//	expects:	node_id
+$known_actions []= "update-node";	
+//	expects:	node_id, hostname, model
+//////////////////////////////////////// sites
 $known_actions []= "delete-site";	
 //	expects:	site_id
 $known_actions []= "expire-all-slices-in-site";
 //	expects:	slice_ids
+
+//////////////////////////////////////// tags
+$known_actions []= "update-tag-type";
+//	expects:	tag_type_id & name & description & category & min_role_id  
+$known_actions []= "add-tag-type";
+//	expects:	tag_type_id & name & description & category & min_role_id  
 $known_actions []= "set-tag-on-node";
 //	expects:	node_id tagname value
 
@@ -144,6 +158,7 @@ switch ($action) {
    plc_redirect(l_person($person_id));
  }
 
+
  case 'upload-key' : {
    if ( ! isset( $_FILES['key'] ) ) {
      drupal_set_message ("action=$action, no key file set");
@@ -178,6 +193,121 @@ switch ($action) {
    }
    plc_redirect(l_person($person_id));
  }
+
+ case 'update-person': {
+   $person_id=$_POST['person_id'];
+   // attempt to update this person
+   $first_name= $_POST['first_name'];
+   $last_name= $_POST['last_name'];
+   $title= $_POST['title'];
+   $email= $_POST['email'];
+   $phone= $_POST['phone'];
+   $url= $_POST['url'];
+   $bio= str_replace("\r", "", $_POST['bio']);
+   $password1= $_POST['password1'];
+   $password2= $_POST['password2'];
+
+   if( $password1 != $password2 ) {
+     drupal_set_error ("The passwords do not match");
+     plc_redirect(l_person($person_id));
+  }
+
+   $update_vals= array();
+   $update_vals['first_name']= $first_name;
+   $update_vals['last_name']= $last_name;
+   $update_vals['title']= $title;
+   $update_vals['email']= $email;
+   $update_vals['phone']= $phone;
+   $update_vals['url']= $url;
+   $update_vals['bio']= $bio;
+		
+   if( $password1 != "" )
+     $update_vals['password']= $password1;
+    
+    $rc= $api->UpdatePerson( intval( $person_id ), $update_vals);
+    
+    if ( $rc == 1 ) {
+      drupal_set_message("$first_name $last_name updated");
+    } else {
+      drupal_set_error ("Could not update person $person_id" . $api->error());
+    }
+    plc_redirect(l_person($person_id));
+    break;
+  }
+
+//////////////////////////////////////////////////////////// nodes
+ case 'node-boot-state': {
+   $node_id=intval($_POST['node_id']);
+   $boot_state=$_POST['boot_state'];
+   $result=$api->UpdateNode( $node_id, array( "boot_state" => $boot_state ) );
+   if ($result==1) {
+     drupal_set_message("boot state updated");
+     plc_redirect (l_node($node_id));
+   } else {
+     drupal_set_error("Could not set boot_state '$boot_state'");
+   }
+   break;
+ }
+
+ case 'delete-node': {
+   $node_id=intval($_POST['node_id']);
+   $result=$api->DeleteNode( intval( $node_id ) );
+   if ($api==1) {
+     drupal_set_message("Node $node_id deleted");
+     plc_redirect (l_nodes());
+   } else {
+     drupal_set_error ("Could not delete node $node_id");
+   }
+   break;
+ }
+
+ case 'update-node': {
+   $hostname= $_POST['hostname'];
+   $model= $_POST['model'];
+
+   $fields= array( "hostname"=>$hostname, "model"=>$model );
+   $api->UpdateNode( intval( $node_id ), $fields );
+   $error= $api->error();
+
+   if( empty( $error ) ) {
+     drupal_set_message("Update node $hostname");
+     plc_redirect(l_node($node_id));
+   } else {
+     drupal_set_error($error);
+   }
+   break;
+ }
+
+//////////////////////////////////////////////////////////// sites
+ case 'delete-site': {
+   $site_id = intval($_POST['site_id']);
+   if ($api->DeleteSite($site_id) ==1) 
+     drupal_set_message ("Site $site_id deleted");
+   else
+     drupal_set_error("Failed to delete site $site_id");
+   plc_redirect (l_sites());
+ }
+
+ case 'expire-all-slices-in-site': {
+   // xxx todo
+   drupal_set_message("action $action not implemented in actions.php -- need tweaks and test");
+   return;
+
+   //// old code from sites/expire.php
+   $sites = $api->GetSites( array( intval( $site_id )));
+   $site=$sites[0];
+   // xxx why not 'now?'
+   $expiration= strtotime( $_POST['expires'] );
+   // loop through all slices for site
+   foreach ($site['slice_ids'] as $slice_id) {
+     $api->UpdateSlice( $slice_id, array( "expires" => $expiration ) );
+   }
+   // update site to not allow slice creation or renewal
+   $api->UpdateSite( $site_id, array( "max_slices" => 0 )) ;
+   plc_redirect (l_site($site_id));
+ }
+
+//////////////////////////////////////////////////////////// tags
 
  case 'update-tag-type': {
   // get post vars 
@@ -221,34 +351,6 @@ switch ($action) {
    plc_redirect( l_tag($id));
  }
 
- case 'delete-site': {
-   $site_id = intval($_POST['site_id']);
-   if ($api->DeleteSite($site_id) ==1) 
-     drupal_set_message ("Site $site_id deleted");
-   else
-     drupal_set_error("Failed to delete site $site_id");
-   plc_redirect (l_sites());
- }
-
- case 'expire-all-slices-in-site': {
-   // xxx todo
-   drupal_set_message("action $action not implemented in actions.php -- need tweaks and test");
-   return;
-
-   //// old code from sites/expire.php
-   $sites = $api->GetSites( array( intval( $site_id )));
-   $site=$sites[0];
-   // xxx why not 'now?'
-   $expiration= strtotime( $_POST['expires'] );
-   // loop through all slices for site
-   foreach ($site['slice_ids'] as $slice_id) {
-     $api->UpdateSlice( $slice_id, array( "expires" => $expiration ) );
-   }
-   // update site to not allow slice creation or renewal
-   $api->UpdateSite( $site_id, array( "max_slices" => 0 )) ;
-   plc_redirect (l_site($site_id));
- }
-
  case 'set-tag-on-node': {
 
    $node_id = intval($_POST['node_id']);
@@ -280,6 +382,7 @@ switch ($action) {
    plc_redirect (l_node($node_id));
  }
 
+////////////////////////////////////////
 
  case 'debug': {
    plc_debug('GET',$_GET);

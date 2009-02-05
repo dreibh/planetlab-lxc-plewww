@@ -93,9 +93,9 @@ class="plc_table sortable-onload-$this->column_sort rowstyle-alt colstyle-alt no
 EOF;
 
   if ($this->pagesize_area)
-    print $this->pagesize_area_text ();
+    print $this->pagesize_area_html ();
   if ($this->search_area) 
-    print $this->search_area_text ();
+    print $this->search_area_html ();
 
   print "<tr>";
   foreach ($this->headers as $label => $type) {
@@ -124,13 +124,13 @@ EOF;
   // xxx default should be used only if applicable
   function end ($options=NULL) {
     $this->set_options($options);
-    print $this->bottom_text();
+    print $this->bottom_html();
     if ($this->notes_area) 
-      print $this->notes_area_text();
+      print $this->notes_area_html();
   }
 		    
   ////////////////////
-  function pagesize_area_text () {
+  function pagesize_area_html () {
     $width=count($this->headers);
     $pagesize_text_id = $this->table_id . "_pagesize";
     $result= <<< EOF
@@ -147,7 +147,7 @@ EOF;
 }
 
   ////////////////////
-  function search_area_text () {
+  function search_area_html () {
     $width=count($this->headers);
     $search_text_id = $this->table_id . "_search";
     $search_reset_id = $this->table_id . "_search_reset";
@@ -170,17 +170,14 @@ EOF;
   }
 
   //////////////////// start a <tfoot> section
-  function tfoot_start () {
-    print $this->tfoot_start_text();
-  }
-
-  function tfoot_start_text () {
+  function tfoot_start () { print $this->tfoot_start_html(); }
+  function tfoot_start_html () {
     $this->has_tfoot=true;
     return "</tbody><tfoot>";
   }
 
   ////////////////////////////////////////
-  function bottom_text () {
+  function bottom_html () {
     $result="";
     if ($this->has_tfoot)
       $result .= "</tfoot>";
@@ -191,7 +188,7 @@ EOF;
   }
 
   ////////////////////////////////////////
-  function notes_area_text () {
+  function notes_area_html () {
     $default_notes =  array(
 	"Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes",
 	"Hold down the shift key to select multiple columns to sort");
@@ -224,10 +221,8 @@ EOF;
   }
 
   ////////////////////
-  public function cell ($text,$colspan=0,$align=NULL) {
-    print $this->cell_text ($text,$colspan,$align);
-  }
-  public function cell_text ($text,$colspan=0,$align=NULL) {
+  public function cell ($text,$colspan=0,$align=NULL) { print $this->cell_html ($text,$colspan,$align); }
+  public function cell_html ($text,$colspan=0,$align=NULL) {
     $result="";
     $result .= "<td";
     if ($colspan) $result .= " colspan=$colspan";

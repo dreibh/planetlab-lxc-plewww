@@ -52,11 +52,14 @@ if ($update_mode) {
 // display form for tag types
 plc_section($label,false);
 
-plc_form_start (l_actions(),array());
-plc_details_start();
-plc_details_line("Name", plc_form_text_text("name",$tagname,20));
-plc_details_line("Category", plc_form_text_text("category",$category,30));
-plc_details_line("Description",plc_form_textarea_text("description",$description,40,5));
+$form = new PlcForm (l_actions(),array());
+$form->start();
+// XXX make this updatable ?
+$details = new PlcDetails(false);
+$details->start();
+$details->line("Name", $form->text_html("name",$tagname,20));
+$details->line("Category", $form->text_html("category",$category,30));
+$details->line("Description",$form->textarea_html("description",$description,40,5));
 //tmp
 // select the option corresponding with min_role_id
 $selector = "<select name='min_role_id'>".
@@ -64,17 +67,17 @@ $selector = "<select name='min_role_id'>".
   "<option value='20'>PI</option>".
   "<option value='30'>User</option>" .
   "<option value='40'>Tech</option>" . "</select>\n";
-plc_details_line("Min Role",$selector);
+$details->line("Min Role",$selector);
 if ($update_mode) {
-  $submit=plc_form_hidden_text ('tag_type_id',$tag_type_id) . 
-    plc_form_submit_text('update-tag-type',"Update tag type");
+  $submit=$form->hidden_html ('tag_type_id',$tag_type_id) . 
+    $form->submit_html('update-tag-type',"Update tag type");
  } else {
-  $submit=plc_form_submit_text('add-tag-type',"Add tag type");
+  $submit=$form->submit_html('add-tag-type',"Add tag type");
  }
-plc_details_line1 ($submit,"right");
+$details->single ($submit,"right");
 
-plc_details_end();
-plc_form_end();
+$details->end();
+$form->end();
 
 // Print footer
 include 'plc_footer.php';

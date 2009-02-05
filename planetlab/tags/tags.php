@@ -78,8 +78,8 @@ foreach( $tag_types as $tag_type ) {
 if (plc_is_admin()) {
   $table->tfoot_start();
   $table->row_start();
-  $table->cell (plc_form_simple_button(l_tag_add(),"Add a Tag Type","GET"),
-		$table->columns(),"right");
+  $button=new PlcFormButton(l_tag_add(),"add_type_id","Add a Tag Type","GET");
+  $table->cell ($button->html(), $table->columns(),"right");
   $table->row_end();
  }
 

@@ -28,11 +28,13 @@ h2.plc {
     text-align: center;
 }
 
-
+/* tmp - for visual checking */
+.plc-local {
+    border: 1px solid #00f;
+}
 .plc-foreign {
     background:  #e0e0e0;
 }
-
 .plc-warning {
     background:  orange;
 }
@@ -45,3 +47,7 @@ h2.plc {
 *.plc-warning a:visited { text-decoration: none; color:white }
 *.plc-warning a:hover { text-decoration: none; color:black }
 
+/* separator below the minitabs area */
+p.plc-minitabs {
+    height:15px;
+}

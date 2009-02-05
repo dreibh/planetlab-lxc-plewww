@@ -74,11 +74,11 @@ $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
 $tabs=array();
 
 // update
-if ($privileges || $is_my_account) 
-  $tabs['Update'] = array('url'=>'/db/persons/update.php',
-			  'values'=>array('id'=>$person_id),
-			  'bubble'=>"Update $first_name $last_name");
-  
+//if ($privileges || $is_my_account) 
+//  $tabs['Update'] = array('url'=>'/db/persons/update.php',
+//			  'values'=>array('id'=>$person_id),
+//			  'bubble'=>"Update $first_name $last_name");
+//  
 // enable / disable
 if ($local_peer && $privileges) 
   if ($enabled) 
@@ -131,20 +131,36 @@ $peers->block_start ($peer_id);
 if ($local_peer && $privileges && ! $enabled ) 
   drupal_set_message ("$first_name $last_name is not enabled yet, you can enable her/him with the 'Enable' button below");
 
-$enabled_text="Enabled";
-if ( ! $enabled ) $enabled_text = plc_warning_text("Disabled");
+$enabled_label="Enabled";
+if ( ! $enabled ) $enabled_label = plc_warning_html("Disabled");
 
-plc_details_start();
-plc_details_line("Enabled",$enabled_text);
-plc_details_line("First Name",$first_name);
-plc_details_line("Last Name",$last_name);
-plc_details_line("Email",href("mailto:$email",$email));
-plc_details_line("URL",$url);
-plc_details_line("Phone",$phone);
-plc_details_line("Title",$title);
-plc_details_line("Bio",wordwrap($bio,50,"<br/>"));
-plc_details_line("Peer",$peers->peer_link($peer_id));
-plc_details_end();
+$can_update = $is_my_account || plc_is_admin();
+$details = new PlcDetails($can_update);
+$details->start();
+$details->line("Enabled",$enabled_label);
+$details->space();
+$details->form_start(l_actions(),array("action"=>"update-person",
+				       "person_id"=>$person_id));
+$details->line("Title",$title,"title");
+$details->line("First Name",$first_name,"first_name");
+$details->line("Last Name",$last_name,"last_name");
+$details->line(href("mailto:$email","Email"),$email,"email");
+$details->line("URL",$url,"url");
+$details->line("Phone",$phone,"phone");
+$details->line("Bio",wordwrap($bio,50,"<br/>"),"bio");
+// xxx need to check that this is working
+if ($can_update) {
+  $save=$details->set_input_type("password");
+  $details->line("Password","","password1");
+  $details->line("Repeat","","password2");
+  $details->set_input_type($save);
+ }
+// xxx need fields to reset password ?
+$details->line("",$details->submit_html("submit","Update Account"));
+$details->form_end();
+
+$details->line("Peer",$peers->peer_link($peer_id));
+$details->end();
 
 //////////////////// slices
 plc_section('Slices');
@@ -173,7 +189,8 @@ if( ! $slices) {
  }
 
 // we don't set 'action', but use the submit button name instead
-plc_form_start(l_actions(), array("person_id"=>$person_id,));
+$form=new PlcForm(l_actions(), array("person_id"=>$person_id));
+$form->start();
 
 //////////////////// keys
 plc_section ("Keys");
@@ -198,7 +215,7 @@ if ($keys) foreach ($keys as $key) {
   $table->cell ($key['key_type']);
   $table->cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
   if ($can_manage_keys) 
-    $table->cell (plc_form_checkbox_text('key_ids[]',$key_id));
+    $table->cell ($form->checkbox_html('key_ids[]',$key_id));
   $table->row_end();
 }
 // the footer area is used for displaying key-management buttons
@@ -208,14 +225,14 @@ if ($can_manage_keys) {
   // no need to remove if there's no key
   if ($keys) {
     $table->row_start();
-    $table->cell(plc_form_submit_text ("delete-keys","Remove keys"),
+    $table->cell($form->submit_html ("delete-keys","Remove keys"),
 		 $table->columns(),"right");
     $table->row_end();
   }
   $table->row_start();
-  $table->cell(plc_form_label_text("key","Upload new key") . plc_form_file_text("key",60),
+  $table->cell($form->label_html("key","Upload new key") . $form->file_html("key",60),
 	       $table->columns()-1,"right");
-  $table->cell(plc_form_submit_text("upload-key","Upload key"));
+  $table->cell($form->submit_html("upload-key","Upload key"));
   $table->row_end();
 }
 
@@ -245,7 +262,7 @@ foreach( $sites as $site ) {
   $table->cell ($login_base);
   $table->cell (l_site_t($site_id,$site_name));
   if ($can_manage_sites)
-    $table->cell (plc_form_checkbox_text('site_ids[]',$site_id));
+    $table->cell ($form->checkbox_html('site_ids[]',$site_id));
   $table->row_end ();
 }
 if ($can_manage_sites) {
@@ -253,7 +270,7 @@ if ($can_manage_sites) {
 
   if ($sites) {
     $table->row_start();
-    $table->cell(plc_form_submit_text("remove-person-from-sites","Remove Sites"),
+    $table->cell($form->submit_html("remove-person-from-sites","Remove Sites"),
 		 $table->columns(),"right");
     $table->row_end();
   }
@@ -267,8 +284,8 @@ if ($can_manage_sites) {
   // xxx cannot use onchange=submit() - would need to somehow pass action name 
   function select_arguments($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
   $selectors = array_map ("select_arguments",$relevant_sites);
-  $table->cell (plc_form_select_text("site_id",$selectors,"Choose a site to add").
-		plc_form_submit_text("add-person-to-site","Add in site"),
+  $table->cell ($form->select_html("site_id",$selectors,"Choose a site to add").
+		$form->submit_html("add-person-to-site","Add in site"),
 		$table->columns(),"right");
   $table->row_end();
  }
@@ -297,7 +314,7 @@ for ($n=0; $n<count($roles); $n++) {
 if ($role_objs) foreach ($role_objs as $role_obj) {
   $table->row_start();
   $table->cell($role_obj['name']);
-  if ($can_manage_roles) $table->cell (plc_form_checkbox_text('role_ids[]',$role_obj['role_id']));
+  if ($can_manage_roles) $table->cell ($form->checkbox_html('role_ids[]',$role_obj['role_id']));
   $table->row_end();
  }
 
@@ -306,7 +323,7 @@ if ($can_manage_roles) {
   $table->tfoot_start();
   if ($roles) {
     $table->row_start();
-    $table->cell(plc_form_submit_text("remove-roles-from-person","Remove Roles"),
+    $table->cell($form->submit_html("remove-roles-from-person","Remove Roles"),
 		 $table->columns(),"right");
     $table->row_end();
   }
@@ -317,9 +334,9 @@ if ($can_manage_roles) {
   $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
   function selector_argument ($role) { return array('display'=>$role['name'],"value"=>$role['role_id']); }
   $selectors=array_map("selector_argument",$relevant_roles);
-  $add_role_left_area=plc_form_select_text("role_id",$selectors,"Choose a role to add");
+  $add_role_left_area=$form->select_html("role_id",$selectors,"Choose a role to add");
   // add a role : the button
-  $add_role_right_area=plc_form_submit_text("add-role-to-person","Add role");
+  $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
   $table->cell ($add_role_left_area . $add_role_right_area,
 		$table->columns(),"right");
   $table->row_end();
@@ -327,7 +344,7 @@ if ($can_manage_roles) {
 $table->end();
 
 //////////////////////////////
-plc_form_end();
+$form->end();
 $peers->block_end($peer_id);
   
 // Print footer

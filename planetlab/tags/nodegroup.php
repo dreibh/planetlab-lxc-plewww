@@ -18,8 +18,6 @@ require_once 'plc_functions.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
-//require_once 'plc_forms.php';
-//require_once 'plc_peers.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -54,12 +52,13 @@ $tabs ["Local nodes"] = array ('url'=>l_nodes_peer('local'),
 drupal_set_title("Details for node group " . $nodegroup['groupname']);
 plc_tabs($tabs);
 
-plc_details_start();
-plc_details_line ("Node group name",$nodegroup['groupname']);
-plc_details_line ("Based on tag",href(l_tag($nodegroup['tag_type_id']),$tagname));
-plc_details_line("Matching value",$nodegroup['value']);
-plc_details_line("# nodes",count($nodegroup['node_ids']));
-plc_details_end();
+$details=new PlcDetails(false);
+$details->start();
+$details->line ("Node group name",$nodegroup['groupname']);
+$details->line ("Based on tag",href(l_tag($nodegroup['tag_type_id']),$tagname));
+$details->line("Matching value",$nodegroup['value']);
+$details->line("# nodes",count($nodegroup['node_ids']));
+$details->end();
 
 // xxx : add & delete buttons would make sense here too
 plc_section("Nodes");

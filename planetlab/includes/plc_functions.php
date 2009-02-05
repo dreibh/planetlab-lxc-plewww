@@ -47,6 +47,8 @@ function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; 
 // l_object_add ()		-> the url to that object-afding page
 
 function l_actions ()			{ return "/db/actions.php"; }
+// some complex node actions are kept separate, e.g. the ones related to getbootmedium
+function l_actions_download ()		{ return "/db/nodes/node_downloads.php"; }
 
 function l_nodes ()			{ return "/db/nodes/index.php"; }
 function l_nodes_peer ($peer_id)	{ return "/db/nodes/index.php?peerscope=$peer_id"; }
@@ -287,9 +289,9 @@ function plc_errors ($errors) {
   }
 }
 
-function plc_warning_text ($text)	{ return "<span class='plc-warning'>" . $text . "</span>";}
-function plc_warning ($text)		{ print plc_warning_text("Warning " . $text); }
-function plc_foreign_text($text)	{ return "<span class=plc-foreign>$text</span>"; }
+function plc_warning_html ($text)	{ return "<span class='plc-warning'>" . $text . "</span>";}
+function plc_warning ($text)		{ print plc_warning_html("Warning " . $text); }
+function plc_foreign_html($text)	{ return "<span class=plc-foreign>$text</span>"; }
 
 // shows a php variable verbatim with a heading message
 function plc_debug ($message,$object) {
@@ -315,7 +317,7 @@ if (! function_exists ("drupal_set_error")) {
 //////////////////////////////////////////////////////////// sort out for obsolete / trash
 // builds a table from an array of strings, with the given class
 // attempt to normalize the delete buttons and confirmations
-function plc_delete_button($width=15) {
+function plc_delete_icon($width=15) {
   return '<span title="Delete this entry"><img width=' . $width . ' alt="Delete this entry" src="/planetlab/icons/delete.png"></span>';
 }
 
@@ -328,7 +330,7 @@ function plc_delete_link($url,$delete_message,$visible) {
 }
 
 function plc_delete_link_button($url,$delete_message,$width=15) {
-  return "<a href='" . $url . "' " . plc_js_confirm($delete_message) . ">" . plc_delete_button($width) . "</a>";
+  return "<a href='" . $url . "' " . plc_js_confirm($delete_message) . ">" . plc_delete_icon($width) . "</a>";
 }
 
 function plc_event_button($type,$param,$id) {

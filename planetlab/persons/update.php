@@ -28,42 +28,6 @@ if( isset($_GET['id']) && is_numeric($_GET['id']) ) {
 $errors= array();
 
 if( $is_submitted ) {
-  // attempt to update this person
-  $first_name= $_POST['first_name'];
-  $last_name= $_POST['last_name'];
-  $title= $_POST['title'];
-  $email= $_POST['email'];
-  $phone= $_POST['phone'];
-  $url= $_POST['url'];
-  $bio= str_replace("\r", "", $_POST['bio']);
-  $password1= $_POST['password1'];
-  $password2= $_POST['password2'];
-
-  if( $password1 != $password2 ) {
-    $errors[]= "The passwords do not match";
-  }
-
-  if( count($errors) == 0 ) {   
-    $update_vals= array();
-    $update_vals['first_name']= $first_name;
-    $update_vals['last_name']= $last_name;
-    $update_vals['title']= $title;
-    $update_vals['email']= $email;
-    $update_vals['phone']= $phone;
-    $update_vals['url']= $url;
-    $update_vals['bio']= $bio;
-		
-    if( $password1 != "" )
-      $update_vals['password']= $password1;
-    
-    $rc= $api->UpdatePerson( intval( $person_id ), $update_vals);
-    
-    if ( $rc == 1 ) {
-      plc_redirect(l_person($person_id));
-    } elseif ($rc === NULL) {
-      $errors[] = $api->error();
-    }
-  }
  } else {
   // get details for the user
   $person_details= $api->GetPersons( array( intval( $person_id ) ), array( "person_id", "first_name", "last_name", "title", "email", "phone", "url", "bio" ) );

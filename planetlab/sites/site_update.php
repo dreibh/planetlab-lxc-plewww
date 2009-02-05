@@ -133,10 +133,8 @@ if( $error['max_slices'] )
   $max_err= " style='border: 1px solid red;'";
 
 // start form
-require_once 'plc_forms.php';
 
-plc_
-echo "<form action='update_site.php?id=$site_id' method='post'>\n";
+echo "<form action='site_update.php?id=$site_id' method='post'>\n";
 echo "<h2>$do $name</h2>\n";
 
 echo "<table><tbody>\n";

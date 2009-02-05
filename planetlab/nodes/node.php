@@ -108,13 +108,9 @@ $tabs=array();
 // available actions
 if ( $local_peer  && $privileges ) {
     
-  $tabs['Update'] = array ('url'=>"/db/nodes/node_actions.php",
+  $tabs['Delete'] = array ('url'=>l_actions(),
 			   'method'=>'POST',
-			   'values'=>array('action'=>'prompt-update','node_id'=>$node_id),
-			   'bubble'=>"Update details of $hostname");
-  $tabs['Delete'] = array ('url'=>"/db/nodes/node_actions.php",
-			   'method'=>'POST',
-			   'values'=>array('action'=>'delete','node_id'=>$node_id),
+			   'values'=>array('action'=>'delete-node','node_id'=>$node_id),
 			   'bubble'=>"Delete node $hostname",
 			   'confirm'=>'Are you sure to delete ' . $hostname. ' ?');
   // xxx subject to roles
@@ -135,77 +131,79 @@ plc_tabs($tabs);
 // show gray background on foreign objects : start a <div> with proper class
 $peers->block_start ($peer_id);
   
-plc_details_start ();
+$details=new PlcDetails($privileges);
+$details->start();
 if ( ! $local_peer) {
-  plc_details_line("Peer",$peers->peer_link($peer_id));
-  plc_details_space_line();
+  $details->line("Peer",$peers->peer_link($peer_id));
+  $details->space();
  }
 
-plc_details_line("Hostname",$hostname);
-plc_details_line("Type",$node_type);
-plc_details_line("Model",$model);
-plc_details_line("Version",$version);
-// no tool to implement this multiple-choice setting yet
-// xxx would need at least to use the proper class, like plc_details_class() or something
-plc_details_space_line ();
-echo "<tr><th>Boot State: </th><td>";
-if ( ! $local_peer) {
-  echo $boot_state;
+$details->form_start(l_actions(),array("action"=>"update-node",
+				       "node_id"=>$node_id));
+$details->line("Hostname",$hostname,"hostname"); 
+$details->line("Model",$model,"model");
+$details->line("",$details->submit_html("submit","Update Node"));
+$details->form_end();
+$details->line("Type",$node_type);
+$details->line("Version",$version);
+
+// boot area
+$details->space ();
+if ( ! ($local_peer && $privileges)) {
+  // just display it
+  $boot_value=$boot_state;
  } else {
-  echo "<form name='bootstate' action='/db/nodes/node_actions.php' method=post>\n";
-  echo "<input type=hidden name='node_id' value='$node_id'>\n";
-  echo "<input type=hidden name='action' value='boot-state'>\n";
-  echo "<select name='boot_state' onChange=\"submit();\">\n";
-
-  $states= array( 'boot'=>'Boot', 'dbg'=>'Debug', 'inst'=>'Install', 'rins'=>'Reinstall', 'rcnf'=>'Reconfigure', 'new'=>'New' );
-
-  foreach( $states as $key => $val ) {
-    echo "<option value='$key'";
-      
-    if( $key == $boot_state )
-      echo " selected";
-      
-    echo ">$val</option>\n";
-      
+  $boot_value="";
+  $boot_form = new PlcForm (l_actions(), array("node_id"=>$node_id,
+					       "action"=>"node-boot-state"));
+  $boot_value .= $boot_form->start_html();
+  $states = array( 'boot'=>'Boot', 'safeboot'=>'SafeBoot', 'failboot'=>'FailBoot', 
+		   'disabled' => 'Disabled', 'install'=>'Install', 'reinstall'=>'Reinstall');
+  $selectors=array();
+  foreach ($states as $dbname=>$displayname) { 
+    $selector=array("display"=>$displayname, "value"=>$dbname);
+    if ($dbname == $boot_state) $selector['selected']=true;
+    $selectors []= $selector;
   }
-  echo "</select></input></form>";
+  $boot_value .= $boot_form->select_html("boot_state",$selectors,NULL,true);
+  $boot_value .= $boot_form->end_html();
  }
-echo "</td></tr>\n";
+$details->line ("Boot state",$boot_value);
 
 // same here for the download area
 if ( $local_peer  && $privileges) {
 
-  echo "<tr><th>Download </th><td>";
-  echo "<form name='download' action='/db/nodes/node_actions.php' method='post'>\n";
-  echo "<input type=hidden name='node_id' value='$node_id'></input>\n";
-  echo "<select name='action' onChange='submit();'>\n";
-  echo "<option value='' selected='selected'> Download Mode </option>\n";
-  echo "<option value='' disabled='disabled'> -- All in one images -- </option>"; 
-  echo "<option value='download-node-iso' $new_api_only> Download ISO image for $hostname</option>\n";
-  echo "<option value='download-node-usb' $new_api_only> Download USB image for $hostname</option>\n";
-  echo "<option value='' disabled='disabled'> -- Floppy + generic image -- </option>"; 
-  echo "<option value='download-node-floppy'> Download Floppy file for $hostname</option>\n";
-  echo "<option value='download-generic-iso' $new_api_only> Download generic ISO image (requires floppy) </option>\n";
-  echo "<option value='download-generic-usb' $new_api_only> Download generic USB image (requires floppy) </option>\n";
-  echo "</select></form>";
-  echo "</td></tr>\n";
-
+  $download_value="";
+  $download_form = new PlcForm (l_actions_download(),array("node_id"=>$node_id));
+  $download_value .= $download_form->start_html();
+  $selectors = array( 
+		     array("display"=>"-- All in one images --","disabled"=>true),
+		     array("value"=>"download-node-iso","display"=>"Download ISO image for $hostname"),
+		     array("value"=>"download-node-usb","display"=>"Download USB image for $hostname<"),
+		     array("display"=>"-- Floppy + generic image --","disabled"=>true),
+		     array("value"=>"download-node-floppy","display"=>"Download Floppy file for $hostname"),
+		     array("value"=>"download-generic-iso","display"=>"Download generic ISO image (requires floppy)"),
+		     array("value"=>"download-generic-usb","display"=>"Download generic USB image (requires floppy)"));
+  $download_value .= $download_form->select_html("action",$selectors,"Download mode",true);
+  $download_value .= $download_form->end_html();
+  $details->line ("Download",$download_value);
  }
 
 // site info and all site nodes
-plc_details_space_line ();
-plc_details_line("Site",l_site_t($site_id,$site_name));
+$details->space ();
+$details->line("Site",l_site_t($site_id,$site_name));
 		   
 // build list of node links
 $nodes_area=array();
 foreach ($site_node_hash as $hash_node_id => $hash_hostname) {
   $nodes_area []= l_node_t($hash_node_id,$hash_hostname);
 }
-plc_details_line_list ("All site nodes",$nodes_area);
+$details->lines ("All site nodes",$nodes_area);
 
-plc_details_end ();
+$details->end ();
 
-plc_form_start(l_actions(), array('node_id'=>$node_id));
+$form=new PlcForm (l_actions(), array('node_id'=>$node_id));
+$form->start();
 
 //////////////////////////////////////////////////////////// Tags
 // get tags
@@ -236,7 +234,8 @@ if ( $local_peer ) {
       $table->cell($tag['tagname']);
       $table->cell($tag['value']);
       $table->cell($nodegroup_name);
-      $table->cell (plc_form_checkbox_text('node_tag_ids[]',$tag['node_tag_id']));
+      // the remove checkbox
+      $table->cell ($form->checkbox_html('node_tag_ids[]',$tag['node_tag_id']));
       $table->row_end();
     }
   
@@ -245,7 +244,7 @@ if ( $local_peer ) {
 
     // remove tag 
     $table->row_start();
-    $table->cell(plc_form_submit_text("remove-node-tags","Remove Tags"),
+    $table->cell($form->submit_html("remove-node-tags","Remove Tags"),
 		 // use the whole columns and right adjust
 		 $table->columns(), "right");
     $table->row_end();
@@ -257,42 +256,12 @@ if ( $local_peer ) {
     // xxx cannot use onchange=submit() - would need to somehow pass action name 
     function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
     $selector=array_map("tag_selector",$all_tags);
-    $table->cell(plc_form_select_text("tag_type_id",$selector,"Choose"));
-    $table->cell(plc_form_text_text("value","",8));
-    $table->cell(plc_form_submit_text("set-tag-on-node","Set Tag"),2,"left");
+    $table->cell($form->select_html("tag_type_id",$selector,"Choose"));
+    $table->cell($form->text_html("value","",8));
+    $table->cell($form->submit_html("set-tag-on-node","Set Tag"),2,"left");
     $table->row_end();
   }
   
-  $table->end();
- }
-
-//////////////////////////////////////////////////////////// slices
-// display slices
-
-plc_section ("Slices");
-if ( ! $slices  ) {
-  plc_warning ("This node is not associated to any slice");
- } else {
-  $headers=array();
-  $headers['Peer']="string";
-  $headers['Name']="string";
-  $headers['Slivers']="string";
-  $reasonable_page=10;
-  $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
-  if (count ($slices) <= $reasonable_page) {
-    $table_options['search_area']=false;
-    $table_options['pagesize_area']=false;
-  }
-  $table=new PlcTable("node_slices",$headers,1,$table_options);
-  $table->start();
-
-  foreach ($slices as $slice) {
-    $table->row_start();
-    $table->cell ($peers->shortname($peer_id));
-    $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
-    $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
-    $table->row_end();
-  }
   $table->end();
  }
 
@@ -303,7 +272,7 @@ if ( $local_peer ) {
   // display interfaces
   if( ! $interfaces ) {
     echo '<p>';
-    plc_warning_text("This node has no interface");
+    plc_warning_html("This node has no interface");
     echo "Please add an interface to make this a usable PLC node.</p>\n";
   } else {
     $headers=array();
@@ -358,15 +327,45 @@ if ( $local_peer ) {
     if ($privileges) {
       $table->tfoot_start();
       $table->row_start();
-      $table->cell(plc_form_simple_button(l_interface_add($node_id),"Add interface","GET"),
-		   $table->columns(),"right");
+      $button=new PlcFormButton (l_interface_add($node_id),"add_interface","Add interface","GET");
+      $table->cell($button->html(), $table->columns(),"right");
       $table->row_end();
     }
     $table->end();
   }
  }
 
-plc_form_end();
+//////////////////////////////////////////////////////////// slices
+// display slices
+
+plc_section ("Slices");
+if ( ! $slices  ) {
+  plc_warning ("This node is not associated to any slice");
+ } else {
+  $headers=array();
+  $headers['Peer']="string";
+  $headers['Name']="string";
+  $headers['Slivers']="string";
+  $reasonable_page=10;
+  $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
+  if (count ($slices) <= $reasonable_page) {
+    $table_options['search_area']=false;
+    $table_options['pagesize_area']=false;
+  }
+  $table=new PlcTable("node_slices",$headers,1,$table_options);
+  $table->start();
+
+  foreach ($slices as $slice) {
+    $table->row_start();
+    $table->cell ($peers->shortname($peer_id));
+    $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
+    $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
+    $table->row_end();
+  }
+  $table->end();
+ }
+
+$form->end();
 
 ////////////////////////////////////////////////////////////
 $peers->block_end($peer_id);
