@@ -38,7 +38,7 @@ if (empty($sites)) {
 $site=$sites[0];
 // var names to api return
 $sitename= htmlentities($site['name']);
-$abbrev_name= htmlentities($site['abbreviated_name']);
+$abbreviated_name= htmlentities($site['abbreviated_name']);
 $site_url= $site['url'];
 $login_base= $site['login_base'];
 $site_lat= $site['latitude'];
@@ -82,13 +82,13 @@ list( $addresses, $nodes, $persons, $slices )= $api->commit();
   
 $techs = array();
 $pis = array();
+$disabled_persons = array();
 foreach( $persons as $person ) {
   $role_ids= $person['role_ids'];
-  if( in_array( '40', $role_ids ))
-    $techs[] = $person;
-  
-  if( in_array( '20', $role_ids ))
-    $pis[] = $person;
+
+  if ( in_array( '20', $role_ids ))	$pis[] = $person;
+  if ( in_array( '40', $role_ids ))	$techs[] = $person;
+  if ( ! $person['enabled'] )		$disabled_persons[] = $person;
   
 }
 
@@ -102,9 +102,6 @@ $tabs=array();
 // available actions
 if ( $local_peer  && $privileges ) {
   
-  $tabs['Update']=array('url'=>l_site_update($site_id),
-			'bubble'=>"Update details of $sitename");
-  // not avail to PI
   $tabs['Expire slices'] = array('url'=>l_actions(),
 				 'method'=>'POST',
 				 'values'=>array('site_id'=>$site_id,
@@ -144,15 +141,32 @@ if ( ! $enabled )
 
 $can_update=plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
 $details = new PlcDetails($can_update);
-// XXX make this updatable
+
+if ( ! $site['is_public']) 
+  plc_warning("This site is not public!");
+
 $details->start();
-$details->line("Full name",$sitename);
-$details->line("Login base",$login_base);
-$details->line("Abbreviated name",$abbrev_name);
-$details->line("URL",$site_url);
-$details->line("Latitude",$site_lat);
-$details->line("Longitude",$site_long);
 $details->line("Peer",$peers->peer_link($peer_id));
+$details->space();
+
+$details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
+$save_w=$details->set_field_width(30);
+$details->line("Full name",$sitename,'name');
+$details->set_field_width($save_w);
+$details->line("Abbreviated name",$abbreviated_name,'abbreviated_name');
+$details->line("URL",$site_url,'url');
+$details->line("Latitude",$site_lat,'latitude');
+$details->line("Longitude",$site_long,'longitude');
+if (plc_is_admin()) 
+  $details->line("Login base",$login_base,'login_base');
+else
+  $details->line("Login base",$login_base);
+if (plc_is_admin())
+  $details->line("Max slices",$max_slices,'max_slices');
+else
+  $details->line("Max slices",$max_slices);
+$details->line("",$details->submit_html("submit","Update Site"));
+$details->form_end();
 
 if ( $local_peer ) {
 
@@ -164,14 +178,15 @@ if ( $local_peer ) {
   $details->line("# Nodes", href(l_nodes_site($site_id),$node_label));
   function n_link ($n) { return l_node_t($n['node_id'],$n['hostname'] . " (" . $n['boot_state'] . ")");}
   $nodes_label= plc_vertical_table(array_map ("n_link",$nodes));
-  $details->line ("hostnames",$nodes_label);
-		   
+  $details->line ("Hostnames",$nodes_label);
+  $button=new PlcFormButton (l_node_add(),"add_node","Add node","POST");
+  $details->line("",$button->html());
 
   // Users
   $details->space();
-  $user_label = count($person_ids) . " total / " .
+  $user_label = count($person_ids) . " Total / " .
     count ($pis) . " PIs / " .
-    count ($techs) . " techs";
+    count ($techs) . " Techs";
   if ( (count ($pis) == 0) || (count ($techs) == 0) || (count($person_ids) >=50)) 
     $user_label = plc_warning_html ($user_label);
   $details->line ("# Users",href(l_persons_site($site_id),$user_label));
@@ -179,8 +194,9 @@ if ( $local_peer ) {
   // PIs
   $details->line("PI's",plc_vertical_table (array_map ("p_link",$pis)));
   // techs
-  $details->line("techs's",plc_vertical_table (array_map ("p_link",$techs)));
-
+  $details->line("Techs's",plc_vertical_table (array_map ("p_link",$techs)));
+  if (count ($disabled_persons)) 
+    $details->line("Disabled",plc_vertical_table (array_map ("p_link",$disabled_persons)));
 
   // Slices
   $details->space();
@@ -191,6 +207,8 @@ if ( $local_peer ) {
   $details->line("# Slices", href(l_slices_site($site_id),$slice_label));
   if ($slices) foreach ($slices as $slice)
      $details->line($slice['instantiation'],l_slice_obj($slice));
+  $button=new PlcFormButton (l_slice_add(),"slice_add","Add slice","POST");
+  $details->line("",$button->html());
 
   // Addresses
   if ($addresses) {

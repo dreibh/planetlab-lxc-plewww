@@ -105,7 +105,7 @@ echo "<script type='text/javascript'>
 
 
 // start form
-echo "<form action='add_slice.php' method=post>\n";
+echo "<form action='slice_add.php' method=post>\n";
 
 if( $error['api'] )
   echo "<font class='plc-warning'>". $error['api'] ."</font>\n";

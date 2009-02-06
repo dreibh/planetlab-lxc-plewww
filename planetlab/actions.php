@@ -49,19 +49,32 @@ $known_actions []= "delete-node";
 //	expects:	node_id
 $known_actions []= "update-node";	
 //	expects:	node_id, hostname, model
+
+//////////////////////////////////////// interfaces
+$known_actions []= "delete-interfaces";	
+//	expects:	interface_ids
+
 //////////////////////////////////////// sites
 $known_actions []= "delete-site";	
 //	expects:	site_id
 $known_actions []= "expire-all-slices-in-site";
 //	expects:	slice_ids
+$known_actions []= "update-site";
+//	expects:	site_id & name abbreviated_name url latitude longitude [login_base max_slices]
 
 //////////////////////////////////////// tags
 $known_actions []= "update-tag-type";
 //	expects:	tag_type_id & name & description & category & min_role_id  
 $known_actions []= "add-tag-type";
-//	expects:	tag_type_id & name & description & category & min_role_id  
+//	expects:	tag_type_id & tagname & description & category & min_role_id  
 $known_actions []= "set-tag-on-node";
 //	expects:	node_id tagname value
+$known_actions []= "delete-tag-types";
+//	expects:	tag_type_ids
+
+//////////////////////////////////////// nodetags
+$known_actions []= "delete-node-tags";
+//	expects:	node_id & node_tag_ids
 
 //////////////////////////////
 // sometimes we don't set 'action', but use the submit button name instead
@@ -75,13 +88,13 @@ else
       break;
     }
 
-//debug
+//uncomment for debugging incoming data
 //$action='debug';
 
 $person_id = $_POST['person_id'];	// usually needed
 
 if ( ! $action ) {
-  drupal_set_message ("actions.php: action not set");
+  drupal_set_message ("actions.php: action not set or not in known_actions");
   plc_debug('POST',$_POST);
   return;
  }
@@ -152,9 +165,18 @@ switch ($action) {
      drupal_set_message("action=$action - No key selected");
      return;
    }
+   $success=true;
+   $counter=0;
    foreach( $key_ids as $key_id ) {
-     $api->DeleteKey( intval( $key_id ) );
+     if ($api->DeleteKey( intval( $key_id )) != 1) 
+       $success=false;
+     else
+       $counter++;
    }
+   if ($success) 
+     drupal_set_message ("Deleted $counter key(s)");
+   else
+     drupal_set_error ("Could not delete all selected keys, only $counter were removed");
    plc_redirect(l_person($person_id));
  }
 
@@ -183,14 +205,13 @@ switch ($action) {
    $key = fread($fp, filesize($key_file));
    fclose($fp);
    
-   $key_id= $api->AddPersonKey( intval( $person_id ), array( "key_type"=> 'ssh', "key"=> $key ) );
+   $key_id = $api->AddPersonKey( intval( $person_id ), array( "key_type"=> 'ssh', "key"=> $key ) );
    
-   if ( ! $key_id ) {
-     $error=  $api->error();
-     plc_error("$error");
-     plc_error("Please verify your SSH  file content");
-     return;
-   }
+   if ( $key_id == 1) 
+     drupal_set_message ("New key added");
+   else
+     drupal_set_error("Could not add key, please verify your SSH file content\n" . $api->error());
+   
    plc_redirect(l_person($person_id));
  }
 
@@ -221,16 +242,14 @@ switch ($action) {
    $update_vals['url']= $url;
    $update_vals['bio']= $bio;
 		
-   if( $password1 != "" )
+   if ( $password1 != "" )
      $update_vals['password']= $password1;
     
-    $rc= $api->UpdatePerson( intval( $person_id ), $update_vals);
-    
-    if ( $rc == 1 ) {
+    if ( $api->UpdatePerson( intval( $person_id ), $update_vals) == 1 )
       drupal_set_message("$first_name $last_name updated");
-    } else {
+    else 
       drupal_set_error ("Could not update person $person_id" . $api->error());
-    }
+
     plc_redirect(l_person($person_id));
     break;
   }
@@ -278,6 +297,30 @@ switch ($action) {
    break;
  }
 
+//////////////////////////////////////////////////////////// interfaces
+ case 'delete-interfaces' : {
+   $interface_ids=$_POST['interface_ids'];
+   if ( ! $interface_ids) {
+     drupal_set_message("action=$action - No interface selected");
+     return;
+   }
+   $success=true;
+   $counter=0;
+   foreach( $interface_ids as $interface_id ) {
+     if ($api->DeleteInterface( intval( $interface_id )) != 1) 
+       $success=false;
+     else
+       $counter++;
+   }
+   if ($success) 
+     drupal_set_message ("Deleted $counter interface(s)");
+   else
+     drupal_set_error ("Could not delete all selected interfaces, only $counter were removed");
+   plc_redirect(l_node($_POST['node_id']));
+ }
+
+
+
 //////////////////////////////////////////////////////////// sites
  case 'delete-site': {
    $site_id = intval($_POST['site_id']);
@@ -286,6 +329,7 @@ switch ($action) {
    else
      drupal_set_error("Failed to delete site $site_id");
    plc_redirect (l_sites());
+   break;
  }
 
  case 'expire-all-slices-in-site': {
@@ -305,6 +349,37 @@ switch ($action) {
    // update site to not allow slice creation or renewal
    $api->UpdateSite( $site_id, array( "max_slices" => 0 )) ;
    plc_redirect (l_site($site_id));
+   break;
+ }
+
+ case 'update-site': {
+   $site_id=intval($_POST['site_id']);
+   $name= $_POST['name'];
+   $abbreviated_name= $_POST['abbreviated_name'];
+   $url= $_POST['url'];
+   $latitude= floatval($_POST['latitude']);
+   $longitude= floatval($_POST['longitude']);
+   //$max_slivers= $_POST['max_slivers'];
+   
+   $fields= array( "name" => $name, 
+		   "abbreviated_name" => $abbreviated_name, 
+		   "url" => $url, 
+		   "latitude" => floatval( $latitude ), 
+		   "longitude" => floatval( $longitude ));
+
+   if ($_POST['login_base']) 
+     $fields['login_base'] = $_POST['login_base'];
+   if ($_POST['max_slices']) 
+     $fields['max_slices'] = intval($_POST['max_slices']);
+   
+   $retcod=$api->UpdateSite( intval( $site_id ), $fields );
+   if ($retcod == 1) 
+     drupal_set_message("Site $name updated");
+   else 
+     drupal_set_error ("Could not update site $site_id");
+     
+   plc_redirect(l_site($site_id));
+   break;
  }
 
 //////////////////////////////////////////////////////////// tags
@@ -312,43 +387,46 @@ switch ($action) {
  case 'update-tag-type': {
   // get post vars 
    $tag_type_id= intval( $_POST['tag_type_id'] );
-   $name = $_POST['name'];
+   $tagname = $_POST['tagname'];
    $min_role_id= intval( $_POST['min_role_id'] );
    $description= $_POST['description'];  
    $category= $_POST['category'];  
   
    // make tag_type_fields dict
    $tag_type_fields= array( "min_role_id" => $min_role_id, 
-			    "tagname" => $name, 
+			    "tagname" => $tagname, 
 			    "description" => $description,
 			    "category" => $category,
 			    );
 
-   // Update it!
-   $api->UpdateTagType( $tag_type_id, $tag_type_fields );
-   
+   if ($api->UpdateTagType( $tag_type_id, $tag_type_fields ) == 1) 
+     drupal_set_message ("Tag type $tagname updated");
+   else 
+     drupal_set_error ("Could not update tag type $tag_type_id\n".$api->error());
    plc_redirect(l_tag($tag_type_id));
  }
 
  case 'add-tag-type': {
   // get post vars 
-   $name = $_POST['name'];
+   $tagname = $_POST['tagname'];
    $min_role_id= intval( $_POST['min_role_id'] );
    $description= $_POST['description'];  
    $category= $_POST['category'];  
   
    // make tag_type_fields dict
    $tag_type_fields= array( "min_role_id" => $min_role_id, 
-			    "tagname" => $name, 
+			    "tagname" => $tagname, 
 			    "description" => $description,
 			    "category" => $category,
 			    );
 
   // Add it!
-   $id=$api->AddTagType( $tag_type_fields );
-   drupal_set_message ("tag type $id created");
-  
-   plc_redirect( l_tag($id));
+   $tag_type_id=$api->AddTagType( $tag_type_fields );
+   if ($tag_type_id > 0) 
+     drupal_set_message ("tag type $tag_type_id created");
+   else
+     drupal_set_error ("Could not create tag type $tagname");
+   plc_redirect( l_tags());
  }
 
  case 'set-tag-on-node': {
@@ -381,6 +459,50 @@ switch ($action) {
    
    plc_redirect (l_node($node_id));
  }
+
+ case 'delete-tag-types': {
+   $tag_type_ids = $_POST['tag_type_ids'];
+   if ( ! $tag_type_ids) {
+     drupal_set_message("action=$action - No tag selected");
+     return;
+   }
+   $success=true;
+   $counter=0;
+   foreach ($tag_type_ids as $tag_type_id) 
+     if ($api->DeleteTagType(intval($tag_type_id)) != 1) 
+       $success=false;
+     else
+       $counter++;
+   if ($success) 
+     drupal_set_message ("Deleted $counter tag(s)");
+   else
+     drupal_set_error ("Could not delete all selected tags, only $counter were removed");
+   plc_redirect (l_tags());
+   break;
+ }
+
+//////////////////////////////////////// node tags   
+ case 'delete-node-tags' : {
+   $node_tag_ids=$_POST['node_tag_ids'];
+   if ( ! $node_tag_ids) {
+     drupal_set_message("action=$action - No node tag selected");
+     return;
+   }
+   $success=true;
+   $counter=0;
+   foreach( $node_tag_ids as $node_tag_id ) {
+     if ($api->DeleteNodeTag( intval( $node_tag_id )) != 1) 
+       $success=false;
+     else
+       $counter++;
+   }
+   if ($success) 
+     drupal_set_message ("Deleted $counter node tag(s)");
+   else
+     drupal_set_error ("Could not delete all selected node tags, only $counter were removed");
+   plc_redirect(l_node($_POST['node_id']));
+ }
+
 
 ////////////////////////////////////////
 

@@ -20,6 +20,7 @@ require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
 require_once 'plc_forms.php';
+require_once 'plc_objects.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -138,14 +139,19 @@ if ( ! $local_peer) {
   $details->space();
  }
 
-$details->form_start(l_actions(),array("action"=>"update-node",
-				       "node_id"=>$node_id));
+$details->form_start(l_actions(),array("action"=>"update-node", "node_id"=>$node_id));
 $details->line("Hostname",$hostname,"hostname"); 
 $details->line("Model",$model,"model");
 $details->line("",$details->submit_html("submit","Update Node"));
 $details->form_end();
+
 $details->line("Type",$node_type);
 $details->line("Version",$version);
+// let's use plc_objects
+$Node = new Node($node);
+$details->line("Date created",$Node->dateCreated());
+$details->line("Last contact",$Node->lastContact());
+$details->line("Last update",$Node->lastUpdated());
 
 // boot area
 $details->space ();
@@ -218,8 +224,8 @@ if ( $local_peer ) {
   $headers=array("Name"=>"string",
 		 "Value"=>"string",
 		 "Nodegroup"=>"string",
-		 "Remove"=>"string",
 		 );
+  if (plc_is_admin()) $headers[plc_delete_icon()]="none";
   
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
   $table=new PlcTable("node_tags",$headers,0,$table_options);
@@ -231,11 +237,11 @@ if ( $local_peer ) {
       $nodegroup=$nodegroups_hash[$nodegroup_key];
       if ($nodegroup) $nodegroup_name=l_nodegroup_t($nodegroup['nodegroup_id'],$nodegroup['groupname']);
       $table->row_start();
-      $table->cell($tag['tagname']);
+      $table->cell(l_tag_obj($tag));
       $table->cell($tag['value']);
       $table->cell($nodegroup_name);
       // the remove checkbox
-      $table->cell ($form->checkbox_html('node_tag_ids[]',$tag['node_tag_id']));
+      if (plc_is_admin()) $table->cell ($form->checkbox_html('node_tag_ids[]',$tag['node_tag_id']));
       $table->row_end();
     }
   
@@ -244,7 +250,7 @@ if ( $local_peer ) {
 
     // remove tag 
     $table->row_start();
-    $table->cell($form->submit_html("remove-node-tags","Remove Tags"),
+    $table->cell($form->submit_html("delete-node-tags","Remove Tags"),
 		 // use the whole columns and right adjust
 		 $table->columns(), "right");
     $table->row_end();
@@ -276,16 +282,14 @@ if ( $local_peer ) {
     echo "Please add an interface to make this a usable PLC node.</p>\n";
   } else {
     $headers=array();
-    if ( $privileges ) {
-      // a single symbol, marking 'p' for primary and a delete button for non-primary
-      $headers[' ']='string';
-    }
-	 
+
     $headers["IP"]="IPAddress";
     $headers["Method"]="string";
     $headers["Type"]="string";
     $headers["MAC"]="string";
     $headers["bw limit"]="FileSize";
+    // a single symbol, marking 'p' for primary and a delete button for non-primary
+    if ( $privileges ) $headers[plc_delete_icon()]='string';
 
     $table_options=array('search_area'=>false,"pagesize_area"=>false,'notes_area'=>false);
     $table=new PlcTable("node_interfaces",$headers,2,$table_options);
@@ -308,27 +312,27 @@ if ( $local_peer ) {
       $interface_method= $interface['method'];
 
       $table->row_start();
-      if ( $privileges ) {
-	if (!$interface_primary) {
-	  // xxx 
-	  $table->cell (plc_delete_link_button ('interfaces.php?id=' . $interface_id . '&delete=1&submitted=1', 
-						  '\\nInterface ' . $interface_ip));
-	} else {
-	  $table->cell('p');
-	}
-      }
       $table->cell(l_interface_t($interface_id,$interface_ip));
       $table->cell($interface_method);
       $table->cell($interface_type);
       $table->cell($interface_mac);
       $table->cell($interface_bwlimit);
+      if ( $privileges ) {
+	if ($interface_primary) {
+	  $table->cell(plc_bubble("p","Cannot delete a primary interface"));
+	} else {
+	  $table->cell ($form->checkbox_html('interface_ids[]',$interface_id));
+	}
+      }
       $table->row_end();
     }
     if ($privileges) {
       $table->tfoot_start();
       $table->row_start();
-      $button=new PlcFormButton (l_interface_add($node_id),"add_interface","Add interface","GET");
-      $table->cell($button->html(), $table->columns(),"right");
+      $add_button=new PlcFormButton (l_interface_add($node_id),"add_interface","Add interface");
+      // we should have 6 cols, use 3 for the left (new) and the rest for the right (remove)
+      $table->cell($add_button->html(), 3,"left");
+      $table->cell($form->submit_html("delete-interfaces","Remove Interfaces"), $table->columns()-3,"right");
       $table->row_end();
     }
     $table->end();

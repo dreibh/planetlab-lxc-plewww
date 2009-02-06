@@ -59,6 +59,8 @@ function site_status ($site) {
     if ($nb_pis == 0) $messages [] = "No PI";
     if ($nb_techs == 0) $messages [] = "No Tech";
     
+    if (! $site['is_public']) $messages []= "Not public";
+
     // check number of slices
     if ( $site['max_slices'] == 0) {
       $messages [] = "No slice allowed";

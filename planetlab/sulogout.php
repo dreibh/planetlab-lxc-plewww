@@ -14,7 +14,8 @@ global $plc, $api;
 
 // Print header
 require_once 'plc_drupal.php';
-#drupal_set_title('Login');
+require_once 'plc_functions.php';
+
 include 'plc_header.php';
 
 // Invalidate session

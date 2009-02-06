@@ -26,7 +26,7 @@ $pattern=$_GET['pattern'];
 // --- decoration
 $title="Tag Types";
 $tabs=array();
-$tabs['New Tag Type']=array('url'=>l_tag_add(),'bubble'=>"Create a new tag type");
+$tabs['Tag Types']=array('url'=>l_tags(),'bubble'=>"Create a new tag type");
 $tabs['All Nodes']=array('url'=>l_nodes(),'bubble'=>"Nodes from all peers");
 $tabs['Local Nodes']=array('url'=>l_nodes(),'values'=>array('peerscope'=>'local'),'bubble'=>"All local nodes");
 //$tabs['Interfaces']=l_interfaces();
@@ -47,43 +47,65 @@ $tag_types= $api->GetTagTypes($tag_type_filter, $tag_type_columns);
   
 $headers=array();
 // delete button
-if (plc_is_admin()) $headers[' ']="none";
-$headers["Id"]="int";
 $headers['Name']="string";
 $headers['Description']="string";
-$headers['Min role']="string";
 $headers['Category']="string";
+$headers['Min role']="string";
+$headers["Id"]="int";
+if (plc_is_admin()) $headers[plc_delete_icon()]="none";
 
-$table = new PlcTable("tags",$headers,1);
+$form=new PlcForm(l_actions(),NULL);
+$form->start();
+
+$table = new PlcTable("tags",$headers,0);
 $table->start();
 
 $roles_hash=plc_role_global_hash($api);
+
+$description_width=40;
 
 foreach( $tag_types as $tag_type ) {
   $role_name=$roles_hash[$tag_type['min_role_id']];
 
   $table->row_start();
-  $id=$tag_type['tag_type_id'];
-  if (plc_is_admin()) 
-    // xxx this is deprecated
-    $table->cell(plc_delete_link_button ('tag_action.php?del_type='. $id,
-					   $tag_type['tagname']));
-  $table->cell($id);
-  $table->cell(href(l_tag_update($id),$tag_type['tagname']));
-  $table->cell(wordwrap($tag_type['description'],40,"<br/>"));
-  $table->cell($role_name);
+  $tag_type_id=$tag_type['tag_type_id'];
+  $table->cell(href(l_tag($tag_type_id),$tag_type['tagname']));
+  $table->cell(wordwrap($tag_type['description'],$description_width,"<br/>"));
   $table->cell($tag_type['category']);
+  $table->cell($role_name);
+  $table->cell($tag_type_id);
+  if (plc_is_admin()) 
+    $table->cell ($form->checkbox_html('tag_type_ids[]',$tag_type_id));
   $table->row_end();
 }
+
 if (plc_is_admin()) {
   $table->tfoot_start();
+
   $table->row_start();
-  $button=new PlcFormButton(l_tag_add(),"add_type_id","Add a Tag Type","GET");
-  $table->cell ($button->html(), $table->columns(),"right");
+  $table->cell($form->submit_html ("delete-tag-types","Remove tags"),
+	       $table->columns(),"right");
+  $table->row_end();
+
+  // an inline area to add a tag type
+  $table->row_start();
+  
+  // build the role selector
+  $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
+  function selector_argument ($role) { return array('display'=>$role['name'],"value"=>$role['role_id']); }
+  $selectors=array_map("selector_argument",$relevant_roles);
+  $role_input=$form->select_html("min_role_id",$selectors,"Role");
+
+  $table->cell($form->text_html('tagname','',''));
+  $table->cell($form->textarea_html('description','',$description_width,2));
+  $table->cell($form->text_html('category','',''));
+  $table->cell($role_input);
+  $table->cell($form->submit_html("add-tag-type","Add Type"),2);
   $table->row_end();
  }
 
 $table->end();
+$form->end();
 
 // Print footer
 include 'plc_footer.php';

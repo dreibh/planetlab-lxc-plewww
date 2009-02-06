@@ -5,3 +5,8 @@ table.plc_details {
     margin: 0 auto 1.5em auto;
     border-collapse:collapse;
 }
+
+table.plc_details>tbody>tr>th {
+    text-align: right;
+    font: bold 14px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+}

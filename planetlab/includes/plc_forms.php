@@ -93,6 +93,43 @@ class PlcForm {
     $html .= "</select>";
     return $html;
   }
+
+  // helper function to handle role-oriented selectors
+  // because GetRoles does not correctly support filters, it's really painful to do this
+  static public function role_selectors($api,$role_ids=NULL,$current=NULL) {
+    function role_selector ($role) { return array('display'=>$role['name'],"value"=>$role['role_id']); }
+    function role_id ($role) { return $role['role_id']; }
+
+    $all_roles=$api->GetRoles();
+    if ( ! $role_ids)
+      $role_ids=array_map("role_id",$all_roles);
+
+    $selectors=array();
+    // preserve input order
+    foreach ($role_ids as $role_id) {
+      foreach ($all_roles as $all_role) {
+	if ($all_role['role_id'] == $role_id) {
+	  $selector=role_selector($all_role);
+	  if ($role_id == $current) 
+	    $selector['selected']=true;
+	  $selectors []= $selector;
+	}
+      }
+    }
+    return $selectors;
+  }
+
+  static public function role_selectors_excluding ($api,$exclude_role_ids=NULL,$current=NULL) {
+    if ( ! $exclude_role_ids ) $exclude_role_ids = array();
+    $all_roles=$api->GetRoles();
+    $role_ids = array();
+    foreach ($all_roles as $role) {
+      if ( ! in_array ($role['role_id'],$exclude_role_ids)) {
+	$role_ids [] = $role['role_id'];
+      }
+    }
+    return PlcForm::role_selectors($api,$role_ids,$current);    
+  }
 }
 
 // a form with a single button

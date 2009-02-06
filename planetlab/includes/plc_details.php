@@ -30,6 +30,8 @@ class PlcDetails {
     $this->field_height="2";
   }
 
+  function form() { return $this->form; }
+
   // start the details area, with an optional caption
   function start ($caption="") { print $this->start_html("$caption");}
   function start_html ($caption="") {
@@ -78,14 +80,21 @@ class PlcDetails {
     } else {
       $html="";
       $html .= "<tr><th><label for=$form_varname>$title</label></th>";
-      $html .= "<td><input type='$this->input_type' name='$form_varname' value='$value'";
-      if ($this->input_type == "textarea") {
-	if ($this->field_width) $html .= " cols=$this->field_width/";
-	if ($this->field_height) $html .= " rows=$this->field_height/";
+      $html .= "<td>";
+      // hack: if input_type is select : user provides the input field verbatim
+      if ( $this->input_type == "select" ) {
+	$html .= $value;
+      } else if ($this->input_type == "textarea") {
+	$html .= "<textarea name='$form_varname'";
+	if ($this->field_width) $html .= " cols=$this->field_width";
+	if ($this->field_height) $html .= " rows=$this->field_height";
+	$html .= ">$value</textarea>";
       } else {
-	if ($this->field_width) $html .= " size=$this->field_width/";
+	$html .= "<input type='$this->input_type' name='$form_varname' value='$value'";
+	if ($this->field_width) $html .= " size=$this->field_width";
+	$html .= "/>";
       }
-      $html .= "></td></tr>";
+      $html .= "</td></tr>";
       return $html;
     }
   }

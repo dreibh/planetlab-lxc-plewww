@@ -216,4 +216,19 @@ function arr_diff( $a1, $a2 ) {
   return $diff;
 }
 
+// obsolete ?
+function plc_js_confirm($message) {
+  return "onclick=\"javascript:return confirm('Are you sure you want to delete " . $message . " ?')\"";
+}
+
+function plc_delete_link($url,$delete_message,$visible) {
+  return "<a href='" . $url . "' " . plc_js_confirm($delete_message) . ">" . $visible . "</a>";
+}
+
+function plc_delete_link_button($url,$delete_message,$width=15) {
+  return "<a href='" . $url . "' " . plc_js_confirm($delete_message) . ">" . 
+    plc_delete_icon_bubble($width,"Delete this entry") . 
+    "</a>";
+}
+
 ?>

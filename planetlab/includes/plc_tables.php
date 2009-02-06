@@ -79,8 +79,8 @@ class PlcTable {
   public function start () {
     $paginator=$this->table_id."_paginator";
     $classname="paginationcallback-".$paginator;
-    $classname.=" max-pages-" . $max_pages;
-    $classname.=" paginate-" . $pagesize;
+    $classname.=" max-pages-" . $this->max_pages;
+    $classname.=" paginate-" . $this->pagesize;
   // instantiate paginator callback
     print <<< EOF
 <script type="text/javascript"> 
@@ -136,7 +136,7 @@ EOF;
     $result= <<< EOF
 <tr class=pagesize_area><td class=pagesize_area colspan=$width><form class='pagesize'>
    <input class='pagesize_input' type='text' id="$pagesize_text_id" value=$this->pagesize 
-      onkeyup='plc_pagesize_set("$this->table_id","$this->pagesize_text_id", $this->pagesize);' 
+      onkeyup='plc_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);' 
       size=3 maxlength=3 /> 
   <label class='pagesize_label'> items/page </label>   
   <img class='table_reset' src="/planetlab/icons/clear.png" 

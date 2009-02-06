@@ -112,19 +112,6 @@ if( $_POST['edit_type'] ) {
 }
 
 
-// delete tag types
-if( $_GET['del_type'] ) {
-  // get vars
-  $type_id= intval( $_GET['del_type'] );
-
-  // delete it!
-  $api->DeleteTagType( $type_id );
-  
-  plc_redirect( "tags.php?type=slice" );
-}
-
-  
-  
 /*
 // Print footer
 include 'plc_footer.php';

@@ -73,12 +73,6 @@ $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
 
 $tabs=array();
 
-// update
-//if ($privileges || $is_my_account) 
-//  $tabs['Update'] = array('url'=>'/db/persons/update.php',
-//			  'values'=>array('id'=>$person_id),
-//			  'bubble'=>"Update $first_name $last_name");
-//  
 // enable / disable
 if ($local_peer && $privileges) 
   if ($enabled) 
@@ -131,36 +125,46 @@ $peers->block_start ($peer_id);
 if ($local_peer && $privileges && ! $enabled ) 
   drupal_set_message ("$first_name $last_name is not enabled yet, you can enable her/him with the 'Enable' button below");
 
-$enabled_label="Enabled";
+$enabled_label="Yes";
 if ( ! $enabled ) $enabled_label = plc_warning_html("Disabled");
 
 $can_update = $is_my_account || plc_is_admin();
 $details = new PlcDetails($can_update);
-$details->start();
-$details->line("Enabled",$enabled_label);
-$details->space();
+
 $details->form_start(l_actions(),array("action"=>"update-person",
 				       "person_id"=>$person_id));
+$details->start();
+$details->line("Enabled",$enabled_label);
+$details->line("Peer",$peers->peer_link($peer_id));
+$details->space();
+// xxx this needs some more work on the PlcDetails class
+$details->set_field_width(5);
 $details->line("Title",$title,"title");
+$details->set_field_width("");
 $details->line("First Name",$first_name,"first_name");
 $details->line("Last Name",$last_name,"last_name");
 $details->line(href("mailto:$email","Email"),$email,"email");
-$details->line("URL",$url,"url");
 $details->line("Phone",$phone,"phone");
-$details->line("Bio",wordwrap($bio,50,"<br/>"),"bio");
+$save_w=$details->set_field_width(40);
+$details->line("URL",$url,"url");
+$details->set_field_height(4);
+$details->set_input_type("textarea");
+$details->line("Bio",$bio,"bio");
+$details->set_input_type("text");
+$details->set_field_width($save_w);
+
 // xxx need to check that this is working
 if ($can_update) {
-  $save=$details->set_input_type("password");
+  $save_i=$details->set_input_type("password");
   $details->line("Password","","password1");
   $details->line("Repeat","","password2");
-  $details->set_input_type($save);
+  $details->set_input_type($save_i);
  }
 // xxx need fields to reset password ?
 $details->line("",$details->submit_html("submit","Update Account"));
-$details->form_end();
 
-$details->line("Peer",$peers->peer_link($peer_id));
 $details->end();
+$details->form_end();
 
 //////////////////// slices
 plc_section('Slices');
@@ -200,10 +204,9 @@ if ( empty( $key_ids ) ) {
   plc_warning("This user has no known key");
  } 
 
-// headers
 $headers=array("Type"=>"string",
 	       "Key"=>"string");
-if ($can_manage_keys) $headers['Remove']="none";
+if ($can_manage_keys) $headers[plc_delete_icon()]="none";
 // table overall options
 $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
 $table=new PlcTable("person_keys",$headers,"1",$table_options);
@@ -230,9 +233,10 @@ if ($can_manage_keys) {
     $table->row_end();
   }
   $table->row_start();
-  $table->cell($form->label_html("key","Upload new key") . $form->file_html("key",60),
-	       $table->columns()-1,"right");
-  $table->cell($form->submit_html("upload-key","Upload key"));
+  $table->cell($form->label_html("key","Upload new key")
+	       . $form->file_html("key",60)
+	       . $form->submit_html("upload-key","Upload key"),
+	       $table->columns(),"right");
   $table->row_end();
 }
 
@@ -241,7 +245,6 @@ $table->end();
 //////////////////// sites
 plc_section('Sites');
   
-// sites
 if (empty( $sites ) ) {
   plc_warning('This user is not affiliated with a site !!');
  } 
@@ -249,8 +252,7 @@ $can_manage_sites = $local_peer && plc_is_admin() || $is_my_account;
 $headers=array();
 $headers['Login_base']="string";
 $headers['Name']="string";
-if ($can_manage_sites) 
-  $headers['Remove']="string";
+if ($can_manage_sites) $headers[plc_delete_icon()]="none";
 $table_options = array('notes_area'=>false,'search_area'=>false, 'pagesize_area'=>false);
 $table=new PlcTable ("person_sites",$headers,0,$table_options);
 $table->start();
@@ -282,8 +284,8 @@ if ($can_manage_sites) {
   $person_site_ids=array_map("get_site_id",$sites);
   $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
   // xxx cannot use onchange=submit() - would need to somehow pass action name 
-  function select_arguments($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
-  $selectors = array_map ("select_arguments",$relevant_sites);
+  function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
+  $selectors = array_map ("site_selector",$relevant_sites);
   $table->cell ($form->select_html("site_id",$selectors,"Choose a site to add").
 		$form->submit_html("add-person-to-site","Add in site"),
 		$table->columns(),"right");
@@ -298,8 +300,8 @@ if (! $roles) plc_warning ("This user has no role !");
 $can_manage_roles= ($local_peer && plc_is_admin());
 $table_options=array("search_area"=>false,"notes_area"=>false);
 
-$headers=array("Role"=>"none");
-if ($can_manage_roles) $headers ["Remove"]="none";
+$headers=array("Role"=>"string");
+if ($can_manage_roles) $headers [plc_delete_icon()]="none";
 
 $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
 $table=new PlcTable("person_roles",$headers,0,$table_options);  
@@ -329,12 +331,8 @@ if ($can_manage_roles) {
   }
 
   $table->row_start();
-  // get list of local roles that the person has not yet
-  // xxx this does not work because GetRoles does not support filters
-  $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
-  function selector_argument ($role) { return array('display'=>$role['name'],"value"=>$role['role_id']); }
-  $selectors=array_map("selector_argument",$relevant_roles);
-  $add_role_left_area=$form->select_html("role_id",$selectors,"Choose a role to add");
+  $selectors=$form->role_selectors_excluding($api,$role_ids);
+  $add_role_left_area=$form->select_html("role_id",$selectors,"Choose role");
   // add a role : the button
   $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
   $table->cell ($add_role_left_area . $add_role_right_area,

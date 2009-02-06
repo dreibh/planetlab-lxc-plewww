@@ -3,7 +3,7 @@
 // $Id$
 
 // will trash this eventually
-require_once 'plc_functions_trash.php';
+  //require_once 'plc_functions_trash.php';
 
 // utility
 function my_is_int ($x) {
@@ -54,25 +54,25 @@ function l_nodes ()			{ return "/db/nodes/index.php"; }
 function l_nodes_peer ($peer_id)	{ return "/db/nodes/index.php?peerscope=$peer_id"; }
 function l_node ($node_id)		{ return "/db/nodes/node.php?id=$node_id"; }
 function l_node_t ($node_id,$text)	{ return href (l_node($node_id),$text); }
+function l_node_obj($node)		{ return href(l_node($node['node_id']),$node['hostname']); }
 function l_node_add ()			{ return "/db/nodes/node_add.php"; }
 function l_nodes_site ($site_id)	{ return "/db/nodes/index.php?site_id=$site_id"; }
 
-function l_interface ($interface_id)	{ return "/db/nodes/interfaces.php?id=$interface_id"; }
+function l_interface ($interface_id)	{ return "/db/nodes/interface.php?id=$interface_id"; }
 function l_interface_t ($interface_id,$text) { 
 					  return href (l_interface($interface_id),$text); }
-function l_interface_add($node_id)	{ return "/db/nodes/interfaces.php?node_id=$node_id"; }
+function l_interface_add($node_id)	{ return "/db/nodes/interface.php?node_id=$node_id"; }
 
 function l_sites ()			{ return "/db/sites/index.php"; }
 function l_sites_peer ($peer_id)	{ return "/db/sites/index.php?peerscope=$peer_id"; }
 function l_site ($site_id)		{ return "/db/sites/index.php?id=$site_id"; }
 function l_site_t ($site_id,$text)	{ return href (l_site($site_id),$text); }
-function l_site_update($site_id)	{ return "/db/sites/site_update.php?site_id=$site_id"; }
 
 function l_slices ()			{ return "/db/slices/index.php"; }
 function l_slices_peer ($peer_id)	{ return "/db/slices/index.php?peerscope=$peer_id"; }
 function l_slice ($slice_id)		{ return "/db/slices/index.php?id=$slice_id"; }
 function l_slice_t ($slice_id,$text)	{ return href (l_slice($slice_id),$text); }
-function l_slice_add ()			{ return "/db/slices/add_slice.php"; }
+function l_slice_add ()			{ return "/db/slices/slice_add.php"; }
 function l_slices_site($site_id)	{ return "/db/slices/index.php?site_id=$site_id"; }
 // from an object
 function l_slice_obj ($slice)		{ return l_slice_t ($slice['slice_id'],$slice['name']); }
@@ -88,9 +88,8 @@ function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
 
 function l_tags ()			{ return "/db/tags/index.php"; }
-function l_tag ($tag_type_id)		{ return "/db/tags/index.php"; }
-function l_tag_add()			{ return "/db/tags/tag_form.php"; }
-function l_tag_update($id)		{ return "/db/tags/tag_form.php&action=update-tag-type&id=$id"; }
+function l_tag ($tag_type_id)		{ return "/db/tags/index.php?id=$tag_type_id"; }
+function l_tag_obj ($tag)		{ return href(l_tag($tag['tag-type_id']),$tag['tagname']); }
 
 function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
 function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroup.php?id=$nodegroup_id"; }
@@ -318,19 +317,14 @@ if (! function_exists ("drupal_set_error")) {
 // builds a table from an array of strings, with the given class
 // attempt to normalize the delete buttons and confirmations
 function plc_delete_icon($width=15) {
-  return '<span title="Delete this entry"><img width=' . $width . ' alt="Delete this entry" src="/planetlab/icons/delete.png"></span>';
+  return "<img width='$width' src='/planetlab/icons/delete.png'>";
 }
 
-function plc_js_confirm($message) {
-  return "onclick=\"javascript:return confirm('Are you sure you want to delete " . $message . " ?')\"";
+function plc_bubble($text,$bubble) {
+  return "<span title='$bubble'>$text</span>";
 }
-
-function plc_delete_link($url,$delete_message,$visible) {
-  return "<a href='" . $url . "' " . plc_js_confirm($delete_message) . ">" . $visible . "</a>";
-}
-
-function plc_delete_link_button($url,$delete_message,$width=15) {
-  return "<a href='" . $url . "' " . plc_js_confirm($delete_message) . ">" . plc_delete_icon($width) . "</a>";
+function plc_delete_icon_bubble ($bubble,$width=15) {
+  return plc_bubble(plc_delete_icon($width),$bubble);
 }
 
 function plc_event_button($type,$param,$id) {
