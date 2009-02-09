@@ -1,5 +1,6 @@
-
 <?php
+
+  // $Id$
 
 function timeDiff ($timestamp,$detailed=false,$n = 0) {
   $now = time();

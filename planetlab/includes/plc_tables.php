@@ -1,5 +1,7 @@
 <?php
 
+  // $Id$
+
 drupal_set_html_head('
 <script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
 <script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>

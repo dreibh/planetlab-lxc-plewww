@@ -16,6 +16,7 @@ include 'plc_header.php';
 require_once 'plc_functions.php';
 require_once 'plc_tables.php';
 require_once 'plc_minitabs.php';
+require_once 'plc_datepicker.php';
   
 // needs much memory
 ini_set("memory_limit","256M");
@@ -37,40 +38,19 @@ function the_date ($key,$dateformat) {
 }
 
 // fill out dates from now if not specified
-$from_d = the_date('from_d','j');
-$from_m = the_date('from_m','M');
-$from_y = the_date('from_y','Y');
-$until_d = the_date('until_d','j');
-$until_m = the_date('until_m','M');
-$until_y = the_date('until_y','Y');
+$from_picker = new PlcDatepicker ('from_date','From (inclusive)');
+$from_picker->today();
+$from_html=$from_picker->html();
+$until_picker = new PlcDatepicker ('until_date','Until (inclusive)');
+$until_picker->today();
+$until_html=$until_picker->html();
 
-// create the options area from a list and the selected entry
-function dropdown_options ($array,$selected) {
-  $result="";
-  foreach ($array as $item) {
-    $result.= "<option value=" . $item;
-    if ($item == $selected) $result .= ' selected=selected';
-    $result .= '>' . $item . '</option>';
-  }
-  return $result;
-}
+$action=l_events();
 
-$days=range(1,31);
-$from_d_dropdown_options=dropdown_options($days,$from_d);
-$until_d_dropdown_options=dropdown_options($days,$until_d);
-$months=array("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
-$from_m_dropdown_options=dropdown_options($months,$from_m);
-$until_m_dropdown_options=dropdown_options($months,$until_m);
-// only propose years ranging from now + 3 full years back
-$this_year=date('Y');
-$years=range($this_year-3,$this_year);
-$from_y_dropdown_options=dropdown_options($years,$from_y);
-$until_y_dropdown_options=dropdown_options($years,$until_y);
- 
 $event_form = <<< EOF
-<form method=get name='F' action='/db/events/index.php' >
+<form method=get name='events' action='$action' >
 
-<table align='bottom'>
+<table class='plc_details'>
 <tr><td colspan=2>
 <table> <TR><TD>
 <input type='radio' name='type' id='events' value='Event' checked='checked'>&nbsp;Events: 
@@ -95,35 +75,9 @@ $event_form = <<< EOF
 </TD></TR></table>
 </td></tr>
 
-
-<tr><th>FROM (inclusive)</th> <th>UNTIL (inclusive)</th> </tr>
-
-<tr>
-      <td>    
-        <SELECT NAME='from_d'>
-$from_d_dropdown_options								 
-        </SELECT>
-        <SELECT NAME='from_m' >
-$from_m_dropdown_options
-        </SELECT>
-        <SELECT NAME='from_y' >
-$from_y_dropdown_options
-        </SELECT>
-</td>
-
-<TD>
-   <SELECT NAME=' until_d' >
-$until_d_dropdown_options
-    </SELECT>
-    <SELECT NAME=' until_m' >
-$until_m_dropdown_options
-   </SELECT>
-    <SELECT NAME=' until_y' >
-$until_y_dropdown_options
-    </SELECT>
-</td></tr>
-
-<TR><TD colspan=2>
+<tr><td> $from_html </td><td>$until_html</td></tr>
+<tr><td colspan=2>&nbsp </td></tr>
+<TR><TD colspan=2 style='text-align:center'>
 <input type='submit' align='middle' value='Show Events'>
 </TD></TR>
 </table>
@@ -132,24 +86,21 @@ $until_y_dropdown_options
 EOF;
 
 //////////////////////////////////////////////////////////// dates
-function parse_date ($day,$month,$year) {
-  // if everything empty -> unspecified date, return 0
-  if ( empty($day) && empty($month) && empty($year)) {
-    return array ("xxx",0);
+// our format is yyyy/MMM/dd
+function parse_date ($datestring) {
+  if (empty ($datestring)) {
+    $year="2008"; $month="Jan"; $day="01";
   } else {
-    // fill missing fields with current value
-    if (empty($day)) $day=date('d');
-    if (empty($month)) $month=date('M');
-    if (empty($year)) $year=date('Y');
-    $date=sprintf("%s %s %s",$day,$month,$year);
-    $time=strtotime($date);
-    return array($date,$time);
+    list ($year,$month,$day) = split ('[/.-]',$datestring);
   }
+  $date=sprintf("%s %s %s",$day,$month,$year);
+  $time=strtotime($date);
+  return array($date,$time);
 }
 
 function parse_dates () {
-  list($from_date,$from_time) = parse_date($_GET['from_d'],$_GET['from_m'],$_GET['from_y']);
-  list($until_date,$until_time) = parse_date($_GET['until_d'],$_GET['until_m'],$_GET['until_y']);
+  list($from_date,$from_time) = parse_date($_GET['from_date']);
+  list($until_date,$until_time) = parse_date($_GET['until_date']);
   return array($from_date,$from_time,$until_date,$until_time);
 }
 
