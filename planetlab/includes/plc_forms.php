@@ -59,8 +59,25 @@ class PlcForm {
   static function label_html ($name,$display) {
     return "<label for=$name>$display </label>";
   }
-  static function text_html ($name,$value,$size) {
-    return "<input type=text name='$name' size=$size value='$value'>";
+  static function radio_html  ($id, $name, $value, $checked) {
+    $html="<input type='radio' id='$id' name='$name' value='$value'";
+    if ($checked) $html .= " checked='checked'";
+    $html .="/>";
+    return $html;
+  }
+  static function text_html ($name,$value,$options=NULL) {
+    $default_options = array('width'=>20);
+    if ( ! $options) $options=array();
+    $options = array_merge($default_options,$options);
+    $html="<input type=text name='$name' value='$value'";
+    $html .= " size=" . $options['width'];
+    $cbs=array('onFocus','onSelect');
+    foreach ($cbs as $cb) {
+      if ($options[$cb])
+	$html .= " $cb='" . $options[$cb] . "'";
+    }
+    $html .= "/>";
+    return $html;
   }
   static function textarea_html ($name,$value,$cols,$rows) {
     return "<textarea name='$name' cols=$cols rows=$rows>$value</textarea>";

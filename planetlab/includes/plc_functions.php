@@ -306,6 +306,12 @@ function truncate ($text,$numb,$etc = "...") {
   }
   return $text;
 }
+function html_div ($text,$class="") {
+  $html="<div";
+  if ($class) $html .= " class='$class'";
+  $html .= ">$text</div>";
+  return $html;
+}
 
 if (! function_exists ("drupal_set_error")) {
   function drupal_set_error ($text) {

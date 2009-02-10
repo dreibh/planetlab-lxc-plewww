@@ -37,11 +37,11 @@ class PlcDatepicker {
 
     $html="";
     $html .= "<label for='$this->id'>$this->display</label>";
-    $html .= "<div><input type='text' class='";
-    $html .= " dateformat-$format";
+    $html .= "<input size=13 type='text'";
+    $html .= " class='dateformat-$format";
     $html .= " opacity-60";
     if ($inline) $html .= " display-inline";
-    $html .= "' id='$this->id' name='$this->id' value='$value' /></div>";
+    $html .= "' id='$this->id' name='$this->id' value='$value' />";
     return $html;
   }
 

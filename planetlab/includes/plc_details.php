@@ -48,7 +48,7 @@ class PlcDetails {
 
   // starts an inner form if the details are editable
   // accpets same args as PlcForm
-  function form_start ($url,$values,$method="POST") { print $this->form_start_html($url,$values,$method); }
+  function form_start ($url,$values,$method="POST") { print $this->form_start_html($url,$values,$method); return $this->form; }
   function form_start_html ($url,$values,$method="POST") {
     $this->form = new PlcForm ($url,$values,$method);
     return $this->form->start_html();
@@ -103,6 +103,11 @@ class PlcDetails {
   function lines($title,$list) { print $this->lines_html($title,$list); }
   function lines_html($title,$list) {
     return $this->line_html($title,plc_vertical_table($list,"foo"));
+  }
+
+  function line_th ($th1,$th2) {	print $this->line_th_html ($th1, $th2);}
+  function line_th_html ($th1, $th2) {
+    return "<tr><th>$th1</th><th>$th2</th></tr>";
   }
 
   // 1 item, colspan=2

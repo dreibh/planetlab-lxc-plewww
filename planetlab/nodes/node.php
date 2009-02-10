@@ -263,7 +263,7 @@ if ( $local_peer ) {
     function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
     $selector=array_map("tag_selector",$all_tags);
     $table->cell($form->select_html("tag_type_id",$selector,"Choose"));
-    $table->cell($form->text_html("value","",8));
+    $table->cell($form->text_html("value","",array('width'=>8));
     $table->cell($form->submit_html("set-tag-on-node","Set Tag"),2,"left");
     $table->row_end();
   }

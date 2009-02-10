@@ -96,9 +96,9 @@ if (plc_is_admin()) {
   $selectors=array_map("selector_argument",$relevant_roles);
   $role_input=$form->select_html("min_role_id",$selectors,"Role");
 
-  $table->cell($form->text_html('tagname','',''));
+  $table->cell($form->text_html('tagname',''));
   $table->cell($form->textarea_html('description','',$description_width,2));
-  $table->cell($form->text_html('category','',''));
+  $table->cell($form->text_html('category',''));
   $table->cell($role_input);
   $table->cell($form->submit_html("add-tag-type","Add Type"),2);
   $table->row_end();

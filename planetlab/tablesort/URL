@@ -1,1 +1,4 @@
-http://www.frequency-decoder.com/
+http://www.frequency-decoder.com/2006/09/16/unobtrusive-table-sort-script-revisited
+http://www.frequency-decoder.com/2007/10/19/client-side-table-pagination-script
+frequency-decoder also has a search widget but it's per-column;
+so our own search/pagesize widgets was rewritten by Thierry Parmentelat (INRIA)
