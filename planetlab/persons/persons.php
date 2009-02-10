@@ -35,6 +35,9 @@ $tabs=array();
 $tabs['My accounts'] = array('url'=>l_persons(),
 			     'values'=>array('site_id'=>plc_my_site_id()),
 			     'bubble'=>'Lists accounts on site ' . plc_my_site_id());
+if (plc_is_admin()) 
+  $tabs['Local accounts'] = array('url'=>l_persons(),
+				  'values'=>array('peerscope'=>'local'));
 // -------------------- 
 $person_filter=array();
 
@@ -135,11 +138,11 @@ if ( ! $persons ) {
  }
   
 $headers = array ("Peer"=>"string",
-		  "Roles"=>"string",
 		  "First"=>"string",
 		  "Last"=>"string",
 		  "Email"=>"string",
 		  "Site" => "string",
+		  "Roles"=>"string",
 		  "S" => "int",
 		  "Status"=>"string",
 		  );
@@ -163,11 +166,11 @@ foreach ($persons as $person) {
     $table->row_start();
     
     $table->cell($shortname);
-    $table->cell($roles);
     $table->cell ($person['first_name']);
     $table->cell ($person['last_name']);
     $table->cell(l_person_t($person_id,$email));
-    $table->cell($login_base);
+    $table->cell(l_site_t($site_id,$login_base));
+    $table->cell($roles);
     $table->cell(count($person['slice_ids']));
     $table->cell(person_status($person));
     $table->row_end();

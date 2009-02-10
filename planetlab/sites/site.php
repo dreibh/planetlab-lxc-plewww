@@ -139,34 +139,37 @@ if ( ! $enabled )
 	       href (l_sites_pending(),"this page") . 
 	       " to review pending applications.");
 
-$can_update=plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
+$can_update=(plc_is_admin ()  && $local_peer) || ( plc_in_site($site_id) && plc_is_pi());
 $details = new PlcDetails($can_update);
 
 if ( ! $site['is_public']) 
   plc_warning("This site is not public!");
 
 $details->start();
-$details->line("Peer",$peers->peer_link($peer_id));
-$details->space();
 
 $details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
-$save_w=$details->set_field_width(30);
-$details->line("Full name",$sitename,'name');
-$details->set_field_width($save_w);
-$details->line("Abbreviated name",$abbreviated_name,'abbreviated_name');
-$details->line("URL",$site_url,'url');
-$details->line("Latitude",$site_lat,'latitude');
-$details->line("Longitude",$site_long,'longitude');
+$details->th_td("Full name",$sitename,'name',array('width'=>50));
+$details->th_td("Abbreviated name",$abbreviated_name,'abbreviated_name',array('width'=>15));
+$details->th_td("URL",$site_url,'url',array('width'=>50));
+$details->th_td("Latitude",$site_lat,'latitude');
+$details->th_td("Longitude",$site_long,'longitude');
+
+// modifiable by admins only
 if (plc_is_admin()) 
-  $details->line("Login base",$login_base,'login_base');
+  $details->th_td("Login base",$login_base,'login_base',array('width'=>12));
 else
-  $details->line("Login base",$login_base);
+  $details->th_td("Login base",$login_base);
 if (plc_is_admin())
-  $details->line("Max slices",$max_slices,'max_slices');
+  $details->th_td("Max slices",$max_slices,'max_slices');
 else
-  $details->line("Max slices",$max_slices);
-$details->line("",$details->submit_html("submit","Update Site"));
+  $details->th_td("Max slices",$max_slices);
+$details->tr_submit("submit","Update Site");
 $details->form_end();
+
+if ( ! $local_peer) {
+  $details->space();
+  $details->th_td("Peer",$peers->peer_link($peer_id));
+ }
 
 if ( $local_peer ) {
 
@@ -175,12 +178,12 @@ if ( $local_peer ) {
   $nb_boot = 0;
   if ($nodes) foreach ($nodes as $node) if ($node['boot_state'] == 'boot') $nb_boot ++;
   $node_label = $nb_boot . " boot / " .  count($nodes) . " total";
-  $details->line("# Nodes", href(l_nodes_site($site_id),$node_label));
+  $details->th_td("# Nodes", href(l_nodes_site($site_id),$node_label));
   function n_link ($n) { return l_node_t($n['node_id'],$n['hostname'] . " (" . $n['boot_state'] . ")");}
   $nodes_label= plc_vertical_table(array_map ("n_link",$nodes));
-  $details->line ("Hostnames",$nodes_label);
+  $details->th_td ("Hostnames",$nodes_label);
   $button=new PlcFormButton (l_node_add(),"add_node","Add node","POST");
-  $details->line("",$button->html());
+  $details->tr($button->html(),"right");
 
   // Users
   $details->space();
@@ -189,14 +192,14 @@ if ( $local_peer ) {
     count ($techs) . " Techs";
   if ( (count ($pis) == 0) || (count ($techs) == 0) || (count($person_ids) >=50)) 
     $user_label = plc_warning_html ($user_label);
-  $details->line ("# Users",href(l_persons_site($site_id),$user_label));
+  $details->th_td ("# Users",href(l_persons_site($site_id),$user_label));
   function p_link ($p) { return l_person_t($p['person_id'],$p['email']); }
   // PIs
-  $details->line("PI's",plc_vertical_table (array_map ("p_link",$pis)));
+  $details->th_td("PI's",plc_vertical_table (array_map ("p_link",$pis)));
   // techs
-  $details->line("Techs's",plc_vertical_table (array_map ("p_link",$techs)));
+  $details->th_td("Techs's",plc_vertical_table (array_map ("p_link",$techs)));
   if (count ($disabled_persons)) 
-    $details->line("Disabled",plc_vertical_table (array_map ("p_link",$disabled_persons)));
+    $details->th_td("Disabled",plc_vertical_table (array_map ("p_link",$disabled_persons)));
 
   // Slices
   $details->space();
@@ -204,18 +207,18 @@ if ( $local_peer ) {
   $slice_label = count($slice_ids) . " running / " . $max_slices . " max";
   if (count($slice_ids) >= $max_slices) 
     $slice_label = plc_warning_html ($slice_label);
-  $details->line("# Slices", href(l_slices_site($site_id),$slice_label));
+  $details->th_td("# Slices", href(l_slices_site($site_id),$slice_label));
   if ($slices) foreach ($slices as $slice)
-     $details->line($slice['instantiation'],l_slice_obj($slice));
+     $details->th_td($slice['instantiation'],l_slice_obj($slice));
   $button=new PlcFormButton (l_slice_add(),"slice_add","Add slice","POST");
-  $details->line("",$button->html());
+  $details->tr($button->html(),"right");
 
   // Addresses
   if ($addresses) {
     $details->space();
-    $details->line("Addresses","");
+    $details->th_td("Addresses","");
     foreach ($addresses as $address) {
-      $details->line(plc_vertical_table($address['address_types']),
+      $details->th_td(plc_vertical_table($address['address_types']),
 		       plc_vertical_table(array($address['line1'],
 						$address['line2'],
 						$address['line3'],

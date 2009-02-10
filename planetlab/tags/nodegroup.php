@@ -54,10 +54,10 @@ plc_tabs($tabs);
 
 $details=new PlcDetails(false);
 $details->start();
-$details->line ("Node group name",$nodegroup['groupname']);
-$details->line ("Based on tag",href(l_tag($nodegroup['tag_type_id']),$tagname));
-$details->line("Matching value",$nodegroup['value']);
-$details->line("# nodes",count($nodegroup['node_ids']));
+$details->th_td ("Node group name",$nodegroup['groupname']);
+$details->th_td ("Based on tag",href(l_tag($nodegroup['tag_type_id']),$tagname));
+$details->th_td("Matching value",$nodegroup['value']);
+$details->th_td("# nodes",count($nodegroup['node_ids']));
 $details->end();
 
 // xxx : add & delete buttons would make sense here too

@@ -59,9 +59,9 @@ $details=new PlcDetails ($can_update);
 $details->form_start(l_actions(),array("action"=>"update-tag-type",
 				       "tag_type_id"=>$tag_type_id));
 $details->start();
-$details->line("Name",$tagname,"tagname");
-$details->line("Category",$category,"category");
-$details->line("Description",$description,"description");
+$details->th_td("Name",$tagname,"tagname");
+$details->th_td("Category",$category,"category");
+$details->th_td("Description",$description,"description");
 
 // xxx misses in PlcDetails
 if ($can_update) {
@@ -70,19 +70,19 @@ if ($can_update) {
   $selectors = $details->form()->role_selectors($api,"",$min_role_id);
   $select_field = $details->form()->select_html("min_role_id",$selectors);
   $save_i=$details->set_input_type("select");
-  $details->line("Min role",$select_field,"min_role_id");
+  $details->th_td("Min role",$select_field,"min_role_id");
   $details->set_input_type($save_i);
  } else {
-  $details->line("Min role",$min_role_id);
+  $details->th_td("Min role",$min_role_id);
  }
 if ($can_update) 
-  $details->single($details->form()->submit_html('update-tag-type',"Update tag type"),"right");
+  $details->tr_submit('update-tag-type',"Update tag type");
 
 $details->space();
-$details->line("Used in nodes",count($node_tags));
-$details->line("Used in interfaces",count($interface_tags));
-$details->line("Used in slices",count($slice_tags));
-$details->line("Used in slivers",count($sliver_tags));
+$details->th_td("Used in nodes",count($node_tags));
+$details->th_td("Used in interfaces",count($interface_tags));
+$details->th_td("Used in slices",count($slice_tags));
+$details->th_td("Used in slivers",count($sliver_tags));
 
 $details->end();
 $details->form_end();

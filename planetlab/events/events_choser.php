@@ -49,25 +49,25 @@ $form->start();
 $details = new PlcDetails (true);
 $details->start();
 
-$details->single ($form->submit_html('submit','Show Events'),'center');
+$details->tr ($form->submit_html('submit','Show Events'),'center');
 $details->space();
 
-$details->line ( $form->radio_html ('events','type','Event',true) . "Events",
+$details->th_td ( $form->radio_html ('events','type','Event',true) . "Events",
 		 $form->text_html('event','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'events.checked=true')));
-$details->line ( $form->radio_html ('sites','type','Site',false) . "Sites",
+$details->th_td ( $form->radio_html ('sites','type','Site',false) . "Sites",
 		 $form->text_html('site','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'sites.checked=true')));
-$details->line ( $form->radio_html ('persons','type','Person',false) . "Persons",
+$details->th_td ( $form->radio_html ('persons','type','Person',false) . "Persons",
 		 $form->text_html('person','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'persons.checked=true')));
-$details->line ( $form->radio_html ('nodes','type','Node',false) . "Nodes",
+$details->th_td ( $form->radio_html ('nodes','type','Node',false) . "Nodes",
 		 $form->text_html('node','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'nodes.checked=true')));
-$details->line ( $form->radio_html ('slices','type','Slice',false) . "Slices",
+$details->th_td ( $form->radio_html ('slices','type','Slice',false) . "Slices",
 		 $form->text_html('slice','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'slices.checked=true')));
 
 $details->space();
-$details->single ($form->submit_html('submit','Show Events'),'center');
+$details->tr ($form->submit_html('submit','Show Events'),'center');
 
 $details->space();
-$details->line_th(html_div($from_picker->html()) , html_div($until_picker->html()));
+$details->th_th(html_div($from_picker->html()) , html_div($until_picker->html()));
 
 $details->end();
 $form->end();

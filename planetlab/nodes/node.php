@@ -103,7 +103,7 @@ $local_peer= ! $peer_id;
 
   
 // extra privileges to admins, and (pi||tech) on this site
-$privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
+$privileges = (plc_is_admin () && $local_peer) || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
   
 $tabs=array();
 // available actions
@@ -135,23 +135,24 @@ $peers->block_start ($peer_id);
 $details=new PlcDetails($privileges);
 $details->start();
 if ( ! $local_peer) {
-  $details->line("Peer",$peers->peer_link($peer_id));
+  $details->th_td("Peer",$peers->peer_link($peer_id));
   $details->space();
  }
 
 $details->form_start(l_actions(),array("action"=>"update-node", "node_id"=>$node_id));
-$details->line("Hostname",$hostname,"hostname"); 
-$details->line("Model",$model,"model");
-$details->line("",$details->submit_html("submit","Update Node"));
+$details->th_td("Hostname",$hostname,"hostname"); 
+$details->th_td("Model",$model,"model");
+$details->tr_submit("submit","Update Node");
 $details->form_end();
+if ($privileges) $details->space();
 
-$details->line("Type",$node_type);
-$details->line("Version",$version);
+$details->th_td("Type",$node_type);
+$details->th_td("Version",$version);
 // let's use plc_objects
 $Node = new Node($node);
-$details->line("Date created",$Node->dateCreated());
-$details->line("Last contact",$Node->lastContact());
-$details->line("Last update",$Node->lastUpdated());
+$details->th_td("Date created",$Node->dateCreated());
+$details->th_td("Last contact",$Node->lastContact());
+$details->th_td("Last update",$Node->lastUpdated());
 
 // boot area
 $details->space ();
@@ -174,7 +175,7 @@ if ( ! ($local_peer && $privileges)) {
   $boot_value .= $boot_form->select_html("boot_state",$selectors,NULL,true);
   $boot_value .= $boot_form->end_html();
  }
-$details->line ("Boot state",$boot_value);
+$details->th_td ("Boot state",$boot_value);
 
 // same here for the download area
 if ( $local_peer  && $privileges) {
@@ -192,19 +193,19 @@ if ( $local_peer  && $privileges) {
 		     array("value"=>"download-generic-usb","display"=>"Download generic USB image (requires floppy)"));
   $download_value .= $download_form->select_html("action",$selectors,"Download mode",true);
   $download_value .= $download_form->end_html();
-  $details->line ("Download",$download_value);
+  $details->th_td ("Download",$download_value);
  }
 
 // site info and all site nodes
 $details->space ();
-$details->line("Site",l_site_t($site_id,$site_name));
+$details->th_td("Site",l_site_t($site_id,$site_name));
 		   
 // build list of node links
 $nodes_area=array();
 foreach ($site_node_hash as $hash_node_id => $hash_hostname) {
   $nodes_area []= l_node_t($hash_node_id,$hash_hostname);
 }
-$details->lines ("All site nodes",$nodes_area);
+$details->th_tds ("All site nodes",$nodes_area);
 
 $details->end ();
 
@@ -263,7 +264,7 @@ if ( $local_peer ) {
     function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
     $selector=array_map("tag_selector",$all_tags);
     $table->cell($form->select_html("tag_type_id",$selector,"Choose"));
-    $table->cell($form->text_html("value","",array('width'=>8));
+    $table->cell($form->text_html("value","",array('width'=>8)));
     $table->cell($form->submit_html("set-tag-on-node","Set Tag"),2,"left");
     $table->row_end();
   }

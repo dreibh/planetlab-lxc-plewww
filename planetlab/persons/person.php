@@ -128,40 +128,35 @@ if ($local_peer && $privileges && ! $enabled )
 $enabled_label="Yes";
 if ( ! $enabled ) $enabled_label = plc_warning_html("Disabled");
 
-$can_update = $is_my_account || plc_is_admin();
+$can_update = (plc_is_admin() && $local_peer) || $is_my_account;
 $details = new PlcDetails($can_update);
 
 $details->form_start(l_actions(),array("action"=>"update-person",
 				       "person_id"=>$person_id));
 $details->start();
-$details->line("Enabled",$enabled_label);
-$details->line("Peer",$peers->peer_link($peer_id));
-$details->space();
-// xxx this needs some more work on the PlcDetails class
-$details->set_field_width(5);
-$details->line("Title",$title,"title");
-$details->set_field_width("");
-$details->line("First Name",$first_name,"first_name");
-$details->line("Last Name",$last_name,"last_name");
-$details->line(href("mailto:$email","Email"),$email,"email");
-$details->line("Phone",$phone,"phone");
-$save_w=$details->set_field_width(40);
-$details->line("URL",$url,"url");
-$details->set_field_height(4);
-$details->set_input_type("textarea");
-$details->line("Bio",$bio,"bio");
-$details->set_input_type("text");
-$details->set_field_width($save_w);
+
+
+$details->th_td("Title",$title,"title",array('width'=>5));
+$details->th_td("First Name",$first_name,"first_name");
+$details->th_td("Last Name",$last_name,"last_name");
+$details->th_td(href("mailto:$email","Email"),$email,"email");
+$details->th_td("Phone",$phone,"phone");
+$details->th_td("URL",$url,"url",array('width'=>40));
+$details->th_td("Bio",$bio,"bio",array('input_type'=>'textarea','height'=>4));
 
 // xxx need to check that this is working
 if ($can_update) {
-  $save_i=$details->set_input_type("password");
-  $details->line("Password","","password1");
-  $details->line("Repeat","","password2");
-  $details->set_input_type($save_i);
+  $details->th_td("Password","","password1",array('input_type'=>'password'));
+  $details->th_td("Repeat","","password2",array('input_type'=>'password'));
+  $details->tr_submit("submit","Update Account");
+  $details->space();
  }
-// xxx need fields to reset password ?
-$details->line("",$details->submit_html("submit","Update Account"));
+
+$details->th_td("Enabled",$enabled_label);
+if ( ! $local_peer ) {
+  $details->th_td("Peer",$peers->peer_link($peer_id));
+  $details->space();
+ }
 
 $details->end();
 $details->form_end();

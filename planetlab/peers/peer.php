@@ -42,19 +42,19 @@ drupal_set_title("Details for Peer " . $peername);
 
 $details=new PlcDetails(false);
 $details->start();
-$details->line("Peer name",$peer['peername']);
-$details->line("Short name",$peer['shortname']);
-$details->line("Hierarchical name",$peer['hrn_root']);
-$details->line("API URL",$peer['peer_url']);
+$details->th_td("Peer name",$peer['peername']);
+$details->th_td("Short name",$peer['shortname']);
+$details->th_td("Hierarchical name",$peer['hrn_root']);
+$details->th_td("API URL",$peer['peer_url']);
 
 $nb=sizeof($peer['site_ids']);
-$details->line("Number of sites",href(l_sites_peer($peer_id),"$nb sites"));
+$details->th_td("Number of sites",href(l_sites_peer($peer_id),"$nb sites"));
 $nb=sizeof($peer['node_ids']);
-$details->line("Number of nodes",href(l_nodes_peer($peer_id),"$nb nodes"));
+$details->th_td("Number of nodes",href(l_nodes_peer($peer_id),"$nb nodes"));
 $nb=sizeof($peer['person_ids']);
-$details->line("Number of users",href(l_persons_peer($peer_id),"$nb users"));
+$details->th_td("Number of users",href(l_persons_peer($peer_id),"$nb users"));
 $nb=sizeof($peer['slice_ids']);
-$details->line("Number of slices",href(l_slices_peer($peer_id),"$nb slices"));
+$details->th_td("Number of slices",href(l_slices_peer($peer_id),"$nb slices"));
 $details->end();
 
 // Print footer
