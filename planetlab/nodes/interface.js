@@ -96,6 +96,7 @@ function networkHelper () {
   var masklen=get_masklen (nm);
   if (masklen < 0) return;
 
+  var ip_n=arr_to_int(ip_a);
   var derived = get_derived(ip_n,masklen);
   window.console.log('nwk=' + derived[0] + ' bct=' + derived[1]);
 
