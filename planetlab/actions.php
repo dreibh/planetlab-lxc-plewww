@@ -53,6 +53,10 @@ $known_actions []= "update-node";
 //////////////////////////////////////// interfaces
 $known_actions []= "delete-interfaces";	
 //	expects:	interface_ids
+$known_actions []="add-interface";
+//	expects:	node_id & interface details
+$known_actions []="update-interface";
+//	expects:	interface_id & interface details
 
 //////////////////////////////////////// sites
 $known_actions []= "delete-site";	
@@ -62,19 +66,28 @@ $known_actions []= "expire-all-slices-in-site";
 $known_actions []= "update-site";
 //	expects:	site_id & name abbreviated_name url latitude longitude [login_base max_slices]
 
-//////////////////////////////////////// tags
+//////////////////////////////////////// tag types
 $known_actions []= "update-tag-type";
 //	expects:	tag_type_id & name & description & category & min_role_id  
 $known_actions []= "add-tag-type";
 //	expects:	tag_type_id & tagname & description & category & min_role_id  
-$known_actions []= "set-tag-on-node";
-//	expects:	node_id tagname value
 $known_actions []= "delete-tag-types";
 //	expects:	tag_type_ids
 
-//////////////////////////////////////// nodetags
+//////////////////////////////////////// tags
+$known_actions []= "set-tag-on-node";
+//	expects:	node_id tagname value
+$known_actions []= "set-tag-on-interface";
+//	expects:	interface_id tagname value
 $known_actions []= "delete-node-tags";
 //	expects:	node_id & node_tag_ids
+$known_actions []= "delete-interface-tags";
+//	expects:	interface_id & interface_tag_ids
+
+////////////////////////////////////////////////////////////
+$interface_details= array ('method','type', 'ip', 'gateway', 'network', 
+			   'broadcast', 'netmask', 'dns1', 'dns2', 
+			   'hostname', 'mac', 'bwlimit' );
 
 //////////////////////////////
 // sometimes we don't set 'action', but use the submit button name instead
@@ -233,19 +246,19 @@ switch ($action) {
      plc_redirect(l_person($person_id));
   }
 
-   $update_vals= array();
-   $update_vals['first_name']= $first_name;
-   $update_vals['last_name']= $last_name;
-   $update_vals['title']= $title;
-   $update_vals['email']= $email;
-   $update_vals['phone']= $phone;
-   $update_vals['url']= $url;
-   $update_vals['bio']= $bio;
+   $fields= array();
+   $fields['first_name']= $first_name;
+   $fields['last_name']= $last_name;
+   $fields['title']= $title;
+   $fields['email']= $email;
+   $fields['phone']= $phone;
+   $fields['url']= $url;
+   $fields['bio']= $bio;
 		
    if ( $password1 != "" )
-     $update_vals['password']= $password1;
+     $fields['password']= $password1;
     
-    if ( $api->UpdatePerson( intval( $person_id ), $update_vals) == 1 )
+    if ( $api->UpdatePerson( intval( $person_id ), $fields) == 1 )
       drupal_set_message("$first_name $last_name updated");
     else 
       drupal_set_error ("Could not update person $person_id" . $api->error());
@@ -319,8 +332,38 @@ switch ($action) {
    plc_redirect(l_node($_POST['node_id']));
  }
 
-
-
+ case 'add-interface': {
+   $node_id=$_POST['node_id'];
+   foreach ($interface_details as $field) {
+     $interface[$field]= $_POST[$field];
+     if( in_array( $field, array( 'bwlimit', 'node_id' ) ) ) {
+       $interface[$field]= intval( $interface[$field] );
+     }
+   }
+   $result=$api->AddInterface( intval( $node_id ), $interface );
+   if ($result >0 ) 
+     drupal_set_message ("Interface $result added into node $node_id");
+   else
+     drupal_set_error ("Could not create interface");
+   plc_redirect (l_node($node_id));
+ }
+   
+ case 'update-interface': {
+   $interface_id=$_POST['interface_id'];
+   foreach ($interface_details as $field) {
+     $interface[$field]= $_POST[$field];
+     if( in_array( $field, array( 'bwlimit', 'node_id' ) ) ) {
+       $interface[$field]= intval( $interface[$field] );
+     }
+   }
+   $result=$api->UpdateInterface( intval( $interface_id ), $interface );
+   if ($result == 1 ) 
+     drupal_set_message ("Interface $interface_id updated");
+   else
+     drupal_set_error ("Could not update interface");
+   plc_redirect (l_interface($interface_id));
+ }
+   
 //////////////////////////////////////////////////////////// sites
  case 'delete-site': {
    $site_id = intval($_POST['site_id']);
@@ -382,7 +425,7 @@ switch ($action) {
    break;
  }
 
-//////////////////////////////////////////////////////////// tags
+//////////////////////////////////////////////////////////// tag types
 
  case 'update-tag-type': {
   // get post vars 
@@ -429,37 +472,6 @@ switch ($action) {
    plc_redirect( l_tags());
  }
 
- case 'set-tag-on-node': {
-
-   $node_id = intval($_POST['node_id']);
-   $tag_type_id = intval($_POST['tag_type_id']);
-   $value = $_POST['value'];
-
-   $tag_types=$api->GetTagTypes(array($tag_type_id));
-   if (count ($tag_types) != 1) {
-     drupal_set_error ("Could not locate tag_type_id $tag_type_id </br> Tag not set.");
-   } else {
-     $tags = $api->GetNodeTags (array('node_id'=>$node_id, 'tag_type_id'=> $tag_type_id));
-     if ( count ($tags) == 1) {
-       $tag=$tags[0];
-       $tag_id=$tag['node_tag_id'];
-       $result=$api->UpdateNodeTag($tag_id,$value);
-       if ($result == 1) 
-	 drupal_set_message ("Updated tag, new value = $value");
-       else
-	 drupal_set_error ("Could not update tag");
-     } else {
-       $tag_id = $api->AddNodeTag($node_id,$tag_type_id,$value);
-       if ($tag_id) 
-	 drupal_set_message ("Created tag, new value = $value");
-       else
-	 drupal_set_error ("Could not create tag");
-     }
-   }
-   
-   plc_redirect (l_node($node_id));
- }
-
  case 'delete-tag-types': {
    $tag_type_ids = $_POST['tag_type_ids'];
    if ( ! $tag_type_ids) {
@@ -481,26 +493,94 @@ switch ($action) {
    break;
  }
 
-//////////////////////////////////////// node tags   
- case 'delete-node-tags' : {
-   $node_tag_ids=$_POST['node_tag_ids'];
-   if ( ! $node_tag_ids) {
-     drupal_set_message("action=$action - No node tag selected");
+//////////////////////////////////////// tags   
+ case 'set-tag-on-node': 
+ case 'set-tag-on-interface': {
+   
+   $node_mode = false;
+   if ($action == 'set-tag-on-node') $node_mode=true;
+
+   if ($node_mode)
+     $node_id = intval($_POST['node_id']);
+   else 
+     $interface_id=intval($_POST['interface_id']);
+   $tag_type_id = intval($_POST['tag_type_id']);
+   $value = $_POST['value'];
+
+   $tag_types=$api->GetTagTypes(array($tag_type_id));
+   if (count ($tag_types) != 1) {
+     drupal_set_error ("Could not locate tag_type_id $tag_type_id </br> Tag not set.");
+   } else {
+     if ($node_mode) 
+       $tags = $api->GetNodeTags (array('node_id'=>$node_id, 'tag_type_id'=> $tag_type_id));
+     else
+       $tags = $api->GetInterfaceTags (array('interface_id'=>$interface_id, 'tag_type_id'=> $tag_type_id));
+     if ( count ($tags) == 1) {
+       $tag=$tags[0];
+       if ($node_mode) {
+	 $tag_id=$tag['node_tag_id'];
+	 $result=$api->UpdateNodeTag($tag_id,$value);
+       } else {
+	 $tag_id=$tag['interface_tag_id'];
+	 $result=$api->UpdateInterfaceTag($tag_id,$value);
+       }
+       if ($result == 1) 
+	 drupal_set_message ("Updated tag, new value = $value");
+       else
+	 drupal_set_error ("Could not update tag");
+     } else {
+       if ($node_mode)
+	 $tag_id = $api->AddNodeTag($node_id,$tag_type_id,$value);
+       else
+	 $tag_id = $api->AddInterfaceTag($interface_id,$tag_type_id,$value);
+       if ($tag_id) 
+	 drupal_set_message ("Created tag, new value = $value");
+       else
+	 drupal_set_error ("Could not create tag");
+     }
+   }
+   
+   if ($node_mode)
+     plc_redirect (l_node($node_id));
+   else
+     plc_redirect (l_interface($interface_id));
+ }
+
+ case 'delete-node-tags' : 
+ case 'delete-interface-tags' : {
+
+   $node_mode = false;
+   if ($action == 'delete-node-tags') $node_mode=true;
+
+   if ($node_mode)
+     $tag_ids=$_POST['node_tag_ids'];
+   else
+     $tag_ids=$_POST['interface_tag_ids'];
+
+   if ( ! $tag_ids) {
+     drupal_set_message("action=$action - No tag selected");
      return;
    }
    $success=true;
    $counter=0;
-   foreach( $node_tag_ids as $node_tag_id ) {
-     if ($api->DeleteNodeTag( intval( $node_tag_id )) != 1) 
+   foreach( $tag_ids as $tag_id ) {
+     if ($node_mode)
+       $retcod = $api->DeleteNodeTag( intval( $tag_id ));
+     else
+       $retcod = $api->DeleteInterfaceTag( intval( $tag_id ));
+     if ($retcod != 1) 
        $success=false;
      else
        $counter++;
    }
    if ($success) 
-     drupal_set_message ("Deleted $counter node tag(s)");
+     drupal_set_message ("Deleted $counter tag(s)");
    else
-     drupal_set_error ("Could not delete all selected node tags, only $counter were removed");
-   plc_redirect(l_node($_POST['node_id']));
+     drupal_set_error ("Could not delete all selected tags, only $counter were removed");
+   if ($node_mode)
+     plc_redirect(l_node($_POST['node_id']));
+   else
+     plc_redirect(l_interface($_POST['interface_id']));
  }
 
 

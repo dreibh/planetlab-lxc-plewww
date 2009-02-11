@@ -65,13 +65,16 @@ class PlcForm {
     $html .="/>";
     return $html;
   }
+  // options
+  // (*) width to set the text size
+  // (*) callbacks, e.g. onFocus=>'your javascript code'
   static function text_html ($name,$value,$options=NULL) {
     $default_options = array('width'=>20);
     if ( ! $options) $options=array();
     $options = array_merge($default_options,$options);
     $html="<input type=text name='$name' value='$value'";
     $html .= " size=" . $options['width'];
-    $cbs=array('onFocus','onSelect');
+    $cbs=array('onFocus','onSelect', 'onChange');
     foreach ($cbs as $cb) {
       if ($options[$cb])
 	$html .= " $cb='" . $options[$cb] . "'";
@@ -88,15 +91,26 @@ class PlcForm {
   // (*) value : the value that the 'name' variable will be assigned
   // (*) optional 'selected': the entry selected initially
   // (*) optional 'disabled': the entry is displayed but not selectable
-  // optional label is inserted as the first option, with no value attached
-  // autosubmit: onchange=submit()
-  static function select_html ($name,$selectors,$label=NULL,$autosubmit=false) {
+  // options
+  // (*) id
+  // (*) label : displayed as the first option, with no value attached
+  // (*) autosubmit : equivalent to onChange=>'submit()'
+  // (*) standard callbacks
+
+  static function select_html ($name,$selectors,$options) {
+    if ( ! $options) $options=array();
+    if ( $options ['autosubmit'] ) $options['onChange']='submit()';
     $html="";
     $html.="<select name='$name'";
-    if ($autosubmit) $html .= " onChange='submit();'";
+    if ($options['id']) $html .= " id='" . $options['id'] . "'";
+    $cbs=array('onFocus','onSelect','onChange');
+    foreach ($cbs as $cb) {
+      if ($options[$cb])
+	$html .= " $cb='" . $options[$cb] . "'";
+    }
     $html .= ">";
-    if ($label) {
-      $encoded=htmlentities($label,ENT_QUOTES);
+    if ($options['label']) {
+      $encoded=htmlentities($options['label'],ENT_QUOTES);
       $html.="<option selected=selected value=''>$encoded</option>";
     }
     foreach ($selectors as $selector) {

@@ -9,232 +9,181 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
+require_once 'plc_minitabs.php';
+require_once 'plc_details.php';
+require_once 'plc_tables.php';
 
-// find person roles
-$_person= $plc->person;
-$_roles= $_person['role_ids'];
-
-$interface = array();
-
-// If interface_id is specified, load data
-if( isset( $_GET['id'] ) ) {
-  $id= intval( $_GET['id'] );
-  $interfaces= $api->GetInterfaces( array( $id ) );
-  if( $interfaces ) {
-    $interface= $interfaces[0];
-    $node_id= $interface['node_id'];
-  }
-}
-
-if( $_GET['node_id'] ) 
-  $node_id= $_GET['node_id'];
-
-// Override fields with specified data
-foreach( array( 'method', 'type', 'ip', 'gateway', 'network', 'broadcast', 'netmask', 'dns1', 'dns2', 'hostname', 'mac', 'bwlimit', 'node_id' ) as $field ) {
-  if( isset( $_POST[$field] ) ) {
-    if( $_POST[$field] == "" ) {
-      $interface[$field]= NULL;
-    } else {
-      $interface[$field]= $_POST[$field];
-      if( in_array( $field, array( 'bwlimit', 'node_id' ) ) ) {
-	$interface[$field]= intval( $interface[$field] );
-      }
-    }
-  }
-  if( isset( $interface[$field] ) ) {
-    // E.g., $method = $interface['method'];
-    $$field= $interface[$field];
-  }
-}
-
-// Either interface_id or node_id must be specified in URL
-if( !isset( $_GET['node_id'] ) && !( $nodes= $api->GetNodes( array( intval($node_id) ), array( 'node_id', 'hostname', 'site_id' ) ) ) ) {
-  drupal_set_error ("Malformed URL");
-  plc_redirect(l_nodes());
-}
-
-
-$nodes= $api->GetNodes( array( intval($node_id) ), array( 'node_id', 'hostname', 'site_id' ) );
-$node= $nodes[0];
-
-$can_update= True;
-if( !in_array( 10, $_roles ) ) {
-  if ( !( in_array( 20, $_roles ) || in_array( 40, $_roles ) ) || !in_array( $node['site_id'], $_person['site_ids'] ) ) {
-    $can_update= False;
-  }
-}
-
-if( $can_update && (isset( $_POST['submitted'] ) || isset ($_GET['submitted'])) ) {
-  if( isset( $_POST['add'] ) ) {
-    $api->AddInterface( intval( $node_id ), $interface );
-  }
-  elseif ( isset( $_POST['delete'] ) || isset( $_GET['delete']) || isset( $_POST['update'] ) ) {
-    // interface_id must be specified in URL
-    if( !isset( $id ) ) {
-      plc_redirect(l_node($node_id));
-    }
-    if( isset( $_POST['delete'] ) || isset ($_GET['delete']) ) {
-      $api->DeleteInterface( $id );
-    }
-    elseif( isset( $_POST['update'] ) ) {
-      $api->UpdateInterface( $id, $interface );
-    }
-  }
-
-  $error= $api->error();
-
-  if( !empty( $error ) ) {
-    echo '<div class="plc-warning">' . $error . '.</div>';
-  } else {
-    plc_redirect(l_node($node_id));
-  }
-  
-}
-
-// Print header
 require_once 'plc_drupal.php';
-drupal_set_title($node['hostname']);
 include 'plc_header.php';
 
-// Start form
-$action= "interface.php";
-if( isset( $id ) ) {
-  $action.= "?id=" . $interface['interface_id'];
-} 
-elseif( isset($node_id)) {
-  $action.= "?node_id=" . $node_id;
-}
+// purpose : display, update or add an interface
 
-foreach( array( 'static', 'dhcp', 'proxy', 'tap', 'ipmi' ) as $option ) {
-  ${$option . "_selected"} = ( $method == $option ) ? 'selected="selected"' : '';
-}
+// interface:
+// updating : _GET['id'] :  
+//	if id is set: display the interface, allows to update/add a new if the user has privileges
+// adding: _GET['node_id']: 
+//	otherwise, node_id is needed and the form only allows to add
 
-// XXX Query methods and types
-echo <<<EOF
-
-<script type="text/javascript">
-function updateStaticFields()
-{
-  var is_static= document.fm.method.options[document.fm.method.selectedIndex].text == 'Static';
-  var is_tap= document.fm.method.options[document.fm.method.selectedIndex].text == 'TUN/TAP';
-
-  document.fm.netmask.disabled= !is_static;
-  document.fm.network.disabled= !is_static;
-  document.fm.gateway.disabled= !is_static && !is_tap;
-  document.fm.broadcast.disabled= !is_static;
-  document.fm.dns1.disabled= !is_static;
-  document.fm.dns2.disabled= !is_static;
-}
-</script>
-
-<form action="$action" method="post" name="fm">
-<table cellpadding="2">
-<tbody>
-
-<tr>
-  <th>Method: </th>
-  <td>
-    <select name="method" onchange="updateStaticFields()">
-      <option value="static" $static_selected>Static</option>
-      <option value="dhcp" $dhcp_selected>DHCP</option>
-      <option value="proxy" $proxy_selected>Proxy</option>
-      <option value="tap" $tap_selected>TUN/TAP</option>
-      <option value="ipmi" $ipmi_selected>IPMI</option>
-    </select>
-  </td>
-</tr>
-
-<tr>
-  <th>Type: </th>
-  <td>
-    <select name='type' onchange='updateStaticFields()'>
-      <option value="ipv4" selected="selected">ipv4</option>
-    </select>
-  </td>
-</tr>
-
-<tr><th>IP: </th><td><input type="text" name="ip" value="$ip" size="30" maxlength="256"/></td></tr>
-<tr><th>BW Limit: </th><td> <input type="text" name="bwlimit" value="$bwlimit" size="30" maxlength="256"/></td></tr>
-<tr><td colspan=2> <hr> </td></tr>
-<tr><th>Gateway: </th><td> <input type="text" name="gateway" value="$gateway" size="30" maxlength="256"/></td></tr>
-<tr><th>Network: </th><td> <input type="text" name="network" value="$network" size="30" maxlength="256"/></td></tr>
-<tr><th>Broadcast: </th><td> <input type="text" name="broadcast" value="$broadcast" size="30" maxlength="256"/></td></tr>
-<tr><th>Netmask: </th><td> <input type="text" name="netmask" value="$netmask" size="30" maxlength="256"/></td></tr>
-<tr><th>DNS 1: </th><td> <input type="text" name="dns1" value="$dns1" size="30" maxlength="256"/></td></tr>
-<tr><th>DNS 2: </th><td> <input type="text" name="dns2" value="$dns2" size="30" maxlength="256"/></td></tr>
-<tr><th>Hostname: </th><td> <input type="text" name="hostname" value="$hostname" size="30" maxlength="256"/></td></tr>
-<tr><th>MAC Address: </th><td> <input type="text" name="mac" value="$mac" size="30" maxlength="256"/></td></tr>
-<tr><th>BW Limit (bps): </th><td> <input type="text" name="bwlimit" value="$bwlimit" size="30" maxlength="256"/></td></tr>
-
-EOF;
-
-if ($can_update) {
-  echo '<tr><td/><td>';
-  echo '<input type="hidden" name="submitted" value="1" />';
-  if (isset($id)) {
-    echo '<input type="submit" name="update" value="Update"/>';
-    echo '<input type="submit" name="delete" value="Delete"/>';
-  }
-  echo '<input type="submit" name="add" value="Add As New"/>';
-  echo '</td></tr>';
-}
-
-echo <<<EOF
-</tbody>
-</table>
-</form>
-EOF;
-
-$is_admin=in_array( 10, $_roles );
-$is_pi=in_array( 20, $_roles );
-print "<hr />";
-
-if (empty ($interface['interface_tag_ids'])) {
-  print "<p> This network interface has no additional setting</p>";
-  if( $is_admin || $is_pi )
-    // xxx check the destination page
-    echo "<p><a href='settings.php?add=$id'>Add an Interface Setting</a></p>\n";
- } else {
-  $interface_tags = $api->GetInterfaceTags($interface['interface_tag_ids']);
-  sort_interface_tags ($interface_tags);
-  print "<table cellpadding='5' cellspacing='5' class='list_set'><caption class='list_set'>Additional Settings</caption>";
-  print "<thead><tr class='list_set'>";
-  // the column for the delete button
-  if( $is_admin )
-    print "<th></th>";
-  print "<th class='list_set'>Name</th><th class='list_set'>Category</th><th class='list_set'>Description</th><th class='list_set'>Value</th></tr></thead><tbody>";
-  foreach ($interface_tags as $setting) {
-    echo "<tr class='list_set'>";
-    if ($is_admin) {
-      echo("<td>");
-      echo plc_delete_link_button('setting_action.php?rem_id=' . $setting['interface_tag_id'],
-				  '\\n [ ' . $setting['tagname'] . ' = ' . $setting['value']);
-      echo("</td>");
-    }
-    if ($is_admin || $is_pi) 
-    // xxx check the destination page
-      printf ("<td class='list_set'> <a href='settings.php?id=%s'>%s </a></td>",$setting['interface_tag_id'],$setting['tagname']);
-    else
-      printf ("<td class='list_set'> %s </td>",$setting['tagname']);
-    printf ("<td class='list_set'> %s</td><td class='list_set'> %s</td><td class='list_set'> %s </td></tr>",
-	    $setting['category'],
-	    $setting['description'],
-	    $setting['value']);
-  }
-  if( $is_admin || $is_pi )
-    // xxx check the destination page
-    echo "<tr><td colspan=4><a href='settings.php?add=$id'>Add a Network Setting</td</tr>\n";
-  
-  print "</tbody></table>";
+if ( isset ($_GET['id'])) {
+  $mode='update';
+  $interface_id=intval($_GET['id']);
+  $interfaces=$api->GetInterfaces(array('interface_id'=>$interface_id));
+  $interface=$interfaces[0];
+  $node_id=$interface['node_id'];
+ } else if (isset ($_GET['node_id'])) {
+  $mode='add';
+  $interface=array();
+  $node_id=$_GET['node_id'];
+ } 
+// check
+if ( ! $node_id) {
+  drupal_set_error('Malformed URL in interface.php, need id or node_id');
+  plc_redirect(l_nodes());
+  return;
  }
 
-echo <<<EOF
-<hr /><a href="index.php?id=$node_id">Back to Node</a>
-<script type="text/javascript">
-updateStaticFields();
-</script>
-EOF;
+$tabs=array();
+$tabs['Back to node']=array('url'=>l_node($node_id),
+			    'bubble'=>'Cancel pending changes');
+plc_tabs($tabs);
+
+$fields=array( 'method', 'type', 'ip', 'gateway', 'network', 'broadcast', 'netmask', 
+	       'dns1', 'dns2', 'hostname', 'mac', 'bwlimit', 'node_id' );
+
+//////////////////////////////
+$nodes= $api->GetNodes( array( intval($node_id) ), array( 'node_id', 'hostname', 'site_id' ) );
+$node= $nodes[0];
+$site_id=$node['site_id'];
+
+$can_update= plc_is_admin() || ( plc_in_site ($site_id) && ( plc_is_pi() || plc_is_tech()));
+
+drupal_set_title("Interface on " . $node['hostname']);
+
+// include javacsript helpers
+drupal_set_title ('
+<script type="text/javascript" src="/planetlab/prototype/prototype.js"></script>
+<script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
+');
+
+$details=new PlcDetails($can_update);
+
+// hardwire network type
+$form=$details->form_start(l_actions(),array('node_id'=>$node_id,'type'=>"ipv4"));
+
+$details->start();
+
+//>>> GetNetworkMethods()
+//[u'static', u'dhcp', u'proxy', u'tap', u'ipmi', u'unknown']
+function method_selectors ($api, $method) {
+  $builtin_methods=array("static"=>"Static", "dhcp"=>"DHCP", "proxy"=>"Proxy",  
+			 "tap"=>"TUN/TAP", "ipmi"=>"IPMI");
+  $selectors=array();
+  foreach ($builtin_methods as $value=>$display) {
+    $selector=array('display'=>$display, 'value'=>$value);
+    if ($value == $method) $selector['selected']=true;
+    $selectors []= $selector;
+  }
+  return $selectors;
+}
+$method_select = $form->select_html ("method",method_selectors($api,$interface['method']),
+				     array('id'=>'method','onChange'=>'updateMethodFields()'));
+$details->th_td("Method",$method_select,"method",array('input_type'=>'select'));
+
+// dont display the 'type' selector as it contains only ipv4
+//>>> GetNetworkTypes()
+//[u'ipv4']
+
+$ip_options=array('width'=>15);
+$ip_options_plus=array_merge($ip_options,array('onKeyup'=>'networkHelper()',
+					       'onChange'=>'networkHelper()',
+					       ));
+$ip_options_tmp=array_merge($ip_options,array('onKeyup'=>'subnetChecker("dns1")'));
+
+$details->th_td("IP",$interface['ip'],"ip",$ip_options_plus);
+$details->th_td("Netmask",$interface['netmask'],"netmask",$ip_options_plus);
+$details->th_td("Network",$interface['network'],"network",$ip_options);
+$details->th_td("Broadcast",$interface['broadcast'],"broadcast",$ip_options);
+$details->th_td("Gateway",$interface['gateway'],"gateway",$ip_options);
+$details->th_td("DNS 1",$interface['dns1'],"dns1",$ip_options_tmp);
+$details->th_td("DNS 2",$interface['dns2'],"dns2",$ip_options);
+$details->space();
+$details->th_td("BW limit (bps)",$interface['bwlimit'],"bwlimit",array('width'=>11));
+$details->th_td("Hostname",$interface['hostname'],"hostname");
+# should the user be allowed to change this ?
+$mac=$interface['mac'];
+if ($mac) $details->th_td("MAC address",$mac);
+
+// the buttons
+$update_button = $form->submit_html ("update-interface","Update");
+$add_button = $form->submit_html ("add-interface","Add as new");
+$dbg="<input type=button onclick='formSubmit()' value='dbg'>";
+switch ($mode) {
+ case 'add':
+   $details->tr($add_button,"right");
+   break;
+ case 'update':
+   $details->tr($update_button . $add_button . $dbg,"right");
+   break;
+ }
+
+$details->end();
+$form->end();
+
+// no tags if the interface has not been created yet
+if ($mode == 'add') return;
+
+
+//////////////////////////////////////// tags
+$form = new PlcForm (l_actions(),array('interface_id'=>$interface_id));
+$form->start();
+
+$tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
+function get_tagname ($tag) { return $tag['tagname'];}
+$tagnames = array_map ("get_tagname",$tags);
+  
+plc_section("Tags");
+$headers=array("Name"=>"string",
+	       "Value"=>"string",
+	       );
+if ($can_update) $headers[plc_delete_icon()]="none";
+  
+$table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
+$table=new PlcTable("interface_tags",$headers,0,$table_options);
+$table->start();
+if ($tags) foreach ($tags as $tag) {
+  $table->row_start();
+  $table->cell(l_tag_obj($tag));
+  $table->cell($tag['value']);
+  // the remove checkbox
+  if ($can_update) $table->cell ($form->checkbox_html('interface_tag_ids[]',$tag['interface_tag_id']));
+  $table->row_end();
+}
+  
+if ($can_update) {
+  $table->tfoot_start();
+
+  // remove tag 
+  $table->row_start();
+  $table->cell($form->submit_html("delete-interface-tags","Remove Tags"),
+	       // use the whole columns and right adjust
+	       $table->columns(), "right");
+  $table->row_end();
+
+  // set tag area
+  $table->row_start();
+  // get list of tag names in the interface/* category    
+  $all_tags= $api->GetTagTypes( array ("category"=>"interface*"), array("tagname","tag_type_id"));
+  // xxx cannot use onchange=submit() - would need to somehow pass action name 
+  function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
+  $selector=array_map("tag_selector",$all_tags);
+  $table->cell($form->select_html("tag_type_id",$selector,array('label'=>"Choose")));
+  $table->cell($form->text_html("value","",array('width'=>8)));
+  $table->cell($form->submit_html("set-tag-on-interface","Set Tag"),2,"left");
+  $table->row_end();
+ }
+  
+$table->end();
+$form->end();
 
 // Print footer
 include 'plc_footer.php';

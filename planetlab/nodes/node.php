@@ -172,7 +172,7 @@ if ( ! ($local_peer && $privileges)) {
     if ($dbname == $boot_state) $selector['selected']=true;
     $selectors []= $selector;
   }
-  $boot_value .= $boot_form->select_html("boot_state",$selectors,NULL,true);
+  $boot_value .= $boot_form->select_html("boot_state",$selectors,array('autosubmit'=>true));
   $boot_value .= $boot_form->end_html();
  }
 $details->th_td ("Boot state",$boot_value);
@@ -191,7 +191,8 @@ if ( $local_peer  && $privileges) {
 		     array("value"=>"download-node-floppy","display"=>"Download Floppy file for $hostname"),
 		     array("value"=>"download-generic-iso","display"=>"Download generic ISO image (requires floppy)"),
 		     array("value"=>"download-generic-usb","display"=>"Download generic USB image (requires floppy)"));
-  $download_value .= $download_form->select_html("action",$selectors,"Download mode",true);
+  $download_value .= $download_form->select_html("action",$selectors,
+						 array('label'=>"Download mode",'autosubmit'=>true));
   $download_value .= $download_form->end_html();
   $details->th_td ("Download",$download_value);
  }
@@ -263,7 +264,7 @@ if ( $local_peer ) {
     // xxx cannot use onchange=submit() - would need to somehow pass action name 
     function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
     $selector=array_map("tag_selector",$all_tags);
-    $table->cell($form->select_html("tag_type_id",$selector,"Choose"));
+    $table->cell($form->select_html("tag_type_id",$selector,array('label'=>"Choose")));
     $table->cell($form->text_html("value","",array('width'=>8)));
     $table->cell($form->submit_html("set-tag-on-node","Set Tag"),2,"left");
     $table->row_end();
@@ -330,7 +331,7 @@ if ( $local_peer ) {
     if ($privileges) {
       $table->tfoot_start();
       $table->row_start();
-      $add_button=new PlcFormButton (l_interface_add($node_id),"add_interface","Add interface");
+      $add_button=new PlcFormButton (l_interface_add($node_id),"add_interface","Add interface","GET");
       // we should have 6 cols, use 3 for the left (new) and the rest for the right (remove)
       $table->cell($add_button->html(), 3,"left");
       $table->cell($form->submit_html("delete-interfaces","Remove Interfaces"), $table->columns()-3,"right");

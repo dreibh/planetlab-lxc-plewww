@@ -94,7 +94,7 @@ if (plc_is_admin()) {
   $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
   function selector_argument ($role) { return array('display'=>$role['name'],"value"=>$role['role_id']); }
   $selectors=array_map("selector_argument",$relevant_roles);
-  $role_input=$form->select_html("min_role_id",$selectors,"Role");
+  $role_input=$form->select_html("min_role_id",$selectors,array('label'=>"Role"));
 
   $table->cell($form->text_html('tagname',''));
   $table->cell($form->textarea_html('description','',$description_width,2));

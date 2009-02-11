@@ -132,8 +132,14 @@ class PlcDetails {
 	if ($height) $html .= " rows=$height";
 	$html .= ">$value</textarea>";
       } else {
-	$html .= "<input type='$input_type' name='$form_varname' value='$value'";
+	// set id too 
+	$html .= "<input type='$input_type' name='$form_varname' id='$form_varname' value='$value'";
 	if ($width) $html .= " size=$width";
+	$cbs=array('onFocus','onSelect', 'onChange', 'onKeyup', 'onMouseup');
+	foreach ($cbs as $cb) {
+	  if ($options[$cb])
+	    $html .= " $cb='" . $options[$cb] . "'";
+	}
 	$html .= "/>";
       }
       $html .= "</td></tr>";

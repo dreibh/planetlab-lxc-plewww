@@ -281,7 +281,7 @@ if ($can_manage_sites) {
   // xxx cannot use onchange=submit() - would need to somehow pass action name 
   function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
   $selectors = array_map ("site_selector",$relevant_sites);
-  $table->cell ($form->select_html("site_id",$selectors,"Choose a site to add").
+  $table->cell ($form->select_html("site_id",$selectors,array('label'=>"Choose a site to add")).
 		$form->submit_html("add-person-to-site","Add in site"),
 		$table->columns(),"right");
   $table->row_end();
@@ -327,9 +327,9 @@ if ($can_manage_roles) {
 
   $table->row_start();
   $selectors=$form->role_selectors_excluding($api,$role_ids);
-  $add_role_left_area=$form->select_html("role_id",$selectors,"Choose role");
+  $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
   // add a role : the button
-  $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
+  $add_role_right_area=$form->submit_html("add-role-to-person",array('label'=>"Add role"));
   $table->cell ($add_role_left_area . $add_role_right_area,
 		$table->columns(),"right");
   $table->row_end();
