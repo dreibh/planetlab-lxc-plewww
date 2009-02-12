@@ -11,7 +11,7 @@
     float: left;
     font-size: small;  /* could be specified at a higher level */
     margin: 0;
-    padding: 0 10px 0 10px;
+    padding: 0 5px 0 5px; 
     /* thickness and color for the fixed thin horizontal bar */
     border-bottom: 1px solid #696;
     position:relative;
@@ -26,6 +26,8 @@ input.minitabs-submit {
     border: 0;
     /* buttons are normally outlined */
     background-color: transparent;
+    /*padding-bottom: 6px;*/
+    border-bottom: 0px;
 }    
 #minitabs-list li {
     float: left;
@@ -49,7 +51,7 @@ input.minitabs-submit {
 
 #minitabs-list input.active {
     /* border-bottom: 4px solid #696; */
-    padding-bottom: 2px;
+    /* padding-bottom: 2px; */
     /* color when mouse is on button */
     color: #696;
 }
@@ -62,5 +64,6 @@ input.minitabs-submit {
     padding-bottom: 2px;
     /* color for the sliding bar */
     border-bottom: 4px solid #696;
+    margin-bottom: 0px;
 }
 

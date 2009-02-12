@@ -11,32 +11,6 @@
 
 */
 
-function plc_debug (txt,value) {
-  window.console.log (txt + ' => ' + value);
-}  
-
-function plc_element (txt,elem) {
-  var message=txt + ':';
-  message += ' type=' + elem.nodeName;
-  message += ' id=' + elem.id;
-  message += ' cls=' + elem.className;
-  window.console.log (message);
-}  
-
-/* lists all attributes - or the specified one - 
- * verbose means the attribute value gets printed as well */
-function plc_introspect (txt,obj,verbose,attribute) {
-  window.console.log ('=== beg intro ' + txt);
-  for (var prop in obj) {
-    if ( (attribute === undefined) || ( prop == attribute ) ) 
-      if (verbose) 
-	window.console.log (prop + '=' + obj[prop]);
-      else
-	window.console.log (prop);
-  }
-  window.console.log ('=== end intro ' + txt);
-}
-
 /* I'm done with this - write it ourselves - don't care about perfs so much anyway */
 /* define getElementsByClassName on Element if missing */
 function getElementsByClassName (elt,cls) {
@@ -93,21 +67,21 @@ var miniTab = {
 	  if(elem.tagName && elem.tagName == "LI") pos++;
  
 	}
-	miniTab.initSlide(pos);
+	miniTab.initSlide(pos,true);
       }
     }
  
     miniTab.ul.onmouseout = function(e) {
-      miniTab.initSlide(miniTab.currentTab);
+      miniTab.initSlide(miniTab.currentTab,true);
       miniTab.setActive (miniTab.activeTab,false);
     };
  
-    for(var i = 0, a; a = miniTab.inputArr[i]; i++) {
-      if(a.className.search("active") != -1) {
+    for(var i = 0, input; input = miniTab.inputArr[i]; i++) {
+      if(input.className.search("active") != -1) {
 	miniTab.activeTab = miniTab.currentTab = i;
       }
-      a.style.borderBottom  = "0px";
-      /*a.style.paddingBottom = "6px";*/
+      /*input.style.borderBottom  = "0px";*/
+      /*input.style.paddingBottom = "6px";*/
     }
  
     miniTab.slideObj                = miniTab.ul.parentNode.appendChild(document.createElement("div"));
