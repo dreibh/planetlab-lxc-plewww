@@ -67,8 +67,10 @@ drupal_set_title ('
 
 $details=new PlcDetails($can_update);
 
-// hardwire network type
-$form=$details->form_start(l_actions(),array('node_id'=>$node_id,'type'=>"ipv4"));
+// xxx hardwire network type for now
+$form_variables = array('node_id'=>$node_id,'type'=>"ipv4");
+if ($mode == "update") $form_variables['interface_id']=$interface_id;
+$form=$details->form_start(l_actions(),$form_variables);
 
 $details->start();
 
@@ -87,25 +89,26 @@ function method_selectors ($api, $method) {
 }
 $method_select = $form->select_html ("method",method_selectors($api,$interface['method']),
 				     array('id'=>'method','onChange'=>'updateMethodFields()'));
-$details->th_td("Method",$method_select,"method",array('input_type'=>'select'));
+$details->th_td("Method",$method_select,"method",array('input_type'=>'select','value'=>$interface['method']));
 
 // dont display the 'type' selector as it contains only ipv4
 //>>> GetNetworkTypes()
 //[u'ipv4']
 
-$ip_options=array('width'=>15);
-$ip_options_plus=array_merge($ip_options,array('onKeyup'=>'networkHelper()',
-					       'onChange'=>'networkHelper()',
-					       ));
-$ip_options_tmp=array_merge($ip_options,array('onKeyup'=>'subnetChecker("dns1")'));
-
-$details->th_td("IP",$interface['ip'],"ip",$ip_options_plus);
-$details->th_td("Netmask",$interface['netmask'],"netmask",$ip_options_plus);
-$details->th_td("Network",$interface['network'],"network",$ip_options);
-$details->th_td("Broadcast",$interface['broadcast'],"broadcast",$ip_options);
-$details->th_td("Gateway",$interface['gateway'],"gateway",$ip_options);
-$details->th_td("DNS 1",$interface['dns1'],"dns1",$ip_options_tmp);
-$details->th_td("DNS 2",$interface['dns2'],"dns2",$ip_options);
+$details->th_td("IP",$interface['ip'],"ip",array('width'=>15,
+						 'onKeyup'=>'networkHelper()',
+						 'onChange'=>'networkHelper()'));
+$details->th_td("Netmask",$interface['netmask'],"netmask",array('width'=>15,
+								'onKeyup'=>'networkHelper()',
+								'onChange'=>'networkHelper()'));
+$details->th_td("Network",$interface['network'],"network",array('width'=>15));
+$details->th_td("Broadcast",$interface['broadcast'],"broadcast",array('width'=>15));
+$details->th_td("Gateway",$interface['gateway'],"gateway",array('width'=>15,
+								'onChange'=>'subnetChecker("gateway",false)'));
+$details->th_td("DNS 1",$interface['dns1'],"dns1",array('width'=>15,
+								'onChange'=>'subnetChecker("dns1",false)'));
+$details->th_td("DNS 2",$interface['dns2'],"dns2",array('width'=>15,
+								'onChange'=>'subnetChecker("dns2",true)'));
 $details->space();
 $details->th_td("BW limit (bps)",$interface['bwlimit'],"bwlimit",array('width'=>11));
 $details->th_td("Hostname",$interface['hostname'],"hostname");
@@ -114,15 +117,16 @@ $mac=$interface['mac'];
 if ($mac) $details->th_td("MAC address",$mac);
 
 // the buttons
-$update_button = $form->submit_html ("update-interface","Update");
-$add_button = $form->submit_html ("add-interface","Add as new");
-$dbg="<input type=button onclick='formSubmit()' value='dbg'>";
+$update_button = $form->submit_html ("update-interface","Update",
+				     array('onSubmit'=>'interfaceSubmit()'));
+$add_button = $form->submit_html ("add-interface","Add as new",
+				  array('onSubmit'=>'interfaceSubmit()'));
 switch ($mode) {
  case 'add':
    $details->tr($add_button,"right");
    break;
  case 'update':
-   $details->tr($update_button . $add_button . $dbg,"right");
+   $details->tr($update_button . "&nbsp" . $add_button,"right");
    break;
  }
 

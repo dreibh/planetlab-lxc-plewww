@@ -43,44 +43,42 @@ class PlcForm {
   function end() { print $this->end_html(); }
   function end_html() { return "</form>"; }
 
-  static function hidden_html ($key,$value) {
-    return "<input type=hidden name='$key' value='$value'/>";  
-  }
-  static function checkbox_html ($name,$value,$selected=false) {
-    if ($selected) $xtra=" selected=selected";
-    return "<input type=checkbox name='$name' value='$value'$xtra/>";
-  }
-  static function submit_html ($name,$display) {
-    return "<input type=submit name='$name' value='$display'/>";
-  }
-  static function file_html ($name,$size) {
-    return "<input type=file name='$name' size=$size/>";
-  }
-  static function label_html ($name,$display) {
-    return "<label for=$name>$display </label>";
-  }
-  static function radio_html  ($id, $name, $value, $checked) {
-    $html="<input type='radio' id='$id' name='$name' value='$value'";
-    if ($checked) $html .= " checked='checked'";
-    $html .="/>";
+  static function attributes ($options) {
+    $html="";
+    $names=array('id','size','selected', 'checked',
+		 'onfocus','onselect', 'onchange', 
+		 'onkeyup', 'onmouseup', 'onclick', 'onsubmit');
+    if ($options['selected']) $options['selected']='selected';
+    if ($options['checked']) $options['checked']='checked';
+    if ($options) foreach ($options as $key=>$value) {
+	if (in_array(strtolower($key),$names)) 
+	  $html .= " $key='$value'";
+      }
     return $html;
   }
+
   // options
   // (*) width to set the text size
   // (*) callbacks, e.g. onFocus=>'your javascript code'
-  static function text_html ($name,$value,$options=NULL) {
-    $default_options = array('width'=>20);
+  static function input_html ($type,$name,$value,$options=NULL) {
     if ( ! $options) $options=array();
-    $options = array_merge($default_options,$options);
-    $html="<input type=text name='$name' value='$value'";
-    $html .= " size=" . $options['width'];
-    $cbs=array('onFocus','onSelect', 'onChange');
-    foreach ($cbs as $cb) {
-      if ($options[$cb])
-	$html .= " $cb='" . $options[$cb] . "'";
-    }
+    $html="<input";
+    $html="<input type='$type' name='$name' value='$value'";
+    $html .= PlcForm::attributes ($options);
     $html .= "/>";
     return $html;
+  }
+
+  static function text_html ($name,$value, $options=NULL) {	return PlcForm::input_html('text', $name, $value, $options); }
+  static function hidden_html ($name,$value, $options=NULL) {	return PlcForm::input_html('hidden', $name, $value, $options); }
+  static function checkbox_html ($name,$value,$options=NULL) {	return PlcForm::input_html('checkbox', $name, $value, $options); }
+  static function submit_html ($name,$value,$options=NULL) {	return PlcForm::input_html('submit', $name, $value, $options); }
+  static function button_html ($name,$value,$options=NULL) {	return PlcForm::input_html('button', $name, $value, $options); }
+  static function radio_html ($name,$value,$options=NULL) {	return PlcForm::input_html('radio', $name, $value, $options); }
+  static function file_html ($name,$value,$options=NULL) {	return PlcForm::input_html('file', $name, $value, $options); }
+
+  static function label_html ($name,$display) {
+    return "<label for=$name>$display</label>";
   }
   static function textarea_html ($name,$value,$cols,$rows) {
     return "<textarea name='$name' cols=$cols rows=$rows>$value</textarea>";

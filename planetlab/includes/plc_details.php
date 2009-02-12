@@ -108,10 +108,13 @@ class PlcDetails {
     print $this->th_td_html ($title,$value,$form_varname,$options);
   }
   function th_td_html ($title,$value,$form_varname="",$options=NULL) {
+    if (!$options) $options = array();
     if ( ! ($this->editable && $form_varname) ) {
+      // xxx hack: if input_type is select, look for the 'value' option to display current value
+      if ($options['input_type'] == "select") 
+	$value=$options['value'];
       return "<tr><th>$title</th><td>$value</td></tr>";
     } else {
-      if (!$options) $options = array();
       // use options if provided, otherwise the latest set_ function 
       if (array_key_exists('input_type',$options)) $input_type=$options['input_type'];
       else $input_type=$this->input_type;
@@ -123,7 +126,7 @@ class PlcDetails {
       $html="";
       $html .= "<tr><th><label for=$form_varname>$title</label></th>";
       $html .= "<td>";
-      // hack: if input_type is select : user provides the input field verbatim
+      // xxx hack: if input_type is select : user provides the input field verbatim
       if ( $input_type == "select" ) {
 	$html .= $value;
       } else if ($input_type == "textarea") {
@@ -135,11 +138,8 @@ class PlcDetails {
 	// set id too 
 	$html .= "<input type='$input_type' name='$form_varname' id='$form_varname' value='$value'";
 	if ($width) $html .= " size=$width";
-	$cbs=array('onFocus','onSelect', 'onChange', 'onKeyup', 'onMouseup');
-	foreach ($cbs as $cb) {
-	  if ($options[$cb])
-	    $html .= " $cb='" . $options[$cb] . "'";
-	}
+	// handle event callbacks
+	$html .= PlcForm::attributes($options);
 	$html .= "/>";
       }
       $html .= "</td></tr>";

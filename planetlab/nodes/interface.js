@@ -104,7 +104,16 @@ function networkHelper () {
 }
 
 /* check one */
-function subnetChecker (args) {
+function subnetChecker (id, optional) {
+  var error= subnetCheckerSilent([id,optional]);
+  if (error) {
+    Form.Element.focus($(id));
+    alert(error);
+  }
+}
+
+function subnetCheckerSilent (args) {
+  
   id=args[0];
   optional=args[1];
 
@@ -124,13 +133,13 @@ function subnetChecker (args) {
   return "";
 }
 
-function formSubmit () {
+function interfaceSubmit () {
+  alert ('submitting');
   // get error strings, and remove the empty ones
   // dns2 is optional
-  var errors=['gateway','dns1'].zip ([true,true,false],subnetChecker).reject( function (s) {return s.length==0;} );
+  var errors=['gateway','dns1','dns2'].zip ([true,true,false],subnetCheckerSilent).reject( function (s) {return s.length==0;} );
   if ( ! errors.length)
     $('ip').up('form').submit();
   else
     alert(errors.join("\n"));
 }
-  

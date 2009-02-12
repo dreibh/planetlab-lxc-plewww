@@ -63,15 +63,12 @@ $details->th_td("Name",$tagname,"tagname");
 $details->th_td("Category",$category,"category");
 $details->th_td("Description",$description,"description");
 
-// xxx misses in PlcDetails
 if ($can_update) {
-//tmp
 // select the option corresponding with min_role_id
   $selectors = $details->form()->role_selectors($api,"",$min_role_id);
   $select_field = $details->form()->select_html("min_role_id",$selectors);
-  $save_i=$details->set_input_type("select");
-  $details->th_td("Min role",$select_field,"min_role_id");
-  $details->set_input_type($save_i);
+  // xxx would need to turn role_id into role name
+  $details->th_td("Min role",$select_field,"min_role_id",array('input_type'=>'select','value'=>$min_role_id));
  } else {
   $details->th_td("Min role",$min_role_id);
  }

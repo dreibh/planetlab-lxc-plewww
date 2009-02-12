@@ -52,15 +52,15 @@ $details->start();
 $details->tr ($form->submit_html('submit','Show Events'),'center');
 $details->space();
 
-$details->th_td ( $form->radio_html ('events','type','Event',true) . "Events",
+$details->th_td ( $form->radio_html ('type','Event',array('id'=>'events','checked'=>true)) . "Events",
 		 $form->text_html('event','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'events.checked=true')));
-$details->th_td ( $form->radio_html ('sites','type','Site',false) . "Sites",
+$details->th_td ( $form->radio_html ('type','Site',array('id'=>'sites')) . "Sites",
 		 $form->text_html('site','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'sites.checked=true')));
-$details->th_td ( $form->radio_html ('persons','type','Person',false) . "Persons",
+$details->th_td ( $form->radio_html ('type','Person',array('id'=>'persons')) . "Persons",
 		 $form->text_html('person','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'persons.checked=true')));
-$details->th_td ( $form->radio_html ('nodes','type','Node',false) . "Nodes",
+$details->th_td ( $form->radio_html ('type','Node',array('id'=>'nodes')) . "Nodes",
 		 $form->text_html('node','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'nodes.checked=true')));
-$details->th_td ( $form->radio_html ('slices','type','Slice',false) . "Slices",
+$details->th_td ( $form->radio_html ('type','Slice',array('id'=>'slices')) . "Slices",
 		 $form->text_html('slice','',array('width'=>30,'onSelect'=>'submit()', 'onFocus'=>'slices.checked=true')));
 
 $details->space();

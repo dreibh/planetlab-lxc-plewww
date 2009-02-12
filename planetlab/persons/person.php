@@ -229,7 +229,7 @@ if ($can_manage_keys) {
   }
   $table->row_start();
   $table->cell($form->label_html("key","Upload new key")
-	       . $form->file_html("key",60)
+	       . $form->file_html("key","upload",array('size'=>60))
 	       . $form->submit_html("upload-key","Upload key"),
 	       $table->columns(),"right");
   $table->row_end();
