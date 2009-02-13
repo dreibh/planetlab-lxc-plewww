@@ -87,8 +87,9 @@ var miniTab = {
     miniTab.slideObj                = miniTab.ul.parentNode.appendChild(document.createElement("div"));
     miniTab.slideObj.appendChild(document.createTextNode(String.fromCharCode(160)));
     miniTab.slideObj.id             = "minitabs-sliding";
-    miniTab.slideObj.style.top      = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + 
-				       miniTab.inputArr[miniTab.activeTab].offsetTop) + "px";
+
+    miniTab.setTop();
+
     miniTab.slideObj.style.left     = (miniTab.ul.offsetLeft + miniTab.liArr[miniTab.activeTab].offsetLeft + 
 				       miniTab.inputArr[miniTab.activeTab].offsetLeft) + "px";
     miniTab.slideObj.style.width    = miniTab.inputArr[miniTab.activeTab].offsetWidth + "px";
@@ -134,9 +135,18 @@ var miniTab = {
     miniTab.bW = miniTab.slideObj.offsetWidth;
     miniTab.cW = miniTab.destW - miniTab.bW;
  
-    miniTab.slideObj.style.top = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop + miniTab.inputArr[miniTab.activeTab].offsetTop) + "px";
+    miniTab.setTop();
   },
  
+ setTop: function () {
+    var delta=0;
+    /* up 5px for firefox */
+    if (navigator.userAgent.match(/Firefox/)) delta=-5; 
+    miniTab.slideObj.style.top  = (miniTab.ul.offsetTop + miniTab.liArr[miniTab.activeTab].offsetTop 
+				   + miniTab.inputArr[miniTab.activeTab].offsetTop + delta ) + "px";
+
+  },
+
  slideIt:function() {
  
     // Has the browser text size changed?

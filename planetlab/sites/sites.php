@@ -27,6 +27,8 @@ $pattern=$_GET['pattern'];
 // --- decoration
 $title="Sites";
 $tabs=array();
+$tabs []= tab_mysite();
+$tabs []= tab_sites_local();
 
 // -------------------- 
 $site_filter=array();
@@ -95,8 +97,6 @@ if (! plc_is_admin()) {
 			"enabled", "person_ids", "max_slices", "slice_ids", "node_ids");
  }
 
-$tabs['My site'] = array('url'=>l_site(plc_my_site_id()));
-$tabs['Local sites'] = array('url'=>l_sites_peer('local'));
 if (plc_is_admin()) 
   $tabs['Pending'] = array ('url'=>l_sites_pending(),
 			    'bubble'=>'Review pending join requests');

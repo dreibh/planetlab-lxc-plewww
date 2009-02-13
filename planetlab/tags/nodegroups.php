@@ -25,8 +25,8 @@ $pattern=$_GET['pattern'];
 // --- decoration
 $title="Nodegroups";
 $tabs=array();
-$tabs['Tags'] = array('url'=>l_tags(),
-		      'bubble'=>'Lists all known tag types');
+$tabs []= tab_tags();
+
 // -------------------- 
 $node_filter=array();
 

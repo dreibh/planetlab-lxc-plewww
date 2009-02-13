@@ -42,12 +42,11 @@ $node_columns = array("hostname","node_id");
 
 $nodes = $api->GetNodes( $node_ids, $node_columns);
 
-$tabs ["All nodegroups"] = array ('url'=>l_nodegroups(),
-				  'bubble'=>'All nodegroups');
-$tabs ["All tags"] = array ('url'=>l_tags(),
-			    'bubble'=>'All tags');
-$tabs ["Local nodes"] = array ('url'=>l_nodes_peer('local'),
-			     'bubble'=>'All local nodes');
+$tabs = array();
+
+$tabs []= tab_tags();
+$tabs []= tab_nodegroups();
+$tabs []= tab_nodes_local();
 
 drupal_set_title("Details for node group " . $nodegroup['groupname']);
 plc_tabs($tabs);

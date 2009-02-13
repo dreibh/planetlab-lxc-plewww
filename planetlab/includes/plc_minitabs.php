@@ -13,25 +13,37 @@ drupal_set_html_head('
 // todo can be either
 // (*) a string : it is then taken to be a URL to move to
 // (*) or an associative array with the following keys
+//     (*) 'label' : if set, this overrides the string key just above
+//	   this is used for functions that return a tab, more convenient to write&use
 //     (*) 'method': 'POST' or 'GET' -- default is 'GET'
 //     (*) 'url': where to go
 //     (*) 'values': an associative array of (key,value) pairs to send to the URL; values are strings
 //     (*) 'confirm': a question to display before actually triggering
 //     (*) 'bubble': a longer message displayed when the mouse stays quite for a while on the label
-//     (*) 'image' : the url of an image used instead of the full title
+//     (*) 'image' : the url of an image used instead of the label
 //     (*) 'height' : used for the image
+
+// examples
+// function my_tab () { return array('label'=>'The Text','url'=>'http://google.com'); }
+// $tabs=array();
+// $tabs[] = my_tab();
+// $tabs['Simple Tab']="http://planet-lab.org";
+// $tabs['Complex Tab']=array('url'=>'http://planet-lab.org/',
+//			      'bubble'=>'This text gets displayed when the mouse remains over for a while');
+// plc_tabs($tabs);
 
 ////////// Notes: limited support for images
 // (*) for some reason, confirmation does not work with image tabs 
 //     (the form gets submitted whatever the confirmation....)
 // (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
 
-
 function plc_tabs ($array) {
   print '<div id="minitabs-container">';
   print '<ul id="minitabs-list">';
   print "\n";
   foreach ($array as $label=>$todo) {
+    // the 'label' key, if set in the hash, supersedes $key
+    if ($todo['label']) $label=$todo['label'];
     $tracer="class=minitabs";
     if ($todo['id']) 
       $tracer .= " id=".$todo['id'];
@@ -47,7 +59,8 @@ function plc_tabs ($array) {
     $url_values=$split['values'];
 
     // create form
-    printf ('<form name="%s" action="%s" method="%s">',$label,$url,$todo['method']);
+    $method=$todo['method'];
+    print "<form name='$label' action='$url' method='$method'>";
     // set values
     $values=$todo['values'];
     if ( ! $values) $values = array();

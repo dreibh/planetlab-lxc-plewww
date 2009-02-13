@@ -30,11 +30,9 @@ $slice_id=intval($_GET['slice_id']);
 $title="Nodes";
 $tabs=array();
 $mysite_id=plc_my_site_id();
-$tabs['My nodes'] = array('url'=>l_nodes(),
-			  'values'=>array('site_id'=>plc_my_site_id()),
-			  'bubble'=>'Lists nodes on site ' . $mysite_id);
-$tabs['Local nodes'] = array ('url'=>l_nodes_peer('local'),
-			      'bubble' => 'Nodes local to this peer');
+$tabs []= tab_nodes_mysite();
+$tabs []= tab_nodes_local();
+
 // -------------------- 
 $node_filter=array();
 
@@ -71,12 +69,12 @@ $node_filter=array_merge($node_filter,$peerscope->filter());
 $title .= ' - ' . $peerscope->label();
 
 if ($site_id) {
-  $sites=$api->GetSites(array($site_id),array("name","login_base"));
+  $sites=$api->GetSites(array($site_id));
   $site=$sites[0];
   $name=$site['name'];
   $login_base=$site['login_base'];
   $title .= t_site($site);
-  $tabs = array_merge($tabs,tabs_site($site));
+  $tabs []= tab_site($site);
   $node_filter['site_id']=array($site_id);
 }
 
@@ -84,7 +82,7 @@ if ($slice_id) {
   $slices=$api->GetSlices(array($slice_id),array('node_ids','name'));
   $slice=$slices[0];
   $title .= t_slice($slice);
-  $tabs = array_merge($tabs,tabs_slice($slice));
+  $tabs []= tab_slice($slice);
   $node_filter['node_id'] = $slice['node_ids'];
  }
 

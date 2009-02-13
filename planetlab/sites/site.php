@@ -99,6 +99,10 @@ $local_peer = ! $peer_id;
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
   
 $tabs=array();
+
+$tabs []= tab_sites();
+$tabs []= tab_sites_local();
+
 // available actions
 if ( $local_peer  && $privileges ) {
   
@@ -115,10 +119,10 @@ if ( $local_peer  && $privileges ) {
 					  'action'=>'delete-site'),
 			  'bubble'=>"Delete site $sitename",
 			  'confirm'=>"Are you sure you want to delete site $login_base");
-  $tabs["Events"]=array_merge (tabs_events(),
+  $tabs["Events"]=array_merge (tablook_event(),
 			       array('url'=>l_event("Site","site",$site_id),
 				     'bubble'=>"Events for site $sitename"));
-  $tabs["Comon"]=array_merge(tabs_comon(),
+  $tabs["Comon"]=array_merge(tablook_comon(),
 			     array('url'=>l_comon("site_id",$site_id),
 				   'bubble'=>"Comon page for $sitename"));
 
@@ -126,8 +130,6 @@ if ( $local_peer  && $privileges ) {
     $tabs['Pending'] = array ('url'=>l_sites_pending(),
 			      'bubble'=>'Review pending join requests');
  }
-
-$tabs["All sites"]=l_sites();
 
 plc_tabs($tabs);
 

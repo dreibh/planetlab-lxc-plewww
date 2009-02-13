@@ -93,8 +93,9 @@ if( !empty( $conf_file_ids ) )
   $conf_files= $api->GetConfFiles( $conf_file_ids );
 // (*) idem for PCUs
 // gets pcu and port info key to both is $pcu_id
-if( !empty( $pcu_ids ) )
-  $PCUs= $api->GetPCUs( $pcu_ids );
+// turning this off: GetPCUs is not allowed to users, and we don't show PCUs yet anyway
+//if( !empty( $pcu_ids ) )
+//  $PCUs= $api->GetPCUs( $pcu_ids );
 
 //////////////////// display node info
 
@@ -107,6 +108,10 @@ $privileges = (plc_is_admin () && $local_peer) || ( plc_in_site($site_id) && ( p
   
 $tabs=array();
 // available actions
+$tabs [] = tab_nodes_site($site_id);
+$tabs [] = tab_site($site_id);
+$tabs [] = tab_nodes();
+
 if ( $local_peer  && $privileges ) {
     
   $tabs['Delete'] = array ('url'=>l_actions(),
@@ -116,16 +121,14 @@ if ( $local_peer  && $privileges ) {
 			   'confirm'=>'Are you sure to delete ' . $hostname. ' ?');
   // xxx subject to roles
   $tabs["Add Interface"]=array('url'=>l_interface_add($node_id),
-			       'bubble'=>"Declare new network interface on $hostname");
-  $tabs["Events"]=array_merge(tabs_events(),
+			       'bubble'=>"Define new network interface on $hostname");
+  $tabs["Events"]=array_merge(tablook_event(),
 			      array('url'=>l_event("Node","node",$node_id),
 				    'bubble'=>"Events for node $hostname"));
-  $tabs["Comon"]=array_merge(tabs_comon(),
+  $tabs["Comon"]=array_merge(tablook_comon(),
 			     array('url'=>l_comon("node_id",$node_id),
 				   'bubble'=>"Comon page about node $hostname"));
  }
-
-$tabs["All nodes"]=l_nodes();
 
 plc_tabs($tabs);
 

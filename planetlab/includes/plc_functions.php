@@ -118,8 +118,48 @@ function l_person_register()		{ return "/db/persons/register.php"; }
 function l_site_register()		{ return "/db/sites/register.php"; }
 function l_sites_pending()		{ return "/db/sites/join_request.php"; }
 
-function tabs_events()			{ return array('image'=>'/planetlab/icons/event.png','height'=>18);}
-function tabs_comon()			{ return array('image'=>'/planetlab/icons/comon.png','height'=>18);}
+
+//////////////////////////////////////////////////////////// nav tabs
+function tab_nodes ()		{ return array ('label'=>'All nodes','url'=>l_nodes(), 
+						'bubble'=>'Display nodes from all peers'); }
+function tab_nodes_local ()	{ return array ('label'=>'Local nodes', 'url'=>l_nodes_peer('local'), 
+						'bubble'=>'Display local nodes only'); }
+function tab_nodes_site($site_id){ return array ('label'=>'Site nodes', 'url'=>l_nodes_site($site_id), 
+						 'bubble'=>'Display nodes on that site'); }
+function tab_nodes_mysite ()	{ return array ('label'=>'My nodes', 'url'=>l_nodes_site(plc_my_site_id()), 
+						'bubble'=>'Display nodes on that site'); }
+function tab_node($node)	{ return array ('label'=>'Node '.$node['hostname'], 'url'=>l_node($node_id),
+						'bubble'=>'Details for ' . $node['hostname']); }
+//////////
+function tab_site($site)	{ return array ('label'=>'Site '.$site['login_base'], 'url'=>l_site($site_id),
+						'bubble'=>'Details for ' . $site['name']); }
+function tab_mysite()		{ return array ('label'=>'My site', 'url'=>l_site(plc_my_site_id()),
+						'bubble'=>'Details for site ' . plc_my_site_id()); }
+function tab_sites ()		{ return array ('label'=>'All sites' , 'url'=>l_sites(), 'bubble'=> 'Display all sites'); }
+function tab_sites_local ()	{ return array ('label'=>'Local sites' , 'url'=>l_sites_peer('local'), 'bubble'=> 'Display local sites'); }
+//////////
+function tab_slices()		{ return array ('label'=>'All slices', 'url'=>l_slices(),
+						'bubble' => 'Display all slices'); }
+function tab_slice($slice)	{ return array ('label'=>'Slice '.$slice['name'], 'url'=>l_slice($slice_id),
+						'bubble' => 'Details for ' . $slice['name']); }
+//////////
+function tab_persons()		{ return array ('label'=>'All accounts', 'url'=>l_persons(),
+						'bubble'=>'Display users from all peers'); }
+function tab_persons_local()	{ return array ('label'=>'Local accounts', 'url'=>l_persons_peer('local'),
+						'bubble'=>'Display local users'); }
+function tab_persons_mysite()	{ return array ('label'=>'My accounts' , 'url'=>l_persons_site(plc_my_site_id()),
+						'bubble'=>'Display accounts on site ' . plc_my_site_id()); }
+//////////
+function tab_tags()		{ return array ('label'=>'Tag Types', 'url'=>l_tags(),
+						'bubble' => 'Display and create tag types'); }
+function tab_nodegroups()	{ return array ('label'=>'Nodegroups', 'url'=>l_nodegroups(),
+						'bubble' => 'Display and create nodegroups'); }
+
+// only partial tab
+function tablook_event()	{ return array('image'=>'/planetlab/icons/event.png','height'=>18);}
+function tablook_comon()	{ return array('image'=>'/planetlab/icons/comon.png','height'=>18);}
+
+////////////////////
 
 // returns array ['url' => path, 'values' => hash (key=>value)* ]
 function split_url ($full_url) {
@@ -246,11 +286,6 @@ function plc_nodegroup_global_hash ($api,$tagnames=NULL) {
 //////////////////////////////////////////////////////////// titles
 function t_site($site) { return " on site " . $site['name'] . " (" . $site['login_base'] .")"; }
 function t_slice ($slice) { return " running slice " . $slice['name'] . " (" . $slice['slice_id'] . ")"; }
-
-//////////////////////////////////////////////////////////// nav tabs
-function tabs_node($node) { return array('Node ' . $node['hostname']=>l_node($node_id)); }
-function tabs_site($site) { return array('Site ' . $site['name']=>l_site($site_id)); }
-function tabs_slice($slice) { return array('Slice ' . $slice['name']=>l_slice($slice_id)); }
 
 //////////////////////////////////////////////////////////// html fragments
 function plc_vertical_table ($messages, $class="") {

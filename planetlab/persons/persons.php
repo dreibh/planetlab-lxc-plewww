@@ -32,12 +32,10 @@ $slice_id=intval($_GET['slice_id']);
 // --- decoration
 $title="Accounts";
 $tabs=array();
-$tabs['My accounts'] = array('url'=>l_persons(),
-			     'values'=>array('site_id'=>plc_my_site_id()),
-			     'bubble'=>'Lists accounts on site ' . plc_my_site_id());
+$tabs []= tab_persons_mysite();
+
 if (plc_is_admin()) 
-  $tabs['Local accounts'] = array('url'=>l_persons(),
-				  'values'=>array('peerscope'=>'local'));
+  $tabs []= tab_persons_local();
 // -------------------- 
 $person_filter=array();
 
@@ -93,17 +91,16 @@ if ($site_id) {
   $name=$site['name'];
   $login_base=$site['login_base'];
   $title .= t_site($site);
-  $tabs = array_merge($tabs,tabs_site($site));
   $person_filter['person_id']=$site['person_ids'];
-  if ($site_id == plc_my_site_id()) 
-    unset($tabs['My accounts']);
+  if ($site_id != plc_my_site_id()) 
+    $tabs []= tab_site($site);
 }
 
 if ($slice_id) {
   $slices=$api->GetSlices(array($slice_id),array('person_ids','name'));
   $slice=$slices[0];
   $title .= t_slice($slice);
-  $tabs = array_merge($tabs,tabs_slice($slice));
+  $tabs []= tab_slice($slice);
   $person_filter['person_id'] = $slice['person_ids'];
  }
 

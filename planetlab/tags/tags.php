@@ -26,11 +26,10 @@ $pattern=$_GET['pattern'];
 // --- decoration
 $title="Tag Types";
 $tabs=array();
-$tabs['Tag Types']=array('url'=>l_tags(),'bubble'=>"Create a new tag type");
-$tabs['All Nodes']=array('url'=>l_nodes(),'bubble'=>"Nodes from all peers");
-$tabs['Local Nodes']=array('url'=>l_nodes(),'values'=>array('peerscope'=>'local'),'bubble'=>"All local nodes");
-//$tabs['Interfaces']=l_interfaces();
-$tabs['All Slices']=array('url'=>l_slices(),'bubble'=>"Slices from all peers");
+$tabs []= tab_tags();
+$tabs []= tab_nodes();
+$tabs []= tab_nodes_local();
+$tabs []= tab_slices();
 
 // -------------------- 
 drupal_set_title($title);

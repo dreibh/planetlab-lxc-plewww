@@ -43,8 +43,8 @@ if ( ! $node_id) {
  }
 
 $tabs=array();
-$tabs['Back to node']=array('url'=>l_node($node_id),
-			    'bubble'=>'Cancel pending changes');
+$tabs[] = array('label'=>'Back to node', 'url'=>l_node($node_id),
+		'bubble'=>'Cancel pending changes');
 plc_tabs($tabs);
 
 $fields=array( 'method', 'type', 'ip', 'gateway', 'network', 'broadcast', 'netmask', 

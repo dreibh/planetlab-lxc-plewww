@@ -31,7 +31,7 @@ if ( ! $tag_type_id ) {
 // --- decoration
 $title="Tag Type";
 $tabs=array();
-$tabs['All Types']=array('url'=>l_tags(),'bubble'=>"All Tag Types");
+$tabs []= tab_tags();
 
 // -------------------- 
 $tag_types= $api->GetTagTypes( array( $tag_type_id ) );

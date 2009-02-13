@@ -72,6 +72,7 @@ $is_my_account = plc_my_person_id() == $person_id;
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
 
 $tabs=array();
+$tabs []= tab_persons();
 
 // enable / disable
 if ($local_peer && $privileges) 
@@ -113,10 +114,6 @@ if ( $privileges)
 			  'values'=>array('type'=>'Person','person'=>$person_id),
 			  'bubble'=>"Events about $first_name $last_name",
 			  'image'=>'/planetlab/icons/event.png','height'=>18);
-
-// Back button
-$tabs['All Users'] = array ('url'=>l_persons(),
-			    'bubble'=>'Back to the Users page');
 
 plc_tabs($tabs);
     
