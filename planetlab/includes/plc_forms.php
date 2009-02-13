@@ -95,7 +95,7 @@ class PlcForm {
   // (*) autosubmit : equivalent to onChange=>'submit()'
   // (*) standard callbacks
 
-  static function select_html ($name,$selectors,$options) {
+  static function select_html ($name,$selectors,$options=NULL) {
     if ( ! $options) $options=array();
     if ( $options ['autosubmit'] ) $options['onChange']='submit()';
     $html="";
