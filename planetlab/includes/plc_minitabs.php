@@ -22,9 +22,13 @@ drupal_set_html_head('
 //     (*) 'bubble': a longer message displayed when the mouse stays quite for a while on the label
 //     (*) 'image' : the url of an image used instead of the label
 //     (*) 'height' : used for the image
+//     (*) 'id' : assign given id to the <li> element
+
+// NOTE
+// values can also be set in the URL, e.g. ?var=value&foo=bar, even for POST'ing
 
 // examples
-// function my_tab () { return array('label'=>'The Text','url'=>'http://google.com'); }
+// function my_tab () { return array('label'=>'Go to google','url'=>'http://google.com'); }
 // $tabs=array();
 // $tabs[] = my_tab();
 // $tabs['Simple Tab']="http://planet-lab.org";
@@ -42,14 +46,14 @@ function plc_tabs ($array) {
   print '<ul id="minitabs-list">';
   print "\n";
   foreach ($array as $label=>$todo) {
-    // the 'label' key, if set in the hash, supersedes $key
+    // in case we have a simple string, rewrite it as an array
+    if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
+    // the 'label' key, if set in the hash, supersedes key
     if ($todo['label']) $label=$todo['label'];
     $tracer="class=minitabs";
     if ($todo['id']) 
       $tracer .= " id=".$todo['id'];
     printf ("<li %s>\n",$tracer);
-    // in case we have a string, rewrite it as an array
-    if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
     // set default method
     if ( ! $todo['method'] ) $todo['method']='GET';
     // extract var=value settings from url if any

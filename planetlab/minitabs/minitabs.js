@@ -76,6 +76,10 @@ var miniTab = {
       miniTab.setActive (miniTab.activeTab,false);
     };
  
+    window.onresize = function (e) {
+      miniTab.initSlide (miniTab.activeTab,true);
+    }
+
     for(var i = 0, input; input = miniTab.inputArr[i]; i++) {
       if(input.className.search("active") != -1) {
 	miniTab.activeTab = miniTab.currentTab = i;
