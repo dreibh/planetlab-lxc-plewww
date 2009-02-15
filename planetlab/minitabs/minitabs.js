@@ -156,7 +156,6 @@ minitabs.prototype.submit = function (message) {
   if (message && ! confirm (message) ) return;
 
   /* get the form and trigger */
-  /*  window.console.log ("form=" + this.li_s[submitTab].up('form').submit(); */
   this.li_s[submitTab].down('form').submit();
   
 }
@@ -164,7 +163,6 @@ minitabs.prototype.submit = function (message) {
 // globals
 var minitabs_namespace = {
  init: function () {
-    window.console.log('init');
     $$('div.minitabs').each (function (div) {   
 	/* create instance and attach it to the <div> element */
 	div.minitabs = new minitabs ();
