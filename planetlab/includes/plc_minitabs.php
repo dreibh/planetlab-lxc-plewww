@@ -2,6 +2,7 @@
   // $Id$
 
 drupal_set_html_head('
+<script type="text/javascript" src="/planetlab/prototype/prototype.js"></script>
 <script type="text/javascript" src="/planetlab/minitabs/minitabs.js"></script>
 <link href="/planetlab/minitabs/minitabs.css" rel="stylesheet" type="text/css" />
 ');
@@ -25,9 +26,10 @@ drupal_set_html_head('
 //     (*) 'id' : assign given id to the <li> element
 
 // NOTE
-// values can also be set in the URL, e.g. ?var=value&foo=bar, even for POST'ing
+// (*) values can also be set in the URL, e.g. ?var=value&foo=bar, even for POST'ing
+// (*) several instances can appear on the same page but you need to give them different id's
 
-// examples
+// EXAMPLES
 // function my_tab () { return array('label'=>'Go to google','url'=>'http://google.com'); }
 // $tabs=array();
 // $tabs[] = my_tab();
@@ -41,10 +43,10 @@ drupal_set_html_head('
 //     (the form gets submitted whatever the confirmation....)
 // (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
 
-function plc_tabs ($array) {
-  print '<div id="minitabs-container">';
-  print '<ul id="minitabs-list">';
-  print "\n";
+function plc_tabs ($array, $id=NULL) {
+  if (! $id) $id="minitabs";
+  print "<div id='$id' class='minitabs'>";
+  print "<ul>";
   foreach ($array as $label=>$todo) {
     // in case we have a simple string, rewrite it as an array
     if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
@@ -53,7 +55,7 @@ function plc_tabs ($array) {
     $tracer="class=minitabs";
     if ($todo['id']) 
       $tracer .= " id=".$todo['id'];
-    printf ("<li %s>\n",$tracer);
+    print "<li $tracer>";
     // set default method
     if ( ! $todo['method'] ) $todo['method']='GET';
     // extract var=value settings from url if any
@@ -70,7 +72,7 @@ function plc_tabs ($array) {
     if ( ! $values) $values = array();
     if ($url_values) $values = array_merge($values,$url_values);
     if ( $values ) foreach ($values as $key=>$value) {
-	printf('<input class="minitabs-hidden" type=hidden name="%s" value="%s" />',$key,$value);
+	print "<input class='minitabs-hidden' type=hidden name='$key' value='$value' />";
       }
     $tracer="class=minitabs-submit";
     // image and its companions 'height' 
@@ -80,12 +82,13 @@ function plc_tabs ($array) {
     } else {
       $type='type=button value="' . $label . '"';
     }
-    printf('<span title="%s">',$todo['bubble']);
+    $bubble=$todo['bubble'];
+    print "<span title='$bubble'>";
     $message="";
     if ($todo['confirm']) $message=$todo['confirm'] . " ?";
-    printf('<input %s %s onclick=\'miniTab.submit("%s");\' />',$tracer,$type,$message);
-    printf('</span>',$todo['bubble']);
-    printf("</form></li>\n");
+    print "<input $tracer $type onclick='minitabs_namespace.submit(\"$id\",\"$message\")' />";
+    print "</span>";
+    print "</form></li>\n";
   }
   print '</ul>';
   print '</div>';
