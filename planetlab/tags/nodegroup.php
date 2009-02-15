@@ -73,6 +73,9 @@ if ($nodes) foreach ($nodes as $node) {
 }
 
 $table->end ();
+
+plc_tabs ($tabs,"bottom");
+
 // Print footer
 include 'plc_footer.php';
 

@@ -142,6 +142,8 @@ $notes=array("N = number of sites / U = number of users / S = number of slices")
 
 $table->end(array('notes'=>$notes));
 
+plc_tabs ($tabs,"bottom");
+
 // Print footer
 include 'plc_footer.php';
 

@@ -100,7 +100,6 @@ $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
   
 $tabs=array();
 
-$tabs []= tab_sites();
 $tabs []= tab_sites_local();
 
 // available actions
@@ -237,6 +236,8 @@ $details->end();
 
 ////////////////////////////////////////
 $peers->block_end($peer_id);
+
+plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

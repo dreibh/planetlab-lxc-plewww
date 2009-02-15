@@ -283,6 +283,8 @@ $table->set_options(array('notes'=>array("The R column shows the call result val
 					 "Click the button in the D(etails) column to get more details")));
 $table->end();
   
+plc_tabs ($tabs,"bottom");
+
 // Print footer
 include 'plc_footer.php';
 

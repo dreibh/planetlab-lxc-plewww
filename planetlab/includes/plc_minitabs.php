@@ -44,7 +44,9 @@ drupal_set_html_head('
 // (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
 
 function plc_tabs ($array, $id=NULL) {
-  if (! $id) $id="minitabs";
+  // need id to pass to the onclick function attached to the input buttons
+  $id="minitabs";
+  if (! $id) $id .= '-' + $id;
   print "<div id='$id' class='minitabs'>";
   print "<ul>";
   foreach ($array as $label=>$todo) {
@@ -52,9 +54,8 @@ function plc_tabs ($array, $id=NULL) {
     if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
     // the 'label' key, if set in the hash, supersedes key
     if ($todo['label']) $label=$todo['label'];
-    $tracer="class=minitabs";
-    if ($todo['id']) 
-      $tracer .= " id=".$todo['id'];
+    $tracer="";
+    if ($todo['id']) $tracer .= "id=".$todo['id'];
     print "<li $tracer>";
     // set default method
     if ( ! $todo['method'] ) $todo['method']='GET';
@@ -72,7 +73,7 @@ function plc_tabs ($array, $id=NULL) {
     if ( ! $values) $values = array();
     if ($url_values) $values = array_merge($values,$url_values);
     if ( $values ) foreach ($values as $key=>$value) {
-	print "<input class='minitabs-hidden' type=hidden name='$key' value='$value' />";
+	print "<input type=hidden name='$key' value='$value' />";
       }
     $tracer="class=minitabs-submit";
     // image and its companions 'height' 

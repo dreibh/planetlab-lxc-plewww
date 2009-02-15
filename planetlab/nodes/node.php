@@ -379,6 +379,7 @@ $form->end();
 ////////////////////////////////////////////////////////////
 $peers->block_end($peer_id);
 
+plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

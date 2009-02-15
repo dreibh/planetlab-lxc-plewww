@@ -176,6 +176,8 @@ foreach ($persons as $person) {
 $notes=array("The S column shows the number of slices for the given user");
 $table->end(array('notes'=>$notes));
 
+plc_tabs ($tabs,"bottom");
+
 // Print footer
 include 'plc_footer.php';
 

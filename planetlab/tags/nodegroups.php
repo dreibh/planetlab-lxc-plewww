@@ -76,6 +76,8 @@ foreach ($nodegroups as $nodegroup) {
 
 $table->end();
 
+plc_tabs ($tabs,"bottom");
+
 // Print footer
 include 'plc_footer.php';
 

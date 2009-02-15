@@ -189,6 +189,8 @@ if ($can_update) {
 $table->end();
 $form->end();
 
+plc_tabs ($tabs,"bottom");
+
 // Print footer
 include 'plc_footer.php';
 

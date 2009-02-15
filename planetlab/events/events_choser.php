@@ -72,6 +72,8 @@ $details->th_th(html_div($from_picker->html()) , html_div($until_picker->html())
 $details->end();
 $form->end();
 
+plc_tabs ($tabs,"bottom");
+
   // Print footer
 include 'plc_footer.php';
 
