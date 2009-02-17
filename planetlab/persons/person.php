@@ -342,5 +342,4 @@ plc_tabs ($tabs,"bottom");
 // Print footer
 include 'plc_footer.php';
 
-
 ?>

@@ -1,0 +1,18 @@
+/*
+ $Id$
+ */
+
+h1.plc-toggle-switch, h2.plc-toggle-switch {
+    text-align:center;
+}
+
+img.plc-toggle-visible, img.plc-toggle-hidden {
+    height: 14px;
+    padding-right: 20px;
+}
+
+div.plc-toggle-area {
+    border-color:#a84444 !important;
+    border:1px solid #ccc;
+}
+

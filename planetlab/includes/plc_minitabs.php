@@ -1,8 +1,9 @@
 <?php
   // $Id$
 
+require_once 'prototype.php';
+
 drupal_set_html_head('
-<script type="text/javascript" src="/planetlab/prototype/prototype.js"></script>
 <script type="text/javascript" src="/planetlab/minitabs/minitabs.js"></script>
 <link href="/planetlab/minitabs/minitabs.css" rel="stylesheet" type="text/css" />
 ');

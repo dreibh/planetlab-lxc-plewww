@@ -12,6 +12,7 @@ require_once 'plc_functions.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_details.php';
 require_once 'plc_tables.php';
+require_once 'prototype.php';
 
 require_once 'plc_drupal.php';
 include 'plc_header.php';
@@ -61,7 +62,6 @@ drupal_set_title("Interface on " . $node['hostname']);
 
 // include javacsript helpers
 drupal_set_title ('
-<script type="text/javascript" src="/planetlab/prototype/prototype.js"></script>
 <script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
 ');
 

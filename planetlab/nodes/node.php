@@ -20,6 +20,7 @@ require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
 require_once 'plc_forms.php';
+require_once 'plc_toggles.php';
 require_once 'plc_objects.php';
 
 // -------------------- 
@@ -225,7 +226,12 @@ if ( $local_peer ) {
   $tagnames = array_map ("get_tagname",$tags);
   $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
   
-  plc_section("Tags");
+  $toggle = new PlcToggle ('tags',"Tags",array('switch-tagname'=>'h2',
+					       'switch-bubble'=>'Inspect and set tags on that node',
+					       'start-hidden'=>true));
+  print $toggle->switch_html();
+  $toggle->area_start();
+
   $headers=array("Name"=>"string",
 		 "Value"=>"string",
 		 "Nodegroup"=>"string",
@@ -274,12 +280,18 @@ if ( $local_peer ) {
   }
   
   $table->end();
+  $toggle->area_end();
  }
 
 //////////////////////////////////////////////////////////// interfaces
 if ( $local_peer ) {
 
-  plc_section ("Interfaces");
+  $toggle=new PlcToggle ('interfaces',"Interfaces",array('switch-tagname'=>'h2',
+							 'switch-bubble'=>'Inspect and tune interfaces on that node',
+							 'start-hidden'=>true));
+
+  print $toggle->switch_html();
+  $toggle->area_start();
   // display interfaces
   if( ! $interfaces ) {
     echo '<p>';
@@ -342,12 +354,18 @@ if ( $local_peer ) {
     }
     $table->end();
   }
+  $toggle->area_end();
  }
 
 //////////////////////////////////////////////////////////// slices
 // display slices
 
-plc_section ("Slices");
+$toggle=new PlcToggle ('slices',"Slices",array('switch-tagname'=>'h2',
+					       'switch-bubble'=>'Review slices running on that node',
+					       'start-hidden'=>true));
+print $toggle->switch_html();
+
+$toggle->area_start();
 if ( ! $slices  ) {
   plc_warning ("This node is not associated to any slice");
  } else {
@@ -373,6 +391,7 @@ if ( ! $slices  ) {
   }
   $table->end();
  }
+$toggle->area_end();
 
 $form->end();
 
