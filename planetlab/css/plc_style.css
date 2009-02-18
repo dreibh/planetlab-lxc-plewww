@@ -24,14 +24,6 @@ body {
     position: relative;
 }
 
-h2.plc { 
-    text-align: center;
-}
-
-/* tmp - for visual checking */
-/*.plc-local {
-    border: 1px solid #00f; */
-}
 .plc-foreign {
     background:  #e0e0e0;
 }

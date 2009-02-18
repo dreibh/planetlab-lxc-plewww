@@ -62,7 +62,7 @@ function plc_tabs ($array, $id=NULL) {
     if ( ! $todo['method'] ) $todo['method']='GET';
     // extract var=value settings from url if any
     $full_url=$todo['url'];
-    $split=split_url($full_url);
+    $split=plkit_split_url($full_url);
     $url=$split['url'];
     $url_values=$split['values'];
 

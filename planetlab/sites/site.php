@@ -20,6 +20,7 @@ require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
 require_once 'plc_forms.php';
+require_once 'plc_toggles.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -28,7 +29,7 @@ if ( ! $site_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////
 // Get all columns as we focus on only one entry
-$sites= $api->GetSites( array($site_id));
+$sites = $api->GetSites( array($site_id));
 
 if (empty($sites)) {
   drupal_set_message ("Site " . $site_id . " not found");
@@ -51,11 +52,11 @@ $enabled = $site['enabled'];
 // extra privileges to admins, and (pi||tech) on this site
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
   
-// get peer details
+// get peer 
 $peer_id= $site['peer_id'];
 $peers = new Peers ($api);
 
-$adress_ids= $site['address_ids'];
+$address_ids= $site['address_ids'];
 $pcu_ids= $site['pcu_ids'];
 $node_ids= $site['node_ids'];
 $person_ids= $site['person_ids'];
@@ -63,7 +64,7 @@ $slice_ids= $site['slice_ids'];
 
 $api->begin();
 // gets address info
-$api->GetAddresses( $adress_ids );
+$api->GetAddresses( $address_ids );
 
 // gets pcu info
 // GetPCUs is not accessible to the 'user' role
@@ -91,6 +92,8 @@ foreach( $persons as $person ) {
   if ( ! $person['enabled'] )		$disabled_persons[] = $person;
   
 }
+
+$has_disabled_persons = count ($disabled_persons) !=0;
 
 drupal_set_title("Details for site " . $sitename);
 $local_peer = ! $peer_id;
@@ -151,7 +154,7 @@ $details->start();
 $details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
 $details->th_td("Full name",$sitename,'name',array('width'=>50));
 $details->th_td("Abbreviated name",$abbreviated_name,'abbreviated_name',array('width'=>15));
-$details->th_td("URL",$site_url,'url',array('width'=>50));
+$details->th_td("URL",$site_url,'url',array('width'=>40));
 $details->th_td("Latitude",$site_lat,'latitude');
 $details->th_td("Longitude",$site_long,'longitude');
 
@@ -171,39 +174,90 @@ if ( ! $local_peer) {
   $details->space();
   $details->th_td("Peer",$peers->peer_link($peer_id));
  }
+$details->end();
 
+//////////////////// mode details - for local object
 if ( $local_peer ) {
 
-  // Nodes
-  $details->space();
+  //////////////////// nodes
+  // xxx missing : would need to add columns on attached PCU name and port if avail
   $nb_boot = 0;
   if ($nodes) foreach ($nodes as $node) if ($node['boot_state'] == 'boot') $nb_boot ++;
-  $node_label = $nb_boot . " boot / " .  count($nodes) . " total";
-  $details->th_td("# Nodes", href(l_nodes_site($site_id),$node_label));
-  function n_link ($n) { return l_node_t($n['node_id'],$n['hostname'] . " (" . $n['boot_state'] . ")");}
-  $nodes_label= plc_vertical_table(array_map ("n_link",$nodes));
-  $details->th_td ("Hostnames",$nodes_label);
-  $button=new PlcFormButton (l_node_add(),"add_node","Add node","POST");
-  $details->tr($button->html(),"right");
 
-  // Users
-  $details->space();
-  $user_label = count($person_ids) . " Total / " .
-    count ($pis) . " PIs / " .
-    count ($techs) . " Techs";
-  if ( (count ($pis) == 0) || (count ($techs) == 0) || (count($person_ids) >=50)) 
-    $user_label = plc_warning_html ($user_label);
-  $details->th_td ("# Users",href(l_persons_site($site_id),$user_label));
-  function p_link ($p) { return l_person_t($p['person_id'],$p['email']); }
-  // PIs
-  $details->th_td("PI's",plc_vertical_table (array_map ("p_link",$pis)));
-  // techs
-  $details->th_td("Techs's",plc_vertical_table (array_map ("p_link",$techs)));
-  if (count ($disabled_persons)) 
-    $details->th_td("Disabled",plc_vertical_table (array_map ("p_link",$disabled_persons)));
+  $nodes_title = "# Nodes : ";
+  $nodes_title .= count($nodes) . " total";
+  $nodes_title .= " / " . $nb_boot . " boot";
+  if ($nb_boot < 2 ) 
+    $nodes_title = plc_warning_html ($nodes_title);
+  $nodes_title .= href(l_nodes_site($site_id)," (See as nodes)");
 
-  // Slices
-  $details->space();
+  $toggle=new PlcToggle ('nodes',$nodes_title,array('trigger-tagname'=>'h2'));
+  $toggle->start();
+
+  $headers=array();
+  $headers['hostname']='string';
+  $headers['state']='string';
+
+  $table = new PlcTable ('nodes',$headers,'0',array('search_area'=>false,
+						    'notes_area'=>false,
+						    'pagesize_area'=>false));
+  $table->start();
+  foreach ($nodes as $node) {
+    $table->row_start();
+    $table->cell (l_node_obj($node));
+    $table->cell ($node['boot_state']);
+    $table->row_end();
+  }
+  $table->tfoot_start();
+  $table->row_start();
+  $button=new PlcFormButton (l_node_add(),"node_add","Add node","POST");
+  $table->cell($button->html(),$table->columns(),"right");
+  $table->row_end();
+  $table->end();
+  $toggle->end();
+    
+  //////////////////// Users
+  $persons_title = "# Users : ";
+  $persons_title .= count($person_ids) . " total";
+  $persons_title .= " / " . count ($pis) . " PIs";
+  $persons_title .= " / " . count ($techs) . " Techs";
+  if ($has_disabled_persons) 
+    $persons_title .= " / " . ($disabled_persons) . " Disabled";
+  if ( (count ($pis) == 0) || (count ($techs) == 0) || (count($person_ids) >= 30) || count($disabled_persons) != 0 ) 
+    $persons_title = plc_warning_html ($persons_title);
+  $persons_title .= href(l_persons_site($site_id)," (See as users)");
+
+  $toggle=new PlcToggle ('persons',$persons_title,array('trigger-tagname'=>'h2'));
+  $toggle->start();
+
+  $headers = array ();
+  $headers["email"]='string';
+  $headers["PI"]='string';
+  $headers['User']='string';
+  $headers["Tech"]='string';
+  if ($has_disabled_persons) $headers["Disabled"]='string';
+  $table=new PlcTable('persons',$headers,'1r-3r-0',array('search_area'=>false,
+							 'notes_area'=>false,
+							 'pagesize_area'=>false));
+  $table->start();
+  foreach ($persons as $person) {
+    $table->row_start();
+    $table->cell(l_person_obj($person));
+    $table->cell( in_array ('20',$person['role_ids']) ? "yes" : "no");
+    $table->cell( in_array ('30',$person['role_ids']) ? "yes" : "no");
+    $table->cell( in_array ('40',$person['role_ids']) ? "yes" : "no");
+    if ($has_disabled_persons) $table->cell( $person['enabled'] ? "no" : "yes");
+    $table->row_end();
+  }
+  $table->end();
+  $toggle->end();
+
+  //////////////////// Slices
+  // xxx to review after slices gets reworked
+  $toggle=new PlcToggle ('slices',"Slices",array('trigger-tagname'=>'h2'));
+  $toggle->start();
+  $details=new PlcDetails (false);
+  $details->start();
   // summary on slices
   $slice_label = count($slice_ids) . " running / " . $max_slices . " max";
   if (count($slice_ids) >= $max_slices) 
@@ -213,10 +267,18 @@ if ( $local_peer ) {
      $details->th_td($slice['instantiation'],l_slice_obj($slice));
   $button=new PlcFormButton (l_slice_add(),"slice_add","Add slice","POST");
   $details->tr($button->html(),"right");
+  $details->end();
+  $toggle->end();
 
   // Addresses
-  if ($addresses) {
-    $details->space();
+  $toggle=new PlcToggle ('addresses',"Addresses",array('trigger-tagname'=>'h2',
+						       'start-visible'=>false));
+  $toggle->start();
+  if ( ! $addresses) {
+    print "No known address for this site";
+  } else {
+    $details=new PlcDetails (false);
+    $details->start();
     $details->th_td("Addresses","");
     foreach ($addresses as $address) {
       $details->th_td(plc_vertical_table($address['address_types']),
@@ -228,16 +290,16 @@ if ( $local_peer ) {
 						$address['postalcode'],
 						$address['country'])));
     }
+    $details->end();
   }
+  $toggle->end();
 
  }
-
-$details->end();
 
 ////////////////////////////////////////
 $peers->block_end($peer_id);
 
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

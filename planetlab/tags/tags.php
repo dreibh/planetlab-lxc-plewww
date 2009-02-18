@@ -50,6 +50,8 @@ $headers['Name']="string";
 $headers['Description']="string";
 $headers['Category']="string";
 $headers['Min role']="string";
+// xxx ref count would be helpful
+//if (plc_is_admin()) $headers['#']='int';
 $headers["Id"]="int";
 if (plc_is_admin()) $headers[plc_delete_icon()]="none";
 
@@ -72,6 +74,8 @@ foreach( $tag_types as $tag_type ) {
   $table->cell(wordwrap($tag_type['description'],$description_width,"<br/>"));
   $table->cell($tag_type['category']);
   $table->cell($role_name);
+  // ref count
+  //  if (plc_is_admin())     $table->cell('xxx');
   $table->cell($tag_type_id);
   if (plc_is_admin()) 
     $table->cell ($form->checkbox_html('tag_type_ids[]',$tag_type_id));
@@ -106,7 +110,7 @@ if (plc_is_admin()) {
 $table->end();
 $form->end();
 
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

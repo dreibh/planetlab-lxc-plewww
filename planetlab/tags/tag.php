@@ -19,6 +19,7 @@ require_once 'plc_minitabs.php';
 require_once 'plc_details.php';
 require_once 'plc_tables.php';
 require_once 'plc_forms.php';
+require_once 'plc_toggles.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -89,7 +90,8 @@ $table_options=array('notes_area'=>false, 'pagesize_area'=>false, 'search_width'
 
 // xxx could outline values corresponding to a nodegroup
 if (count ($node_tags)) {
-  plc_section("Nodes");
+  $toggle=new PlcToggle('tag_nodes',"Nodes",array('trigger-tagname'=>'h2'));
+  $toggle->start();
   $table=new PlcTable ("tag_nodes",array("Hostname"=>"string","value"=>"string"),0,$table_options);
   $table->start();
   foreach ($node_tags as $node_tag) {
@@ -99,10 +101,12 @@ if (count ($node_tags)) {
     $table->row_end();
   }
   $table->end();
+  $toggle->end();
  }
 
 if (count ($interface_tags)) {
-  plc_section("Interfaces");
+  $toggle=new PlcToggle('tag_interfaces',"Interfaces",array('trigger-tagname'=>'h2'));
+  $toggle->start();
   $table=new PlcTable ("tag_interfaces",array("IP"=>"IPAddress","value"=>"string"),0,$table_options);
   $table->start();
   foreach ($interface_tags as $interface_tag) {
@@ -112,13 +116,15 @@ if (count ($interface_tags)) {
     $table->row_end();
   }
   $table->end();
+  $toggle->end();
  }
 
 // grouping both kinds of slice tags 
 // xxx don't show hostnames yet
 $slice_tags = array_merge ($slice_tags,$sliver_tags);
 if (count ($slice_tags)) {
-  plc_section("Slice and sliver tags");
+  $toggle=new PlcToggle('tag_slices',"Slice and sliver tags",array('trigger-tagname'=>'h2'));
+  $toggle->start();
   $table=new PlcTable ("tag_slices",array("Slice"=>"string","value"=>"string","Node id"=>"int"),0,$table_options);
   $table->start();
   foreach ($slice_tags as $slice_tag) {
@@ -133,9 +139,10 @@ if (count ($slice_tags)) {
     $table->row_end();
   }
   $table->end();
+  $toggle->end();
  }
 
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

@@ -57,7 +57,7 @@ $nb=sizeof($peer['slice_ids']);
 $details->th_td("Number of slices",href(l_slices_peer($peer_id),"$nb slices"));
 $details->end();
 
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

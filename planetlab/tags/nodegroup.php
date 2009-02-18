@@ -18,6 +18,7 @@ require_once 'plc_functions.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
+require_once 'plc_toggles.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -60,7 +61,8 @@ $details->th_td("# nodes",count($nodegroup['node_ids']));
 $details->end();
 
 // xxx : add & delete buttons would make sense here too
-plc_section("Nodes");
+$toggle=new PlcToggle('nodes',"Nodes",array('trigger-tagname'=>'h2'));
+$toggle=>start();
 
 $headers["Hostname"]="string";
 
@@ -73,8 +75,9 @@ if ($nodes) foreach ($nodes as $node) {
 }
 
 $table->end ();
+$toggle->end();
 
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

@@ -9,6 +9,24 @@
 function my_is_int ($x) {
     return (is_numeric($x) ? intval($x) == $x : false);
 }
+
+//// belongs to plkit
+// returns array ['url' => path, 'values' => hash (key=>value)* ]
+function plkit_split_url ($full_url) {
+  list($url,$args) = explode("?",$full_url);
+  $values=array();
+  if ($args) {
+    $pairs=explode("&",$args);
+    foreach ($pairs as $pair) {
+      list ($name,$value) = explode("=",$pair);
+      $values[$name]=$value;
+    }
+  }
+  return array("url"=>$url,"values"=>$values);
+}
+
+
+
 //////////////////////////////////////////////////////////// roles & other checks on global $plc
 function plc_is_admin () {
   global $plc;
@@ -86,6 +104,7 @@ function l_persons_peer ($peer_id)	{ return "/db/persons/index.php?peerscope=$pe
 function l_person ($person_id)		{ return "/db/persons/index.php?id=$person_id"; }
 function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text); }
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
+function l_person_obj ($person)		{ return l_person_t($person['person_id'],$person['email']); }
 
 function l_tags ()			{ return "/db/tags/index.php"; }
 function l_tag ($tag_type_id)		{ return "/db/tags/index.php?id=$tag_type_id"; }
@@ -160,20 +179,6 @@ function tablook_event()	{ return array('image'=>'/planetlab/icons/event.png','h
 function tablook_comon()	{ return array('image'=>'/planetlab/icons/comon.png','height'=>18);}
 
 ////////////////////
-
-// returns array ['url' => path, 'values' => hash (key=>value)* ]
-function split_url ($full_url) {
-  list($url,$args) = explode("?",$full_url);
-  $values=array();
-  if ($args) {
-    $pairs=explode("&",$args);
-    foreach ($pairs as $pair) {
-      list ($name,$value) = explode("=",$pair);
-      $values[$name]=$value;
-    }
-  }
-  return array("url"=>$url,"values"=>$values);
-}
 
 //////////////////////////////////////////////////////////// validation functions
 function topdomain ($hostname) {
@@ -265,7 +270,6 @@ function plc_role_global_hash ($api) {
   }
   return $hash;
 }
-  
 
 //////////////////////////////////////////////////////////// nodegroups
 // hash by 'tagname=value'
@@ -300,11 +304,6 @@ function plc_vertical_table ($messages, $class="") {
   }
   $formatted .= "</table>";
   return $formatted;
-}
-
-function plc_section ($text,$line=true) {
-  if ($line) { print "<hr/>";}
-  print "<h2 class=plc> $text </h2>\n";
 }
 
 function plc_error ($text) {

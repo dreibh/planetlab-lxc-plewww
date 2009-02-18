@@ -80,9 +80,9 @@ class PlcToggle {
   function trigger ()		{ print $this->trigger_html(); }
   function trigger_html () {
     $trigger_id=$this->id_name('trigger');
-    $tagname='span';
     if (array_key_exists ('trigger-tagname',$this->options)) $tagname=$this->options['trigger-tagname'];
     if (array_key_exists ('trigger-bubble',$this->options)) $bubble=$this->options['trigger-bubble'];
+    if (empty($tagname)) $tagname="span";
     
     $html="<$tagname";
     $html .= " id=$trigger_id";

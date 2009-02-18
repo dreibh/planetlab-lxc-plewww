@@ -20,6 +20,7 @@ require_once 'plc_minitabs.php';
 require_once 'plc_tables.php';
 require_once 'plc_details.php';
 require_once 'plc_forms.php';
+require_once 'plc_toggles.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -159,7 +160,8 @@ $details->end();
 $details->form_end();
 
 //////////////////// slices
-plc_section('Slices');
+$toggle=new PlcToggle ('slices','Slices',array('trigger-tagname'=>'h2'));
+$toggle->start();
 
 if( ! $slices) {
   plc_warning ("User has no slice");
@@ -183,13 +185,15 @@ if( ! $slices) {
   }
   $table->end();
  }
+$toggle->end();
 
 // we don't set 'action', but use the submit button name instead
 $form=new PlcForm(l_actions(), array("person_id"=>$person_id));
 $form->start();
 
 //////////////////// keys
-plc_section ("Keys");
+$toggle=new PlcToggle ('keys',"Keys",array('trigger-tagname'=>'h2'));
+$toggle->start();
 		
 $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
 if ( empty( $key_ids ) ) {
@@ -233,9 +237,11 @@ if ($can_manage_keys) {
 }
 
 $table->end();
+$toggle->end();
 
 //////////////////// sites
-plc_section('Sites');
+$toggle=new PlcToggle('sites','Sites',array('trigger-tagname'=>'h2'));
+$toggle->start();
   
 if (empty( $sites ) ) {
   plc_warning('This user is not affiliated with a site !!');
@@ -284,9 +290,12 @@ if ($can_manage_sites) {
   $table->row_end();
  }
 $table->end();
+$toggle->end();
 
 //////////////////// roles
-plc_section("Roles");
+$toggle=new PlcToggle ('roles','Roles',array('trigger-tagname'=>'h2'));
+$togle->start();
+
 if (! $roles) plc_warning ("This user has no role !");
 
 $can_manage_roles= ($local_peer && plc_is_admin());
@@ -332,12 +341,13 @@ if ($can_manage_roles) {
   $table->row_end();
  }
 $table->end();
+$toggle->end();
 
 //////////////////////////////
 $form->end();
 $peers->block_end($peer_id);
   
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

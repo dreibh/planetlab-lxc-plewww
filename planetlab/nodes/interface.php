@@ -12,7 +12,7 @@ require_once 'plc_functions.php';
 require_once 'plc_minitabs.php';
 require_once 'plc_details.php';
 require_once 'plc_tables.php';
-require_once 'prototype.php';
+require_once 'plc_toggles.php';
 
 require_once 'plc_drupal.php';
 include 'plc_header.php';
@@ -138,6 +138,9 @@ if ($mode == 'add') return;
 
 
 //////////////////////////////////////// tags
+$toggle=new PlcToggle ('tags','Tags',array('trigger-tagname'=>'h2'));
+$toggle->start();
+
 $form = new PlcForm (l_actions(),array('interface_id'=>$interface_id));
 $form->start();
 
@@ -145,7 +148,7 @@ $tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
 function get_tagname ($tag) { return $tag['tagname'];}
 $tagnames = array_map ("get_tagname",$tags);
   
-plc_section("Tags");
+
 $headers=array("Name"=>"string",
 	       "Value"=>"string",
 	       );
@@ -188,8 +191,9 @@ if ($can_update) {
   
 $table->end();
 $form->end();
+$toggle->end();
 
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

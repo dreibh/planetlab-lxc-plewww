@@ -20,7 +20,7 @@ class PlcForm {
     // and add them to the 'values' argument if any
 
     // extract var=value settings from url if any
-    $split=split_url($full_url);
+    $split=plkit_split_url($full_url);
     $this->url=$split['url'];
     
     $url_values=$split['values'];

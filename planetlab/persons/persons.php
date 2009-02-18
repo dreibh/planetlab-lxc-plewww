@@ -127,7 +127,7 @@ foreach ($sites as $site) {
 // --------------------
 drupal_set_title($title);
 
-plc_tabs($tabs);
+//plc_tabs($tabs);
 
 if ( ! $persons ) {
   drupal_set_message ('No account found');
@@ -176,7 +176,7 @@ foreach ($persons as $person) {
 $notes=array("The S column shows the number of slices for the given user");
 $table->end(array('notes'=>$notes));
 
-plc_tabs ($tabs,"bottom");
+//plc_tabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';
