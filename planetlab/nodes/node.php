@@ -218,7 +218,8 @@ $form=new PlcForm (l_actions(), array('node_id'=>$node_id));
 $form->start();
 
 //////////////////////////////////////////////////////////// Tags
-// get tags
+// tags section
+$show_tags = (plc_is_admin());
 if ( $local_peer ) {
   
   $tags=$api->GetNodeTags (array('node_id'=>$node_id));
@@ -226,11 +227,10 @@ if ( $local_peer ) {
   $tagnames = array_map ("get_tagname",$tags);
   $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
   
-  $toggle = new PlcToggle ('tags',"Tags",array('switch-tagname'=>'h2',
-					       'switch-bubble'=>'Inspect and set tags on that node',
-					       'start-hidden'=>true));
-  print $toggle->switch_html();
-  $toggle->area_start();
+  $toggle = new PlcToggle ('tags',"Tags",array('trigger-tagname'=>'h2',
+					       'trigger-bubble'=>'Inspect and set tags on that node',
+					       'start-visible'=>$show_tags));
+  $toggle->start();
 
   $headers=array("Name"=>"string",
 		 "Value"=>"string",
@@ -280,18 +280,15 @@ if ( $local_peer ) {
   }
   
   $table->end();
-  $toggle->area_end();
- }
+  $toggle->end();
+}
 
 //////////////////////////////////////////////////////////// interfaces
 if ( $local_peer ) {
-
-  $toggle=new PlcToggle ('interfaces',"Interfaces",array('switch-tagname'=>'h2',
-							 'switch-bubble'=>'Inspect and tune interfaces on that node',
+  $toggle=new PlcToggle ('interfaces',"Interfaces",array('trigger-tagname'=>'h2',
+							 'trigger-bubble'=>'Inspect and tune interfaces on that node',
 							 'start-hidden'=>true));
-
-  print $toggle->switch_html();
-  $toggle->area_start();
+  $toggle->start();
   // display interfaces
   if( ! $interfaces ) {
     echo '<p>';
@@ -354,44 +351,44 @@ if ( $local_peer ) {
     }
     $table->end();
   }
-  $toggle->area_end();
+  $toggle->end();
  }
 
 //////////////////////////////////////////////////////////// slices
 // display slices
 
-$toggle=new PlcToggle ('slices',"Slices",array('switch-tagname'=>'h2',
-					       'switch-bubble'=>'Review slices running on that node',
-					       'start-hidden'=>true));
-print $toggle->switch_html();
+{
+  $toggle=new PlcToggle ('slices',"Slices",array('trigger-tagname'=>'h2',
+						 'trigger-bubble'=>'Review slices running on that node',
+						 'start-hidden'=>true));
+  $toggle->start();
+  if ( ! $slices  ) {
+    plc_warning ("This node is not associated to any slice");
+  } else {
+    $headers=array();
+    $headers['Peer']="string";
+    $headers['Name']="string";
+    $headers['Slivers']="string";
+    $reasonable_page=10;
+    $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
+    if (count ($slices) <= $reasonable_page) {
+      $table_options['search_area']=false;
+      $table_options['pagesize_area']=false;
+    }
+    $table=new PlcTable("node_slices",$headers,1,$table_options);
+    $table->start();
 
-$toggle->area_start();
-if ( ! $slices  ) {
-  plc_warning ("This node is not associated to any slice");
- } else {
-  $headers=array();
-  $headers['Peer']="string";
-  $headers['Name']="string";
-  $headers['Slivers']="string";
-  $reasonable_page=10;
-  $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
-  if (count ($slices) <= $reasonable_page) {
-    $table_options['search_area']=false;
-    $table_options['pagesize_area']=false;
+    foreach ($slices as $slice) {
+      $table->row_start();
+      $table->cell ($peers->shortname($peer_id));
+      $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
+      $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
+      $table->row_end();
+    }
+    $table->end();
   }
-  $table=new PlcTable("node_slices",$headers,1,$table_options);
-  $table->start();
-
-  foreach ($slices as $slice) {
-    $table->row_start();
-    $table->cell ($peers->shortname($peer_id));
-    $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
-    $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
-    $table->row_end();
-  }
-  $table->end();
- }
-$toggle->area_end();
+  $toggle->end();
+}
 
 $form->end();
 

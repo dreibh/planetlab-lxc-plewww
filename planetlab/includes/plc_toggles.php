@@ -12,19 +12,19 @@ drupal_set_html_head('
 // This is for creating an area that users can hide and show
 // It is logically made of 3 parts:
 // (*) area is what gets hidden and shown
-// (*) switch is the area that can be clicked for toggling
+// (*) trigger is the area that can be clicked for toggling
 // (*) image contains a visual indication of the current status
 // 
 // constructor needs 
 // (*) id:	an 'id', used for naming the three parts
-// (*) switch:	the html text for the switch
+// (*) trigger:	the html text for the trigger
 // (*) options:	a hash that can define
-//	- switch-tagname : to be used instead of <span> for wrapping the switch
-//	- switch-bubble : might not work if switch-tagname is redefined
+//	- trigger-tagname : to be used instead of <span> for wrapping the trigger
+//	- trigger-bubble : might not work if trigger-tagname is redefined
 //	- init-hidden : start hidden rather than visible
 // 
 // methods are as follows
-// (*) switch_html ():	return the html code for the switch
+// (*) trigger_html ():	return the html code for the trigger
 // (*) image_html ():	returns the html code for the image
 // (*) area_start ():	because we have too many places where php 'prints' code instead 
 // (*) area_end():	  of returning it, we do not expect the code for the area to be passed
@@ -34,14 +34,36 @@ class PlcToggle {
   // mandatory
   var $id;
 
-  function PlcToggle ($id,$switch,$options=NULL) {
+  function PlcToggle ($id,$trigger,$options=NULL) {
     $this->id = $id;
-    $this->switch=$switch;
+    $this->trigger=$trigger;
     if ( ! $options ) $options = array();
+    if (array_key_exists ('start-visible',$options)) {
+      $options['start-hidden'] = ! $options['start-visible'];
+      unset ($options['start-visible']);
+    }
     $this->options = $options;
   }
 
-  function id_name ($zonename) { return "toggle-$zonename-$this->id"; }
+  // the simple, usual way to use it :
+  // a container that contains the switch and the area in sequence
+  function start ()		{ print $this->start_html(); }
+  function start_html () {
+    $html = "";
+    $html .= $this->container_start();
+    $html .= $this->trigger_html();
+    $html .= $this->area_start_html();
+    return $html;
+  }
+
+  function end ()		{ print $this->end_html(); }
+  function end_html () {
+    $html = "";
+    $html .= $this->area_end_html();
+    $html .= $this->container_end();
+    return $html;
+  }
+
 
   // create two images that get shown/hidden - could not find a better way to do it
   function image_html () {
@@ -55,21 +77,21 @@ class PlcToggle {
     return $html;
   }
 
-  // don't define switch as it's a php keyword 
-  function switch_html () {
-    $switch_id=$this->id_name('switch');
+  function trigger ()		{ print $this->trigger_html(); }
+  function trigger_html () {
+    $trigger_id=$this->id_name('trigger');
     $tagname='span';
-    if (array_key_exists ('switch-tagname',$this->options)) $tagname=$this->options['switch-tagname'];
-    if (array_key_exists ('switch-bubble',$this->options)) $bubble=$this->options['switch-bubble'];
+    if (array_key_exists ('trigger-tagname',$this->options)) $tagname=$this->options['trigger-tagname'];
+    if (array_key_exists ('trigger-bubble',$this->options)) $bubble=$this->options['trigger-bubble'];
     
     $html="<$tagname";
-    $html .= " id=$switch_id";
-    $html .= " class=plc-toggle-switch";
+    $html .= " id=$trigger_id";
+    $html .= " class=plc-toggle-trigger";
     if ($bubble) $html .= " title='$bubble'";
     $html .= " onclick=\"plc_toggle('$this->id')\"";
     $html .= ">";
     $html .= $this->image_html();
-    $html .= $this->switch;
+    $html .= $this->trigger;
     $html .= "</$tagname>";
     return $html;
   }
@@ -90,6 +112,22 @@ class PlcToggle {
   function area_end_html () {
     return "</div>";
   }
+
+  /* if desired, you can embed the whole (trigger+area) in another div for visual effects */
+  function container_start ()		{ print $this->container_start_html(); }
+  function container_start_html ()	{ 
+    $html="<div class='plc-toggle-container'";
+    $id=$this->id_name('container');
+    $html .= " id='$id'";
+    $html .= ">";
+    return $html;
+  }
+
+  function container_end ()		{ print $this->container_end_html(); }
+  function container_end_html ()	{ return "</div>"; }
+
+  // build id names
+  function id_name ($zonename) { return "toggle-$zonename-$this->id"; }
 
 }
 

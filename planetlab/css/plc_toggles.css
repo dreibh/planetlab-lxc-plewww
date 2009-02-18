@@ -2,17 +2,23 @@
  $Id$
  */
 
-h1.plc-toggle-switch, h2.plc-toggle-switch {
-    text-align:center;
+.plc-toggle-trigger {
+    padding-left: 15px;
+/*    text-align:center; */
 }
 
+/* containers */
+div.plc-toggle-container {
+    border:2px solid #ccc;
+}
+
+/* the buttons */
 img.plc-toggle-visible, img.plc-toggle-hidden {
-    height: 14px;
-    padding-right: 20px;
+    height: 16px;
+    padding-right: 15px;
 }
 
+/* what goes on and off */
 div.plc-toggle-area {
-    border-color:#a84444 !important;
-    border:1px solid #ccc;
 }
 
