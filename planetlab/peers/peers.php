@@ -25,7 +25,7 @@ $peers = $api->GetPeers( NULL, array("peer_id","peername","shortname","peer_url"
     
 $tabs=array();
 $tabs['Comon for all nodes']=l_comon("peer_id","0");
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 if ( empty($peers)) {
   drupal_set_message ("You seem to be running a standalone deployment");
@@ -38,7 +38,7 @@ if ( empty($peers)) {
 		  'Comon'=>'string');
 		  
   $table_options=array('search_area'=>false, 'notes_area'=>false);
-  $table = new PlcTable ("peers",$headers,1,$table_options);
+  $table = new PlekitTable ("peers",$headers,1,$table_options);
   $table->start();
   foreach ($peers as $peer) {
     $table->row_start();
@@ -53,7 +53,7 @@ if ( empty($peers)) {
   $table->end();
  }
 		    
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

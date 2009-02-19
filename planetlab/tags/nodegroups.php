@@ -48,7 +48,7 @@ $nodegroups=$api->GetNodeGroups($nodegroup_filter,$nodegroup_columns);
 // --------------------
 drupal_set_title($title);
 
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 if ( ! $nodegroups ) {
   drupal_set_message ('No node group found');
@@ -62,7 +62,7 @@ $headers = array ( "Name"=>"string",
 		   "Nodes"=>"int");
 
 # initial sort on groupname
-$table=new PlcTable("nodegroups",$headers,0);
+$table=new PlekitTable("nodegroups",$headers,0);
 $table->start();
 
 foreach ($nodegroups as $nodegroup) {
@@ -77,7 +77,7 @@ foreach ($nodegroups as $nodegroup) {
 
 $table->end();
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

@@ -8,13 +8,13 @@ require_once 'plekit-utils.php';
 // the first functions that we had were actually printing the stuff instead of returning it
 // so basically the foo (...) function should just do ``print (foo_html(...))''
 
-class PlcForm {
+class PlekitForm {
   // mandatory
   var $url;
   var $values; // a hash var=>value - default is empty array
   var $method; // default is POST
 
-  function PlcForm ($full_url, $values, $method="POST") {
+  function PlekitForm ($full_url, $values, $method="POST") {
     // so we can use the various l_* functions:
     // we parse the url to extract var-values pairs, 
     // and add them to the 'values' argument if any
@@ -64,18 +64,18 @@ class PlcForm {
     if ( ! $options) $options=array();
     $html="<input";
     $html="<input type='$type' name='$name' value='$value'";
-    $html .= PlcForm::attributes ($options);
+    $html .= PlekitForm::attributes ($options);
     $html .= "/>";
     return $html;
   }
 
-  static function text_html ($name,$value, $options=NULL) {	return PlcForm::input_html('text', $name, $value, $options); }
-  static function hidden_html ($name,$value, $options=NULL) {	return PlcForm::input_html('hidden', $name, $value, $options); }
-  static function checkbox_html ($name,$value,$options=NULL) {	return PlcForm::input_html('checkbox', $name, $value, $options); }
-  static function submit_html ($name,$value,$options=NULL) {	return PlcForm::input_html('submit', $name, $value, $options); }
-  static function button_html ($name,$value,$options=NULL) {	return PlcForm::input_html('button', $name, $value, $options); }
-  static function radio_html ($name,$value,$options=NULL) {	return PlcForm::input_html('radio', $name, $value, $options); }
-  static function file_html ($name,$value,$options=NULL) {	return PlcForm::input_html('file', $name, $value, $options); }
+  static function text_html ($name,$value, $options=NULL) {	return PlekitForm::input_html('text', $name, $value, $options); }
+  static function hidden_html ($name,$value, $options=NULL) {	return PlekitForm::input_html('hidden', $name, $value, $options); }
+  static function checkbox_html ($name,$value,$options=NULL) {	return PlekitForm::input_html('checkbox', $name, $value, $options); }
+  static function submit_html ($name,$value,$options=NULL) {	return PlekitForm::input_html('submit', $name, $value, $options); }
+  static function button_html ($name,$value,$options=NULL) {	return PlekitForm::input_html('button', $name, $value, $options); }
+  static function radio_html ($name,$value,$options=NULL) {	return PlekitForm::input_html('radio', $name, $value, $options); }
+  static function file_html ($name,$value,$options=NULL) {	return PlekitForm::input_html('file', $name, $value, $options); }
 
   static function label_html ($name,$display) {
     return "<label for=$name>$display</label>";
@@ -157,18 +157,18 @@ class PlcForm {
 	$role_ids [] = $role['role_id'];
       }
     }
-    return PlcForm::role_selectors($api,$role_ids,$current);    
+    return PlekitForm::role_selectors($api,$role_ids,$current);    
   }
 }
 
 // a form with a single button
-class PlcFormButton extends PlcForm {
+class PlekitFormButton extends PlekitForm {
   
   var $button_id;
   var $button_text;
 
-  function PlcFormButton ($full_url, $button_id, $button_text, $method="POST") {
-    $this->PlcForm($full_url,array(),$method);
+  function PlekitFormButton ($full_url, $button_id, $button_text, $method="POST") {
+    $this->PlekitForm($full_url,array(),$method);
     $this->button_id=$button_id;
     $this->button_text=$button_text;
   }

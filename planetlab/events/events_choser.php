@@ -35,18 +35,18 @@ $tabs['Sites']=l_sites();
 $tabs['Users']=l_persons();
 $tabs['Nodes']=l_nodes();
 $tabs['Slices']=l_slices();
-plc_tabs ($tabs);
+plekit_linetabs ($tabs);
 
 // fill out dates from now if not specified
-$from_picker = new PlcDatepicker ('from_date','From (inclusive)',array('inline'=>true));
+$from_picker = new PlekitDatepicker ('from_date','From (inclusive)',array('inline'=>true));
 $from_picker->today();
-$until_picker = new PlcDatepicker ('until_date','Until (inclusive)',array('inline'=>true));
+$until_picker = new PlekitDatepicker ('until_date','Until (inclusive)',array('inline'=>true));
 $until_picker->today();
 
-$form=new PlcForm(l_events(),array(),'GET');
+$form=new PlekitForm(l_events(),array(),'GET');
 $form->start();
 
-$details = new PlcDetails (true);
+$details = new PlekitDetails (true);
 $details->start();
 
 $details->tr ($form->submit_html('submit','Show Events'),'center');
@@ -72,7 +72,7 @@ $details->th_th(html_div($from_picker->html()) , html_div($until_picker->html())
 $details->end();
 $form->end();
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
   // Print footer
 include 'plc_footer.php';

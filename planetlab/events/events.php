@@ -126,7 +126,7 @@ function e_fault ($event) {
 
 $tabs=array();
 $tabs['Clear events']=l_events();
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 list($from_string,$from_time) = parse_date ($from_date,false,$DAY,$EPOCH);
 list($until_string,$until_time) = parse_date ($until_date,true,$DAY,$EPOCH);
@@ -248,7 +248,7 @@ $headers=array("Id"=>"int",
 	       "D"=>"none",
 	       );
 
-$table = new PlcTable ("events",$headers,"0r");
+$table = new PlekitTable ("events",$headers,"0r");
 $table->set_options (array ('max_pages'=>20));
 $table->start ();
 foreach ($events as $event) {
@@ -283,7 +283,7 @@ $table->set_options(array('notes'=>array("The R column shows the call result val
 					 "Click the button in the D(etails) column to get more details")));
 $table->end();
   
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

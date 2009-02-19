@@ -46,7 +46,7 @@ if ( ! $node_id) {
 $tabs=array();
 $tabs[] = array('label'=>'Back to node', 'url'=>l_node($node_id),
 		'bubble'=>'Cancel pending changes');
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 $fields=array( 'method', 'type', 'ip', 'gateway', 'network', 'broadcast', 'netmask', 
 	       'dns1', 'dns2', 'hostname', 'mac', 'bwlimit', 'node_id' );
@@ -65,7 +65,7 @@ drupal_set_title ('
 <script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
 ');
 
-$details=new PlcDetails($can_update);
+$details=new PlekitDetails($can_update);
 
 // xxx hardwire network type for now
 $form_variables = array('node_id'=>$node_id,'type'=>"ipv4");
@@ -138,10 +138,10 @@ if ($mode == 'add') return;
 
 
 //////////////////////////////////////// tags
-$toggle=new PlcToggle ('tags','Tags',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('tags','Tags',array('trigger-tagname'=>'h2'));
 $toggle->start();
 
-$form = new PlcForm (l_actions(),array('interface_id'=>$interface_id));
+$form = new PlekitForm (l_actions(),array('interface_id'=>$interface_id));
 $form->start();
 
 $tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
@@ -155,7 +155,7 @@ $headers=array("Name"=>"string",
 if ($can_update) $headers[plc_delete_icon()]="none";
   
 $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
-$table=new PlcTable("interface_tags",$headers,0,$table_options);
+$table=new PlekitTable("interface_tags",$headers,0,$table_options);
 $table->start();
 if ($tags) foreach ($tags as $tag) {
   $table->row_start();
@@ -193,7 +193,7 @@ $table->end();
 $form->end();
 $toggle->end();
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

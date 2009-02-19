@@ -131,12 +131,12 @@ if ( $local_peer  && $privileges ) {
 				   'bubble'=>"Comon page about node $hostname"));
  }
 
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 // show gray background on foreign objects : start a <div> with proper class
 $peers->block_start ($peer_id);
   
-$details=new PlcDetails($privileges);
+$details=new PlekitDetails($privileges);
 $details->start();
 if ( ! $local_peer) {
   $details->th_td("Peer",$peers->peer_link($peer_id));
@@ -165,7 +165,7 @@ if ( ! ($local_peer && $privileges)) {
   $boot_value=$boot_state;
  } else {
   $boot_value="";
-  $boot_form = new PlcForm (l_actions(), array("node_id"=>$node_id,
+  $boot_form = new PlekitForm (l_actions(), array("node_id"=>$node_id,
 					       "action"=>"node-boot-state"));
   $boot_value .= $boot_form->start_html();
   $states = array( 'boot'=>'Boot', 'safeboot'=>'SafeBoot', 'failboot'=>'FailBoot', 
@@ -185,7 +185,7 @@ $details->th_td ("Boot state",$boot_value);
 if ( $local_peer  && $privileges) {
 
   $download_value="";
-  $download_form = new PlcForm (l_actions_download(),array("node_id"=>$node_id));
+  $download_form = new PlekitForm (l_actions_download(),array("node_id"=>$node_id));
   $download_value .= $download_form->start_html();
   $selectors = array( 
 		     array("display"=>"-- All in one images --","disabled"=>true),
@@ -214,7 +214,7 @@ $details->th_tds ("All site nodes",$nodes_area);
 
 $details->end ();
 
-$form=new PlcForm (l_actions(), array('node_id'=>$node_id));
+$form=new PlekitForm (l_actions(), array('node_id'=>$node_id));
 $form->start();
 
 //////////////////////////////////////////////////////////// Tags
@@ -227,7 +227,7 @@ if ( $local_peer ) {
   $tagnames = array_map ("get_tagname",$tags);
   $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
   
-  $toggle = new PlcToggle ('tags',"Tags",array('trigger-tagname'=>'h2',
+  $toggle = new PlekitToggle ('tags',"Tags",array('trigger-tagname'=>'h2',
 					       'trigger-bubble'=>'Inspect and set tags on that node',
 					       'start-visible'=>$show_tags));
   $toggle->start();
@@ -239,7 +239,7 @@ if ( $local_peer ) {
   if (plc_is_admin()) $headers[plc_delete_icon()]="none";
   
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
-  $table=new PlcTable("node_tags",$headers,0,$table_options);
+  $table=new PlekitTable("node_tags",$headers,0,$table_options);
   $table->start();
   if ($tags) foreach ($tags as $tag) {
       // does this match a nodegroup ?
@@ -285,7 +285,7 @@ if ( $local_peer ) {
 
 //////////////////////////////////////////////////////////// interfaces
 if ( $local_peer ) {
-  $toggle=new PlcToggle ('interfaces',"Interfaces",array('trigger-tagname'=>'h2',
+  $toggle=new PlekitToggle ('interfaces',"Interfaces",array('trigger-tagname'=>'h2',
 							 'trigger-bubble'=>'Inspect and tune interfaces on that node',
 							 'start-hidden'=>true));
   $toggle->start();
@@ -306,7 +306,7 @@ if ( $local_peer ) {
     if ( $privileges ) $headers[plc_delete_icon()]='string';
 
     $table_options=array('search_area'=>false,"pagesize_area"=>false,'notes_area'=>false);
-    $table=new PlcTable("node_interfaces",$headers,2,$table_options);
+    $table=new PlekitTable("node_interfaces",$headers,2,$table_options);
     $table->start();
 	
     foreach ( $interfaces as $interface ) {
@@ -343,7 +343,7 @@ if ( $local_peer ) {
     if ($privileges) {
       $table->tfoot_start();
       $table->row_start();
-      $add_button=new PlcFormButton (l_interface_add($node_id),"add_interface","Add interface","GET");
+      $add_button=new PlekitFormButton (l_interface_add($node_id),"add_interface","Add interface","GET");
       // we should have 6 cols, use 3 for the left (new) and the rest for the right (remove)
       $table->cell($add_button->html(), 3,"left");
       $table->cell($form->submit_html("delete-interfaces","Remove Interfaces"), $table->columns()-3,"right");
@@ -358,7 +358,7 @@ if ( $local_peer ) {
 // display slices
 
 {
-  $toggle=new PlcToggle ('slices',"Slices",array('trigger-tagname'=>'h2',
+  $toggle=new PlekitToggle ('slices',"Slices",array('trigger-tagname'=>'h2',
 						 'trigger-bubble'=>'Review slices running on that node',
 						 'start-hidden'=>true));
   $toggle->start();
@@ -375,7 +375,7 @@ if ( $local_peer ) {
       $table_options['search_area']=false;
       $table_options['pagesize_area']=false;
     }
-    $table=new PlcTable("node_slices",$headers,1,$table_options);
+    $table=new PlekitTable("node_slices",$headers,1,$table_options);
     $table->start();
 
     foreach ($slices as $slice) {
@@ -395,7 +395,7 @@ $form->end();
 ////////////////////////////////////////////////////////////
 $peers->block_end($peer_id);
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

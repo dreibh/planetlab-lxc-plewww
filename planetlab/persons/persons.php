@@ -127,7 +127,7 @@ foreach ($sites as $site) {
 // --------------------
 drupal_set_title($title);
 
-//plc_tabs($tabs);
+//plekit_linetabs($tabs);
 
 if ( ! $persons ) {
   drupal_set_message ('No account found');
@@ -145,7 +145,7 @@ $headers = array ("Peer"=>"string",
 		  );
 
 // initial sort on email
-$table=new PlcTable("persons",$headers,4);
+$table=new PlekitTable("persons",$headers,4);
 $table->start();
 
 $peers=new Peers ($api);
@@ -176,7 +176,7 @@ foreach ($persons as $person) {
 $notes=array("The S column shows the number of slices for the given user");
 $table->end(array('notes'=>$notes));
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

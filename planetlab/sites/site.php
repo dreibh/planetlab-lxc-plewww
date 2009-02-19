@@ -133,7 +133,7 @@ if ( $local_peer  && $privileges ) {
 			      'bubble'=>'Review pending join requests');
  }
 
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 // show gray background on foreign objects : start a <div> with proper class
 $peers->block_start ($peer_id);
@@ -144,7 +144,7 @@ if ( ! $enabled )
 	       " to review pending applications.");
 
 $can_update=(plc_is_admin ()  && $local_peer) || ( plc_in_site($site_id) && plc_is_pi());
-$details = new PlcDetails($can_update);
+$details = new PlekitDetails($can_update);
 
 if ( ! $site['is_public']) 
   plc_warning("This site is not public!");
@@ -191,14 +191,14 @@ if ( $local_peer ) {
     $nodes_title = plc_warning_html ($nodes_title);
   $nodes_title .= href(l_nodes_site($site_id)," (See as nodes)");
 
-  $toggle=new PlcToggle ('nodes',$nodes_title,array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle ('nodes',$nodes_title,array('trigger-tagname'=>'h2'));
   $toggle->start();
 
   $headers=array();
   $headers['hostname']='string';
   $headers['state']='string';
 
-  $table = new PlcTable ('nodes',$headers,'0',array('search_area'=>false,
+  $table = new PlekitTable ('nodes',$headers,'0',array('search_area'=>false,
 						    'notes_area'=>false,
 						    'pagesize_area'=>false));
   $table->start();
@@ -210,7 +210,7 @@ if ( $local_peer ) {
   }
   $table->tfoot_start();
   $table->row_start();
-  $button=new PlcFormButton (l_node_add(),"node_add","Add node","POST");
+  $button=new PlekitFormButton (l_node_add(),"node_add","Add node","POST");
   $table->cell($button->html(),$table->columns(),"right");
   $table->row_end();
   $table->end();
@@ -227,7 +227,7 @@ if ( $local_peer ) {
     $persons_title = plc_warning_html ($persons_title);
   $persons_title .= href(l_persons_site($site_id)," (See as users)");
 
-  $toggle=new PlcToggle ('persons',$persons_title,array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle ('persons',$persons_title,array('trigger-tagname'=>'h2'));
   $toggle->start();
 
   $headers = array ();
@@ -236,7 +236,7 @@ if ( $local_peer ) {
   $headers['User']='string';
   $headers["Tech"]='string';
   if ($has_disabled_persons) $headers["Disabled"]='string';
-  $table=new PlcTable('persons',$headers,'1r-3r-0',array('search_area'=>false,
+  $table=new PlekitTable('persons',$headers,'1r-3r-0',array('search_area'=>false,
 							 'notes_area'=>false,
 							 'pagesize_area'=>false));
   $table->start();
@@ -254,9 +254,9 @@ if ( $local_peer ) {
 
   //////////////////// Slices
   // xxx to review after slices gets reworked
-  $toggle=new PlcToggle ('slices',"Slices",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle ('slices',"Slices",array('trigger-tagname'=>'h2'));
   $toggle->start();
-  $details=new PlcDetails (false);
+  $details=new PlekitDetails (false);
   $details->start();
   // summary on slices
   $slice_label = count($slice_ids) . " running / " . $max_slices . " max";
@@ -265,19 +265,19 @@ if ( $local_peer ) {
   $details->th_td("# Slices", href(l_slices_site($site_id),$slice_label));
   if ($slices) foreach ($slices as $slice)
      $details->th_td($slice['instantiation'],l_slice_obj($slice));
-  $button=new PlcFormButton (l_slice_add(),"slice_add","Add slice","POST");
+  $button=new PlekitFormButton (l_slice_add(),"slice_add","Add slice","POST");
   $details->tr($button->html(),"right");
   $details->end();
   $toggle->end();
 
   // Addresses
-  $toggle=new PlcToggle ('addresses',"Addresses",array('trigger-tagname'=>'h2',
+  $toggle=new PlekitToggle ('addresses',"Addresses",array('trigger-tagname'=>'h2',
 						       'start-visible'=>false));
   $toggle->start();
   if ( ! $addresses) {
     print "No known address for this site";
   } else {
-    $details=new PlcDetails (false);
+    $details=new PlekitDetails (false);
     $details->start();
     $details->th_td("Addresses","");
     foreach ($addresses as $address) {
@@ -299,7 +299,7 @@ if ( $local_peer ) {
 ////////////////////////////////////////
 $peers->block_end($peer_id);
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

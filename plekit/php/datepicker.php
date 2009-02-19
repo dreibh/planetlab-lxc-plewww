@@ -14,11 +14,11 @@ drupal_set_html_head('
 // (*) format (default 2010/Jan/01), php-equiv. Y/M/d, which in this paradigm translates into Y-sl-m-sl-d
 // (*) value : the value to display initially - default ''
 
-class PlcDatepicker {
+class PlekitDatepicker {
 
   var $id;
 
-  function PlcDatepicker ($id,$display,$options=NULL) {
+  function PlekitDatepicker ($id,$display,$options=NULL) {
     $datepicker_default_options = 
       array ('inline'=>true,
 	     'format'=>'Y-sl-M-sl-d',

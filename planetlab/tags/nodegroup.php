@@ -50,9 +50,9 @@ $tabs []= tab_nodegroups();
 $tabs []= tab_nodes_local();
 
 drupal_set_title("Details for node group " . $nodegroup['groupname']);
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
-$details=new PlcDetails(false);
+$details=new PlekitDetails(false);
 $details->start();
 $details->th_td ("Node group name",$nodegroup['groupname']);
 $details->th_td ("Based on tag",href(l_tag($nodegroup['tag_type_id']),$tagname));
@@ -61,12 +61,12 @@ $details->th_td("# nodes",count($nodegroup['node_ids']));
 $details->end();
 
 // xxx : add & delete buttons would make sense here too
-$toggle=new PlcToggle('nodes',"Nodes",array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle('nodes',"Nodes",array('trigger-tagname'=>'h2'));
 $toggle=>start();
 
 $headers["Hostname"]="string";
 
-$table = new PlcTable("nodegroup_nodes",$headers,0,array('search_width'=>15));
+$table = new PlekitTable("nodegroup_nodes",$headers,0,array('search_width'=>15));
 $table->start();
 if ($nodes) foreach ($nodes as $node) {
   $table->row_start ();
@@ -77,7 +77,7 @@ if ($nodes) foreach ($nodes as $node) {
 $table->end ();
 $toggle->end();
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

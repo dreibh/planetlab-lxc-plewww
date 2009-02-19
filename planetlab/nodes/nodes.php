@@ -116,7 +116,7 @@ foreach ($sites as $site) $site_hash[$site['site_id']]=$site;
 // --------------------
 drupal_set_title($title);
 
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 if ( ! $nodes ) {
   drupal_set_message ('No node found');
@@ -135,7 +135,7 @@ $headers = array ("Peer"=>"string",
 		  );
 
 # initial sort on hostnames
-$table=new PlcTable ("nodes",$headers,4);
+$table=new PlekitTable ("nodes",$headers,4);
 $table->start();
 
 $peers = new Peers ($api);
@@ -169,7 +169,7 @@ foreach ($nodes as $node) {
 
 $table->end();
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

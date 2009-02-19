@@ -18,7 +18,7 @@ require_once 'linetabs.php';
 
 $tabs=array();
 $tabs['Back to peers list']=l_peers();
-plc_tabs ($tabs);
+plekit_linetabs ($tabs);
 
 // -------------------- 
 // recognized URL arguments
@@ -40,7 +40,7 @@ $peer_id=$peer['peer_id'];
 
 drupal_set_title("Details for Peer " . $peername);
 
-$details=new PlcDetails(false);
+$details=new PlekitDetails(false);
 $details->start();
 $details->th_td("Peer name",$peer['peername']);
 $details->th_td("Short name",$peer['shortname']);
@@ -57,7 +57,7 @@ $nb=sizeof($peer['slice_ids']);
 $details->th_td("Number of slices",href(l_slices_peer($peer_id),"$nb slices"));
 $details->end();
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

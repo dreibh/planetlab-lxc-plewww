@@ -38,14 +38,14 @@ drupal_set_html_head('
 // $tabs['Simple Tab']="http://planet-lab.org";
 // $tabs['Complex Tab']=array('url'=>'http://planet-lab.org/',
 //			      'bubble'=>'This text gets displayed when the mouse remains over for a while');
-// plc_tabs($tabs);
+// plekit_linetabs($tabs);
 
 ////////// Notes: limited support for images
 // (*) for some reason, confirmation does not work with image tabs 
 //     (the form gets submitted whatever the confirmation....)
 // (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
 
-function plc_tabs ($array, $id=NULL) {
+function plekit_linetabs ($array, $id=NULL) {
   // need id to pass to the onclick function attached to the input buttons
   $id="minitabs";
   if (! $id) $id .= '-' + $id;

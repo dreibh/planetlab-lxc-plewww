@@ -51,11 +51,11 @@ $slice_tags=$api->GetSliceTags(array_merge($filter,array("node_id"=>array())));
 $sliver_tags=$api->GetSliceTags(array_merge($filter,array("~node_id"=>array())));
 
 drupal_set_title("Details for tag type $tagname");
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 // ----------
 $can_update=plc_is_admin();
-$details=new PlcDetails ($can_update);
+$details=new PlekitDetails ($can_update);
 
 $details->form_start(l_actions(),array("action"=>"update-tag-type",
 				       "tag_type_id"=>$tag_type_id));
@@ -90,9 +90,9 @@ $table_options=array('notes_area'=>false, 'pagesize_area'=>false, 'search_width'
 
 // xxx could outline values corresponding to a nodegroup
 if (count ($node_tags)) {
-  $toggle=new PlcToggle('tag_nodes',"Nodes",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle('tag_nodes',"Nodes",array('trigger-tagname'=>'h2'));
   $toggle->start();
-  $table=new PlcTable ("tag_nodes",array("Hostname"=>"string","value"=>"string"),0,$table_options);
+  $table=new PlekitTable ("tag_nodes",array("Hostname"=>"string","value"=>"string"),0,$table_options);
   $table->start();
   foreach ($node_tags as $node_tag) {
     $table->row_start();
@@ -105,9 +105,9 @@ if (count ($node_tags)) {
  }
 
 if (count ($interface_tags)) {
-  $toggle=new PlcToggle('tag_interfaces',"Interfaces",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle('tag_interfaces',"Interfaces",array('trigger-tagname'=>'h2'));
   $toggle->start();
-  $table=new PlcTable ("tag_interfaces",array("IP"=>"IPAddress","value"=>"string"),0,$table_options);
+  $table=new PlekitTable ("tag_interfaces",array("IP"=>"IPAddress","value"=>"string"),0,$table_options);
   $table->start();
   foreach ($interface_tags as $interface_tag) {
     $table->row_start();
@@ -123,9 +123,9 @@ if (count ($interface_tags)) {
 // xxx don't show hostnames yet
 $slice_tags = array_merge ($slice_tags,$sliver_tags);
 if (count ($slice_tags)) {
-  $toggle=new PlcToggle('tag_slices',"Slice and sliver tags",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle('tag_slices',"Slice and sliver tags",array('trigger-tagname'=>'h2'));
   $toggle->start();
-  $table=new PlcTable ("tag_slices",array("Slice"=>"string","value"=>"string","Node id"=>"int"),0,$table_options);
+  $table=new PlekitTable ("tag_slices",array("Slice"=>"string","value"=>"string","Node id"=>"int"),0,$table_options);
   $table->start();
   foreach ($slice_tags as $slice_tag) {
     $table->row_start();
@@ -142,7 +142,7 @@ if (count ($slice_tags)) {
   $toggle->end();
  }
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

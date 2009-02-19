@@ -32,7 +32,7 @@ $tabs []= tab_slices();
 
 // -------------------- 
 drupal_set_title($title);
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 $tag_type_columns = array( "tag_type_id", "tagname", "category", "description", "min_role_id" );
 
@@ -54,10 +54,10 @@ $headers['Min role']="string";
 $headers["Id"]="int";
 if (plc_is_admin()) $headers[plc_delete_icon()]="none";
 
-$form=new PlcForm(l_actions(),NULL);
+$form=new PlekitForm(l_actions(),NULL);
 $form->start();
 
-$table = new PlcTable("tags",$headers,0);
+$table = new PlekitTable("tags",$headers,0);
 $table->start();
 
 $roles_hash=plc_role_global_hash($api);
@@ -109,7 +109,7 @@ if (plc_is_admin()) {
 $table->end();
 $form->end();
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

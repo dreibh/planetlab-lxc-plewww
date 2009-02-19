@@ -102,7 +102,7 @@ if (plc_is_admin())
 			    'bubble'=>'Review pending join requests');
 
 drupal_set_title($title);
-plc_tabs($tabs);
+plekit_linetabs($tabs);
 
 // go
 $sites= $api->GetSites( $site_filter , $site_columns);
@@ -120,7 +120,7 @@ if (plc_is_admin()) {
   $headers['?']="string";
  }
 
-$table=new PlcTable("sites",$headers,2);
+$table=new PlekitTable("sites",$headers,2);
 $table->start();
 
 if ($sites) foreach ($sites as $site) {
@@ -142,7 +142,7 @@ $notes=array("N = number of sites / U = number of users / S = number of slices")
 
 $table->end(array('notes'=>$notes));
 
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

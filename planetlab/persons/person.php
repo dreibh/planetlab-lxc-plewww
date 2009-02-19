@@ -116,7 +116,7 @@ if ( $privileges)
 			  'bubble'=>"Events about $first_name $last_name",
 			  'image'=>'/planetlab/icons/event.png','height'=>18);
 
-plc_tabs($tabs);
+plekit_linetabs($tabs);
     
 $peers->block_start ($peer_id);
 
@@ -127,7 +127,7 @@ $enabled_label="Yes";
 if ( ! $enabled ) $enabled_label = plc_warning_html("Disabled");
 
 $can_update = (plc_is_admin() && $local_peer) || $is_my_account;
-$details = new PlcDetails($can_update);
+$details = new PlekitDetails($can_update);
 
 $details->form_start(l_actions(),array("action"=>"update-person",
 				       "person_id"=>$person_id));
@@ -160,7 +160,7 @@ $details->end();
 $details->form_end();
 
 //////////////////// slices
-$toggle=new PlcToggle ('slices','Slices',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('slices','Slices',array('trigger-tagname'=>'h2'));
 $toggle->start();
 
 if( ! $slices) {
@@ -173,7 +173,7 @@ if( ! $slices) {
     $table_options['search_area']=false;
     $table_options['pagesize_area']=false;
   }
-  $table=new PlcTable ("person_slices",$headers,1,$table_options);
+  $table=new PlekitTable ("person_slices",$headers,1,$table_options);
   $table->start();
 
   foreach( $slices as $slice ) {
@@ -188,11 +188,11 @@ if( ! $slices) {
 $toggle->end();
 
 // we don't set 'action', but use the submit button name instead
-$form=new PlcForm(l_actions(), array("person_id"=>$person_id));
+$form=new PlekitForm(l_actions(), array("person_id"=>$person_id));
 $form->start();
 
 //////////////////// keys
-$toggle=new PlcToggle ('keys',"Keys",array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('keys',"Keys",array('trigger-tagname'=>'h2'));
 $toggle->start();
 		
 $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
@@ -205,7 +205,7 @@ $headers=array("Type"=>"string",
 if ($can_manage_keys) $headers[plc_delete_icon()]="none";
 // table overall options
 $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
-$table=new PlcTable("person_keys",$headers,"1",$table_options);
+$table=new PlekitTable("person_keys",$headers,"1",$table_options);
 $table->start();
     
 if ($keys) foreach ($keys as $key) {
@@ -240,7 +240,7 @@ $table->end();
 $toggle->end();
 
 //////////////////// sites
-$toggle=new PlcToggle('sites','Sites',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle('sites','Sites',array('trigger-tagname'=>'h2'));
 $toggle->start();
   
 if (empty( $sites ) ) {
@@ -252,7 +252,7 @@ $headers['Login_base']="string";
 $headers['Name']="string";
 if ($can_manage_sites) $headers[plc_delete_icon()]="none";
 $table_options = array('notes_area'=>false,'search_area'=>false, 'pagesize_area'=>false);
-$table=new PlcTable ("person_sites",$headers,0,$table_options);
+$table=new PlekitTable ("person_sites",$headers,0,$table_options);
 $table->start();
 foreach( $sites as $site ) {
   $site_name= $site['name'];
@@ -293,7 +293,7 @@ $table->end();
 $toggle->end();
 
 //////////////////// roles
-$toggle=new PlcToggle ('roles','Roles',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('roles','Roles',array('trigger-tagname'=>'h2'));
 $toggle->start();
 
 if (! $roles) plc_warning ("This user has no role !");
@@ -305,7 +305,7 @@ $headers=array("Role"=>"string");
 if ($can_manage_roles) $headers [plc_delete_icon()]="none";
 
 $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
-$table=new PlcTable("person_roles",$headers,0,$table_options);  
+$table=new PlekitTable("person_roles",$headers,0,$table_options);  
 $table->start();
   
 // construct array of role objs
@@ -347,7 +347,7 @@ $toggle->end();
 $form->end();
 $peers->block_end($peer_id);
   
-//plc_tabs ($tabs,"bottom");
+//plekit_linetabs ($tabs,"bottom");
 
 // Print footer
 include 'plc_footer.php';

@@ -24,7 +24,7 @@ drupal_set_html_head('
 // th_th : special cases, display 2 <th>
 // xxx todo : accept optional arguments as an options hash, rather than using the set_ methods which are ugly
 
-class PlcDetails {
+class PlekitDetails {
   
   var $editable;
   var $form;
@@ -34,7 +34,7 @@ class PlcDetails {
   var $height;
   var $input_type;
 
-  function PlcDetails ($editable) {
+  function PlekitDetails ($editable) {
     $this->editable=$editable;
     $this->form=NULL;
     $this->width="";
@@ -59,10 +59,10 @@ class PlcDetails {
   }
 
   // starts an inner form if the details are editable
-  // accpets same args as PlcForm
+  // accpets same args as PlekitForm
   function form_start ($url,$values,$method="POST") { print $this->form_start_html($url,$values,$method); return $this->form; }
   function form_start_html ($url,$values,$method="POST") {
-    $this->form = new PlcForm ($url,$values,$method);
+    $this->form = new PlekitForm ($url,$values,$method);
     return $this->form->start_html();
   }
 
@@ -139,7 +139,7 @@ class PlcDetails {
 	$html .= "<input type='$input_type' name='$form_varname' id='$form_varname' value='$value'";
 	if ($width) $html .= " size=$width";
 	// handle event callbacks
-	$html .= PlcForm::attributes($options);
+	$html .= PlekitForm::attributes($options);
 	$html .= "/>";
       }
       $html .= "</td></tr>";

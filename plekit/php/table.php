@@ -24,7 +24,7 @@ drupal_set_html_head('
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
 
-class PlcTable {
+class PlekitTable {
   // mandatory
   var $table_id;
   var $headers;
@@ -40,7 +40,7 @@ class PlcTable {
   var $notes;         // an array of additional notes
   var $has_tfoot;
 
-  function PlcTable ($table_id,$headers,$column_sort,$options=NULL) {
+  function PlekitTable ($table_id,$headers,$column_sort,$options=NULL) {
     $this->table_id = $table_id;
     $this->headers = $headers;
     $this->column_sort = $column_sort;

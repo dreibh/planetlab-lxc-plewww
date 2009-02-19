@@ -30,11 +30,11 @@ drupal_set_html_head('
 // (*) area_end():	  of returning it, we do not expect the code for the area to be passed
 //			  so these methods can be used to delimit the area in question
 
-class PlcToggle {
+class PlekitToggle {
   // mandatory
   var $id;
 
-  function PlcToggle ($id,$trigger,$options=NULL) {
+  function PlekitToggle ($id,$trigger,$options=NULL) {
     $this->id = $id;
     $this->trigger=$trigger;
     if ( ! $options ) $options = array();
@@ -71,9 +71,9 @@ class PlcToggle {
     if ( ! $this->options['start-hidden'])	{ $x1=""; $x2=" style='display:none'"; }
     else					{ $x2=""; $x1=" style='display:none'"; }
     $image_id=$this->id_name('image-visible');
-    $html .= "<img id=$image_id class='plc-toggle-visible' src='/planetlab/icons/toggle-visible.png'$x1>";
+    $html .= "<img id=$image_id class='plc-toggle-visible' src='/plekit/icons/toggle-visible.png'$x1>";
     $image_id=$this->id_name('image-hidden');
-    $html .= "<img id=$image_id class='plc-toggle-hidden' src='/planetlab/icons/toggle-hidden.png'$x2>";
+    $html .= "<img id=$image_id class='plc-toggle-hidden' src='/plekit/icons/toggle-hidden.png'$x2>";
     return $html;
   }
 
