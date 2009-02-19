@@ -43,12 +43,15 @@ Provides: PLCWWW
 AutoReqProv: no
 
 %package plekit
-Summary: Utilities for building the plewww pages, for the benefit of other PL-related UI components.
+Summary: Utilities used by the plewww pages
 Group: Applications/Systems
 
 %description
 The plewww package is made of the web pages that run on top of the 
 PLCAPI component to provide the Web Interface to MyPLC users.
+
+%description plekit
+This subset of the plewww package has general purpose features for the benefit of other PL-related UI components.
 
 %prep
 %setup -q
@@ -67,10 +70,10 @@ rm -rf $RPM_BUILD_ROOT
 echo "* PLEWWW: Installing web pages"
 mkdir -p $RPM_BUILD_ROOT/var/www/html
 # let's be conservative and exclude codebase files, though there should not be any
-rsync -a --exclude \*.spec --exclude .svn --exclude CVS ./ $RPM_BUILD_ROOT/var/www/html/
+rsync -a --exclude \*.spec --exclude .svn --exclude CVS --exclude Makefile --exclude httpd.conf ./ $RPM_BUILD_ROOT/var/www/html/
 
 echo "* PLEWWW: Installing config for httpd"
-install -D -m 644 httpd.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/plcwww.conf
+install -D -m 644 httpd.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/plewww.conf
 
 %post
 # attempt to perform most of the drupal post-install stuff - assuming version 6.x
@@ -112,7 +115,7 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/planetlab
 /var/www/html/googlemap
 /var/www/html/drupal-hacks
-/etc/httpd/conf.d/plcwww.conf
+/etc/httpd/conf.d/plewww.conf
 
 %files plekit
 /var/www/html/plekit
