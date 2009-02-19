@@ -34,7 +34,7 @@ function planetlab_menu($may_cache) {
 
   if ($may_cache) {
     $items[] = array(
-		     'path' => 'planetlab/logout',
+		     'path' => 'planetlab/common/logout',
 		     'title' => t('Log out of %s', array('%s' => variable_get('site_name', 'local'))),
 		     'callback' => 'planetlab_logout',
 		     'access' => TRUE,

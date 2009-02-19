@@ -14,9 +14,9 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_details.php';
-require_once 'plc_datepicker.php';
+require_once 'linetabs.php';
+require_once 'details.php';
+require_once 'datepicker.php';
   
 //set default title
 drupal_set_title('Events choser');

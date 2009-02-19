@@ -13,8 +13,8 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_tables.php';
-require_once 'plc_minitabs.php';
+require_once 'table.php';
+require_once 'linetabs.php';
 
 drupal_set_title('All Peers');
 

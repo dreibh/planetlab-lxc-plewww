@@ -118,9 +118,10 @@ function plc_table_filter (table_id,pattern_id,and_id) {
   // re compile all patterns - ignore case
   var pattern_texts = pattern_text.split(" ");
   var patterns=new Array();
-  var i;
-  for (i in pattern_texts) 
+  for (var i=0; i < pattern_texts.length; i++) {
+    window.console.log ('compiled ' + i + '-th pattern = <' + pattern_texts[i] + '>');
     patterns[i]=new RegExp(pattern_texts[i],"i");
+  }
 
   // scan rows
   for (row_index = 0; row=rows[row_index]; row_index++) {

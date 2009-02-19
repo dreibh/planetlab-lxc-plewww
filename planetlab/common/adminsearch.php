@@ -165,7 +165,7 @@ $_roles= $_person['role_ids'];
 
 
 echo "<div>\n
-        <form method=post action='/db/adminsearch.php'>\n";
+        <form method=post action='/db/common/adminsearch.php'>\n";
 
 if( $_POST['userquery'] or $_GET['userquery']) {
   if ( $_POST['userquery'] ) {

@@ -3,10 +3,10 @@
 // $Id$
 
 require_once 'plc_functions.php';
-require_once 'plc_forms.php';
+require_once 'form.php';
 
 drupal_set_html_head('
-<link href="/planetlab/css/plc_details.css" rel="stylesheet" type="text/css" />
+<link href="/plekit/details/details.css" rel="stylesheet" type="text/css" />
 ');
 
 

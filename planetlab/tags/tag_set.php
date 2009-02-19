@@ -15,8 +15,8 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_tables.php';
+require_once 'linetabs.php';
+require_once 'table.php';
 
 drupal_set_message ("xxx tag_set.php is deprecated - use planetlab/actions.php instead");
 return;

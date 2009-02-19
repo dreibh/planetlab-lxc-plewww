@@ -2,7 +2,7 @@
 
 // $Id$
 
-require_once 'plc_functions.php';
+require_once 'plekit-utils.php';
 
 // the rationale behind having function names with _html is that
 // the first functions that we had were actually printing the stuff instead of returning it
@@ -20,7 +20,7 @@ class PlcForm {
     // and add them to the 'values' argument if any
 
     // extract var=value settings from url if any
-    $split=plkit_split_url($full_url);
+    $split=plekit_split_url($full_url);
     $this->url=$split['url'];
     
     $url_values=$split['values'];

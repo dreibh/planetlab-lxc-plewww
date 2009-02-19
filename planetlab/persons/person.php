@@ -16,11 +16,11 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_peers.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_tables.php';
-require_once 'plc_details.php';
-require_once 'plc_forms.php';
-require_once 'plc_toggles.php';
+require_once 'linetabs.php';
+require_once 'table.php';
+require_once 'details.php';
+require_once 'form.php';
+require_once 'toggle.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -294,7 +294,7 @@ $toggle->end();
 
 //////////////////// roles
 $toggle=new PlcToggle ('roles','Roles',array('trigger-tagname'=>'h2'));
-$togle->start();
+$toggle->start();
 
 if (! $roles) plc_warning ("This user has no role !");
 

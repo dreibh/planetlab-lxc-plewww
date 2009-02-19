@@ -10,23 +10,6 @@ function my_is_int ($x) {
     return (is_numeric($x) ? intval($x) == $x : false);
 }
 
-//// belongs to plkit
-// returns array ['url' => path, 'values' => hash (key=>value)* ]
-function plkit_split_url ($full_url) {
-  list($url,$args) = explode("?",$full_url);
-  $values=array();
-  if ($args) {
-    $pairs=explode("&",$args);
-    foreach ($pairs as $pair) {
-      list ($name,$value) = explode("=",$pair);
-      $values[$name]=$value;
-    }
-  }
-  return array("url"=>$url,"values"=>$values);
-}
-
-
-
 //////////////////////////////////////////////////////////// roles & other checks on global $plc
 function plc_is_admin () {
   global $plc;
@@ -64,7 +47,7 @@ function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; 
 // l_object_t($object_id,text)	-> an <a> tag that shows text and links to the above
 // l_object_add ()		-> the url to that object-afding page
 
-function l_actions ()			{ return "/db/actions.php"; }
+function l_actions ()			{ return "/db/common/actions.php"; }
 // some complex node actions are kept separate, e.g. the ones related to getbootmedium
 function l_actions_download ()		{ return "/db/nodes/node_downloads.php"; }
 
@@ -108,7 +91,7 @@ function l_person_obj ($person)		{ return l_person_t($person['person_id'],$perso
 
 function l_tags ()			{ return "/db/tags/index.php"; }
 function l_tag ($tag_type_id)		{ return "/db/tags/index.php?id=$tag_type_id"; }
-function l_tag_obj ($tag)		{ return href(l_tag($tag['tag-type_id']),$tag['tagname']); }
+function l_tag_obj ($tag)		{ return href(l_tag($tag['tag_type_id']),$tag['tagname']); }
 
 function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
 function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroup.php?id=$nodegroup_id"; }
@@ -124,14 +107,14 @@ function l_peer_t($peer_id,$text)	{ return href(l_peer($peer_id),$text); }
 
 function l_comon($id_name,$id_value)	{ return "/db/nodes/comon.php?$id_name=$id_value"; }
 function l_sirius()			{ return "/db/sirius/index.php"; }
-function l_about()			{ return "/db/about.php"; }
+function l_about()			{ return "/db/common/about.php"; }
 function l_doc_plcapi()			{ return "/db/doc/PLCAPI.php"; }
 function l_doc_nmapi()			{ return "/db/doc/NMAPI.php"; }
-function l_admin()			{ return "/db/adminsearch.php"; }
+function l_admin()			{ return "/db/common/adminsearch.php"; }
 
-function l_login()			{ return "/db/login.php"; }
-function l_logout()			{ return "/planetlab/logout.php"; }
-function l_sulogout()			{ return "/planetlab/sulogout.php"; }
+function l_login()			{ return "/db/common/login.php"; }
+function l_logout()			{ return "/planetlab/common/logout.php"; }
+function l_sulogout()			{ return "/planetlab/common/sulogout.php"; }
 function l_reset_password()		{ return "/db/persons/reset_password.php"; }
 function l_person_register()		{ return "/db/persons/register.php"; }
 function l_site_register()		{ return "/db/sites/register.php"; }

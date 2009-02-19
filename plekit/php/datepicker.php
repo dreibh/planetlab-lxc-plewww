@@ -5,8 +5,8 @@
   // see the demo at http://www.frequency-decoder.com/demo/date-picker-v4/
 
 drupal_set_html_head('
-<script type="text/javascript" src="/planetlab/datepicker/datepicker.js"></script>
-<link href="/planetlab/datepicker/datepicker.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/plekit/datepicker/datepicker.js"></script>
+<link href="/plekit/datepicker/datepicker.css" rel="stylesheet" type="text/css" />
 ');
 
 // supported options

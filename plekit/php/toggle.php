@@ -5,8 +5,8 @@
 require_once 'prototype.php';
 
 drupal_set_html_head('
-<script type="text/javascript" src="/planetlab/js/plc_toggles.js"></script>
-<link href="/planetlab/css/plc_toggles.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/plekit/toggle/toggle.js"></script>
+<link href="/plekit/toggle/toggle.css" rel="stylesheet" type="text/css" />
 ');
 
 // This is for creating an area that users can hide and show

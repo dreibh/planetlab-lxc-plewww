@@ -1,0 +1,69 @@
+/* $Id$ */
+
+div.minitabs {
+    padding: 20px;
+    margin: 8px 0;
+    width:80%;
+    margin:8px auto;
+}
+div.minitabs>ul {
+    width: 100%;
+    float: left;
+    font-size: small;  /* could be specified at a higher level */
+    margin: 0;
+    padding: 0 5px 0 5px; 
+    /* thickness and color for the fixed thin horizontal bar */
+    border-bottom: 1px solid #696;
+    position:relative;
+    z-index:2;
+}
+
+input.minitabs-submit {
+    font-family: verdana, sans-serif;
+    font-size: 14px;
+    text-align: center;
+    font-style: oblique;
+    border: 0;
+    /* buttons are normally outlined */
+    background-color: transparent;
+    /*padding-bottom: 6px;*/
+    border-bottom: 0px;
+}    
+div.minitabs>ul>li {
+    float: left;
+    margin: 0;
+    padding: 0 8px 0 8px;
+    display: inline;
+    list-style: none;
+    position:relative;
+}
+
+div.minitabs>ul>li input.minitabs-submit {
+    float: left;
+    font-size: 85%;
+    line-height: 20px;
+    font-weight: bold;
+    margin: 0 5px 0 5px; 
+    text-decoration: none;
+    /* color when passive */
+    color: #9c9;  
+}
+
+div.minitabs>ul>li input.active {
+    /* border-bottom: 4px solid #696; */
+    /* padding-bottom: 2px; */
+    /* color when mouse is on button */
+    color: #696;
+}
+
+#minitabs-sliding {
+    position: absolute;
+    z-index: 1;
+    font-size: 85%;
+    line-height: 20px;
+    padding-bottom: 2px;
+    /* color for the sliding bar */
+    border-bottom: 4px solid #696;
+    margin-bottom: 0px;
+}
+

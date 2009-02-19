@@ -3,8 +3,8 @@
 #
 
 # what the myplc rpm requires
-%define name PLCWWW
-%define version PLE.5.0
+%define name plewww
+%define version 5.0
 %define taglevel 0
 
 # no need to mention pldistro as this module differs in both distros
@@ -32,14 +32,22 @@ Requires: php >= 5.0
 Requires: postgresql >= 8.0
 Requires: PLCAPI >= 5.0
 Requires: drupal = 4.7
+Requires: plewww-plekit
+
+# this is what MyPLC requires
+Provides: PLCWWW
 
 # on centos5, when rebuilding the full monty, we get:
 # Error: Missing Dependency: perl(GD) is needed by package PLCWWW
 # and the perl-GD rpm is nowhere to be found
 AutoReqProv: no
 
+%package plekit
+Summary: Utilities for building the plewww pages, for the benefit of other PL-related UI components.
+Group: Applications/Systems
+
 %description
-The PLCWWW package is made of the web pages that run on top of the 
+The plewww package is made of the web pages that run on top of the 
 PLCAPI component to provide the Web Interface to MyPLC users.
 
 %prep
@@ -100,8 +108,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-/var/www/html
+/var/www/html/modules
+/var/www/html/planetlab
+/var/www/html/googlemap
+/var/www/html/drupal-hacks
 /etc/httpd/conf.d/plcwww.conf
+
+%files plekit
+/var/www/html/plekit
 
 %changelog
 * Fri Apr 25 2008 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLCWWW-onelab.4.2-11

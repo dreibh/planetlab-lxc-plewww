@@ -34,7 +34,7 @@ ifeq (,$(SSHURL))
 	@echo "  or   make sync PLCHOST=testbox1.inria.fr GUEST=vplc03.inria.fr"
 	@exit 1
 else
-	+$(RSYNC) planetlab modules $(SSHURL)/var/www/html/
+	+$(RSYNC) planetlab plekit modules $(SSHURL)/var/www/html/
 endif
 
 #################### convenience, for debugging only

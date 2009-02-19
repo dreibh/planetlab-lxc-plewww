@@ -14,9 +14,9 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_tables.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_datepicker.php';
+require_once 'table.php';
+require_once 'linetabs.php';
+require_once 'datepicker.php';
   
 // needs much memory
 ini_set("memory_limit","256M");

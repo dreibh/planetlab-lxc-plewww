@@ -16,8 +16,8 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_peers.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_tables.php';
+require_once 'linetabs.php';
+require_once 'table.php';
 
 //fix the memory limit for this page
 ini_set("memory_limit","48M");

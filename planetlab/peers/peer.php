@@ -13,8 +13,8 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_details.php';
-require_once 'plc_minitabs.php';
+require_once 'details.php';
+require_once 'linetabs.php';
 
 $tabs=array();
 $tabs['Back to peers list']=l_peers();

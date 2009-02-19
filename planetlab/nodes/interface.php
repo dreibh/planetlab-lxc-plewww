@@ -9,10 +9,10 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_details.php';
-require_once 'plc_tables.php';
-require_once 'plc_toggles.php';
+require_once 'linetabs.php';
+require_once 'details.php';
+require_once 'table.php';
+require_once 'toggle.php';
 
 require_once 'plc_drupal.php';
 include 'plc_header.php';

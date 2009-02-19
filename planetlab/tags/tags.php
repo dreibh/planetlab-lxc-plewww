@@ -15,9 +15,9 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_tables.php';
-require_once 'plc_forms.php';
+require_once 'linetabs.php';
+require_once 'table.php';
+require_once 'form.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -27,7 +27,6 @@ $pattern=$_GET['pattern'];
 $title="Tag Types";
 $tabs=array();
 $tabs []= tab_tags();
-$tabs []= tab_nodes();
 $tabs []= tab_nodes_local();
 $tabs []= tab_slices();
 

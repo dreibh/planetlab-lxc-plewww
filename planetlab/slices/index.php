@@ -48,6 +48,7 @@ if( !$_GET['id'] ) {
   if( in_array( 10, $_roles ) ) {
     // auto complete box for finding a slice
                 
+    // xxx dismantle this
     drupal_set_html_head('<script type="text/javascript" src="/planetlab/bsn/bsn.Ajax.js"></script>
     <script type="text/javascript" src="/planetlab/bsn/bsn.DOM.js"></script>
     <script type="text/javascript" src="/planetlab/bsn/bsn.AutoSuggest.js"></script>');

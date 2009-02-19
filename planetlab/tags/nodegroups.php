@@ -15,8 +15,8 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_minitabs.php';
-require_once 'plc_tables.php';
+require_once 'linetabs.php';
+require_once 'table.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -32,7 +32,7 @@ $node_filter=array();
 
 
 // fetch objs
-$nodegroup_columns=array("nodegroup_id","groupname","tagname","value","node_ids");
+$nodegroup_columns=array("nodegroup_id","groupname","tagname","value","node_ids","tag_type_id");
 
 // server-side filtering - set pattern in $_GET for filtering on hostname
 if ($pattern) {
@@ -68,7 +68,8 @@ $table->start();
 foreach ($nodegroups as $nodegroup) {
   $table->row_start();
   $table->cell (href(l_nodegroup($nodegroup['nodegroup_id']),$nodegroup['groupname']));
-  $table->cell ($nodegroup['tagname']);
+  // yes, a nodegroup is not a tag, but knows enough for this to work
+  $table->cell (l_tag_obj($nodegroup));
   $table->cell ($nodegroup['value']);
   $table->cell (count($nodegroup['node_ids']));
   $table->row_end();

@@ -3,11 +3,11 @@
   // $Id$
 
 drupal_set_html_head('
-<script type="text/javascript" src="/planetlab/tablesort/tablesort.js"></script>
-<script type="text/javascript" src="/planetlab/tablesort/customsort.js"></script>
-<script type="text/javascript" src="/planetlab/tablesort/paginate.js"></script>
-<script type="text/javascript" src="/planetlab/js/plc_tables.js"></script>
-<link href="/planetlab/css/plc_tables.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/plekit/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="/plekit/tablesort/customsort.js"></script>
+<script type="text/javascript" src="/plekit/tablesort/paginate.js"></script>
+<script type="text/javascript" src="/plekit/table/table.js"></script>
+<link href="/plekit/table/table.css" rel="stylesheet" type="text/css" />
 ');
 
 ////////////////////////////////////////

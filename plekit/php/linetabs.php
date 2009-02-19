@@ -1,11 +1,12 @@
 <?php
   // $Id$
 
+require_once 'plekit-utils.php';
 require_once 'prototype.php';
 
 drupal_set_html_head('
-<script type="text/javascript" src="/planetlab/minitabs/minitabs.js"></script>
-<link href="/planetlab/minitabs/minitabs.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/plekit/linetabs/linetabs.js"></script>
+<link href="/plekit/linetabs/linetabs.css" rel="stylesheet" type="text/css" />
 ');
 
 
@@ -62,7 +63,7 @@ function plc_tabs ($array, $id=NULL) {
     if ( ! $todo['method'] ) $todo['method']='GET';
     // extract var=value settings from url if any
     $full_url=$todo['url'];
-    $split=plkit_split_url($full_url);
+    $split=plekit_split_url($full_url);
     $url=$split['url'];
     $url_values=$split['values'];
 
