@@ -69,11 +69,12 @@ rm -rf $RPM_BUILD_ROOT
 
 echo "* PLEWWW: Installing web pages"
 mkdir -p $RPM_BUILD_ROOT/var/www/html
-# let's be conservative and exclude codebase files, though there should not be any
-rsync -a --exclude \*.spec --exclude .svn --exclude CVS --exclude Makefile --exclude httpd.conf ./ $RPM_BUILD_ROOT/var/www/html/
+# exclude codebase just in case
+rsync -a --exclude Makefile --exclude httpd --exclude \*.spec --exclude .svn ./ $RPM_BUILD_ROOT/var/www/html/
 
-echo "* PLEWWW: Installing config for httpd"
-install -D -m 644 httpd.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/plewww.conf
+echo "* PLEWWW: Installing conf files for httpd"
+mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d/plewww.conf
+install -D -m 644 httpd/*.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/
 
 %post
 # attempt to perform most of the drupal post-install stuff - assuming version 6.x
@@ -115,7 +116,7 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/planetlab
 /var/www/html/googlemap
 /var/www/html/drupal-hacks
-/etc/httpd/conf.d/plewww.conf
+/etc/httpd/conf.d
 
 %files plekit
 /var/www/html/plekit
