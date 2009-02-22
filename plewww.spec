@@ -73,7 +73,7 @@ mkdir -p $RPM_BUILD_ROOT/var/www/html
 rsync -a --exclude Makefile --exclude httpd --exclude \*.spec --exclude .svn ./ $RPM_BUILD_ROOT/var/www/html/
 
 echo "* PLEWWW: Installing conf files for httpd"
-mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d/plewww.conf
+mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d
 install -D -m 644 httpd/*.conf $RPM_BUILD_ROOT/etc/httpd/conf.d/
 
 %post
