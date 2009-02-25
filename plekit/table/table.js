@@ -1,24 +1,24 @@
 /* $Id$ */
 
 /* when a table gets paginated, displays context info */
-function plc_table_paginator (opts,tablename) {
+function plekit_table_paginator (opts,table_id) {
 
   if(!("currentPage" in opts)) { return; }
     
   var p = document.createElement('p');
-  var t = document.getElementById(tablename+'-fdtablePaginaterWrapTop');
-  var b = document.getElementById(tablename+'-fdtablePaginaterWrapBottom');
+  var table=$(table_id);
+  var t = $(table_id+'-fdtablePaginaterWrapTop');
+  var b = $(table_id+'-fdtablePaginaterWrapBottom');
 
   /* when there's no visible entry, the pagination code removes the wrappers */
   if ( (!t) || (!b) ) return;
 
   /* get how many entries are matching:
      opts.visibleRows only holds the contents of the current page
-     so we store the number of matching entries in the tbody's 'matching' attribute
+     so we store the number of matching entries in the table 'matching' attribute
   */
   var totalMatches = opts.totalRows;
-  var tbody=document.getElementById(tablename).getElementsByTagName("tbody")[0];
-  var matching=tbody['matching'];
+  var matching=table['matching'];
   if (matching) totalMatches = matching;
 
   var label;
@@ -44,7 +44,7 @@ function plc_table_paginator (opts,tablename) {
 
 
 /* locates a table from its id and alters the classname to reflect new table size */
-function plc_pagesize_set (table_id,size_id,def_size) {
+function plekit_pagesize_set (table_id,size_id,def_size) {
   var table=document.getElementById(table_id);
   var size_area=document.getElementById(size_id);
   if ( ! size_area.value ) {
@@ -55,7 +55,7 @@ function plc_pagesize_set (table_id,size_id,def_size) {
   tablePaginater.init(table_id);
 }
 
-function plc_pagesize_reset(table_id, size_id, size) {
+function plekit_pagesize_reset(table_id, size_id, size) {
   var table=document.getElementById(table_id);
   var size_area=document.getElementById(size_id);
   size_area.value=size;
@@ -64,7 +64,7 @@ function plc_pagesize_reset(table_id, size_id, size) {
 }
   
 /* set or clear the ' invisibleRow' in the tr's classname, according to visible */
-function plc_table_row_visible (row,visible) {
+function plekit_table_row_visible (row,visible) {
   var cn=row.className;
   /* clear */
   cn=cn.replace(" invisibleRow","");
@@ -72,33 +72,50 @@ function plc_table_row_visible (row,visible) {
   row.className=cn;
 }
 
-// from a cell, extract visible text by removing <> and cache in 'plc_text' attribute
-var re_brackets = new RegExp ('<[^>]*>','g');
+// Working around MSIE...
+if ('undefined' == typeof Node)
+    Node = { ELEMENT_NODE: 1, TEXT_NODE: 3 };
 
-function plc_table_cell_text (cell) {
-  if (cell['plc_text']) return cell['plc_text'];
-  var text = cell.innerHTML;
-  // remove what's between <>
-  text = text.replace(re_brackets,'');
-  cell['plc_text'] = text;
+// Extract actual text from a DOM node (remove internal tags and so on)
+function getInnerText(node) {
+	var result = '';
+	if (Node.TEXT_NODE == node.nodeType)
+		return node.nodeValue;
+	if (Node.ELEMENT_NODE != node.nodeType)
+		return '';
+	for (var index = 0; index < node.childNodes.length; ++index)
+		result += getInnerText(node.childNodes.item(index));
+	return result;
+} // getInnerText
+
+// cache in the <tr> node the concatenation of the innerTexts of its cells
+function plekit_tr_text (tr) {
+  // if cached, use it
+  if (tr['text_to_match']) return tr['text_to_match'];
+  // otherwise compute it
+  var text="";
+  var cells=tr.cells;
+  for (var i=0; i<cells.length; i++) 
+    text += getInnerText(cells[i]) + " ";
+  text = text.strip().toLowerCase();
+  tr['text_to_match'] = text;
   return text;
 }
 
 /* scan the table, and mark as visible 
    the rows that match (either AND or OR the patterns) */
-function plc_table_filter (table_id,pattern_id,and_id) {
-  var tbody = document.getElementById(table_id).getElementsByTagName("tbody")[0];
-  var rows=tbody.rows;
-  var pattern_area = document.getElementById(pattern_id);
+function plekit_table_filter (table_id,pattern_id,and_id) {
+  var table=$(table_id);
+  var css='#'+table_id+'>tbody';
+  var rows = $$(css)[0].rows;
+  var pattern_area = $(pattern_id);
   var pattern_text = pattern_area.value;
-  var row_index, row, cells, cell_index, cell, visible;
   var matching_entries=0;
-  var and_button=document.getElementById(and_id);
+  var and_button=$(and_id);
   var and_if_true=and_button.checked;
 
-  // remove whitespaces at the beginning and end
-  pattern_text = pattern_text.replace(/[ \t]+$/,"");
-  pattern_text = pattern_text.replace(/^[ \t]+/,"");
+  // canonicalize white spaces 
+  pattern_text = pattern_text.replace(/^\s+/, '').replace(/\s+$/, '').replace(/\s+/g,' ');
   
   if (pattern_text.indexOf ("&") != -1) {
     pattern_text = pattern_text.replace(/&/," ");
@@ -115,17 +132,30 @@ function plc_table_filter (table_id,pattern_id,and_id) {
   var match_attempts=0;
   var start=(new Date).getTime();
 
-  // re compile all patterns - ignore case
-  var pattern_texts = pattern_text.split(" ");
+  // if we're running with the same pattern
+  var previous_pattern=table['previous_pattern'];
+  var previous_mode=table['previous_mode'];
+  if ( (previous_pattern == pattern_text) && (previous_mode == and_if_true) ) {
+    window.console.log ('no change in pattern');
+    return;
+  }
+
+  // re compile all patterns 
+  var pattern_texts = pattern_text.strip().split(" ");
+  var searches=new Array();
   var patterns=new Array();
   for (var i=0; i < pattern_texts.length; i++) {
-    window.console.log ('compiled ' + i + '-th pattern = <' + pattern_texts[i] + '>');
+    window.console.log ('compiled ' + i + '-th pattern = [' + pattern_texts[i] + ']');
+    // ignore case
+    searches[i]=pattern_texts[i].toLowerCase();
     patterns[i]=new RegExp(pattern_texts[i],"i");
   }
 
-  // scan rows
-  for (row_index = 0; row=rows[row_index]; row_index++) {
-      cells=row.cells;
+  // scan rows, elaborate 'visible'
+  window.console.log ('we have ' + rows.length + ' rows');
+  for (var row_index = 0; row_index < rows.length ; row_index++) {
+    var tr=rows[row_index];
+    var visible=false;
     
     /*empty pattern */
     if (patterns.length == 0) {
@@ -133,50 +163,65 @@ function plc_table_filter (table_id,pattern_id,and_id) {
     } else if (and_if_true) {
       /* AND mode: all patterns must match */
       visible=true;
-      for (i in patterns) {
-	var matched=false;
-	var pattern=patterns[i];
-	for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
-	  var against=plc_table_cell_text (cell);
-	  match_attempts++;
-	  if ( against.match(pattern)) {
-	    matched=true;
-	    break;	  
-	  }
+      var against=plekit_tr_text (tr);
+      for (var search_index=0; search_index<searches.length; search_index++) {
+	var search=searches[search_index];
+	match_attempts++;
+	if ( against.search(search) < 0) {
+	  visible=false;
+	  break;	  
 	}
-	if ( ! matched ) visible=false;
       }
     } else {
       /* OR mode: any match is good enough */
       visible=false;
-      for (cell_index = 0; cell=cells[cell_index]; cell_index++) {
-	var against = cell.plc_table_cell_text(cell);
-	for (i in patterns) {
-	  pattern=patterns[i];
-	  match_attempts++;
-	  if (against.match(pattern)) {
-	    visible=true;
-	    // alert ('OR matched! p='+pattern+' c='+cell.innerHTML);
-	    break;
-	  }
+      var against = plekit_tr_text(tr);
+      for (var search_index=0; search_index < searches.length; search_index++) {
+	var search=searches[search_index];
+	match_attempts++;
+	if (against.search(search) >= 0) {
+	  visible=true;
+	  break;
 	}
       }
     }
-    plc_table_row_visible(row,visible);
+
+    plekit_table_row_visible(tr,visible);
     if (visible) matching_entries +=1;
   }
+  // save for next run
+  table['previous_pattern']=pattern_text;
+  table['previous_mode']=and_if_true;
+  
   var end=(new Date).getTime();
-  var ms=end-start;
-  window.console.log ("plc_table_filter: " + 
-		      match_attempts + " matches - " +
-		      matching_entries + " lines - " + ms + " ms");
-  tbody['matching']=matching_entries;
-  tbody['match_attempts']=match_attempts;
+  var match_ms=end-start;
+
+  // optimize useless calls to init, by comparing # of matching entries
+  var previous_matching=table['previous_matching'];
+  if (matching_entries == previous_matching) {
+    window.console.log ('same # of matching entries - skipped redisplay');
+    window.console.log ("plekit_table_filter: " + 
+			match_attempts + " matches - " +
+			matching_entries + " lines - " 
+			+ "match=" + match_ms + " ms");
+    return;
+  }
+  
+  table['matching']=matching_entries;
+  table['match_attempts']=match_attempts;
   tablePaginater.init(table_id);
+  var end2=(new Date).getTime();
+  var paginate_ms=end2-end;
+  window.console.log ("plekit_table_filter: " + 
+		      match_attempts + " matches - " +
+		      matching_entries + " lines - " 
+		      + "match=" + match_ms + " ms - "
+		      + "paginate=" + paginate_ms + " ms");
+  
 }
 
-function plc_table_filter_reset (table_id, pattern_id,and_id) {
+function plekit_table_filter_reset (table_id, pattern_id,and_id) {
   /* reset pattern */
   document.getElementById(pattern_id).value="";
-  plc_table_filter (table_id, pattern_id,and_id);
+  plekit_table_filter (table_id, pattern_id,and_id);
 }

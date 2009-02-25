@@ -2,6 +2,8 @@
 
   // $Id$
 
+require_once 'prototype.php';
+
 drupal_set_html_head('
 <script type="text/javascript" src="/plekit/tablesort/tablesort.js"></script>
 <script type="text/javascript" src="/plekit/tablesort/customsort.js"></script>
@@ -86,11 +88,11 @@ class PlekitTable {
   // instantiate paginator callback
     print <<< EOF
 <script type="text/javascript"> 
-function $paginator (opts) { plc_table_paginator (opts,"$this->table_id"); }
+function $paginator (opts) { plekit_table_paginator (opts,"$this->table_id"); }
 </script>
 <br/>
 <table id="$this->table_id" cellpadding="0" cellspacing="0" border="0" 
-class="plc_table sortable-onload-$this->column_sort rowstyle-alt colstyle-alt no-arrow $classname">
+class="plekit_table sortable-onload-$this->column_sort rowstyle-alt colstyle-alt no-arrow $classname">
 <thead>
 EOF;
 
@@ -110,7 +112,7 @@ EOF;
       $class="sortable";
       if ( ! empty($type)) $class .= "-sort" . $type;
     }
-    printf ('<th class="%s plc_table">%s</th>',$class,$label);
+    printf ('<th class="%s plekit_table">%s</th>',$class,$label);
   }
 
   print <<< EOF
@@ -138,11 +140,11 @@ EOF;
     $result= <<< EOF
 <tr class=pagesize_area><td class=pagesize_area colspan=$width><form class='pagesize'>
    <input class='pagesize_input' type='text' id="$pagesize_text_id" value=$this->pagesize 
-      onkeyup='plc_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);' 
+      onkeyup='plekit_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);' 
       size=3 maxlength=3 /> 
   <label class='pagesize_label'> items/page </label>   
   <img class='table_reset' src="/planetlab/icons/clear.png" 
-      onmousedown='plc_pagesize_reset("$this->table_id","$pagesize_text_id",$this->pagesize_def);' />
+      onmousedown='plekit_pagesize_reset("$this->table_id","$pagesize_text_id",$this->pagesize_def);' />
 </form></td></tr>
 EOF;
     return $result;
@@ -158,14 +160,14 @@ EOF;
 <tr class=search_area><td class=search_area colspan=$width><form class='table_search'>
    <label class='table_search_label'> Search </label> 
    <input class='table_search_input' type='text' id='$search_text_id'
-      onkeyup='plc_table_filter("$this->table_id","$search_text_id","$search_and_id");'
+      onkeyup='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");'
       size=$this->search_width maxlength=256 />
    <label>and</label>
    <input id='$search_and_id' class='table_search_and' 
       type='checkbox' checked='checked' 
-      onchange='plc_table_filter("$this->table_id","$search_text_id","$search_and_id");' />
+      onchange='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");' />
    <img class='table_reset' src="/planetlab/icons/clear.png" 
-      onmousedown='plc_table_filter_reset("$this->table_id","$search_text_id","$search_and_id");'>
+      onmousedown='plekit_table_filter_reset("$this->table_id","$search_text_id","$search_and_id");'>
 </form></td></tr>
 EOF;
     return $result;
@@ -203,7 +205,7 @@ EOF;
     if (! $notes)
       return "";
     $result = "";
-    $result .= "<p class='plc_table_note'> <span class='plc_table_note_title'>Notes</span>\n";
+    $result .= "<p class='plekit_table_note'> <span class='plekit_table_note_title'>Notes</span>\n";
     foreach ($notes as $note) 
       $result .= "<br/>$note\n";
     $result .= "</p>";

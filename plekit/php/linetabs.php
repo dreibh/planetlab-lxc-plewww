@@ -47,9 +47,9 @@ drupal_set_html_head('
 
 function plekit_linetabs ($array, $id=NULL) {
   // need id to pass to the onclick function attached to the input buttons
-  $id="minitabs";
+  $id="linetabs";
   if (! $id) $id .= '-' + $id;
-  print "<div id='$id' class='minitabs'>";
+  print "<div id='$id' class='linetabs'>";
   print "<ul>";
   foreach ($array as $label=>$todo) {
     // in case we have a simple string, rewrite it as an array
@@ -77,7 +77,7 @@ function plekit_linetabs ($array, $id=NULL) {
     if ( $values ) foreach ($values as $key=>$value) {
 	print "<input type=hidden name='$key' value='$value' />";
       }
-    $tracer="class=minitabs-submit";
+    $tracer="class=linetabs-submit";
     // image and its companions 'height' 
     if ($todo['image']) {
       $type='type=image src="' . $todo['image'] . '"';
@@ -89,7 +89,7 @@ function plekit_linetabs ($array, $id=NULL) {
     print "<span title='$bubble'>";
     $message="";
     if ($todo['confirm']) $message=$todo['confirm'] . " ?";
-    print "<input $tracer $type onclick='minitabs_namespace.submit(\"$id\",\"$message\")' />";
+    print "<input $tracer $type onclick='linetabs_namespace.submit(\"$id\",\"$message\")' />";
     print "</span>";
     print "</form></li>\n";
   }

@@ -1,12 +1,12 @@
 /* $Id$ */
 
-div.minitabs {
+div.linetabs {
     padding: 20px;
     margin: 8px 0;
     width:80%;
     margin:8px auto;
 }
-div.minitabs>ul {
+div.linetabs>ul {
     width: 100%;
     float: left;
     font-size: small;  /* could be specified at a higher level */
@@ -18,7 +18,7 @@ div.minitabs>ul {
     z-index:2;
 }
 
-input.minitabs-submit {
+input.linetabs-submit {
     font-family: verdana, sans-serif;
     font-size: 14px;
     text-align: center;
@@ -29,7 +29,7 @@ input.minitabs-submit {
     /*padding-bottom: 6px;*/
     border-bottom: 0px;
 }    
-div.minitabs>ul>li {
+div.linetabs>ul>li {
     float: left;
     margin: 0;
     padding: 0 8px 0 8px;
@@ -38,7 +38,7 @@ div.minitabs>ul>li {
     position:relative;
 }
 
-div.minitabs>ul>li input.minitabs-submit {
+div.linetabs>ul>li input.linetabs-submit {
     float: left;
     font-size: 85%;
     line-height: 20px;
@@ -49,14 +49,14 @@ div.minitabs>ul>li input.minitabs-submit {
     color: #9c9;  
 }
 
-div.minitabs>ul>li input.active {
+div.linetabs>ul>li input.active {
     /* border-bottom: 4px solid #696; */
     /* padding-bottom: 2px; */
     /* color when mouse is on button */
     color: #696;
 }
 
-#minitabs-sliding {
+#linetabs-sliding {
     position: absolute;
     z-index: 1;
     font-size: 85%;

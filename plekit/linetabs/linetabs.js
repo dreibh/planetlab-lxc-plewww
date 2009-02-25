@@ -1,7 +1,7 @@
 /*
   $Id$
  
-  Animated miniTabs by frequency decoder (http://www.frequency-decoder.com/)
+  Animated linetabs by frequency decoder (http://www.frequency-decoder.com/)
  
   Based on an idea by Rob L Glazebrook (http://www.rootarcana.com/test/smartmini/) itself
   derived from the original idea of Stephen Clark (http://www.sgclark.com/sandbox/minislide/)
@@ -14,7 +14,7 @@
 */
 
 /* class */
-function minitabs () {
+function linetabs () {
   this.currentTab = 0;
   this.activeTab = 0;
   this.destX = 0;
@@ -28,12 +28,12 @@ function minitabs () {
   this.aHeight = 0;
 }
 
-minitabs.prototype.init = function (div) {
+linetabs.prototype.init = function (div) {
   this.ul      = div.down('ul');
   /* the array of <li>'s */
   this.li_s    = this.ul.select('li');
   /* the array of active <input>'s - without any hidden one */
-  this.input_s = this.ul.select('input.minitabs-submit');
+  this.input_s = this.ul.select('input.linetabs-submit');
   
   /* attach event handlers */
   this.li_s.each ( function (li) { 
@@ -47,12 +47,12 @@ minitabs.prototype.init = function (div) {
 	    elem = elem.previousSibling;
 	    if (elem.tagName && elem.tagName == "LI") pos++;
 	  }
-	  minitabs_namespace.the_minitabs(elem).initSlide(pos,true);
+	  linetabs_namespace.the_linetabs(elem).initSlide(pos,true);
 	} )
 	} );
   
   this.ul.observe('mouseout', function (event) {
-      var mt = minitabs_namespace.the_minitabs(event.element());
+      var mt = linetabs_namespace.the_linetabs(event.element());
       mt.initSlide(mt.currentTab,true);
       mt.setActive (mt.activeTab,false);
     });
@@ -65,7 +65,7 @@ minitabs.prototype.init = function (div) {
   /* create slice object */
   this.slideObj    = this.ul.parentNode.appendChild(document.createElement("div"));
   this.slideObj.appendChild(document.createTextNode(String.fromCharCode(160)));
-  this.slideObj.id = "minitabs-sliding";
+  this.slideObj.id = "linetabs-sliding";
   
     /* position it */
   this.setSlidingTop();
@@ -79,7 +79,7 @@ minitabs.prototype.init = function (div) {
     
 };
 
-minitabs.prototype.initSlide = function (pos, force) {
+linetabs.prototype.initSlide = function (pos, force) {
   
   if(!force && pos == this.activeTab) return;
   this.setActive (this.activeTab,false);
@@ -88,15 +88,15 @@ minitabs.prototype.initSlide = function (pos, force) {
   this.initAnim();
 };
  
-minitabs.prototype.setActive = function (pos,active) {
-  var input=this.li_s[pos].select('input.minitabs-submit')[0];
+linetabs.prototype.setActive = function (pos,active) {
+  var input=this.li_s[pos].select('input.linetabs-submit')[0];
   if (active)
     input.addClassName('active');
   else
     input.removeClassName('active');
 };
   
-minitabs.prototype.setSlidingTop = function () {
+linetabs.prototype.setSlidingTop = function () {
   var delta=0;
   /* up 5px for firefox */
   /*window.console.log('agent=' + navigator.userAgent);*/
@@ -105,9 +105,9 @@ minitabs.prototype.setSlidingTop = function () {
 			      + this.input_s[this.activeTab].offsetTop + delta ) + "px";
 };
   
-minitabs.prototype.initAnim = function() {
+linetabs.prototype.initAnim = function() {
   /* search for the input with type != hidden */
-  var input=this.li_s[this.activeTab].select('input.minitabs-submit')[0];
+  var input=this.li_s[this.activeTab].select('input.linetabs-submit')[0];
   this.destX = parseInt(this.li_s[this.activeTab].offsetLeft + input.offsetLeft 
 			+ this.ul.offsetLeft);
   this.destW = parseInt(input.offsetWidth);
@@ -121,7 +121,7 @@ minitabs.prototype.initAnim = function() {
   this.setSlidingTop();
 };
   
-minitabs.prototype.slideIt = function() {
+linetabs.prototype.slideIt = function() {
   
   // Has the browser text size changed?
   var active_li = this.li_s[this.activeTab];
@@ -144,12 +144,12 @@ minitabs.prototype.slideIt = function() {
   }
 };
   
-minitabs.prototype.animate = function(t,b,c,d) {
+linetabs.prototype.animate = function(t,b,c,d) {
   if ((t/=d/2) < 1) return c/2*t*t + b;
   return -c/2 * ((--t)*(t-2) - 1) + b;
 };
 
-minitabs.prototype.submit = function (message) {
+linetabs.prototype.submit = function (message) {
   /* save activeTab before confirmation; some browsers - firefox - send mouseout during confirm .. */
   var submitTab = this.activeTab;
   /* ask for confirmation if message is not empty */
@@ -161,48 +161,48 @@ minitabs.prototype.submit = function (message) {
 }
   
 // globals
-var minitabs_namespace = {
+var linetabs_namespace = {
  init: function () {
-    $$('div.minitabs').each (function (div) {   
+    $$('div.linetabs').each (function (div) {   
 	/* create instance and attach it to the <div> element */
-	div.minitabs = new minitabs ();
-	div.minitabs.init(div);
+	div.linetabs = new linetabs ();
+	div.linetabs.init(div);
       } ) ;
     
     var intervalMethod = function () {
-      $$('div.minitabs').each (function (div) {
-	  minitabs_namespace.the_minitabs(div).slideIt();
+      $$('div.linetabs').each (function (div) {
+	  linetabs_namespace.the_linetabs(div).slideIt();
 	} ) ;
     } ;
-    minitabs_namespace.animInterval = setInterval(intervalMethod,10);
+    linetabs_namespace.animInterval = setInterval(intervalMethod,10);
   },
  
  cleanUp: function() {
-    clearInterval(minitabs_namespace.animInterval);
-    minitabs_namespace.animInterval = null;
+    clearInterval(linetabs_namespace.animInterval);
+    linetabs_namespace.animInterval = null;
   },
  
  resize: function (e) {
-    $$('div.minitabs').each ( function (div) { 
-	var mt = div.minitabs; 
+    $$('div.linetabs').each ( function (div) { 
+	var mt = div.linetabs; 
 	mt.initSlide(mt.activeTab,true);
       } );
   },
 
  submit: function (id,message) {
-    $(id).minitabs.submit(message);
+    $(id).linetabs.submit(message);
   },
 
- // find the enclosing minitabs object
- the_minitabs: function (elem) {
-    if (elem.match('div.minitabs')) 
-      return elem.minitabs;
+ // find the enclosing linetabs object
+ the_linetabs: function (elem) {
+    if (elem.match('div.linetabs')) 
+      return elem.linetabs;
     else 
-      return elem.up('div.minitabs').minitabs;
+      return elem.up('div.linetabs').linetabs;
   }
  
 };
  
-window.onload   = minitabs_namespace.init;
-window.onunload = minitabs_namespace.cleanUp;
-window.onresize = minitabs_namespace.resize;
+window.onload   = linetabs_namespace.init;
+window.onunload = linetabs_namespace.cleanUp;
+window.onresize = linetabs_namespace.resize;

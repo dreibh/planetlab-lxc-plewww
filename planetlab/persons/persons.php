@@ -127,7 +127,7 @@ foreach ($sites as $site) {
 // --------------------
 drupal_set_title($title);
 
-//plekit_linetabs($tabs);
+plekit_linetabs($tabs);
 
 if ( ! $persons ) {
   drupal_set_message ('No account found');
