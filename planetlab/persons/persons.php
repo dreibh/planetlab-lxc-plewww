@@ -145,10 +145,11 @@ $headers = array ("Peer"=>"string",
 		  );
 
 // initial sort on email
-$table=new PlekitTable("persons",$headers,4);
+$table=new PlekitTable("persons",$headers,3);
 $table->start();
 
 $peers=new Peers ($api);
+
 // write rows
 
 foreach ($persons as $person) {
