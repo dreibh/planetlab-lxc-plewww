@@ -68,22 +68,26 @@ function plekit_linetabs ($array, $id=NULL) {
     $url_values=$split['values'];
 
     // create form
-    $method=$todo['method'];
-    print "<form name='$label' action='$url' method='$method'>";
+    $method=strtolower($todo['method']);
+    print "<form action='$url' method='$method'><fieldset>";
     // set values
     $values=$todo['values'];
     if ( ! $values) $values = array();
     if ($url_values) $values = array_merge($values,$url_values);
     if ( $values ) foreach ($values as $key=>$value) {
-	print "<input type=hidden name='$key' value='$value' />";
+	print "<input type='hidden' name='$key' value='$value' />";
       }
-    $tracer="class=linetabs-submit";
+    $tracer="class='linetabs-submit'";
     // image and its companions 'height' 
     if ($todo['image']) {
-      $type='type=image src="' . $todo['image'] . '"';
-      if ($todo['height']) $type.= ' height=' . $todo['height'];
+      $what=$todo['image'];
+      $type="type='image' src='$what'";
+      if ($todo['height']) {
+	$what=$todo['height'];
+	$type .= " height='$what'";
+      }
     } else {
-      $type='type=button value="' . $label . '"';
+      $type="type='button' value='$label'";
     }
     $bubble=$todo['bubble'];
     print "<span title='$bubble'>";
@@ -91,11 +95,11 @@ function plekit_linetabs ($array, $id=NULL) {
     if ($todo['confirm']) $message=$todo['confirm'] . " ?";
     print "<input $tracer $type onclick='linetabs_namespace.submit(\"$id\",\"$message\")' />";
     print "</span>";
-    print "</form></li>\n";
+    print "</fieldset></form></li>\n";
   }
   print '</ul>';
   print '</div>';
-  print "<p class='plc-minittabs'></p>\n";
+  print "<p class='linetabs'></p>\n";
 }
 
 ?>

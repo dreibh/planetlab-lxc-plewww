@@ -28,12 +28,13 @@ class PlekitForm {
     if ( $url_values ) $values=array_merge($values,$url_values);
     $this->values=$values;
 
-    $this->method=$method;
+    // make strict xhtml happy
+    $this->method=strtolower($method);
   }
 
   function start () { print $this->start_html(); }
   function start_html () {
-    $html="<form method=$this->method action='$this->url' enctype='multipart/form-data'>";
+    $html="<form method='$this->method' action='$this->url' enctype='multipart/form-data'>";
     if ($this->values) 
       foreach ($this->values as $key=>$value) 
 	$html .= $this->hidden_html($key,$value);
@@ -63,7 +64,7 @@ class PlekitForm {
   static function input_html ($type,$name,$value,$options=NULL) {
     if ( ! $options) $options=array();
     $html="<input";
-    $html="<input type='$type' name='$name' value='$value'";
+    $html .= " type='$type' name='$name' value='$value'";
     $html .= PlekitForm::attributes ($options);
     $html .= "/>";
     return $html;
@@ -81,7 +82,7 @@ class PlekitForm {
     return "<label for=$name>$display</label>";
   }
   static function textarea_html ($name,$value,$cols,$rows) {
-    return "<textarea name='$name' cols=$cols rows=$rows>$value</textarea>";
+    return "<textarea name='$name' cols='$cols' rows='$rows'>$value</textarea>";
   }
  
   // selectors is an array of hashes with the following keys

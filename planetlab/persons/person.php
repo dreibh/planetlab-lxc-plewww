@@ -160,7 +160,7 @@ $details->end();
 $details->form_end();
 
 //////////////////// slices
-$toggle=new PlekitToggle ('slices','Slices',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('slices','Slices');
 $toggle->start();
 
 if( ! $slices) {
@@ -192,7 +192,7 @@ $form=new PlekitForm(l_actions(), array("person_id"=>$person_id));
 $form->start();
 
 //////////////////// keys
-$toggle=new PlekitToggle ('keys',"Keys",array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('keys',"Keys");
 $toggle->start();
 		
 $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
@@ -240,7 +240,7 @@ $table->end();
 $toggle->end();
 
 //////////////////// sites
-$toggle=new PlekitToggle('sites','Sites',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle('sites','Sites');
 $toggle->start();
   
 if (empty( $sites ) ) {
@@ -293,7 +293,7 @@ $table->end();
 $toggle->end();
 
 //////////////////// roles
-$toggle=new PlekitToggle ('roles','Roles',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('roles','Roles');
 $toggle->start();
 
 if (! $roles) plc_warning ("This user has no role !");

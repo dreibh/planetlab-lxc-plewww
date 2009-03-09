@@ -6,6 +6,7 @@ require_once 'prototype.php';
 
 drupal_set_html_head('
 <script type="text/javascript" src="/plekit/toggle/toggle.js"></script>
+<script type="text/javascript" src="/plekit/niftycorner/niftycube.js"></script>
 <link href="/plekit/toggle/toggle.css" rel="stylesheet" type="text/css" />
 ');
 
@@ -71,9 +72,11 @@ class PlekitToggle {
     if ( ! $this->options['start-hidden'])	{ $x1=""; $x2=" style='display:none'"; }
     else					{ $x2=""; $x1=" style='display:none'"; }
     $image_id=$this->id_name('image-visible');
-    $html .= "<img id=$image_id class='plc-toggle-visible' src='/plekit/icons/toggle-visible.png'$x1>";
+    $html .= "<img id='$image_id' class='plc-toggle-visible' src='/plekit/icons/toggle-visible.png'$x1";
+    $html .= " alt='Hide this section' />";
     $image_id=$this->id_name('image-hidden');
-    $html .= "<img id=$image_id class='plc-toggle-hidden' src='/plekit/icons/toggle-hidden.png'$x2>";
+    $html .= "<img id='$image_id' class='plc-toggle-hidden' src='/plekit/icons/toggle-hidden.png'$x2";
+    $html .= " alt='Show this section' />";
     return $html;
   }
 
@@ -85,8 +88,8 @@ class PlekitToggle {
     if (empty($tagname)) $tagname="span";
     
     $html="<$tagname";
-    $html .= " id=$trigger_id";
-    $html .= " class=plc-toggle-trigger";
+    $html .= " id='$trigger_id'";
+    $html .= " class='plc-toggle-trigger'";
     if ($bubble) $html .= " title='$bubble'";
     $html .= " onclick=\"plc_toggle('$this->id')\"";
     $html .= ">";
@@ -101,8 +104,8 @@ class PlekitToggle {
     $area_id=$this->id_name('area');
     $html="";
     $html .= "<div";
-    $html .= " class=plc-toggle-area";
-    $html .= " id=$area_id";
+    $html .= " class='plc-toggle-area'";
+    $html .= " id='$area_id'";
     if ($this->options['start-hidden']) $html .= " style='display:none'";
     $html .= ">";
     return $html;
@@ -116,8 +119,13 @@ class PlekitToggle {
   /* if desired, you can embed the whole (trigger+area) in another div for visual effects */
   function container_start ()		{ print $this->container_start_html(); }
   function container_start_html ()	{ 
-    $html="<div class='plc-toggle-container'";
     $id=$this->id_name('container');
+
+    // side-effects on the header
+    $nifty_init = "<script> Event.observe(window,'load', function () { Nifty ('div#$id','big'); } ); </script>";
+    drupal_set_html_head($nifty_init);
+
+    $html="<div class='plc-toggle-container'";
     $html .= " id='$id'";
     $html .= ">";
     return $html;

@@ -53,10 +53,10 @@ function planetlab_menu($may_cache) {
 }
 
 // formatting helpers
-function ul_start () { return '<ul class=menu>'; }
+function ul_start () { return '<ul class="menu">'; }
 function ul_end () { return '</ul>'; }
-function leaf($text) { return '<li class=leaf>' . $text . '</li>'; }
-function expanded($text) { return '<li class=expanded>' . $text . '</li>'; }
+function leaf($text) { return '<li class="leaf">' . $text . '</li>'; }
+function expanded($text) { return '<li class="expanded">' . $text . '</li>'; }
 function p($text) { return '<p>' . $text . '</p>'; }
 // fake theme to look like menu
 function menu_theme ($menu) {

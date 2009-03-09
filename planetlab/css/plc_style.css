@@ -39,7 +39,4 @@ body {
 *.plc-warning a:visited { text-decoration: none; color:white }
 *.plc-warning a:hover { text-decoration: none; color:black }
 
-/* separator below the linetabs area */
-p.plc-linetabs {
-    height:15px;
-}
+.addresses { text-align: center; font-weight: bold; }

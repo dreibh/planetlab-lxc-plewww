@@ -138,14 +138,15 @@ EOF;
     $width=count($this->headers);
     $pagesize_text_id = $this->table_id . "_pagesize";
     $result= <<< EOF
-<tr class=pagesize_area><td class=pagesize_area colspan=$width><form class='pagesize'>
-   <input class='pagesize_input' type='text' id="$pagesize_text_id" value=$this->pagesize 
+<tr class='pagesize_area'><td class='pagesize_area' colspan='$width'>
+<form class='pagesize' action='satisfy_xhtml_validator'><fieldset>
+   <input class='pagesize_input' type='text' id="$pagesize_text_id" value='$this->pagesize'
       onkeyup='plekit_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);' 
-      size=3 maxlength=3 /> 
+      size='3' maxlength='3' /> 
   <label class='pagesize_label'> items/page </label>   
-  <img class='table_reset' src="/planetlab/icons/clear.png" 
+  <img class='table_reset' src="/planetlab/icons/clear.png" alt="reset visible size"
       onmousedown='plekit_pagesize_reset("$this->table_id","$pagesize_text_id",$this->pagesize_def);' />
-</form></td></tr>
+</fieldset></form></td></tr>
 EOF;
     return $result;
 }
@@ -157,18 +158,19 @@ EOF;
     $search_reset_id = $this->table_id . "_search_reset";
     $search_and_id = $this->table_id . "_search_and";
     $result = <<< EOF
-<tr class=search_area><td class=search_area colspan=$width><form class='table_search'>
+<tr class='search_area'><td class='search_area' colspan='$width'>
+<form class='table_search' action='satisfy_xhtml_validator'><fieldset>
    <label class='table_search_label'> Search </label> 
    <input class='table_search_input' type='text' id='$search_text_id'
       onkeyup='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");'
-      size=$this->search_width maxlength=256 />
+      size='$this->search_width' maxlength='256' />
    <label>and</label>
    <input id='$search_and_id' class='table_search_and' 
       type='checkbox' checked='checked' 
       onchange='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");' />
-   <img class='table_reset' src="/planetlab/icons/clear.png" 
-      onmousedown='plekit_table_filter_reset("$this->table_id","$search_text_id","$search_and_id");'>
-</form></td></tr>
+   <img class='table_reset' src="/planetlab/icons/clear.png" alt="reset search"
+      onmousedown='plekit_table_filter_reset("$this->table_id","$search_text_id","$search_and_id");' />
+</fieldset></form></td></tr>
 EOF;
     return $result;
   }
@@ -194,7 +196,7 @@ EOF;
   ////////////////////////////////////////
   function notes_area_html () {
     $default_notes =  array(
-	"Enter & or | in the search area to alternate between <bold>AND</bold> and <bold>OR</bold> search modes",
+	"Enter &amp; or | in the search area to switch between <span class='bold'>AND</span> and <span class='bold'>OR</span> search modes",
 	"Hold down the shift key to select multiple columns to sort");
 
     if ($this->notes)
@@ -229,7 +231,7 @@ EOF;
   public function cell_html ($text,$colspan=0,$align=NULL) {
     $result="";
     $result .= "<td";
-    if ($colspan) $result .= " colspan=$colspan";
+    if ($colspan) $result .= " colspan='$colspan'";
     if ($align) $result .= " style='text-align:$align'";
     $result .= ">$text</td>";
     return $result;

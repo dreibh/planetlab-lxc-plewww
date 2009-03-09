@@ -61,7 +61,7 @@ $details->th_td("# nodes",count($nodegroup['node_ids']));
 $details->end();
 
 // xxx : add & delete buttons would make sense here too
-$toggle=new PlekitToggle('nodes',"Nodes",array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle('nodes',"Nodes");
 $toggle=>start();
 
 $headers["Hostname"]="string";

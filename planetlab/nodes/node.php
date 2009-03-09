@@ -227,9 +227,9 @@ if ( $local_peer ) {
   $tagnames = array_map ("get_tagname",$tags);
   $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
   
-  $toggle = new PlekitToggle ('tags',"Tags",array('trigger-tagname'=>'h2',
-					       'trigger-bubble'=>'Inspect and set tags on that node',
-					       'start-visible'=>$show_tags));
+  $toggle = new PlekitToggle ('tags',"Tags",
+			      array('trigger-bubble'=>'Inspect and set tags on that node',
+				    'start-visible'=>$show_tags));
   $toggle->start();
 
   $headers=array("Name"=>"string",
@@ -285,9 +285,9 @@ if ( $local_peer ) {
 
 //////////////////////////////////////////////////////////// interfaces
 if ( $local_peer ) {
-  $toggle=new PlekitToggle ('interfaces',"Interfaces",array('trigger-tagname'=>'h2',
-							 'trigger-bubble'=>'Inspect and tune interfaces on that node',
-							 'start-hidden'=>true));
+  $toggle=new PlekitToggle ('interfaces',"Interfaces",
+			    array('trigger-bubble'=>'Inspect and tune interfaces on that node',
+				  'start-hidden'=>true));
   $toggle->start();
   // display interfaces
   if( ! $interfaces ) {
@@ -358,9 +358,9 @@ if ( $local_peer ) {
 // display slices
 
 {
-  $toggle=new PlekitToggle ('slices',"Slices",array('trigger-tagname'=>'h2',
-						 'trigger-bubble'=>'Review slices running on that node',
-						 'start-hidden'=>true));
+  $toggle=new PlekitToggle ('slices',"Slices",
+			    array('trigger-bubble'=>'Review slices running on that node',
+				  'start-hidden'=>true));
   $toggle->start();
   if ( ! $slices  ) {
     plc_warning ("This node is not associated to any slice");

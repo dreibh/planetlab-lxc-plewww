@@ -138,7 +138,7 @@ if ($mode == 'add') return;
 
 
 //////////////////////////////////////// tags
-$toggle=new PlekitToggle ('tags','Tags',array('trigger-tagname'=>'h2'));
+$toggle=new PlekitToggle ('tags','Tags');
 $toggle->start();
 
 $form = new PlekitForm (l_actions(),array('interface_id'=>$interface_id));

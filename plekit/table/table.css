@@ -12,6 +12,9 @@ table.plekit_table>thead>tr, table.plekit_table>tbody>tr {
 table.plekit_table>thead>tr.pagesize_area, table.plekit_table>thead>tr.search_area {
     border-left: 0px;
 }    
+table.plekit_table fieldset {
+    border: 0px; margin: 0px; padding: 0px;
+}    
 
 th.plekit_table {
     font: bold 10px/22px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
@@ -231,6 +234,10 @@ span.plekit_table_note_title {
     font-size:1.5em;
     font-family: georgia;
     text-align: center;
+}
+
+span.bold {
+    font-weight:bold;
 }
 
 /* for IE */

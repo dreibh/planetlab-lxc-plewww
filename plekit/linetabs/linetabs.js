@@ -203,6 +203,6 @@ var linetabs_namespace = {
  
 };
  
-window.onload   = linetabs_namespace.init;
-window.onunload = linetabs_namespace.cleanUp;
-window.onresize = linetabs_namespace.resize;
+Event.observe(window, 'load',linetabs_namespace.init);
+Event.observe(window, 'unload', linetabs_namespace.cleanUp);
+Event.observe(window, 'resize', linetabs_namespace.resize);

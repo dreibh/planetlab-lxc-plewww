@@ -149,9 +149,10 @@ $details = new PlekitDetails($can_update);
 if ( ! $site['is_public']) 
   plc_warning("This site is not public!");
 
+$details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
+
 $details->start();
 
-$details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
 $details->th_td("Full name",$sitename,'name',array('width'=>50));
 $details->th_td("Abbreviated name",$abbreviated_name,'abbreviated_name',array('width'=>15));
 $details->th_td("URL",$site_url,'url',array('width'=>40));
@@ -168,13 +169,13 @@ if (plc_is_admin())
 else
   $details->th_td("Max slices",$max_slices);
 $details->tr_submit("submit","Update Site");
-$details->form_end();
 
 if ( ! $local_peer) {
   $details->space();
   $details->th_td("Peer",$peers->peer_link($peer_id));
  }
 $details->end();
+$details->form_end();
 
 //////////////////// mode details - for local object
 if ( $local_peer ) {
@@ -191,7 +192,7 @@ if ( $local_peer ) {
     $nodes_title = plc_warning_html ($nodes_title);
   $nodes_title .= href(l_nodes_site($site_id)," (See as nodes)");
 
-  $toggle=new PlekitToggle ('nodes',$nodes_title,array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle ('nodes',$nodes_title);
   $toggle->start();
 
   $headers=array();
@@ -227,7 +228,7 @@ if ( $local_peer ) {
     $persons_title = plc_warning_html ($persons_title);
   $persons_title .= href(l_persons_site($site_id)," (See as users)");
 
-  $toggle=new PlekitToggle ('persons',$persons_title,array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle ('persons',$persons_title);
   $toggle->start();
 
   $headers = array ();
@@ -254,7 +255,7 @@ if ( $local_peer ) {
 
   //////////////////// Slices
   // xxx to review after slices gets reworked
-  $toggle=new PlekitToggle ('slices',"Slices",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle ('slices',"Slices");
   $toggle->start();
   $details=new PlekitDetails (false);
   $details->start();
@@ -271,11 +272,10 @@ if ( $local_peer ) {
   $toggle->end();
 
   // Addresses
-  $toggle=new PlekitToggle ('addresses',"Addresses",array('trigger-tagname'=>'h2',
-						       'start-visible'=>false));
+  $toggle=new PlekitToggle ('addresses',"Addresses",array('start-visible'=>false));
   $toggle->start();
   if ( ! $addresses) {
-    print "No known address for this site";
+    print "<p class='addresses'>No known address for this site</p>";
   } else {
     $details=new PlekitDetails (false);
     $details->start();

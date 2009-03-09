@@ -94,7 +94,7 @@ EOF;
   // display the buttons 
   print <<< EOF
     <tr>
-    <td colspan=2>
+    <td colspan='2'>
     <table width="100%" border=0 cellspacing="0" cellpadding="5"> <tr> 
     <td align=center><input type="submit" name="submitted" value="Delete"></td>
     <td align=center><input type="submit" name="submitted" value="Update"></td>
@@ -109,7 +109,7 @@ EOF;
   // display the buttons 
   print <<< EOF
     <tr>
-    <td colspan=2>
+    <td colspan='2'>
     <table width="100%" border=0 cellspacing="0" cellpadding="5"> <tr> 
     <td align=center><input type="submit" name="submitted" value="Delete"></td>
     <td align=center><input type="submit" name="submitted" value="Update"></td>

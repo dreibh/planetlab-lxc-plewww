@@ -189,7 +189,7 @@ function form_render_table2 ($form, $input, $outline_missing) {
     // render the comment field
     if ( ! empty($item['comment'])) {
       $comment=$item['comment'];
-      print "<tr><td colspan=2> $comment </td></tr>";
+      print "<tr><td colspan='2'> $comment </td></tr>";
     }
 
     // compute line attributes

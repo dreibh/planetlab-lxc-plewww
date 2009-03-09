@@ -260,14 +260,14 @@ EOF;
 if( $has_primary ) {
   print( "<table border=\"0\" cellspacing=\"4\">\n" );
   
-  print( "<tr><th colspan=2><a href='index.php?id=$node_id'>Node Details</a></th></tr>" );
+  print( "<tr><th colspan='2'><a href='index.php?id=$node_id'>Node Details</a></th></tr>" );
   print( "<tr><th>node_id:</th>" );
   print( "<td>$node_id</td></tr>\n" );
   print( "<tr><th>Hostname:</th>" );
   print( "<td>" . $node_detail['hostname'] . "</td></tr>\n" );
 
   $nn_id = $interface_detail['interface_id'];
-  print( "<tr><th colspan=2><a href='interface.php?id=$nn_id'>Interface Details</a></th></tr>" );
+  print( "<tr><th colspan='2'><a href='interface.php?id=$nn_id'>Interface Details</a></th></tr>" );
 
   print( "<tr><th>Method:</th>" );
   print( "<td>" . $interface_detail['method'] . "</td></tr>\n" );
@@ -293,7 +293,7 @@ if( $has_primary ) {
       }
     }
 
-  print ("<tr><th colspan=2><a href='interface.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
+  print ("<tr><th colspan='2'><a href='interface.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
   $nn_id = $interface_detail['interface_id'];
   $settings=$api->GetInterfaceTags(array("interface_id" => array($nn_id)));
   foreach ($settings as $setting) {

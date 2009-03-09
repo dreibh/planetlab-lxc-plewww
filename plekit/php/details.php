@@ -47,9 +47,9 @@ class PlekitDetails {
   // start the details area, with an optional caption
   function start ($caption="") { print $this->start_html("$caption");}
   function start_html ($caption="") {
-    $html="<table class=plc_details><thead>";
-    if ($caption) $html .= "<caption>$caption</caption>";
-    $html .= "</thead><tbody>";
+    $html="<table class='plc_details'>";
+    if ($caption) $html .= "<thead><caption>$caption</caption></thead>";
+    $html .= "<tbody>";
     return $html;
   }
 
@@ -124,7 +124,7 @@ class PlekitDetails {
       else $height=$this->height;
 
       $html="";
-      $html .= "<tr><th><label for=$form_varname>$title</label></th>";
+      $html .= "<tr><th><label for='$form_varname'>$title</label></th>";
       $html .= "<td>";
       // xxx hack: if input_type is select : user provides the input field verbatim
       if ( $input_type == "select" ) {
@@ -137,7 +137,7 @@ class PlekitDetails {
       } else {
 	// set id too 
 	$html .= "<input type='$input_type' name='$form_varname' id='$form_varname' value='$value'";
-	if ($width) $html .= " size=$width";
+	if ($width) $html .= " size='$width'";
 	// handle event callbacks
 	$html .= PlekitForm::attributes($options);
 	$html .= "/>";
@@ -162,7 +162,7 @@ class PlekitDetails {
   // 1 item, colspan=2
   function tr($title,$align=NULL) { print $this->tr_html($title,$align);}
   function tr_html($title,$align=NULL) {
-    $result="<tr><td colspan=2";
+    $result="<tr><td colspan='2'";
     if ($align) $result .= " style='text-align:$align'";
     $result .=">$title</td></tr>";
     return $result;
@@ -170,7 +170,7 @@ class PlekitDetails {
   
   // a dummy line for getting some air
   function space () { print $this->space_html(); }
-  function space_html () { return "<tr><td colspan=2>&nbsp;</td></tr>\n"; }
+  function space_html () { return "<tr><td colspan='2'>&nbsp;</td></tr>\n"; }
 
 }
 

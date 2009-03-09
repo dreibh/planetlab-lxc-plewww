@@ -90,7 +90,7 @@ $table_options=array('notes_area'=>false, 'pagesize_area'=>false, 'search_width'
 
 // xxx could outline values corresponding to a nodegroup
 if (count ($node_tags)) {
-  $toggle=new PlekitToggle('tag_nodes',"Nodes",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle('tag_nodes',"Nodes");
   $toggle->start();
   $table=new PlekitTable ("tag_nodes",array("Hostname"=>"string","value"=>"string"),0,$table_options);
   $table->start();
@@ -105,7 +105,7 @@ if (count ($node_tags)) {
  }
 
 if (count ($interface_tags)) {
-  $toggle=new PlekitToggle('tag_interfaces',"Interfaces",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle('tag_interfaces',"Interfaces");
   $toggle->start();
   $table=new PlekitTable ("tag_interfaces",array("IP"=>"IPAddress","value"=>"string"),0,$table_options);
   $table->start();
@@ -123,7 +123,7 @@ if (count ($interface_tags)) {
 // xxx don't show hostnames yet
 $slice_tags = array_merge ($slice_tags,$sliver_tags);
 if (count ($slice_tags)) {
-  $toggle=new PlekitToggle('tag_slices',"Slice and sliver tags",array('trigger-tagname'=>'h2'));
+  $toggle=new PlekitToggle('tag_slices',"Slice and sliver tags");
   $toggle->start();
   $table=new PlekitTable ("tag_slices",array("Slice"=>"string","value"=>"string","Node id"=>"int"),0,$table_options);
   $table->start();

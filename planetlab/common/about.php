@@ -23,8 +23,8 @@ print "<table><tbody>\n";
 
 foreach ( array( "build", "tags", "rpms" ) as $field) {
 
-  print "<tr><th colspan=2 align='center'></th></tr>\n";
-  print "<tr><th colspan=2 align='center'><h2>" . ucwords($field . " details") . "</h2></th></tr>\n";
+  print "<tr><th colspan='2' align='center'></th></tr>\n";
+  print "<tr><th colspan='2' align='center'><h2>" . ucwords($field . " details") . "</h2></th></tr>\n";
   $keys=array_keys($release[$field]);
   usort($keys,"__cmp_lower");
 

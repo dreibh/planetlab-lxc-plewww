@@ -1,5 +1,10 @@
 /* $Id$ */
 
+/* clear browser-dependant defaults */
+div.linetabs * {
+    padding: 0; margin: 0; border: 0;
+}
+
 div.linetabs {
     padding: 20px;
     margin: 8px 0;
@@ -67,3 +72,8 @@ div.linetabs>ul>li input.active {
     margin-bottom: 0px;
 }
 
+/* separator below the linetabs area */
+p.linetabs {
+    height:15px;
+    clear: both;
+}

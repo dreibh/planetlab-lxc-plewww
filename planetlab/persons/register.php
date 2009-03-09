@@ -282,8 +282,8 @@ foreach ($form as $name => $item) {
 
   if ( ! empty($item['comment'])) {
     $comment=$item['comment'];
-    print "<tr><td colspan=2> &nbsp; </td></tr>";
-    print "<tr><td colspan=2> $comment: </td></tr>";
+    print "<tr><td colspan='2'> &nbsp; </td></tr>";
+    print "<tr><td colspan='2'> $comment: </td></tr>";
   }
 
   $title = $item['title'];
@@ -334,7 +334,7 @@ EOF;
 
 // Do not allow resubmits
 if (empty($person['person_id'])) {
-  print '<tr><td colspan=2><input type="submit" name="op" value="Register"  class="form-submit" /></td></tr>';
+  print '<tr><td colspan='2'><input type="submit" name="op" value="Register"  class="form-submit" /></td></tr>';
 }
 
 print <<<EOF
