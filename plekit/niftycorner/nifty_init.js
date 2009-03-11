@@ -11,12 +11,9 @@
 var nifty_inited = false;
 
 function nifty_init () {
-  window.console.log('initing - 1');
   if ( nifty_inited ) return;
-  window.console.log('initing - 2');
   var elements=document.getElementsByClassName('nifty-medium');
   for (var i=0; i<elements.length; i++) {
-    window.console.log('catched ' + elements[i].id);
     Nifty('div#'+elements[i].id,'medium');
   }
   nifty_inited = true;

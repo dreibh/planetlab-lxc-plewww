@@ -342,7 +342,7 @@ if ($can_manage_roles) {
   $selectors=$form->role_selectors_excluding($api,$role_ids);
   $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
   // add a role : the button
-  $add_role_right_area=$form->submit_html("add-role-to-person",array('label'=>"Add role"));
+  $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
   $table->cell ($add_role_left_area . $add_role_right_area,
 		$table->columns(),"right");
   $table->row_end();

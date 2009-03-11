@@ -69,6 +69,10 @@ $known_actions []= "update-site";
 //////////////////////////////////////// slices
 $known_actions []= "renew-slice";
 //	expects:	slice_id & expires
+$known_actions []= 'remove-persons-from-slice';
+//	expects:	slice_id & person_ids
+$known_actions []= 'add-persons-in-slice';
+//	expects:	slice_id & person_ids
 
 //////////////////////////////////////// tag types
 $known_actions []= "update-tag-type";
@@ -430,18 +434,21 @@ switch ($action) {
  }
 
 //////////////////////////////////////////////////////////// slices
- case 'renew_slice': {
+ case 'renew-slice': {
    $slice_id = intval ($_POST['slice_id']); 	
    $expires = intval ($_POST['expires']);
    // 8 weeks from now
    // xxx
-   $now=date();
+   $now=mktime();
+   $WEEK=7*24*3600;
    $WEEKS=8;
-   $MAX_FUTURE=$WEEKS*7*24*3600;
+   $MAX_FUTURE=$WEEKS*$WEEK;
    if ( ($expires-$now) > $MAX_FUTURE) {
-     drupal_set_error("Cannot renew slice that far in the future, max is $WEEKS from now");
+     drupal_set_error("Cannot renew slice that far in the future, max is $WEEKS weeks from now");
      plc_redirect(l_slice($slice_id));
    }
+   plc_debug('slice_id',$slice_id);
+   plc_debug('expires',$expires);
    if ($api->UpdateSlice ($slice_id, array('expires'=>$expires)) == 1)
      drupal_set_message("Slice renewed");
    else
@@ -450,6 +457,45 @@ switch ($action) {
    break;
  }
 
+ case 'remove-persons-from-slice': {
+   $slice_id = intval ($_POST['slice_id']); 	
+   $person_ids = $_POST['person_ids'];
+   
+   $success=true;
+   $counter=0;
+   foreach( $person_ids as $person_id ) {
+     if ($api->DeletePersonFromSlice(intval($person_id),$slice_id) != 1) 
+       $success=false;
+     else
+       $counter++;
+   }
+   if ($success) 
+     drupal_set_message ("Deleted $counter person(s)");
+   else
+     drupal_set_error ("Could not delete all selected persons, only $counter were removed");
+   plc_redirect(l_slice($slice_id));
+   break;
+ }
+
+ case 'add-persons-in-slice': {
+   $slice_id = intval ($_POST['slice_id']); 	
+   $person_ids = $_POST['person_ids'];
+   
+   $success=true;
+   $counter=0;
+   foreach( $person_ids as $person_id ) {
+     if ($api->AddPersonToSlice(intval($person_id),$slice_id) != 1) 
+       $success=false;
+     else
+       $counter++;
+   }
+   if ($success) 
+     drupal_set_message ("Added $counter person(s)");
+   else
+     drupal_set_error ("Could not add all selected persons, only $counter were added");
+   plc_redirect(l_slice($slice_id));
+   break;
+ }
 
 //////////////////////////////////////////////////////////// tag types
 

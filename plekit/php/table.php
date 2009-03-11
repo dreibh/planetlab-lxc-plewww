@@ -32,6 +32,7 @@ class PlekitTable {
   var $headers;
   var $column_sort;
   // options
+  var $caption;
   var $search_area;   // boolean (default true)
   var $pagesize_area; // boolean (default true)
   var $notes_area;    // boolean (default true)
@@ -64,6 +65,7 @@ class PlekitTable {
   function set_options ($options) {
     if ( ! $options)
       return;
+    if (array_key_exists('caption',$options)) $this->caption=$options['caption'];
     if (array_key_exists('search_area',$options)) $this->search_area=$options['search_area'];
     if (array_key_exists('pagesize_area',$options)) $this->pagesize_area=$options['pagesize_area'];
     if (array_key_exists('notes_area',$options)) $this->notes_area=$options['notes_area'];
@@ -101,6 +103,8 @@ EOF;
   if ($this->search_area) 
     print $this->search_area_html ();
 
+  if ($this->caption) 
+    print "<caption> $this->caption </caption>";
   print "<tr>";
   foreach ($this->headers as $label => $type) {
     switch ($type) {

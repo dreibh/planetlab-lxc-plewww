@@ -136,7 +136,6 @@ function plekit_table_filter (table_id,pattern_id,and_id) {
   var previous_pattern=table['previous_pattern'];
   var previous_mode=table['previous_mode'];
   if ( (previous_pattern == pattern_text) && (previous_mode == and_if_true) ) {
-    window.console.log ('no change in pattern');
     return;
   }
 
@@ -145,14 +144,12 @@ function plekit_table_filter (table_id,pattern_id,and_id) {
   var searches=new Array();
   var patterns=new Array();
   for (var i=0; i < pattern_texts.length; i++) {
-    window.console.log ('compiled ' + i + '-th pattern = [' + pattern_texts[i] + ']');
     // ignore case
     searches[i]=pattern_texts[i].toLowerCase();
     patterns[i]=new RegExp(pattern_texts[i],"i");
   }
 
   // scan rows, elaborate 'visible'
-  window.console.log ('we have ' + rows.length + ' rows');
   for (var row_index = 0; row_index < rows.length ; row_index++) {
     var tr=rows[row_index];
     var visible=false;
@@ -199,11 +196,6 @@ function plekit_table_filter (table_id,pattern_id,and_id) {
   // optimize useless calls to init, by comparing # of matching entries
   var previous_matching=table['previous_matching'];
   if (matching_entries == previous_matching) {
-    window.console.log ('same # of matching entries - skipped redisplay');
-    window.console.log ("plekit_table_filter: " + 
-			match_attempts + " matches - " +
-			matching_entries + " lines - " 
-			+ "match=" + match_ms + " ms");
     return;
   }
   
@@ -212,11 +204,6 @@ function plekit_table_filter (table_id,pattern_id,and_id) {
   tablePaginater.init(table_id);
   var end2=(new Date).getTime();
   var paginate_ms=end2-end;
-  window.console.log ("plekit_table_filter: " + 
-		      match_attempts + " matches - " +
-		      matching_entries + " lines - " 
-		      + "match=" + match_ms + " ms - "
-		      + "paginate=" + paginate_ms + " ms");
   
 }
 

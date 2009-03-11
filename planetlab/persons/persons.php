@@ -139,7 +139,7 @@ $headers = array ("Peer"=>"string",
 		  "Last"=>"string",
 		  "Email"=>"string",
 		  "Site" => "string",
-		  "Roles"=>"string",
+		  "R"=>"string",
 		  "S" => "int",
 		  "Status"=>"string",
 		  );
