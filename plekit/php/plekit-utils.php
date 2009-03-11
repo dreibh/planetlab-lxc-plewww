@@ -1,6 +1,6 @@
 <?php
 
-// $Id: plc_functions.php 12096 2009-02-18 22:05:34Z thierry $
+// $Id$
 
 // returns array ['url' => path, 'values' => hash (key=>value)* ]
 function plekit_split_url ($full_url) {

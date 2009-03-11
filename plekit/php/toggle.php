@@ -3,10 +3,10 @@
   // $Id$
 
 require_once 'prototype.php';
+require_once 'nifty.php';
 
 drupal_set_html_head('
 <script type="text/javascript" src="/plekit/toggle/toggle.js"></script>
-<script type="text/javascript" src="/plekit/niftycorner/niftycube.js"></script>
 <link href="/plekit/toggle/toggle.css" rel="stylesheet" type="text/css" />
 ');
 
@@ -121,11 +121,7 @@ class PlekitToggle {
   function container_start_html ()	{ 
     $id=$this->id_name('container');
 
-    // side-effects on the header
-    $nifty_init = "<script> Event.observe(window,'load', function () { Nifty ('div#$id','medium'); } ); </script>";
-    drupal_set_html_head($nifty_init);
-
-    $html="<div class='plc-toggle-container'";
+    $html="<div class='plc-toggle-container nifty-medium'";
     $html .= " id='$id'";
     $html .= ">";
     return $html;

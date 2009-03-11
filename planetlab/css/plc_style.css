@@ -1,6 +1,4 @@
-/*
-expanding links
-*/
+/* expanding links */
 
 .example {
     padding:10px; 
@@ -35,8 +33,14 @@ body {
     font-weight:bold;
 }
 
-*.plc-warning a:link { text-decoration: none; color:white }
-*.plc-warning a:visited { text-decoration: none; color:white }
-*.plc-warning a:hover { text-decoration: none; color:black }
+.plc-warning a:link { text-decoration: none; color:white }
+.plc-warning a:visited { text-decoration: none; color:white }
+.plc-warning a:hover { text-decoration: none; color:black }
 
 .addresses { text-align: center; font-weight: bold; }
+
+/* styling the planetlab module area */
+div.block-planetlab a {
+    font-weight:normal;
+    font-style:italic;
+}

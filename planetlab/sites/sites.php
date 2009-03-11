@@ -1,5 +1,5 @@
 <?php
-  // $Id: index.php 11750 2009-01-29 10:11:53Z thierry $
+  // $Id$
   //
 
   // Require login
