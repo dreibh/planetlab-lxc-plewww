@@ -111,18 +111,17 @@ $tabs=array();
 // available actions
 $tabs [] = tab_nodes_site($site_id);
 $tabs [] = tab_site($site_id);
-$tabs [] = tab_nodes();
+//$tabs [] = tab_nodes();
 
 if ( $local_peer  && $privileges ) {
     
+  $tabs["Add Interface"]=array('url'=>l_interface_add($node_id),
+			       'bubble'=>"Define new network interface on $hostname");
   $tabs['Delete'] = array ('url'=>l_actions(),
 			   'method'=>'POST',
 			   'values'=>array('action'=>'delete-node','node_id'=>$node_id),
 			   'bubble'=>"Delete node $hostname",
-			   'confirm'=>'Are you sure to delete ' . $hostname. ' ?');
-  // xxx subject to roles
-  $tabs["Add Interface"]=array('url'=>l_interface_add($node_id),
-			       'bubble'=>"Define new network interface on $hostname");
+			   'confirm'=>'Are you sure to delete ' . $hostname);
   $tabs["Events"]=array_merge(tablook_event(),
 			      array('url'=>l_event("Node","node",$node_id),
 				    'bubble'=>"Events for node $hostname"));
@@ -136,6 +135,10 @@ plekit_linetabs($tabs);
 // show gray background on foreign objects : start a <div> with proper class
 $peers->block_start ($peer_id);
   
+$toggle = new PlekitToggle ('node',"Details",
+			    array('trigger-bubble'=>'Display and modify details for that node'));
+$toggle->start();
+
 $details=new PlekitDetails($privileges);
 $details->start();
 if ( ! $local_peer) {
@@ -213,6 +216,7 @@ foreach ($site_node_hash as $hash_node_id => $hash_hostname) {
 $details->th_tds ("All site nodes",$nodes_area);
 
 $details->end ();
+$toggle->end();
 
 $form=new PlekitForm (l_actions(), array('node_id'=>$node_id));
 $form->start();

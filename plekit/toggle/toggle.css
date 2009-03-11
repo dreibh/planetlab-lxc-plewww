@@ -4,16 +4,17 @@
 
 /* containers - work with nifty corners*/
 div.plc-toggle-container {
-    background-color: #E6E6E6;
-    padding: 20px;
+/*    background-color: #E6E6E6; */
+    background-color: #d0f0d0;
+    padding: 5px;
     margin: 10px;
 }
 
 .plc-toggle-trigger {
     padding: 0;
     margin: 20px;
-    font-weight: bold;
     cursor: crosshair;
+    font: italic 16px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
 }
 
 /* the buttons */

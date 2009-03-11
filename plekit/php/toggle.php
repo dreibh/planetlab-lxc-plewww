@@ -122,7 +122,7 @@ class PlekitToggle {
     $id=$this->id_name('container');
 
     // side-effects on the header
-    $nifty_init = "<script> Event.observe(window,'load', function () { Nifty ('div#$id','big'); } ); </script>";
+    $nifty_init = "<script> Event.observe(window,'load', function () { Nifty ('div#$id','medium'); } ); </script>";
     drupal_set_html_head($nifty_init);
 
     $html="<div class='plc-toggle-container'";

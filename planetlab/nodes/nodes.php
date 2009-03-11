@@ -29,7 +29,6 @@ $slice_id=intval($_GET['slice_id']);
 // --- decoration
 $title="Nodes";
 $tabs=array();
-$mysite_id=plc_my_site_id();
 $tabs []= tab_nodes_mysite();
 $tabs []= tab_nodes_local();
 
@@ -141,30 +140,30 @@ $table->start();
 $peers = new Peers ($api);
 // write rows
 foreach ($nodes as $node) {
-    $hostname=$node['hostname'];
-    $node_id=$node['node_id'];
-    $site_id=$node['site_id'];
-    $site=$site_hash[$site_id];
-    $login_base = $site['login_base'];
-    $node_id=$node['node_id'];
-    $ip=$interface_hash[$node['node_id']]['ip'];
-    $interface_id=$interface_hash[$node['node_id']]['interface_id'];
-    $peer_id=$node['peer_id'];
-    $shortname = $peers->shortname($peer_id);
-    $node_type = $node['node_type'];
-
-    $table->row_start();
-    $table->cell ($peers->link($peer_id,$shortname));
-    $table->cell (topdomain($hostname));
-    $table->cell (l_site_t($site_id,$login_base));
-    $table->cell ($node['boot_state']);
-    $table->cell (l_node_t($node_id,$hostname));
-    $table->cell (l_interface_t($interface_id,$ip));
-    $table->cell ($node_type);
-    $table->cell ($node['arch']);
-    $table->cell (node_status($node));
-    $table->row_end();
-				 
+  $hostname=$node['hostname'];
+  $node_id=$node['node_id'];
+  $site_id=$node['site_id'];
+  $site=$site_hash[$site_id];
+  $login_base = $site['login_base'];
+  $node_id=$node['node_id'];
+  $ip=$interface_hash[$node['node_id']]['ip'];
+  $interface_id=$interface_hash[$node['node_id']]['interface_id'];
+  $peer_id=$node['peer_id'];
+  $shortname = $peers->shortname($peer_id);
+  $node_type = $node['node_type'];
+  
+  $table->row_start();
+  $table->cell ($peers->link($peer_id,$shortname));
+  $table->cell (topdomain($hostname));
+  $table->cell (l_site_t($site_id,$login_base));
+  $table->cell ($node['boot_state']);
+  $table->cell (l_node_t($node_id,$hostname));
+  $table->cell (l_interface_t($interface_id,$ip));
+  $table->cell ($node_type);
+  $table->cell ($node['arch']);
+  $table->cell (node_status($node));
+  $table->row_end();
+  
 }
 
 $table->end();

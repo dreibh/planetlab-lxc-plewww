@@ -35,9 +35,14 @@ table.plekit_table>tbody>tr>td, table.plekit_table textarea, table.plekit_table 
     border-bottom: 1px solid #C1DAD7;
 }
 table.plekit_table>tbody>tr>td {
-    padding: 6px 12px 6px 12px;
+/*    padding: 6px 12px 6px 12px; */
+    padding: 4px 8px 4px 8px;
     color: #4f6b72;
 }
+table.plekit_table>tbody>tr>td a {
+    font-weight:normal;
+}
+
 th.sortable,
 th.sortable-text,
 th.sortable-date,
@@ -98,19 +103,21 @@ table.plekit_table>tbody>tr>td:first-child {
 td.search_area {
     text-align:right;
     padding-right: 30px;
+    padding-bottom: 5px;
 }
 td.pagesize_area {
     text-align:right;
     padding-right: 30px;
+    padding-bottom: 5px;
 }
 .pagesize_label, .pagesize_input {
     font-style: oblique;
     font-size: .5em;
 }
-.table_search_label{
+.search_label{
     font-weight:bold;
 }
-.table_reset {
+.reset {
     border:1px;
 }
 
@@ -223,13 +230,13 @@ tr.invisibleRow {
 p.paginationText {
     font-style:oblique;
 }
-p.plekit_table_note {
+p.table_note {
     font-style:oblique;
     font-size:0.6em;
     font-family: georgia;
     text-align: center;
 }
-span.plekit_table_note_title {
+span.table_note_title {
     font-weight:bold;
     font-size:1.5em;
     font-family: georgia;
@@ -247,6 +254,7 @@ ul.fdtablePaginater li {float:left;}
 ul.fdtablePaginater {text-align:center;}
 /*table.plekit_table { border-bottom:1px solid #C1DAD7; }*/
 
-.table_search_input:focus {
-    background-color: #888;
+.search_input:focus ,.pagesize_input:focus {
+    background-color: #aaa;
+    outline-color: #696;
 }

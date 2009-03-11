@@ -127,6 +127,12 @@ $enabled_label="Yes";
 if ( ! $enabled ) $enabled_label = plc_warning_html("Disabled");
 
 $can_update = (plc_is_admin() && $local_peer) || $is_my_account;
+
+$toggle = new PlekitToggle ('person',"Details",
+			    array('trigger-bubble'=>'Display and modify details for that account',
+				  'start-visible'=>false));
+$toggle->start();
+
 $details = new PlekitDetails($can_update);
 
 $details->form_start(l_actions(),array("action"=>"update-person",
@@ -158,9 +164,10 @@ if ( ! $local_peer ) {
 
 $details->end();
 $details->form_end();
+$toggle->end();
 
 //////////////////// slices
-$toggle=new PlekitToggle ('slices','Slices');
+$toggle=new PlekitToggle ('slices','Slices',array('start-visible'=>false));
 $toggle->start();
 
 if( ! $slices) {
@@ -192,7 +199,7 @@ $form=new PlekitForm(l_actions(), array("person_id"=>$person_id));
 $form->start();
 
 //////////////////// keys
-$toggle=new PlekitToggle ('keys',"Keys");
+$toggle=new PlekitToggle ('keys',"Keys",array('start-visible'=>false));
 $toggle->start();
 		
 $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
@@ -240,7 +247,7 @@ $table->end();
 $toggle->end();
 
 //////////////////// sites
-$toggle=new PlekitToggle('sites','Sites');
+$toggle=new PlekitToggle('sites','Sites',array('start-visible'=>false));
 $toggle->start();
   
 if (empty( $sites ) ) {
@@ -293,7 +300,7 @@ $table->end();
 $toggle->end();
 
 //////////////////// roles
-$toggle=new PlekitToggle ('roles','Roles');
+$toggle=new PlekitToggle ('roles','Roles',array('start-visible'=>false));
 $toggle->start();
 
 if (! $roles) plc_warning ("This user has no role !");

@@ -66,6 +66,10 @@ $known_actions []= "expire-all-slices-in-site";
 $known_actions []= "update-site";
 //	expects:	site_id & name abbreviated_name url latitude longitude [login_base max_slices]
 
+//////////////////////////////////////// slices
+$known_actions []= "renew-slice";
+//	expects:	slice_id & expires
+
 //////////////////////////////////////// tag types
 $known_actions []= "update-tag-type";
 //	expects:	tag_type_id & name & description & category & min_role_id  
@@ -424,6 +428,28 @@ switch ($action) {
    plc_redirect(l_site($site_id));
    break;
  }
+
+//////////////////////////////////////////////////////////// slices
+ case 'renew_slice': {
+   $slice_id = intval ($_POST['slice_id']); 	
+   $expires = intval ($_POST['expires']);
+   // 8 weeks from now
+   // xxx
+   $now=date();
+   $WEEKS=8;
+   $MAX_FUTURE=$WEEKS*7*24*3600;
+   if ( ($expires-$now) > $MAX_FUTURE) {
+     drupal_set_error("Cannot renew slice that far in the future, max is $WEEKS from now");
+     plc_redirect(l_slice($slice_id));
+   }
+   if ($api->UpdateSlice ($slice_id, array('expires'=>$expires)) == 1)
+     drupal_set_message("Slice renewed");
+   else
+     drupal_set_error("Could not update slice $slice_id");
+   plc_redirect(l_slice($slice_id));
+   break;
+ }
+
 
 //////////////////////////////////////////////////////////// tag types
 

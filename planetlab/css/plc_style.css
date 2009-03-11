@@ -28,7 +28,7 @@ body {
     background:  #e0e0e0;
 }
 .plc-warning {
-    background:  orange;
+    background:  #ffa223; 
 }
 .plc-error {
     background: red;

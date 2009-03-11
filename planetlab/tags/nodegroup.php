@@ -62,7 +62,7 @@ $details->end();
 
 // xxx : add & delete buttons would make sense here too
 $toggle=new PlekitToggle('nodes',"Nodes");
-$toggle=>start();
+$toggle->start();
 
 $headers["Hostname"]="string";
 

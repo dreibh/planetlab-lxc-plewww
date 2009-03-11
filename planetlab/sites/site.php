@@ -144,6 +144,12 @@ if ( ! $enabled )
 	       " to review pending applications.");
 
 $can_update=(plc_is_admin ()  && $local_peer) || ( plc_in_site($site_id) && plc_is_pi());
+
+
+$toggle = new PlekitToggle ('site',"Details",
+			    array('trigger-bubble'=>'Display and modify details for that site'));
+$toggle->start();
+
 $details = new PlekitDetails($can_update);
 
 if ( ! $site['is_public']) 
@@ -176,6 +182,7 @@ if ( ! $local_peer) {
  }
 $details->end();
 $details->form_end();
+$toggle->end();
 
 //////////////////// mode details - for local object
 if ( $local_peer ) {
@@ -185,7 +192,7 @@ if ( $local_peer ) {
   $nb_boot = 0;
   if ($nodes) foreach ($nodes as $node) if ($node['boot_state'] == 'boot') $nb_boot ++;
 
-  $nodes_title = "# Nodes : ";
+  $nodes_title = "Nodes : ";
   $nodes_title .= count($nodes) . " total";
   $nodes_title .= " / " . $nb_boot . " boot";
   if ($nb_boot < 2 ) 
@@ -218,12 +225,12 @@ if ( $local_peer ) {
   $toggle->end();
     
   //////////////////// Users
-  $persons_title = "# Users : ";
+  $persons_title = "Users : ";
   $persons_title .= count($person_ids) . " total";
   $persons_title .= " / " . count ($pis) . " PIs";
   $persons_title .= " / " . count ($techs) . " Techs";
   if ($has_disabled_persons) 
-    $persons_title .= " / " . ($disabled_persons) . " Disabled";
+    $persons_title .= " / " . count($disabled_persons) . " Disabled";
   if ( (count ($pis) == 0) || (count ($techs) == 0) || (count($person_ids) >= 30) || count($disabled_persons) != 0 ) 
     $persons_title = plc_warning_html ($persons_title);
   $persons_title .= href(l_persons_site($site_id)," (See as users)");

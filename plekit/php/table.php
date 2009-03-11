@@ -103,14 +103,15 @@ EOF;
 
   print "<tr>";
   foreach ($this->headers as $label => $type) {
-    if ($type == "none" ) {
-      $class="";
-    } else {
-      if ($type == "string") $type="";
-      if ($type == "int") $type="";
-      if ($type == "float") $type="";
-      $class="sortable";
-      if ( ! empty($type)) $class .= "-sort" . $type;
+    switch ($type) {
+    case "none" : 
+      $class=""; break;
+    case "string": case "int": case "float":
+      $class="sortable"; break;
+    case ( strpos($type,"date-") == 0):
+      $class="sortable-" . $type; break;
+    default:
+      $class="sortable-sort" . $type; break;
     }
     printf ('<th class="%s plekit_table">%s</th>',$class,$label);
   }
@@ -144,7 +145,7 @@ EOF;
       onkeyup='plekit_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);' 
       size='3' maxlength='3' /> 
   <label class='pagesize_label'> items/page </label>   
-  <img class='table_reset' src="/planetlab/icons/clear.png" alt="reset visible size"
+  <img class='reset' src="/planetlab/icons/clear.png" alt="reset visible size"
       onmousedown='plekit_pagesize_reset("$this->table_id","$pagesize_text_id",$this->pagesize_def);' />
 </fieldset></form></td></tr>
 EOF;
@@ -159,16 +160,16 @@ EOF;
     $search_and_id = $this->table_id . "_search_and";
     $result = <<< EOF
 <tr class='search_area'><td class='search_area' colspan='$width'>
-<form class='table_search' action='satisfy_xhtml_validator'><fieldset>
-   <label class='table_search_label'> Search </label> 
-   <input class='table_search_input' type='text' id='$search_text_id'
+<form class='search' action='satisfy_xhtml_validator'><fieldset>
+   <label class='search_label'> Search </label> 
+   <input class='search_input' type='text' id='$search_text_id'
       onkeyup='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");'
       size='$this->search_width' maxlength='256' />
    <label>and</label>
-   <input id='$search_and_id' class='table_search_and' 
+   <input id='$search_and_id' class='search_and' 
       type='checkbox' checked='checked' 
       onchange='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");' />
-   <img class='table_reset' src="/planetlab/icons/clear.png" alt="reset search"
+   <img class='reset' src="/planetlab/icons/clear.png" alt="reset search"
       onmousedown='plekit_table_filter_reset("$this->table_id","$search_text_id","$search_and_id");' />
 </fieldset></form></td></tr>
 EOF;
@@ -207,7 +208,7 @@ EOF;
     if (! $notes)
       return "";
     $result = "";
-    $result .= "<p class='plekit_table_note'> <span class='plekit_table_note_title'>Notes</span>\n";
+    $result .= "<p class='table_note'> <span class='table_note_title'>Notes</span>\n";
     foreach ($notes as $note) 
       $result .= "<br/>$note\n";
     $result .= "</p>";
