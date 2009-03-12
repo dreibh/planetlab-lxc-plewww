@@ -16,10 +16,8 @@ function nifty_init () {
   for (var i=0; i<elements.length; i++) {
     // somehow we catch something with an empty id
     id = elements[i].id;
-    if (id) {
-      window.console.log('nifty initing id [' + id + ']');
+    if (id) 
       Nifty('div#'+id,'medium');
-    }
   }
   nifty_inited = true;
 }

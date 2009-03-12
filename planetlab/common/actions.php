@@ -494,7 +494,7 @@ switch ($action) {
      drupal_set_message ("Deleted $counter person(s)");
    else
      drupal_set_error ("Could not delete all selected persons, only $counter were removed");
-   plc_redirect(l_slice($slice_id));
+   plc_redirect(l_slice($slice_id) . " &show_users=true");
    break;
  }
 
@@ -504,7 +504,7 @@ switch ($action) {
    
    $success=true;
    $counter=0;
-   foreach( $person_ids as $person_id ) {
+   foreach ($person_ids as $person_id) {
      if ($api->AddPersonToSlice(intval($person_id),$slice_id) != 1) 
        $success=false;
      else
@@ -514,7 +514,7 @@ switch ($action) {
      drupal_set_message ("Added $counter person(s)");
    else
      drupal_set_error ("Could not add all selected persons, only $counter were added");
-   plc_redirect(l_slice($slice_id));
+   plc_redirect(l_slice($slice_id) . "&show_users=true" );
    break;
  }
 

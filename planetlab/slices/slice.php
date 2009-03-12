@@ -246,7 +246,9 @@ $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']));
 // just propose to add evryone else, regular users can see only a fraction of the db anyway
 $potential_persons=$api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
 				    array('email','person_id','first_name','last_name','roles'));
-$toggle=new PlekitToggle ('persons',"Users",array('trigger-bubble'=>'Manage users attached to this slice','start-visible'=>false));
+$show_users=false;
+if ( $_GET['show_users']) $show_users=true;
+$toggle=new PlekitToggle ('persons',"Users",array('trigger-bubble'=>'Manage users attached to this slice','start-visible'=>$show_users));
 $toggle->start();
 
 ////////// people currently in
@@ -295,10 +297,14 @@ if ($privileges) {
   $headers['R']='string';
   $headers['Add']="none";
   // xxx caption currently broken, messes pagination
-  $table=new PlekitTable('add_persons',$headers,'1',array(//'caption'=>'Users to add',
-							  'search_area'=>false,
-							  'notes_area'=>false,
-							  'pagesize'=>5));
+  $options = array(//'caption'=>'Users to add',
+		   'notes_area'=>false,
+		   'search_width'=>15,
+		   'pagesize'=>8);
+  // show search for admins only as other people won't get that many names to add
+  if ( ! plc_is_admin() ) $options['search_area']=false;
+  
+  $table=new PlekitTable('add_persons',$headers,'1',$options);
   $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
   $form->start();
   $table->start();
