@@ -14,7 +14,12 @@ function nifty_init () {
   if ( nifty_inited ) return;
   var elements=document.getElementsByClassName('nifty-medium');
   for (var i=0; i<elements.length; i++) {
-    Nifty('div#'+elements[i].id,'medium');
+    // somehow we catch something with an empty id
+    id = elements[i].id;
+    if (id) {
+      window.console.log('nifty initing id [' + id + ']');
+      Nifty('div#'+id,'medium');
+    }
   }
   nifty_inited = true;
 }

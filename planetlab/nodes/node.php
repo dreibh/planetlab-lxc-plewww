@@ -147,7 +147,9 @@ if ( ! $local_peer) {
  }
 
 $details->form_start(l_actions(),array("action"=>"update-node", "node_id"=>$node_id));
-$details->th_td("Hostname",$hostname,"hostname"); 
+// xxx can hostname really be changed like this without breaking the rest, bootcd .. ?
+//$details->th_td("Hostname",$hostname,"hostname"); 
+$details->th_td("Hostname",$hostname); 
 $details->th_td("Model",$model,"model");
 $details->tr_submit("submit","Update Node");
 $details->form_end();

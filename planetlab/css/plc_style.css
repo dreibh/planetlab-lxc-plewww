@@ -44,3 +44,7 @@ div.block-planetlab a {
     font-weight:normal;
     font-style:italic;
 }
+
+div.renewal {
+    margin: 30px;
+}

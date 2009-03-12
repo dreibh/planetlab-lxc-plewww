@@ -67,6 +67,8 @@ $known_actions []= "update-site";
 //	expects:	site_id & name abbreviated_name url latitude longitude [login_base max_slices]
 
 //////////////////////////////////////// slices
+$known_actions []= "update-slice";	
+//	expects:	slice_id, name, description, url
 $known_actions []= "renew-slice";
 //	expects:	slice_id & expires
 $known_actions []= 'remove-persons-from-slice';
@@ -434,6 +436,25 @@ switch ($action) {
  }
 
 //////////////////////////////////////////////////////////// slices
+ case 'update-slice': {
+   $slice_id = $_POST['slice_id'];
+   $name = $_POST['name'];
+   $description= $_POST['description'];
+   $url= $_POST['url'];
+
+   $fields= array( "description"=>$description, "url"=>$url );
+   $api->UpdateSlice( intval( $slice_id ), $fields );
+   $error= $api->error();
+
+   if( empty( $error ) ) {
+     drupal_set_message("Update slice $name");
+     plc_redirect(l_slice($slice_id));
+   } else {
+     drupal_set_error($error);
+   }
+   break;
+ }
+
  case 'renew-slice': {
    $slice_id = intval ($_POST['slice_id']); 	
    $expires = intval ($_POST['expires']);
