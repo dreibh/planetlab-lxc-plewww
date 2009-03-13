@@ -12,12 +12,18 @@ var nifty_inited = false;
 
 function nifty_init () {
   if ( nifty_inited ) return;
-  var elements=document.getElementsByClassName('nifty-medium');
-  for (var i=0; i<elements.length; i++) {
-    // somehow we catch something with an empty id
-    id = elements[i].id;
-    if (id) 
-      Nifty('div#'+id,'medium');
+  var sizes=new Array();
+  sizes[0]='small'; sizes[1]='medium'; sizes[2]='large';
+  for (x in sizes) {
+    size=sizes[x];
+    
+    var elements=document.getElementsByClassName('nifty-'+size);
+    for (var i=0; i<elements.length; i++) {
+      // use Rounded rather than Nifty
+      // the latter needs an id that some elements don't have
+      // plus, it's more efficient anyway
+      pleRounded(elements[i],size);
+    }
   }
   nifty_inited = true;
 }

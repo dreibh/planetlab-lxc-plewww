@@ -1,3 +1,5 @@
+/* $Id$ */
+
 /* expanding links */
 
 .example {
@@ -37,14 +39,11 @@ body {
 .plc-warning a:visited { text-decoration: none; color:white }
 .plc-warning a:hover { text-decoration: none; color:black }
 
-.addresses { text-align: center; font-weight: bold; }
-
 /* styling the planetlab module area */
 div.block-planetlab a {
     font-weight:normal;
     font-style:italic;
 }
+/* -------------------- sites */
+.addresses { text-align: center; font-weight: bold; }
 
-div.renewal {
-    margin: 30px;
-}

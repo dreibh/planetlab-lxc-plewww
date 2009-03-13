@@ -22,6 +22,11 @@ require_once 'details.php';
 require_once 'toggle.php';
 require_once 'form.php';
 
+// keep css separate for now
+drupal_set_html_head('
+<link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
+');
+
 // -------------------- admins potentially need to get full list of users
 ini_set('memory_limit','32M');
 
@@ -72,8 +77,8 @@ if (!empty($person_ids))
 // Constants
 global $DAY;		$DAY = 24*60*60;
 global $WEEK;		$WEEK = 7 * $DAY; 
-global $MAX_WEEKS;	$MAX_WEEKS= 8;			// weeks from today
-global $GRACE_DAYS;	$GRACE_DAYS=10;			// days for renewal promoted on top
+global $MAX_WEEKS;	$MAX_WEEKS= 8;		// weeks from today
+global $GRACE_DAYS;	$GRACE_DAYS=10;		// days for renewal promoted on top
 global $NOW;		$NOW=mktime();
 
 
@@ -95,15 +100,17 @@ function renew_area ($slice,$site,$visible) {
 
   // xxx some extra code needed to enable this area only if the slice description is OK:
   // description and url must be non void
-  $toggle=new PlekitToggle('renew',"Renew this slice",
- 			   array("trigger-bubble"=>"Enter this zone if you wish to renew your slice",
- 				 'start-visible'=>$visible));
+  $toggle=
+    new PlekitToggle('renew',"Renew this slice",
+		     array("trigger-bubble"=>
+			   "Enter this zone if you wish to renew your slice",
+			   'start-visible'=>$visible));
   $toggle->start();
 
   // xxx message could take roles into account
   if ($site['max_slices']<=0) {
      $message= <<< EOF
-<p class='renewal'>Slice creation and renewal have been temporarily disabled for your
+<p class='my-slice-renewal'>Slice creation and renewal have been temporarily disabled for your
 <site. This may have occurred because your site's nodes have been down
 or unreachable for several weeks, and multiple attempts to contact
 your site's PI(s) and Technical Contact(s) have all failed. If so,
@@ -141,7 +148,7 @@ Slice cannot be renewed any further into the future, try again closer to expirat
 EOF;
      } else {
       print <<< EOF
-<div class='renewal'>
+<div class='my-slice-renewal'>
 <p>You must provide a short description as well as a link to a project website before renewing it.
 Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against your slice 
 and PlanetLab Operations is unable to determine what the normal behavior of your slice is, 
@@ -167,12 +174,11 @@ EOF;
 }
 
 ////////// 
-drupal_set_title("Details for slice " . $name);
-$local_peer= ! $peer_id;
+drupal_set_title("My slice " . $name);
 
 $am_in_slice = in_array(plc_my_person_id(),$person_ids);
 
-$privileges = (plc_is_admin()  || $am_in_slice);
+$privileges = ( $local_peer && (plc_is_admin()  || $am_in_slice));
 
 $tabs=array();
 $tabs [] = tab_nodes_slice($slice_id);
@@ -209,8 +215,13 @@ if ($local_peer ) {
 
 
 //////////////////// details
-$toggle = new PlekitToggle ('slice',"Details",
-			    array('trigger-bubble'=>'Display and modify details for that slice'));
+$show_details=false;
+if (isset ($_GET['show_details'])) $show_details=$_GET['show_details'];
+$toggle = 
+  new PlekitToggle ('my-slice-details',"Details",
+		    array('trigger-bubble'=>
+			  'Display and modify details for that slice',
+			  'start-visible'=>$show_details));
 $toggle->start();
 
 $details=new PlekitDetails($privileges);
@@ -230,39 +241,51 @@ $details->th_td('Description',$slice['description'],'description',
 		array('input_type'=>'textarea',
 		      'width'=>50,'height'=>5));
 $details->th_td('URL',$slice['url'],'url',array('width'=>50));
+$details->tr_submit("submit","Update Slice");
 $details->th_td('Expires',$expires);
 $details->th_td('Instantiation',$slice['instantiation']);
 $details->th_td('Site',l_site_obj($site));
 // xxx show the PIs here
 //$details->th_td('PIs',...);
-$details->tr_submit("submit","Update Slice");
 $details->end();
 
 $details->form_end();
 $toggle->end();
 
-//////////////////// users
+//////////////////// persons
 $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']));
-// just propose to add evryone else, regular users can see only a fraction of the db anyway
-$potential_persons=$api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
-				    array('email','person_id','first_name','last_name','roles'));
-$show_users=false;
-if ( $_GET['show_users']) $show_users=true;
-$toggle=new PlekitToggle ('persons',"Users",array('trigger-bubble'=>'Manage users attached to this slice','start-visible'=>$show_users));
+// just propose to add everyone else, 
+// as regular persons can see only a fraction of the db anyway
+$potential_persons=
+  $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
+		   array('email','person_id','first_name','last_name','roles'));
+$show_persons=false;
+if (isset ($_GET['show_persons'])) $show_persons=$_GET['show_persons'];
+$toggle=
+  new PlekitToggle ('my-slice-persons',"Users",
+		    array('trigger-bubble'=>
+			  'Manage accounts attached to this slice',
+			  'start-visible'=>$show_persons));
 $toggle->start();
 
 ////////// people currently in
+// visible:
+// hide if both current+add are included
+// so user can chose which section is of interest
+// show otherwise
+$toggle_persons = new PlekitToggle ('my-slice-persons-current',
+				    "People currently in $name",
+				    array('start-visible'=>!$privileges));
+$toggle_persons->start();
+
 $headers=array();
 $headers['email']='string';
 $headers['first']='string';
 $headers['last']='string';
 $headers['R']='string';
 if ($privileges) $headers[plc_delete_icon()]="none";
-// xxx caption currently broken, messes pagination
-$table=new PlekitTable('persons',$headers,'1',array(//'caption'=>'Current users',
-						    'search_area'=>false,
-						    'notes_area'=>false,
-						    'pagesize_area'=>false));
+$table=new PlekitTable('persons',$headers,'0',
+		       array('notes_area'=>false));
 $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
 $table->start();
@@ -278,7 +301,7 @@ if ($persons) foreach ($persons as $person) {
 // actions area
 if ($privileges) {
 
-  // remove users
+  // remove persons
   $table->tfoot_start();
 
   $table->row_start();
@@ -287,49 +310,149 @@ if ($privileges) {
   $table->row_end();
  }
 $table->end();
+$toggle_persons->end();
 
 ////////// people to add
 if ($privileges) {
-  $headers=array();
-  $headers['email']='string';
-  $headers['first']='string';
-  $headers['last']='string';
-  $headers['R']='string';
-  $headers['Add']="none";
-  // xxx caption currently broken, messes pagination
-  $options = array(//'caption'=>'Users to add',
-		   'notes_area'=>false,
-		   'search_width'=>15,
-		   'pagesize'=>8);
-  // show search for admins only as other people won't get that many names to add
-  if ( ! plc_is_admin() ) $options['search_area']=false;
-  
-  $table=new PlekitTable('add_persons',$headers,'1',$options);
-  $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
-  $form->start();
-  $table->start();
-  if ($potential_persons) foreach ($potential_persons as $person) {
-      $table->row_start();
-      $table->cell(l_person_obj($person));
-      $table->cell($person['first_name']);
-      $table->cell($person['last_name']);
-      $table->cell(plc_vertical_table ($person['roles']));
-      $table->cell ($form->checkbox_html('person_ids[]',$person['person_id']));
-      $table->row_end();
-    }
-  // add users
-  $table->tfoot_start();
-  
+  $toggle_persons = new PlekitToggle ('my-slice-persons-add',
+				      "People to add to $name",
+				      array('start-visible'=>false));
+  $toggle_persons->start();
+  if ( ! $potential_persons ) {
+    // xxx improve style
+    echo "<p class='not-relevant'>No person to add</p>";
+  } else {
+    $headers=array();
+    $headers['email']='string';
+    $headers['first']='string';
+    $headers['last']='string';
+    $headers['R']='string';
+    $headers['Add']="none";
+    $options = array('notes_area'=>false,
+		     'search_width'=>15,
+		     'pagesize'=>8);
+    // show search for admins only as other people won't get that many names to add
+    if ( ! plc_is_admin() ) $options['search_area']=false;
+    
+    $table=new PlekitTable('add_persons',$headers,'0',$options);
+    $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
+    $form->start();
+    $table->start();
+    if ($potential_persons) foreach ($potential_persons as $person) {
+	$table->row_start();
+	$table->cell(l_person_obj($person));
+	$table->cell($person['first_name']);
+	$table->cell($person['last_name']);
+	$table->cell(plc_vertical_table ($person['roles']));
+	$table->cell ($form->checkbox_html('person_ids[]',$person['person_id']));
+	$table->row_end();
+      }
+    // add users
+    $table->tfoot_start();
+    $table->row_start();
+    $table->cell($form->submit_html ("add-persons-in-slice","Add selected"),
+		 $table->columns(),"right");
+    $table->row_end();
+    $table->end();
+    $form->end();
+  }
+  $toggle_persons->end();
+}
+$toggle->end();
+
+//////////////////// nodes
+// minimal list as a start
+$node_columns = array('hostname','node_id','arch');
+$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
+$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
+
+$show_nodes=true;
+if (isset ($_GET['show_nodes'])) $show_nodes=$_GET['show_nodes'];
+$toggle=new PlekitToggle ('my-slice-nodes',"Nodes",
+			  array('trigger-bubble'=>
+				'Manage nodes attached to this slice',
+				'start-visible'=>$show_nodes));
+$toggle->start();
+
+////////// nodes currently in
+$toggle_nodes=new PlekitToggle('my-slice-nodes-current',
+			       "Nodes currently in $name",
+			       array('start-visible'=>!$privileges));
+$toggle_nodes->start();
+
+$headers=array();
+$headers['hostname']='string';
+$headers['arch']='string';
+if ($privileges) $headers[plc_delete_icon()]="none";
+$table=new PlekitTable('nodes',$headers,'0',
+		       array('notes_area'=>false));
+$form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
+$form->start();
+$table->start();
+if ($nodes) foreach ($nodes as $node) {
   $table->row_start();
-  $table->cell($form->submit_html ("add-persons-in-slice","Add selected"),
+  $table->cell(l_node_obj($node));
+  $table->cell($node['arch']);
+  if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
+  $table->row_end();
+}
+// actions area
+if ($privileges) {
+
+  // remove nodes
+  $table->tfoot_start();
+
+  $table->row_start();
+  $table->cell($form->submit_html ("remove-nodes-from-slice","Remove selected"),
 	       $table->columns(),"right");
   $table->row_end();
  }
 $table->end();
+$toggle_nodes->end();
 
+////////// nodes to add
+if ($privileges) {
+  $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
+				 "Nodes to add to $name",
+				 array('start-visible'=>false));
+  $toggle_nodes->start();
+
+  if ( ! $potential_nodes ) {
+    // xxx improve style
+    echo "<p class='not-relevant'>No node to add</p>";
+  } else {
+    $headers=array();
+    $headers['hostname']='string';
+    $headers['arch']='string';
+    $headers['Add']="none";
+    $options = array('notes_area'=>false,
+		     'search_width'=>15,
+		     'pagesize'=>20);
+    
+    $table=new PlekitTable('add_nodes',$headers,'1',$options);
+    $form=new PlekitForm(l_actions(),
+			 array('slice_id'=>$slice['slice_id']));
+    $form->start();
+    $table->start();
+    if ($potential_nodes) foreach ($potential_nodes as $node) {
+	$table->row_start();
+	$table->cell(l_node_obj($node));
+	$table->cell($node['arch']);
+	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
+	$table->row_end();
+      }
+    // add nodes
+    $table->tfoot_start();
+    $table->row_start();
+    $table->cell($form->submit_html ("add-nodes-in-slice","Add selected"),
+		 $table->columns(),"right");
+    $table->row_end();
+    $table->end();
+    $form->end();
+  }
+  $toggle_nodes->end();
+}
 $toggle->end();
-
-//////////////////// nodes
 
 //////////////////// tags
 
@@ -337,14 +460,9 @@ if ($local_peer ) {
   if ( ! $renew_visible) renew_area ($slice,$site,false);
  }
 
-if ($renew_visible) renew_area ($slice,$site,true);
-
 $peers->block_end($peer_id);
 
 // Print footer
 include 'plc_footer.php';
 
-return;
-
 ?>
-

@@ -104,6 +104,7 @@ if ( ! $slices ) {
 $headers = array ("Peer"=>"string",
 		  "Name"=>"string",
 		  "Users"=>"string",
+		  "U"=>"int",
 		  "N"=>"int",
 		  "Exp. d/m/y"=>"date-dmy");
 
@@ -124,6 +125,7 @@ foreach ($slices as $slice) {
   $table->cell ($peers->link($peer_id,$shortname));
   $table->cell (l_slice_obj($slice));
   $table->cell ($users);
+  $table->cell(count($slice['person_ids']));
   $table->cell (href(l_nodes_slice($slice['slice_id']),count($slice['node_ids'])));
   $table->cell ($expires);
   $table->row_end();

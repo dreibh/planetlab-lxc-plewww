@@ -29,6 +29,7 @@ if(typeof(oldonload)=='function')
     window.onload=function(){oldonload();AddCss('/plekit/niftycorner');NiftyLoad()};
 else window.onload=function(){AddCss('/plekit/niftycorner');NiftyLoad()};
 
+/* xxx local change : pass a path as parameter */
 function AddCss(path){
 niftyCss=true;
 var l=CreateEl("link");
@@ -78,6 +79,34 @@ for(i=0;i<v.length;i++){
     if(bottom!="") AddBottom(v[i],bottom,options);
     }
 }
+
+/* local addition
+ * accept element rather than selectors */
+function pleRounded(element,options){
+var i,top="",bottom="",v=new Array();
+if(options!=""){
+    options=options.replace("left","tl bl");
+    options=options.replace("right","tr br");
+    options=options.replace("top","tr tl");
+    options=options.replace("bottom","br bl");
+    options=options.replace("transparent","alias");
+    if(options.find("tl")){
+        top="both";
+        if(!options.find("tr")) top="left";
+        }
+    else if(options.find("tr")) top="right";
+    if(options.find("bl")){
+        bottom="both";
+        if(!options.find("br")) bottom="left";
+        }
+    else if(options.find("br")) bottom="right";
+    }
+if(top=="" && bottom=="" && !options.find("none")){top="both";bottom="both";}
+    FixIE(element);
+    if(top!="") AddTop(element,top,options);
+    if(bottom!="") AddBottom(element,bottom,options);
+}
+
 
 function AddTop(el,side,options){
 var d=CreateEl("b"),lim=4,border="",p,i,btype="r",bk,color;

@@ -80,7 +80,7 @@ class Peers {
     // to set the background to grey on foreign objects
     // return true if the peer is local 
     if ( ! $peer_id ) {
-      print "<div class=\"nifty-medium plc-local\">";
+      print "<div class=\"nifty-large plc-local\">";
     } else {
       $classname=strtolower($this->classname($peer_id));
       // set two classes, one generic to all foreign, and one based on the peer's shortname for finer grain tuning

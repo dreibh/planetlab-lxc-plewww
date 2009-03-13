@@ -1,0 +1,18 @@
+/*
+ $Id: toggle.css 12435 2009-03-11 15:07:00Z thierry $
+ */
+
+/* space around various messages */
+div.my-slice-renewal {
+    margin: 30px;
+}
+
+/* internal toggles */
+div#toggle-container-my-slice-persons-current,
+div#toggle-container-my-slice-persons-add,
+div#toggle-container-my-slice-nodes-current,
+div#toggle-container-my-slice-nodes-add {
+/*    background:#fcf7ff; */
+    background: #ccffc7; 
+}
+
