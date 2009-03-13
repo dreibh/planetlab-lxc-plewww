@@ -75,6 +75,10 @@ $known_actions []= 'remove-persons-from-slice';
 //	expects:	slice_id & person_ids
 $known_actions []= 'add-persons-in-slice';
 //	expects:	slice_id & person_ids
+$known_actions []= 'remove-nodes-from-slice';
+//	expects:	slice_id & node_ids
+$known_actions []= 'add-nodes-in-slice';
+//	expects:	slice_id & node_ids
 
 //////////////////////////////////////// tag types
 $known_actions []= "update-tag-type";
@@ -515,6 +519,31 @@ switch ($action) {
    else
      drupal_set_error ("Could not add all selected persons, only $counter were added");
    plc_redirect(l_slice($slice_id) . "&show_persons=true" );
+   break;
+ }
+
+ case 'remove-nodes-from-slice': {
+   $slice_id = intval ($_POST['slice_id']); 	
+   $node_ids = array_map("intval",$_POST['node_ids']);
+   $count=count($node_ids);
+   
+   if ($api->DeleteSliceFromNodes($slice_id,$node_ids) == 1) 
+     drupal_set_message ("Removed $count node(s)");
+   else
+     drupal_set_error ("Could not remove selected nodes");
+   plc_redirect(l_slice($slice_id) . " &show_nodes=true");
+   break;
+ }
+
+ case 'add-nodes-in-slice': {
+   $slice_id = intval ($_POST['slice_id']); 	
+   $node_ids = array_map("intval",$_POST['node_ids']);
+   $count=count($node_ids);
+   if ($api->AddSliceToNodes($slice_id,$node_ids) == 1) 
+     drupal_set_message ("Added $count node(s)");
+   else
+     drupal_set_error ("Could not add all selected nodes");
+   plc_redirect(l_slice($slice_id) . "&show_nodes=true" );
    break;
  }
 
