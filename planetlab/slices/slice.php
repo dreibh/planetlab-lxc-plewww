@@ -273,8 +273,9 @@ $toggle->start();
 // hide if both current+add are included
 // so user can chose which section is of interest
 // show otherwise
+$count=count($persons);
 $toggle_persons = new PlekitToggle ('my-slice-persons-current',
-				    "People currently in $name",
+				    "$count people currently in $name",
 				    array('start-visible'=>!$privileges));
 $toggle_persons->start();
 
@@ -314,8 +315,9 @@ $toggle_persons->end();
 
 ////////// people to add
 if ($privileges) {
+  $count=count($potential_persons);
   $toggle_persons = new PlekitToggle ('my-slice-persons-add',
-				      "People to add to $name",
+				      "$count people may be added to $name",
 				      array('start-visible'=>false));
   $toggle_persons->start();
   if ( ! $potential_persons ) {
@@ -375,8 +377,9 @@ $toggle=new PlekitToggle ('my-slice-nodes',"Nodes",
 $toggle->start();
 
 ////////// nodes currently in
+$count=count($nodes);
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
-			       "Nodes currently in $name",
+			       "$count nodes currently in $name",
 			       array('start-visible'=>!$privileges));
 $toggle_nodes->start();
 
@@ -412,8 +415,9 @@ $toggle_nodes->end();
 
 ////////// nodes to add
 if ($privileges) {
+  $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
-				 "Nodes to add to $name",
+				 "$count more nodes available",
 				 array('start-visible'=>false));
   $toggle_nodes->start();
 

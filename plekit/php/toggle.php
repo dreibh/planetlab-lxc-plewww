@@ -43,6 +43,7 @@ class PlekitToggle {
       $options['start-hidden'] = ! $options['start-visible'];
       unset ($options['start-visible']);
     }
+    if (!isset ($options['start-hidden'])) $options['start-hidden']=false;
     $this->options = $options;
   }
 
@@ -84,8 +85,9 @@ class PlekitToggle {
   function trigger_html () {
     $trigger_id=$this->id_name('trigger');
     if (array_key_exists ('trigger-tagname',$this->options)) $tagname=$this->options['trigger-tagname'];
-    if (array_key_exists ('trigger-bubble',$this->options)) $bubble=$this->options['trigger-bubble'];
     if (empty($tagname)) $tagname="span";
+    $bubble="";
+    if (array_key_exists ('trigger-bubble',$this->options)) $bubble=$this->options['trigger-bubble'];
     
     $html="<$tagname";
     $html .= " id='$trigger_id'";

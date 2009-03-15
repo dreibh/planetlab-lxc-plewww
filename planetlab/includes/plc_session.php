@@ -142,8 +142,10 @@ if (!empty($_SESSION['plc'])) {
   if ($_SESSION['plc']['expires'] > time()) {
     $plc->person = $_SESSION['plc']['person'];
     $plc->api = new PLCAPI($_SESSION['plc']['auth']);
-    $plc->alt_person = $_SESSION['plc']['alt_person'];
-    $plc->alt_auth = $_SESSION['plc']['alt_auth'];
+    if (array_key_exists('alt_person',$_SESSION['plc']))
+      $plc->alt_person = $_SESSION['plc']['alt_person'];
+    if (array_key_exists('alt_auth',$_SESSION['plc']))
+      $plc->alt_auth = $_SESSION['plc']['alt_auth'];
   } else {
     // Destroy PHP session
     session_destroy();

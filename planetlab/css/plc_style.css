@@ -20,6 +20,7 @@ a:hover.expandlink {
     color:#fff
 }
 
+/* -------------------- general */
 body {
     position: relative;
 }
@@ -39,7 +40,7 @@ body {
 .plc-warning a:visited { text-decoration: none; color:white }
 .plc-warning a:hover { text-decoration: none; color:black }
 
-/* styling the planetlab module area */
+/* -------------------- the planetlab module area */
 div.block-planetlab a {
     font-weight:normal;
     font-style:italic;
@@ -47,3 +48,21 @@ div.block-planetlab a {
 /* -------------------- sites */
 .addresses { text-align: center; font-weight: bold; }
 
+/* -------------------- admin search */
+#admin-search-form {
+    text-align: center;
+    padding: 10px;
+}
+
+#admin-search-form input {
+    padding-left : 20 px;
+}
+
+span.tokens {
+    font-weight: bold;
+    font-style: italic;
+}
+
+#admin-search-message {
+    padding: 30px;
+}
