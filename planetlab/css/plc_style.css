@@ -33,7 +33,7 @@ body {
 }
 .plc-error {
     background: red;
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .plc-warning a:link { text-decoration: none; color:white }
@@ -54,8 +54,9 @@ div.block-planetlab a {
     padding: 10px;
 }
 
-#admin-search-form input {
-    padding-left : 20 px;
+#admin-search-form label {
+    font-weight : bold;
+    padding-right: 20px;
 }
 
 span.tokens {

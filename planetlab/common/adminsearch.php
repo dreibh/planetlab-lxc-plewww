@@ -37,7 +37,7 @@ $tokens=split(" ",$pattern);
 ////////////////////
 // from a single search form, extract all tokens entered 
 // and then show all entities that match one of that tokens among
-// nodes - persons - sites - slices
+// persons - sites - slices - nodes
 ////////////////////
 function display_form ($pattern) {
   if ($pattern) {
@@ -50,7 +50,10 @@ function display_form ($pattern) {
   $toggle=new PlekitToggle("admin-search",$title,array('start-visible'=>$visible));
   $toggle->start();
   print <<< EOF
-    <p id='admin-search-message'> This form searches for any entry in the database matching a name fragment, or token. Specifically it searches for persons, slices, nodes or slices. You can specify a space-separated list of tokens, entries matching any token would then get listed.
+<p id='admin-search-message'>
+This form searches for any entry in the database matching a name fragment, or token. <br/>
+Specifically it searches for persons, slices, sites and nodes. <br/>
+You can specify a space-separated list of tokens, all entries matching any token would then get listed.
 </p>
 EOF;
   print "<div id='admin-search-form'>";
@@ -117,10 +120,13 @@ function plc_slice_link ($slice_id) {global $slices_hash; return l_slice_obj($sl
 function plc_site_link ($site_id) {global $sites_hash; return l_site_obj($sites_hash[$site_id]);}
 function plc_node_link ($node_id) {global $nodes_hash; return l_node_obj($nodes_hash[$node_id]);}
 
-function display_persons ($persons) {
+global $table_options;
+$table_options = array('notes_area'=>false);
+
+function display_persons ($persons,$visible) {
   if ( ! $persons) return;
   
-  $toggle=new PlekitToggle('persons-area',"Persons");
+  $toggle=new PlekitToggle('persons-area',"Persons",array('start-visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',
@@ -128,7 +134,8 @@ function display_persons ($persons) {
 		 'sites'=>'string',
 		 'slices'=>'string',
 		 'roles'=>'string');
-  $table=new PlekitTable('persons',$headers,1);
+  global $table_options;
+  $table=new PlekitTable('persons',$headers,1,$table_options);
   $table->start();
   foreach ($persons as $person) {
     $table->row_start();	
@@ -143,10 +150,10 @@ function display_persons ($persons) {
   $toggle->end();
 }
 
-function display_slices ($slices) {
+function display_slices ($slices,$visible) {
   if ( ! $slices) return;
   
-  $toggle=new PlekitToggle('slices-area',"Slices");
+  $toggle=new PlekitToggle('slices-area',"Slices",array('start-visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',
@@ -154,7 +161,8 @@ function display_slices ($slices) {
 		 'site'=>'string',
 		 'persons'=>'string',
 		 'N'=>'string');
-  $table=new PlekitTable('slices',$headers,1);
+  global $table_options;
+  $table=new PlekitTable('slices',$headers,1,$table_options);
   $table->start();
   foreach ($slices as $slice) {
     $table->row_start();	
@@ -173,10 +181,10 @@ function display_slices ($slices) {
   $toggle->end();
 }
 
-function display_sites ($sites) {
+function display_sites ($sites,$visible) {
   if ( ! $sites) return;
   
-  $toggle=new PlekitToggle('sites-area',"Sites");
+  $toggle=new PlekitToggle('sites-area',"Sites",array('start-visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',
@@ -185,7 +193,8 @@ function display_sites ($sites) {
 		 'persons'=>'string',
 		 'slices'=>'string',
 		 'nodes'=>'string');
-  $table=new PlekitTable('sites',$headers,1);
+  global $table_options;
+  $table=new PlekitTable('sites',$headers,1,$table_options);
   $table->start();
   foreach ($sites as $site) {
     $table->row_start();	
@@ -201,17 +210,18 @@ function display_sites ($sites) {
   $toggle->end();
 }
 
-function display_nodes ($nodes) {
+function display_nodes ($nodes,$visible) {
   if ( ! $nodes) return;
   
-  $toggle=new PlekitToggle('nodes-area',"Nodes");
+  $toggle=new PlekitToggle('nodes-area',"Nodes",array('start-visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',
 		 'hostname'=>'string',
 		 'site'=>'string',
 		 'slices'=>'string');
-  $table=new PlekitTable('nodes',$headers,1);
+  global $table_options;
+  $table=new PlekitTable('nodes',$headers,1,$table_options);
   $table->start();
   foreach ($nodes as $node) {
     $table->row_start();	
@@ -220,7 +230,9 @@ function display_nodes ($nodes) {
     global $sites_hash;
     $site=$sites_hash[$node['site_id']];
     $table->cell(l_site_obj($site));
-    $table->cell(plc_vertical_table(array_map("plc_slice_link",$node['slice_ids'])));
+    // same as above, too many entries, just list how many there are
+    //$table->cell(plc_vertical_table(array_map("plc_slice_link",$node['slice_ids'])));
+    $table->cell(count($node['slice_ids']));
     $table->row_end();
   }
   $table->end();
@@ -252,10 +264,26 @@ if ($pattern) {
   $nodes = array_merge ($nodes, generic_search('Nodes','hostname',$tokens));
 
   print "Search results for <span class='tokens'> $pattern </span>\n";
-  if ( !$nodes && !$persons && !$slices && !$sites) {
+
+  // what kind of result have we gotten:
+  // if none : display message and exit
+  // if only one kind of objects : start toggle with visible=true
+  // otherwise start all toggles with visible=false
+  $areas=0;
+  if ($persons) $areas += 1;
+  if ($slices) $areas += 1;
+  if ($sites) $areas += 1;
+  if ($nodes) $areas += 1;
+
+  if ( $areas == 0) {
     plc_warning ("No result found");
     return;
+  } else if ($areas == 1) {
+    $visible=true;
+  } else {
+    $visible=false;
   }
+  
 
   ////////// collect all related objects 
   $rel_person_ids = array();
@@ -295,10 +323,10 @@ if ($pattern) {
   foreach ($rel_nodes as $node) $nodes_hash[$node['node_id']]=$node;
 
   ////////// show results
-  display_persons ($persons);
-  display_slices ($slices);
-  display_sites($sites);
-  display_nodes($nodes);
+  display_persons ($persons,$visible);
+  display_slices ($slices,$visible);
+  display_sites($sites,$visible);
+  display_nodes($nodes,$visible);
 
  }
 
