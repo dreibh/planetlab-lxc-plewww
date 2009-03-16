@@ -30,7 +30,7 @@ URL: http://svn.one-lab.org/svn/new_plc_www/
 #Requires: httpd >= 2.0
 Requires: php >= 5.0
 Requires: postgresql >= 8.0
-Requires: PLCAPI >= 5.0
+Requires: PLCAPI >= 4.3
 Requires: drupal = 4.7
 Requires: plewww-plekit
 
