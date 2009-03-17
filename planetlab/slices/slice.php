@@ -260,9 +260,11 @@ $potential_persons=
   $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
 		   array('email','person_id','first_name','last_name','roles'));
 $show_persons=false;
+$count=count($persons);
+
 if (isset ($_GET['show_persons'])) $show_persons=$_GET['show_persons'];
 $toggle=
-  new PlekitToggle ('my-slice-persons',"Users",
+  new PlekitToggle ('my-slice-persons',"$count Users",
 		    array('trigger-bubble'=>
 			  'Manage accounts attached to this slice',
 			  'start-visible'=>$show_persons));
@@ -273,7 +275,6 @@ $toggle->start();
 // hide if both current+add are included
 // so user can chose which section is of interest
 // show otherwise
-$count=count($persons);
 $toggle_persons = new PlekitToggle ('my-slice-persons-current',
 				    "$count people currently in $name",
 				    array('start-visible'=>!$privileges));
@@ -367,10 +368,11 @@ $toggle->end();
 $node_columns = array('hostname','node_id','arch');
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
+$count=count($nodes);
 
 $show_nodes=true;
 if (isset ($_GET['show_nodes'])) $show_nodes=$_GET['show_nodes'];
-$toggle=new PlekitToggle ('my-slice-nodes',"Nodes",
+$toggle=new PlekitToggle ('my-slice-nodes',"$count Nodes",
 			  array('trigger-bubble'=>
 				'Manage nodes attached to this slice',
 				'start-visible'=>$show_nodes));
