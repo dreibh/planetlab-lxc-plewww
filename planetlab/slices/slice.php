@@ -256,9 +256,12 @@ $toggle->end();
 $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']));
 // just propose to add everyone else, 
 // as regular persons can see only a fraction of the db anyway
-$potential_persons=
-  $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
-		   array('email','person_id','first_name','last_name','roles'));
+if (empty($persons))
+    $potential_persons=$api->GetPersons();
+else
+    $potential_persons=
+        $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
+                         array('email','person_id','first_name','last_name','roles'));
 $show_persons=false;
 $count=count($persons);
 
@@ -367,7 +370,10 @@ $toggle->end();
 // minimal list as a start
 $node_columns = array('hostname','node_id','arch');
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
-$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
+if (empty($nodes))
+    $potential_nodes=$api->GetNodes();
+else
+    $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
 
 $show_nodes=true;
