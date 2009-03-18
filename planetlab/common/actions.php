@@ -67,6 +67,8 @@ $known_actions []= "update-site";
 //	expects:	site_id & name abbreviated_name url latitude longitude [login_base max_slices]
 
 //////////////////////////////////////// slices
+$known_actions []= "delete-slice";
+//      expects:        slice_id
 $known_actions []= "update-slice";	
 //	expects:	slice_id, name, description, url
 $known_actions []= "renew-slice";
@@ -440,6 +442,18 @@ switch ($action) {
  }
 
 //////////////////////////////////////////////////////////// slices
+ case 'delete-slice': {
+   $slice_id = $_POST['slice_id'];
+   $api->DeleteSlice( intval( $slice_id ) );
+   $error= $api->error();
+   if( empty( $error ) ) {
+       drupal_set_message("Deleted slice $slice_id");
+   } else {
+       drupal_set_error($error);
+   }
+   break;
+ }
+     
  case 'update-slice': {
    $slice_id = $_POST['slice_id'];
    $name = $_POST['name'];
