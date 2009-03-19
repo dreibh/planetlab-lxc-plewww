@@ -194,9 +194,6 @@ $adm->GetRoles();
 
 list($sites, $roles) = $adm->commit();
 
-// Alphabetize sites by name
-sort_sites($sites);
-
 // Prepend invalid site to beginning of list to force user to select a site
 $sites = array_merge(array(array('site_id' => -1, 'name' => 'Select a site', 'enabled' => TRUE)), $sites);
 

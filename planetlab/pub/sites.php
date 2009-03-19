@@ -27,7 +27,6 @@ include 'plc_header.php';
 
 // All defined sites
 $sites = $adm->GetSites(array('is_public' => TRUE), array('name', 'url'));
-sort_sites($sites);
 
 foreach ($sites as $site) {
   $name = htmlspecialchars($site['name']);

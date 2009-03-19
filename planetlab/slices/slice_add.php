@@ -10,6 +10,11 @@ global $plc, $api;
 // Common functions
 require_once 'plc_functions.php';
   
+// Print header
+require_once 'plc_drupal.php';
+include 'plc_header.php';
+
+
 // find person roles
 $_person= $plc->person;
 $_roles= $_person['role_ids'];
@@ -127,7 +132,6 @@ if( count( $_person['site_ids'] ) > 1 || in_array( 10, $_roles ) ) {
 
   echo "<tr><th>Site: </th><td><select onchange='update(this[selectedIndex].text)' name='site_id'>\n";
 
-  sort_sites( $site_info );
   foreach( $site_info as $site ) {
     echo "<option value=". $site['site_id'];
     if( $site['site_id'] == $_person['site_ids'][0] )

@@ -45,8 +45,6 @@ else
   $site_info= $api->GetSites( $_person['site_ids'], array( "site_id", "name" ) );
 
 
-sort_sites( $site_info );
-
 // start form
 echo "<from method=post action='switch_site.php?id=$site_id'>\n";
 echo "<h2>Switch Site</h2>\n";
