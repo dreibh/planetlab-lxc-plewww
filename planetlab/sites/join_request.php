@@ -13,7 +13,6 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
 
 // Print header
 require_once 'plc_drupal.php';

@@ -15,7 +15,6 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
 
 // find person roles
 $_person= $plc->person;

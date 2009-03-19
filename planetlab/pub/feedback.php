@@ -12,9 +12,6 @@
 require_once 'plc_session.php';
 global $adm;
 
-// Get sorting functions
-require_once 'plc_sorts.php';
-
 // Print header
 require_once 'plc_drupal.php';
 drupal_set_title('Slice Feedback');

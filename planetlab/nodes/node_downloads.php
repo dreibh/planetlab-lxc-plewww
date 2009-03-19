@@ -38,7 +38,6 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
-require_once 'plc_sorts.php';
 
 // NOTE: this function exits() after it completes its job, 
 // simply returning leads to html decorations being added around the contents

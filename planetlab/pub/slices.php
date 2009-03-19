@@ -12,9 +12,6 @@
 require_once 'plc_session.php';
 global $adm;
 
-// Get sorting functions
-require_once 'plc_sorts.php';
-
 // Get PlanetFlow stats
 global $planetflow, $active_bytes;
 include_once '_gen_planetflow.php';
