@@ -8,4 +8,4 @@ INSERT INTO system (filename, name, type, description, status, throttle, bootstr
 INSERT INTO users(uid,name,mail) VALUES(1,'drupal','');
 
 -- PlanetLab: Replace default user login block with PlanetLab login block
-update blocks set module='planetlab' where module='user' and delta=0;
+update blocks set module='planetlab' where module='user' and delta='0';
