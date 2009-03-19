@@ -12,6 +12,8 @@ require_once 'plc_config.php';
 require_once 'plc_session.php';
 require_once 'plc_functions.php';
 
+drupal_set_html_head('<link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css"/>');
+
 function planetlab_help($section) {
   switch ($section) {
   case 'admin/modules#description':

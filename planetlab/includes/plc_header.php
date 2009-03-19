@@ -10,7 +10,6 @@
 //
 
 require_once 'plc_drupal.php';
-drupal_set_html_head('<link href="/planetlab/css/plc_style.css" rel="stylesheet" type="text/css"/>');
 
 if (!function_exists('drupal_page_header')) {
   $title = drupal_get_title();
