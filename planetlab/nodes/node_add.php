@@ -9,40 +9,45 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'details.php';
+require_once 'form.php';
   
 // if not a admin, pi, or tech then redirect to node index
 // xxx does not take site into account
 $has_privileges=plc_is_admin() || plc_is_pi() || plc_is_tech();
 if( ! $has_privileges) {
+  drupal_set_error ("Unsufficient provileges to add a node");
   header( "index.php" );
 }
 
+//plc_debug('POST',$_POST);
+
 // this sets up which box is to be checked the first time the page is loaded
+// start with static; starting with dhcp does not disable the useless fields
 $method= $_POST['method'];
 if( $method == "" ) $method= "static";
 
 $model= $_POST['model'];
 if( $model == "" ) $model= "Custom";
 
-
-$submitted = false;
-
 // if submitted validate and add
-if ( $_POST['submitted'] )  {
-  $submitted = true;
+// could go in actions.php but OTOH when things fail it's more convenient 
+// to show the current values again
+if ( $_POST['add-node'] )  {
 
   $errors= array();
 
-  $method = trim($_POST['method']);
-  $ip = trim($_POST['ip']);
-  $netmask = trim($_POST['netmask']);
-  $network = trim($_POST['network']);
-  $gateway = trim($_POST['gateway']);
-  $broadcast = trim($_POST['broadcast']);
-  $dns1 = trim($_POST['dns1']);
-  $dns2 = trim($_POST['dns2']);
   $hostname = trim($_POST['hostname']);
   $model= trim($_POST['model']);
+  $ip = trim($_POST['ip']);
+  $method = trim($_POST['method']);
+  $netmask = trim($_POST['netmask']);
+  $network = trim($_POST['network']);
+  $broadcast = trim($_POST['broadcast']);
+  $gateway = trim($_POST['gateway']);
+  $dns1 = trim($_POST['dns1']);
+  $dns2 = trim($_POST['dns2']);
+  $bwlimit = trim($_POST['bwlimit']);
 
   // used to generate error strings for static fields only
   $static_fields= array();
@@ -62,7 +67,7 @@ if ( $_POST['submitted'] )  {
     }
     
     if( !is_valid_network_addr($network,$netmask) ) {
-      $errors[] = "The network address does not coorespond to the netmask";
+      $errors[] = "The network address does not match the netmask";
     }
   }
   
@@ -71,44 +76,57 @@ if ( $_POST['submitted'] )  {
   }
   if( $ip == "" ) {
     $errors[] = "IP is required";
+  } else if ( ! is_valid_ip ($ip)) {
+    $errors []= "Invalid IP $ip";
   }
-  if( count($errors) == 0 ) {
-    $success= 1;
-
+  
+  if( !empty($errors) ) {
+    drupal_set_error(plc_itemize($errors));
+  } else {
     // add new node and its interface
-    $optional_vals= array( "hostname"=>$hostname, "model"=>$model );
+    $node_fields= array( "hostname"=>$hostname, "model"=>$model );
     $site_id= plc_my_site_id();
-    $node_id= $api->AddNode( intval( $site_id ), $optional_vals );
+    $node_id= $api->AddNode( intval( $site_id ), $node_fields );
 
-    if ( $api->error() ) {
-       $errors[] = "Hostname already present or not valid";
-       $success= 0;
+    if ( empty($node_id) || ($node_id < 0) ) {
+      drupal_set_error ("AddNode failed - hostname already present, or not valid ?");
     } else {
       // now, try to add the network.
-      $optional_vals= array();
-      $optional_vals['is_primary']= true;
-      $optional_vals['ip']= $ip;
-      $optional_vals['type']= 'ipv4';
-      $optional_vals['method']= $method;
+      $interface_fields= array();
+      $interface_fields['is_primary']= true;
+      $interface_fields['ip']= $ip;
+      $interface_fields['type']= $_POST['type'];
+      $interface_fields['method']= $method;
+      if (!empty($bwlimit)) 
+	$interface_fields['bwlimit']=$bwlimit;
     
-      if( $method == 'static' ) {
-        $optional_vals['gateway']= $gateway;
-        $optional_vals['network']= $network;
-        $optional_vals['broadcast']= $broadcast;
-        $optional_vals['netmask']= $netmask;
-        $optional_vals['dns1']= $dns1;
-        if (!empty($dns2)) {
-          $optional_vals['dns2']= $dns2;
-        }
+      if ( $method == 'static' ) {
+        $interface_fields['netmask']= $netmask;
+        $interface_fields['network']= $network;
+        $interface_fields['broadcast']= $broadcast;
+        $interface_fields['gateway']= $gateway;
+        $interface_fields['dns1']= $dns1;
+        if (!empty($dns2)) 
+          $interface_fields['dns2']= $dns2;
       }
 
-      $interface_id= $api->AddInterface( $node_id, $optional_vals);
-      // if AddInterface fails, we have the node created,
-      // but no primary interface is present.
-      // The primary interface can be added later,
-      // but take a look at the possible Methods,
-      // if we specify TUN/TAP Method we will have
-      // an error on download of the configuration file
+      $interface_id= $api->AddInterface( $node_id, $interface_fields);
+      if ($interface_id > 0) {
+	drupal_set_message ("Node successfully created");
+	drupal_set_message ("Download a boot image in the 'Download' drop down below");
+	plc_redirect (l_node($node_id));
+      } else {
+	// if AddInterface fails, we have the node created,
+	// but no primary interface is present.
+	// The primary interface can be added later,
+	// but take a look at the possible Methods,
+	// if we specify TUN/TAP Method we will have
+	// an error on download of the configuration file
+	drupal_set_message ("Node created");
+	drupal_set_error ("But without an interface");
+	drupal_set_error ("Please review manually");
+	plc_redirect (l_node($node_id));
+      }
     }
   }
 }
@@ -117,148 +135,72 @@ if ( $_POST['submitted'] )  {
 require_once 'plc_drupal.php';
 include 'plc_header.php';
 
-?>
+// include javacsript helpers
+require_once 'prototype.php';
+drupal_set_html_head ('
+<script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
+');
 
-<script language="javascript">
-function updateStaticFields() {
-  var is_dhcp= document.fm.method[0].checked;
-
-  document.fm.netmask.disabled= is_dhcp;
-  document.fm.network.disabled= is_dhcp;
-  document.fm.gateway.disabled= is_dhcp;
-  document.fm.broadcast.disabled= is_dhcp;
-  document.fm.dns1.disabled= is_dhcp;
-  document.fm.dns2.disabled= is_dhcp;
-}
-</script>
-
-<?php
-
-if ( $success ) {
-  $link=l_node_t($node_id,"here");
-  drupal_set_title('Node created');
-  print <<< EOF
-
-<p>The node has been successfully added.
-
-<p>View node details and download a configuration 
-    file $link.
-EOF;
- } else {
-  $sites=$api->GetSites(array(plc_my_site_id()));
-  $sitename=$sites[0]['name'];
+$sites=$api->GetSites(array(plc_my_site_id()));
+$sitename=$sites[0]['name'];
 		       
-  drupal_set_title('Add a new node in site "' . $sitename . '"');
-  print <<< EOF
+drupal_set_title('Add a new node in site "' . $sitename . '"');
 
-<p>This page will allow you to add a new machine to your site. This must
-be done before the machine is turned on, as it will allow you to download 
-a configuration file when complete for this node.
-
-<p>Even for DHCP, you must enter the IP address of the node.
+print <<< EOF
+<p class='node_add'>
+This page lets you declare a new machine in your site. 
+This must be done before the machine is turned on, as it will allow you to download a boot image when complete for this node.
+<br/>
+You must enter an IP address even if you use DHCP.
+</p>
 EOF;
 
-if( count($errors) > 0 ) {
-  plc_errors ($errors);
-}
+$details=new PlekitDetails($has_privileges);
 
-$self = $_SERVER['PHP_SELF'];
-if (!empty($_SERVER['QUERY_STRING'])) {
-  $self .= "?" . $_SERVER['QUERY_STRING'];
-}
+// xxx hardwire network type for now
+$form_variables = array('type'=>"ipv4");
+//$form=$details->form_start(l_actions(),$form_variables);
+$form=$details->form_start('/db/nodes/node_add.php',$form_variables);
 
-?>
+$details->start();
 
-<form name="fm" method="post" action="<?php echo $self; ?>">
-<input type="hidden" name="submitted" value="1">
+$details->th_td("Hostname",$hostname,"hostname");
+$details->th_td("Model",$model,"model");
+$method_select = $form->select_html ("method",
+				     interface_method_selectors($api,$method,true),
+				     array('id'=>'method',
+					   'onChange'=>'updateMethodFields()'));
+$details->th_td("Method",$method_select,"method",
+		array('input_type'=>'select','value'=>$interface['method']));
 
-<h3>Node Details</h3>
+// dont display the 'type' selector as it contains only ipv4
+//>>> GetNetworkTypes()
+//[u'ipv4']
 
+$details->th_td("IP address",$ip,"ip",array('width'=>15,
+					    'onKeyup'=>'networkHelper()',
+					    'onChange'=>'networkHelper()'));
+$details->th_td("Netmask",$netmask,"netmask",array('width'=>15,
+						   'onKeyup'=>'networkHelper()',
+						   'onChange'=>'networkHelper()'));
+$details->th_td("Network",$network,"network",array('width'=>15));
+$details->th_td("Broadcast",$broadcast,"broadcast",array('width'=>15));
+$details->th_td("Gateway",$gateway,"gateway",array('width'=>15,
+						   'onChange'=>'subnetChecker("gateway",false)'));
+$details->th_td("DNS 1",$dns1,"dns1",array('width'=>15,
+					   'onChange'=>'subnetChecker("dns1",false)'));
+$details->th_td("DNS 2",$dns2,"dns2",array('width'=>15,
+					   'onChange'=>'subnetChecker("dns2",true)'));
+$details->space();
+$details->th_td("BW limit (bps)",$bwlimit,"bwlimit",array('width'=>11));
 
-<input type="hidden" name="submitted" value="1">
+// the buttons
+$add_button = $form->submit_html ("add-node","Add New Node",
+				  array('onSubmit'=>'interfaceSubmit()'));
+$details->tr($add_button,"right");
 
-<table width="100%" cellspacing="0" cellpadding="4" border="0">
-
-<tr>
-<td width=250>Hostname:</td>
-<td><input type="text" name="hostname"
-value="<?php print($hostname); ?>" size="40" maxlength="256"></td>
-</tr>
-
-<tr>
-<td>Model:</td>
-<td><input type="text" name="model"
-value="<?php print($model); ?>" size="40" maxlength="256"></td>
-</tr>
-
-</table>
-
-
-<h3>Interface Settings</h3>
-
-<table width="100%" cellspacing="0" cellpadding="4" border="0">
-
-<tr>
-<td valign='top' width="250">Addressing method</td>
-<td>
-<input type="radio" name="method" value="dhcp" onChange='updateStaticFields()'
-<?php if($method == 'dhcp') { echo "checked"; } ?>>DHCP 
-<input type="radio" name="method" value="static" onChange='updateStaticFields()'
-<?php if($method == 'static') { echo "checked"; } ?>>Static
-</td>
-</tr>
-
-<tr> 
-<td valign='top'>IP address</td>
-<td><input type="text" name="ip" value="<?php print($ip); ?>"></td>
-</tr>
-
-<tr> 
-<td valign='top'>Netmask</font></td>
-<td><input type="text" name="netmask" value="<?php print($netmask); ?>"></td>
-</tr>
-
-<tr> 
-<td valign='top'>Network address</td>
-<td><input type="text" name="network" value="<?php print($network); ?>">
-</td>
-</tr>
-
-<tr> 
-<td valign='top'>Gateway address</td>
-<td><input type="text" name="gateway" value="<?php print($gateway); ?>"></td>
-</tr>
-
-<tr> 
-<td valign='top'>Broadcast address</td>
-<td><input type="text" name="broadcast" value="<?php print($broadcast); ?>">
-</td>
-</tr>
-
-<tr> 
-<td valign='top'>Primary DNS</td>
-<td><input type="text" name="dns1" value="<?php print($dns1); ?>">
-</td>
-</tr>
-
-<tr>
-<td valign='top'>Secondary DNS (optional)</td>
-<td><input type="text" name="dns2" value="<?php print($dns2); ?>">
-</td>
-</tr>
-
-<tr>
-<td></td>
-<td><input type="submit" name="Submit" value="Add"></td>
-</tr>
-
-</table>
-</form>
-
-<?php
-
-}
-
+$details->end();
+$form->end();
 
 // Print footer
 include 'plc_footer.php';

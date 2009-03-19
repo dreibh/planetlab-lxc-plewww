@@ -80,6 +80,7 @@ function same_subnet (ip1,ip2,masklen) {
 }
 
 function networkHelper () {
+  window.console.log('networkHelper');
   var ip=$('ip').value;
   var nm=$('netmask').value;
 

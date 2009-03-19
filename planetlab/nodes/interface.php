@@ -31,10 +31,12 @@ if ( isset ($_GET['id'])) {
   $interfaces=$api->GetInterfaces(array('interface_id'=>$interface_id));
   $interface=$interfaces[0];
   $node_id=$interface['node_id'];
+  $title=('Updating interface ' . $interface['ip']);
  } else if (isset ($_GET['node_id'])) {
   $mode='add';
   $interface=array();
   $node_id=$_GET['node_id'];
+  $title=('Adding interface');
  } 
 // check
 if ( ! $node_id) {
@@ -58,10 +60,11 @@ $site_id=$node['site_id'];
 
 $can_update= plc_is_admin() || ( plc_in_site ($site_id) && ( plc_is_pi() || plc_is_tech()));
 
-drupal_set_title("Interface on " . $node['hostname']);
+drupal_set_title($title . " on " . $node['hostname']);
 
 // include javacsript helpers
-drupal_set_title ('
+require_once 'prototype.php';
+drupal_set_html_head ('
 <script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
 ');
 
@@ -74,20 +77,8 @@ $form=$details->form_start(l_actions(),$form_variables);
 
 $details->start();
 
-//>>> GetNetworkMethods()
-//[u'static', u'dhcp', u'proxy', u'tap', u'ipmi', u'unknown']
-function method_selectors ($api, $method) {
-  $builtin_methods=array("static"=>"Static", "dhcp"=>"DHCP", "proxy"=>"Proxy",  
-			 "tap"=>"TUN/TAP", "ipmi"=>"IPMI");
-  $selectors=array();
-  foreach ($builtin_methods as $value=>$display) {
-    $selector=array('display'=>$display, 'value'=>$value);
-    if ($value == $method) $selector['selected']=true;
-    $selectors []= $selector;
-  }
-  return $selectors;
-}
-$method_select = $form->select_html ("method",method_selectors($api,$interface['method']),
+$method_select = $form->select_html ("method",
+				     interface_method_selectors($api,$interface['method'],false),
 				     array('id'=>'method','onChange'=>'updateMethodFields()'));
 $details->th_td("Method",$method_select,"method",array('input_type'=>'select','value'=>$interface['method']));
 
@@ -112,7 +103,7 @@ $details->th_td("DNS 2",$interface['dns2'],"dns2",array('width'=>15,
 $details->space();
 $details->th_td("BW limit (bps)",$interface['bwlimit'],"bwlimit",array('width'=>11));
 $details->th_td("Hostname",$interface['hostname'],"hostname");
-# should the user be allowed to change this ?
+# xxx should the user be allowed to change this ?
 $mac=$interface['mac'];
 if ($mac) $details->th_td("MAC address",$mac);
 

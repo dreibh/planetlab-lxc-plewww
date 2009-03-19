@@ -195,7 +195,7 @@ if ( $local_peer  && $privileges) {
   $selectors = array( 
 		     array("display"=>"-- All in one images --","disabled"=>true),
 		     array("value"=>"download-node-iso","display"=>"Download ISO image for $hostname"),
-		     array("value"=>"download-node-usb","display"=>"Download USB image for $hostname<"),
+		     array("value"=>"download-node-usb","display"=>"Download USB image for $hostname"),
 		     array("display"=>"-- Floppy + generic image --","disabled"=>true),
 		     array("value"=>"download-node-floppy","display"=>"Download Floppy file for $hostname"),
 		     array("value"=>"download-generic-iso","display"=>"Download generic ISO image (requires floppy)"),
@@ -230,6 +230,8 @@ if ( $local_peer ) {
   
   $tags=$api->GetNodeTags (array('node_id'=>$node_id));
   function get_tagname ($tag) { return $tag['tagname'];}
+  // xxx looks like tech-only see an error here, 
+  // might be that GetNodeTags is not accessible or something
   $tagnames = array_map ("get_tagname",$tags);
   $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
   
@@ -349,7 +351,7 @@ if ( $local_peer ) {
     if ($privileges) {
       $table->tfoot_start();
       $table->row_start();
-      $add_button=new PlekitFormButton (l_interface_add($node_id),"add_interface","Add interface","GET");
+      $add_button=new PlekitFormButton (l_interface_add($node_id),"add","Add Interface","GET");
       // we should have 6 cols, use 3 for the left (new) and the rest for the right (remove)
       $table->cell($add_button->html(), 3,"left");
       $table->cell($form->submit_html("delete-interfaces","Remove Interfaces"), $table->columns()-3,"right");

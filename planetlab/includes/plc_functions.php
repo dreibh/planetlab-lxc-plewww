@@ -291,7 +291,6 @@ function t_person ($person) { return " belonging to " . $person['email'] . " (" 
 
 //////////////////////////////////////////////////////////// html fragments
 function plc_vertical_table ($messages, $class="") {
-  // pretty print the cell
   if ( empty( $messages) ) return "";
   $formatted = "";
   $formatted .= "<table";
@@ -301,6 +300,18 @@ function plc_vertical_table ($messages, $class="") {
     $formatted .= "<tr><td>" . $message . "</td></tr>";
   }
   $formatted .= "</table>";
+  return $formatted;
+}
+function plc_itemize ($messages, $class="") {
+  if ( empty( $messages) ) return "";
+  $formatted = "";
+  $formatted .= "<ul";
+  if ($class) $formatted .= " class='" . $class . "'";
+  $formatted .= ">";
+  foreach ($messages as $message) {
+    $formatted .= "<li>" . $message . "</li>";
+  }
+  $formatted .= "</ul>";
   return $formatted;
 }
 
@@ -385,4 +396,26 @@ function plc_redirect ($url) {
   exit ();
 }
 
+//////////////////// the options for an interface - suitable for plekit/form
+//>>> GetNetworkMethods()
+//[u'static', u'dhcp', u'proxy', u'tap', u'ipmi', u'unknown']
+function interface_method_selectors ($api, $method, $primary) {
+  if ($primary) {
+    $builtin_methods=array("static"=>"Static",
+			   "dhcp"=>"DHCP");
+  } else {
+    $builtin_methods=array("static"=>"Static",
+			   "dhcp"=>"DHCP", 
+			   "proxy"=>"Proxy",  
+			   "tap"=>"TUN/TAP",
+			   "ipmi"=>"IPMI");
+  }
+  $selectors=array();
+  foreach ($builtin_methods as $value=>$display) {
+    $selector=array('display'=>$display, 'value'=>$value);
+    if ($value == $method) $selector['selected']=true;
+    $selectors []= $selector;
+  }
+  return $selectors;
+}
 ?>

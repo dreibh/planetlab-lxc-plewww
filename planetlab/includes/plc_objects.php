@@ -23,8 +23,8 @@ function timeDiff ($timestamp,$detailed=false,$n = 0) {
   $lengths = array(1, 60, 3600, 86400, 604800, 2630880, 31570560, 315705600);
 
 # Go from decades backwards to seconds
-  $i = sizeof($lengths) - 1;				 # Size of the lengths / periods in case you change them
-  $time = "";												# The string we will hold our times in
+  $i = sizeof($lengths) - 1;				# Size of the lengths / periods in case you change them
+  $time = "";						# The string we will hold our times in
   while($i >= $n) {
 # if the difference is greater than the length we are checking... continue
     if ($diff > $lengths[$i-1]) {				
