@@ -1,3 +1,4 @@
+
 <?php
 // $Id$
 //
@@ -328,7 +329,7 @@ EOF;
 
 // Do not allow resubmits
 if (empty($person['person_id'])) {
-  print '<tr><td colspan='2'><input type="submit" name="op" value="Register"  class="form-submit" /></td></tr>';
+  print '<tr><td colspan="2"><input type="submit" name="op" value="Register"  class="form-submit" /></td></tr>';
 }
 
 print <<<EOF
