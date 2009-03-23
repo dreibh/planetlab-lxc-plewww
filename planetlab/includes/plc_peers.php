@@ -4,6 +4,8 @@
 
 require_once 'plc_functions.php';
 
+drupal_set_html_head('<link href="/planetlab/css/plc_peers.css" rel="stylesheet" type="text/css"/>');
+
 // all known peers hashed on peer_id
 class Peers {
   var $hash;
@@ -69,28 +71,38 @@ class Peers {
   }
 
   function classname ($peer_id) {
-    if ( ! $peer_id) 
-      return "";
-    $peer = $this->peer ($peer_id);
-    $shortname=$peer['shortname'];
-    return "plc-$shortname";
+    $shortname=strtolower($this->shortname($peer_id));
+    return "peer-$shortname";
   }
   
   function block_start ($peer_id) {
-    // to set the background to grey on foreign objects
-    // return true if the peer is local 
-    if ( ! $peer_id ) {
-      print "<div class=\"nifty-large plc-local\">";
-    } else {
-      $classname=strtolower($this->classname($peer_id));
-      // set two classes, one generic to all foreign, and one based on the peer's shortname for finer grain tuning
-      printf ("<div class=\"nifty-medium plc-foreign %s\">",$classname);
-    }
+    // start a <div> element with 2 classes:
+    // (1) generic:  is either peer-local or peer-foreign
+    // (2) specific: is peer-<shortname> based on the plc's shortname
+    // e.g. at PLE we'd get <div class='peer-local peer-ple'>
+    // or		    <div class='peer-local peer-plc'>
+    // see plc_styles.css for how to have the more specific ones override the generic one
+    if ( ! $peer_id ) 
+      $generic='peer-local';
+    else
+      $generic='peer-foreign';
+    $specific=$this->classname($peer_id);
+    // add nifty-big for the rounded corner
+    printf ("<div class='$generic $specific nifty-big'>");
   }
 
   function block_end ($peer_id) {
     print "</div>\n";
   }
+
+  // writes a cell in the table with the peer's shortname, link to the peer page, 
+  // and classname set for proper background
+  function cell ($table, $peer_id) {
+    $shortname = $this->shortname($peer_id);
+    $table->cell ($this->link($peer_id,$shortname),array('class'=>'peer-'.strtolower($shortname)));
+  }
+    
+  
 }
 
 ////////////////////////////////////////////////////////////

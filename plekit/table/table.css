@@ -91,12 +91,13 @@ table.plekit_table>tbody>tr>td [class~="alt"] {
 }
 /* Poor old Internet Explorer won't see the next two rules either as it doesn't get :first-child */
 table.plekit_table>tbody>tr.alt>td:first-child {
-    background: #F5FAFA url(/plekit/icons/tablesort-bullet2.gif) no-repeat;
-    font-weight:bold;
+    background-color: #F5FAFA;
+    background-image: url(/plekit/icons/tablesort-bullet2.gif);
+    background-repeat: no-repeat;
 }
 table.plekit_table>tbody>tr>td:first-child {
-    background: #fff url(/plekit/icons/tablesort-bullet1.gif) no-repeat;
-    font-weight:bold;
+    background-image: url(/plekit/icons/tablesort-bullet1.gif);
+    background-repeat: no-repeat;
 }
 
 /* table decorations */
@@ -255,6 +256,6 @@ ul.fdtablePaginater {text-align:center;}
 /*table.plekit_table { border-bottom:1px solid #C1DAD7; }*/
 
 .search_input:focus ,.pagesize_input:focus {
-    background-color: #aaa;
+    background-color: #8cd;
     outline-color: #696;
 }

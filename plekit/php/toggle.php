@@ -21,27 +21,28 @@ drupal_set_html_head('
 // (*) trigger:	the html text for the trigger
 // (*) options:	a hash that can define
 //	- trigger-tagname : to be used instead of <span> for wrapping the trigger
-//	- trigger-bubble : might not work if trigger-tagname is redefined
+//	- bubble : might not work if trigger-tagname is redefined
 //	- init-hidden : start hidden rather than visible
 // 
 // methods are as follows
 // (*) trigger_html ():	return the html code for the trigger
 // (*) image_html ():	returns the html code for the image
-// (*) area_start ():	because we have too many places where php 'prints' code instead 
+// (*) area_start ():	because we have too many places where php 'prints' code: instead 
 // (*) area_end():	  of returning it, we do not expect the code for the area to be passed
 //			  so these methods can be used to delimit the area in question
 
 class PlekitToggle {
   // mandatory
   var $id;
+  var $nifty;
 
   function PlekitToggle ($id,$trigger,$options=NULL) {
     $this->id = $id;
     $this->trigger=$trigger;
     if ( ! $options ) $options = array();
-    if (array_key_exists ('start-visible',$options)) {
-      $options['start-hidden'] = ! $options['start-visible'];
-      unset ($options['start-visible']);
+    if (array_key_exists ('visible',$options)) {
+      $options['start-hidden'] = ! $options['visible'];
+      unset ($options['visible']);
     }
     if (!isset ($options['start-hidden'])) $options['start-hidden']=false;
     $this->options = $options;
@@ -87,7 +88,7 @@ class PlekitToggle {
     if (array_key_exists ('trigger-tagname',$this->options)) $tagname=$this->options['trigger-tagname'];
     if (empty($tagname)) $tagname="span";
     $bubble="";
-    if (array_key_exists ('trigger-bubble',$this->options)) $bubble=$this->options['trigger-bubble'];
+    if (array_key_exists ('bubble',$this->options)) $bubble=$this->options['bubble'];
     
     $html="<$tagname";
     $html .= " id='$trigger_id'";
@@ -122,15 +123,12 @@ class PlekitToggle {
   function container_start ()		{ print $this->container_start_html(); }
   function container_start_html ()	{ 
     $id=$this->id_name('container');
-
-    $html="<div class='plc-toggle-container nifty-medium'";
-    $html .= " id='$id'";
-    $html .= ">";
-    return $html;
+    $this->nifty=new PlekitNifty ($id,'plc-toggle-container','medium');
+    return $this->nifty->start_html();
   }
 
   function container_end ()		{ print $this->container_end_html(); }
-  function container_end_html ()	{ return "</div>"; }
+  function container_end_html ()	{ return $this->nifty->end_html(); }
 
   // build id names
   function id_name ($zonename) { return "toggle-$zonename-$this->id"; }

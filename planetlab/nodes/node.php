@@ -136,7 +136,8 @@ plekit_linetabs($tabs);
 $peers->block_start ($peer_id);
   
 $toggle = new PlekitToggle ('node',"Details",
-			    array('trigger-bubble'=>'Display and modify details for that node'));
+			    array('bubble'=>'Display and modify details for that node',
+				  'visible'=>get_arg('show_details',true)));
 $toggle->start();
 
 $details=new PlekitDetails($privileges);
@@ -223,9 +224,42 @@ $toggle->end();
 $form=new PlekitForm (l_actions(), array('node_id'=>$node_id));
 $form->start();
 
+//////////////////////////////////////////////////////////// slivers
+{
+  $toggle=new PlekitToggle ('slices',count_english_warning($slices,'sliver'),
+			    array('bubble'=>'Review slices running on that node',
+				  'visible'=>get_arg('show_slices',false)));
+  $toggle->start();
+  if ( ! $slices  ) {
+    plc_warning ("This node is not associated to any slice");
+  } else {
+    $headers=array();
+    $headers['Peer']="string";
+    $headers['Name']="string";
+    $headers['Sliver']="string";
+    $reasonable_page=10;
+    $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
+    if (count ($slices) <= $reasonable_page) {
+      $table_options['search_area']=false;
+      $table_options['pagesize_area']=false;
+    }
+    $table=new PlekitTable("node_slices",$headers,1,$table_options);
+    $table->start();
+
+    foreach ($slices as $slice) {
+      $table->row_start();
+      $table->cell ($peers->shortname($peer_id));
+      $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
+      $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
+      $table->row_end();
+    }
+    $table->end();
+  }
+  $toggle->end();
+}
+
 //////////////////////////////////////////////////////////// Tags
 // tags section
-$show_tags = (plc_is_admin());
 if ( $local_peer ) {
   
   $tags=$api->GetNodeTags (array('node_id'=>$node_id));
@@ -235,9 +269,9 @@ if ( $local_peer ) {
   $tagnames = array_map ("get_tagname",$tags);
   $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
   
-  $toggle = new PlekitToggle ('tags',"Tags",
-			      array('trigger-bubble'=>'Inspect and set tags on that node',
-				    'start-visible'=>$show_tags));
+  $toggle = new PlekitToggle ('tags',count_english_warning($tags,'tag'),
+			      array('bubble'=>'Inspect and set tags on that node',
+				    'visible'=>get_arg('show_tags',false)));
   $toggle->start();
 
   $headers=array("Name"=>"string",
@@ -271,7 +305,7 @@ if ( $local_peer ) {
     $table->row_start();
     $table->cell($form->submit_html("delete-node-tags","Remove Tags"),
 		 // use the whole columns and right adjust
-		 $table->columns(), "right");
+		 array('hfill'=>true,'align'=>'right'));
     $table->row_end();
 
     // set tag area
@@ -283,7 +317,7 @@ if ( $local_peer ) {
     $selector=array_map("tag_selector",$all_tags);
     $table->cell($form->select_html("tag_type_id",$selector,array('label'=>"Choose")));
     $table->cell($form->text_html("value","",array('width'=>8)));
-    $table->cell($form->submit_html("set-tag-on-node","Set Tag"),2,"left");
+    $table->cell($form->submit_html("set-tag-on-node","Set Tag"),array('columns'=>2,'align'=>'left'));
     $table->row_end();
   }
   
@@ -293,9 +327,9 @@ if ( $local_peer ) {
 
 //////////////////////////////////////////////////////////// interfaces
 if ( $local_peer ) {
-  $toggle=new PlekitToggle ('interfaces',"Interfaces",
-			    array('trigger-bubble'=>'Inspect and tune interfaces on that node',
-				  'start-hidden'=>true));
+  $toggle=new PlekitToggle ('interfaces',count_english_warning($interfaces,'interfaces'),
+			    array('bubble'=>'Inspect and tune interfaces on that node',
+				  'visible'=>get_arg('show_interfaces',false)));
   $toggle->start();
   // display interfaces
   if( ! $interfaces ) {
@@ -353,50 +387,15 @@ if ( $local_peer ) {
       $table->row_start();
       $add_button=new PlekitFormButton (l_interface_add($node_id),"add","Add Interface","GET");
       // we should have 6 cols, use 3 for the left (new) and the rest for the right (remove)
-      $table->cell($add_button->html(), 3,"left");
-      $table->cell($form->submit_html("delete-interfaces","Remove Interfaces"), $table->columns()-3,"right");
+      $table->cell($add_button->html(),array('columns'=> 3,'align'=>'left'));
+      $table->cell($form->submit_html("delete-interfaces","Remove Interfaces"), 
+		   array('columns'=>$table->columns()-3,'align'=>'right'));
       $table->row_end();
     }
     $table->end();
   }
   $toggle->end();
  }
-
-//////////////////////////////////////////////////////////// slices
-// display slices
-
-{
-  $toggle=new PlekitToggle ('slices',"Slices",
-			    array('trigger-bubble'=>'Review slices running on that node',
-				  'start-hidden'=>true));
-  $toggle->start();
-  if ( ! $slices  ) {
-    plc_warning ("This node is not associated to any slice");
-  } else {
-    $headers=array();
-    $headers['Peer']="string";
-    $headers['Name']="string";
-    $headers['Slivers']="string";
-    $reasonable_page=10;
-    $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
-    if (count ($slices) <= $reasonable_page) {
-      $table_options['search_area']=false;
-      $table_options['pagesize_area']=false;
-    }
-    $table=new PlekitTable("node_slices",$headers,1,$table_options);
-    $table->start();
-
-    foreach ($slices as $slice) {
-      $table->row_start();
-      $table->cell ($peers->shortname($peer_id));
-      $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
-      $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
-      $table->row_end();
-    }
-    $table->end();
-  }
-  $toggle->end();
-}
 
 $form->end();
 

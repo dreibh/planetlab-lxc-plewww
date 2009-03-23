@@ -18,6 +18,9 @@ require_once 'plc_functions.php';
 require_once 'plc_peers.php';
 require_once 'linetabs.php';
 require_once 'table.php';
+require_once 'nifty.php';
+
+ini_set("memory_limit","48M");
 
 // -------------------- 
 // recognized URL arguments
@@ -53,7 +56,7 @@ function node_status ($node) {
 
 
 // fetch nodes 
-$node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id', "arch");
+$node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id', 'arch','slice_ids');
 // server-side filtering - set pattern in $_GET for filtering on hostname
 if ($pattern) {
   $node_filter['hostname']=$pattern;
@@ -122,7 +125,9 @@ if ( ! $nodes ) {
   return;
  }
   
-$headers = array ("Peer"=>"string",
+$nifty=new PlekitNifty ('','objects-list','big');
+$nifty->start();
+$headers = array ("P"=>"string",
 		  "Region"=>"string",
 		  "Site"=>"string",
 		  "State"=>"string",
@@ -130,6 +135,7 @@ $headers = array ("Peer"=>"string",
 		  "IP"=>"IPAddress",
 		  "Type"=>"string",
 		  "Arch"=>"string",
+		  "S"=>'int',
 		  "?"=>"string",
 		  );
 
@@ -149,11 +155,10 @@ foreach ($nodes as $node) {
   $ip=$interface_hash[$node['node_id']]['ip'];
   $interface_id=$interface_hash[$node['node_id']]['interface_id'];
   $peer_id=$node['peer_id'];
-  $shortname = $peers->shortname($peer_id);
   $node_type = $node['node_type'];
   
   $table->row_start();
-  $table->cell ($peers->link($peer_id,$shortname));
+  $peers->cell ($table,$peer_id);
   $table->cell (topdomain($hostname));
   $table->cell (l_site_t($site_id,$login_base));
   $table->cell ($node['boot_state']);
@@ -161,12 +166,15 @@ foreach ($nodes as $node) {
   $table->cell (l_interface_t($interface_id,$ip));
   $table->cell ($node_type);
   $table->cell ($node['arch']);
+  $table->cell (count($node['slice_ids']));
   $table->cell (node_status($node));
   $table->row_end();
   
 }
 
-$table->end();
+$notes=array("S = number of slivers");
+$table->end(array('notes'=>$notes));
+$nifty->end();
 
 //plekit_linetabs ($tabs,"bottom");
 

@@ -8,5 +8,10 @@ table.plc_details {
 
 table.plc_details>tbody>tr>th {
     text-align: right;
+    font: italic 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+}
+
+table.plc_details>tbody>tr>td {
     font: 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+    padding: 3px 8px 3px 8px;
 }

@@ -131,7 +131,8 @@ if ($mode == 'add') return;
 
 
 //////////////////////////////////////// tags
-$toggle=new PlekitToggle ('tags','Tags');
+$toggle=new PlekitToggle ('tags','Tags',
+			  array('visible'=>get_arg('show_tags',false)));
 $toggle->start();
 
 $form = new PlekitForm (l_actions(),array('interface_id'=>$interface_id));
@@ -166,7 +167,7 @@ if ($can_update) {
   $table->row_start();
   $table->cell($form->submit_html("delete-interface-tags","Remove Tags"),
 	       // use the whole columns and right adjust
-	       $table->columns(), "right");
+	       array('hfill'=>true,'align'=>'right'));
   $table->row_end();
 
   // set tag area
@@ -178,6 +179,7 @@ if ($can_update) {
   $selector=array_map("tag_selector",$all_tags);
   $table->cell($form->select_html("tag_type_id",$selector,array('label'=>"Choose")));
   $table->cell($form->text_html("value","",array('width'=>8)));
+  //cell-xxx
   $table->cell($form->submit_html("set-tag-on-interface","Set Tag"),2,"left");
   $table->row_end();
  }

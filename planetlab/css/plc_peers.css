@@ -1,0 +1,30 @@
+/* $Id$ */
+
+/* rounded corner around lists (all nodes, all sites, ..) */
+div.objects-list {
+    background-color: #f0f0f0 ;
+} 
+
+/* -------------------- foreign objects */
+/* default for foreign objects */
+.peer-foreign {
+    background:  #808080;
+}
+
+/* -------------------- PLC is bluish */
+div.peer-plc {
+    background-color:  #0e5e95;
+}
+table.plekit_table>tbody>tr>td.peer-plc a {
+    font-weight: bold;
+    color:  #0e5e95;
+}
+    
+/* -------------------- PLE is redish */
+div.peer-ple {
+    background-color: #6e1c19; 
+}
+table.plekit_table>tbody>tr>td.peer-ple a {
+    font-weight: bold;
+    color:  #6e1c19;
+}

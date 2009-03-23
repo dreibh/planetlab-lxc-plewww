@@ -21,6 +21,7 @@ require_once 'plc_functions.php';
 require_once 'plc_peers.php';
 require_once 'linetabs.php';
 require_once 'table.php';
+require_once 'nifty.php';
 
 // -------------------- 
 // recognized URL arguments
@@ -101,6 +102,8 @@ if ( ! $slices ) {
   return;
  }
   
+$nifty=new PlekitNifty ('','objects-list','big');
+$nifty->start();
 $headers = array ("Peer"=>"string",
 		  "Name"=>"string",
 		  "Users"=>"string",
@@ -131,7 +134,9 @@ foreach ($slices as $slice) {
   $table->row_end();
 }
 
-$table->end();
+$notes=array("U = number of users / N = number of nodes");
+$table->end(array('notes'=>$notes));
+$nifty->end();
 
 //plekit_linetabs ($tabs,"bottom");
 

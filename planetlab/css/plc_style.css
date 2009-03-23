@@ -25,10 +25,8 @@ body {
     position: relative;
 }
 
-.plc-foreign {
-    background:  #e0e0e0;
-}
 .plc-warning {
+    padding: 4px;
     background:  #ffa223; 
 }
 .plc-error {
@@ -74,3 +72,10 @@ p.node_add {
     text-align: center;
     font-size: larger;
 }
+
+/* some air around the list tables */
+table#sites, table#persons, table#nodes, table#slices {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+    

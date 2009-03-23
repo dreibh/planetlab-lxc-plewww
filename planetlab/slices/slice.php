@@ -102,9 +102,9 @@ function renew_area ($slice,$site,$visible) {
   // description and url must be non void
   $toggle=
     new PlekitToggle('renew',"Renew this slice",
-		     array("trigger-bubble"=>
+		     array("bubble"=>
 			   "Enter this zone if you wish to renew your slice",
-			   'start-visible'=>$visible));
+			   'visible'=>$visible));
   $toggle->start();
 
   // xxx message could take roles into account
@@ -174,9 +174,14 @@ EOF;
 }
 
 ////////// 
-drupal_set_title("My slice " . $name);
 
 $am_in_slice = in_array(plc_my_person_id(),$person_ids);
+
+if ($am_in_slice) {
+  drupal_set_title("My slice " . $name);
+ } else {
+  drupal_set_title("Slice " . $name);
+}
 
 $privileges = ( $local_peer && (plc_is_admin()  || $am_in_slice));
 
@@ -215,13 +220,18 @@ if ($local_peer ) {
 
 
 //////////////////// details
-$show_details=false;
-if (isset ($_GET['show_details'])) $show_details=$_GET['show_details'];
+// default for opening the details section or not ?
+if ($local_peer) {
+  $default_show_details = true;
+ } else {
+  $default_show_details = ! $renew_visible;
+ }
+  
 $toggle = 
   new PlekitToggle ('my-slice-details',"Details",
-		    array('trigger-bubble'=>
+		    array('bubble'=>
 			  'Display and modify details for that slice',
-			  'start-visible'=>$show_details));
+			  'visible'=>get_arg('show_details',$default_show_details)));
 $toggle->start();
 
 $details=new PlekitDetails($privileges);
@@ -262,15 +272,13 @@ else
     $potential_persons=
         $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
                          array('email','person_id','first_name','last_name','roles'));
-$show_persons=false;
 $count=count($persons);
 
-if (isset ($_GET['show_persons'])) $show_persons=$_GET['show_persons'];
 $toggle=
   new PlekitToggle ('my-slice-persons',"$count Users",
-		    array('trigger-bubble'=>
+		    array('bubble'=>
 			  'Manage accounts attached to this slice',
-			  'start-visible'=>$show_persons));
+			  'visible'=>get_arg('show_persons',false)));
 $toggle->start();
 
 ////////// people currently in
@@ -280,7 +288,7 @@ $toggle->start();
 // show otherwise
 $toggle_persons = new PlekitToggle ('my-slice-persons-current',
 				    "$count people currently in $name",
-				    array('start-visible'=>!$privileges));
+				    array('visible'=>get_arg('show_persons_current',!$privileges)));
 $toggle_persons->start();
 
 $headers=array();
@@ -311,7 +319,7 @@ if ($privileges) {
 
   $table->row_start();
   $table->cell($form->submit_html ("remove-persons-from-slice","Remove selected"),
-	       $table->columns(),"right");
+	       array('hfill'=>true,'align'=>'right'));
   $table->row_end();
  }
 $table->end();
@@ -322,7 +330,7 @@ if ($privileges) {
   $count=count($potential_persons);
   $toggle_persons = new PlekitToggle ('my-slice-persons-add',
 				      "$count people may be added to $name",
-				      array('start-visible'=>false));
+				      array('visible'=>get_arg('show_persons_add',false)));
   $toggle_persons->start();
   if ( ! $potential_persons ) {
     // xxx improve style
@@ -357,7 +365,7 @@ if ($privileges) {
     $table->tfoot_start();
     $table->row_start();
     $table->cell($form->submit_html ("add-persons-in-slice","Add selected"),
-		 $table->columns(),"right");
+		 array('hfill'=>true,'align'=>'right'));
     $table->row_end();
     $table->end();
     $form->end();
@@ -376,19 +384,17 @@ else
     $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
 
-$show_nodes=true;
-if (isset ($_GET['show_nodes'])) $show_nodes=$_GET['show_nodes'];
 $toggle=new PlekitToggle ('my-slice-nodes',"$count Nodes",
-			  array('trigger-bubble'=>
+			  array('bubble'=>
 				'Manage nodes attached to this slice',
-				'start-visible'=>$show_nodes));
+				'visible'=>get_arg('show_nodes',false)));
 $toggle->start();
 
 ////////// nodes currently in
 $count=count($nodes);
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
 			       "$count nodes currently in $name",
-			       array('start-visible'=>!$privileges));
+			       array('visible'=>get_arg('show_nodes_current',!$privileges)));
 $toggle_nodes->start();
 
 $headers=array();
@@ -415,7 +421,7 @@ if ($privileges) {
 
   $table->row_start();
   $table->cell($form->submit_html ("remove-nodes-from-slice","Remove selected"),
-	       $table->columns(),"right");
+	       array('hfill'=>true,'align'=>'right'));
   $table->row_end();
  }
 $table->end();
@@ -426,7 +432,7 @@ if ($privileges) {
   $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
 				 "$count more nodes available",
-				 array('start-visible'=>false));
+				 array('visible'=>get_arg('show_persons_add',false)));
   $toggle_nodes->start();
 
   if ( ! $potential_nodes ) {
@@ -457,7 +463,7 @@ if ($privileges) {
     $table->tfoot_start();
     $table->row_start();
     $table->cell($form->submit_html ("add-nodes-in-slice","Add selected"),
-		 $table->columns(),"right");
+		 array('hfill'=>true,'align'=>'right'));
     $table->row_end();
     $table->end();
     $form->end();

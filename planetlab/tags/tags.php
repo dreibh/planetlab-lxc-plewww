@@ -86,7 +86,7 @@ if (plc_is_admin()) {
 
   $table->row_start();
   $table->cell($form->submit_html ("delete-tag-types","Remove tags"),
-	       $table->columns(),"right");
+	       array('hfill'=>true,'align'=>'right'));
   $table->row_end();
 
   // an inline area to add a tag type

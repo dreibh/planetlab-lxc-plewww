@@ -47,7 +47,7 @@ function display_form ($pattern) {
     $title="Search for what";
     $visible=true;
   }
-  $toggle=new PlekitToggle("admin-search",$title,array('start-visible'=>$visible));
+  $toggle=new PlekitToggle("admin-search",$title,array('visible'=>$visible));
   $toggle->start();
   print <<< EOF
 <p id='admin-search-message'>
@@ -126,7 +126,7 @@ $table_options = array('notes_area'=>false);
 function display_persons ($persons,$visible) {
   if ( ! $persons) return;
   
-  $toggle=new PlekitToggle('persons-area',"Persons",array('start-visible'=>$visible));
+  $toggle=new PlekitToggle('persons-area',"Persons",array('visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',
@@ -153,7 +153,7 @@ function display_persons ($persons,$visible) {
 function display_slices ($slices,$visible) {
   if ( ! $slices) return;
   
-  $toggle=new PlekitToggle('slices-area',"Slices",array('start-visible'=>$visible));
+  $toggle=new PlekitToggle('slices-area',"Slices",array('visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',
@@ -184,7 +184,7 @@ function display_slices ($slices,$visible) {
 function display_sites ($sites,$visible) {
   if ( ! $sites) return;
   
-  $toggle=new PlekitToggle('sites-area',"Sites",array('start-visible'=>$visible));
+  $toggle=new PlekitToggle('sites-area',"Sites",array('visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',
@@ -213,7 +213,7 @@ function display_sites ($sites,$visible) {
 function display_nodes ($nodes,$visible) {
   if ( ! $nodes) return;
   
-  $toggle=new PlekitToggle('nodes-area',"Nodes",array('start-visible'=>$visible));
+  $toggle=new PlekitToggle('nodes-area',"Nodes",array('visible'=>$visible));
   $toggle->start();
 
   $headers=array('id'=>'int',

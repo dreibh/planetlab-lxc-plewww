@@ -93,7 +93,7 @@ if ($local_peer && $privileges)
 			     'confirm'=>"Are you sure you want to enable $first_name $last_name");
 
 // become
-if (plc_is_admin() && ! $is_my_account) 
+if (plc_is_admin() && ! $is_my_account && $local_peer) 
   $tabs['Become'] = array('method'=>'POST',
 			  'url'=>l_actions(),
 			  'values'=>array('action'=>'become-person',
@@ -102,7 +102,7 @@ if (plc_is_admin() && ! $is_my_account)
 			  'confirm'=>"Are you sure you want to su $first_name $last_name");
     
 // delete
-if ($local_peer && $privileges) 
+if ($local_peer && $privileges && $local_peer) 
   $tabs['Delete'] = array ('method'=>'POST',
 			   'url'=>l_actions(),
 			   'values'=> array ('person_id'=>$person_id,
@@ -129,8 +129,8 @@ if ( ! $enabled ) $enabled_label = plc_warning_html("Disabled");
 $can_update = (plc_is_admin() && $local_peer) || $is_my_account;
 
 $toggle = new PlekitToggle ('person',"Details",
-			    array('trigger-bubble'=>'Display and modify details for that account',
-				  'start-visible'=>false));
+			    array('bubble'=>'Display and modify details for that account',
+				  'visible'=>get_arg('show_details',true)));
 $toggle->start();
 
 $details = new PlekitDetails($can_update);
@@ -167,188 +167,201 @@ $details->form_end();
 $toggle->end();
 
 //////////////////// slices
-$toggle=new PlekitToggle ('slices','Slices',array('start-visible'=>false));
-$toggle->start();
-
-if( ! $slices) {
-  plc_warning ("User has no slice");
- } else {
-  $headers=array('Slice name'=>'string');
-  $reasonable_page=5;
-  $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
-  if (count ($slices) <= $reasonable_page) {
-    $table_options['search_area']=false;
-    $table_options['pagesize_area']=false;
+if ($local_peer) {
+  $slices_title=count_english_warning($slices,'slice');
+  $toggle=new PlekitToggle ('slices',$slices_title,
+			    array('visible'=>get_arg('show_slices',false)));
+  $toggle->start();
+  
+  if( ! $slices) {
+    plc_warning ("User has no slice");
+  } else {
+    $headers=array('Slice name'=>'string');
+    $reasonable_page=5;
+    $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
+    if (count ($slices) <= $reasonable_page) {
+      $table_options['search_area']=false;
+      $table_options['pagesize_area']=false;
+    }
+    $table=new PlekitTable ("person_slices",$headers,1,$table_options);
+    $table->start();
+    
+    foreach( $slices as $slice ) {
+      $slice_name= $slice['name'];
+      $slice_id= $slice['slice_id'];
+      $table->row_start();
+      $table->cell(l_slice_t($slice_id,$slice_name));
+      $table->row_end();
+    }
+    $table->end();
   }
-  $table=new PlekitTable ("person_slices",$headers,1,$table_options);
-  $table->start();
-
-  foreach( $slices as $slice ) {
-    $slice_name= $slice['name'];
-    $slice_id= $slice['slice_id'];
-    $table->row_start();
-    $table->cell(l_slice_t($slice_id,$slice_name));
-    $table->row_end();
-  }
-  $table->end();
+  $toggle->end();
  }
-$toggle->end();
 
+////////////////////////////////////////
 // we don't set 'action', but use the submit button name instead
 $form=new PlekitForm(l_actions(), array("person_id"=>$person_id));
 $form->start();
 
 //////////////////// keys
-$toggle=new PlekitToggle ('keys',"Keys",array('start-visible'=>false));
-$toggle->start();
+if ($local_peer) {
+  $keys_title = count_english_warning($keys,'key');
+  $toggle=new PlekitToggle ('keys',$keys_title,array('visible'=>get_arg('show_keys',false)));
+  $toggle->start();
 		
-$can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
-if ( empty( $key_ids ) ) {
-  plc_warning("This user has no known key");
- } 
+  $can_manage_keys = ( $local_peer && ( plc_is_admin() || $is_my_account) );
+  if ( empty( $key_ids ) ) {
+    plc_warning("This user has no known key");
+  } 
 
-$headers=array("Type"=>"string",
-	       "Key"=>"string");
-if ($can_manage_keys) $headers[plc_delete_icon()]="none";
-// table overall options
-$table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
-$table=new PlekitTable("person_keys",$headers,"1",$table_options);
-$table->start();
+  $headers=array("Type"=>"string",
+		 "Key"=>"string");
+  if ($can_manage_keys) $headers[plc_delete_icon()]="none";
+  // table overall options
+  $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
+  $table=new PlekitTable("person_keys",$headers,"1",$table_options);
+  $table->start();
     
-if ($keys) foreach ($keys as $key) {
-  $key_id=$key['key_id'];
-  $table->row_start();
-  $table->cell ($key['key_type']);
-  $table->cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
-  if ($can_manage_keys) 
-    $table->cell ($form->checkbox_html('key_ids[]',$key_id));
-  $table->row_end();
-}
-// the footer area is used for displaying key-management buttons
-// add the 'remove keys' button and key upload areas as the table footer
-if ($can_manage_keys) {
-  $table->tfoot_start();
-  // no need to remove if there's no key
-  if ($keys) {
+  if ($keys) foreach ($keys as $key) {
+      $key_id=$key['key_id'];
+      $table->row_start();
+      $table->cell ($key['key_type']);
+      $table->cell(wordwrap( $key['key'], 60, "<br />\n", 1 ));
+      if ($can_manage_keys) 
+	$table->cell ($form->checkbox_html('key_ids[]',$key_id));
+      $table->row_end();
+    }
+  // the footer area is used for displaying key-management buttons
+  // add the 'remove keys' button and key upload areas as the table footer
+  if ($can_manage_keys) {
+    $table->tfoot_start();
+    // no need to remove if there's no key
+    if ($keys) {
+      $table->row_start();
+      $table->cell($form->submit_html ("delete-keys","Remove keys"),
+		   array('hfill'=>true,'align'=>'right'));
+      $table->row_end();
+    }
     $table->row_start();
-    $table->cell($form->submit_html ("delete-keys","Remove keys"),
-		 $table->columns(),"right");
+    $table->cell($form->label_html("key","Upload new key")
+		 . $form->file_html("key","upload",array('size'=>60))
+		 . $form->submit_html("upload-key","Upload key"),
+		 array('hfill'=>true,'align'=>'right'));
     $table->row_end();
   }
-  $table->row_start();
-  $table->cell($form->label_html("key","Upload new key")
-	       . $form->file_html("key","upload",array('size'=>60))
-	       . $form->submit_html("upload-key","Upload key"),
-	       $table->columns(),"right");
-  $table->row_end();
-}
 
-$table->end();
-$toggle->end();
+  $table->end();
+  $toggle->end();
+ }
 
 //////////////////// sites
-$toggle=new PlekitToggle('sites','Sites',array('start-visible'=>false));
-$toggle->start();
+if ($local_peer) {
+  $sites_title = count_english_warning($sites,'site');
+  $toggle=new PlekitToggle('sites',$sites_title,
+			   array('visible'=>get_arg('show_sites',false)));
+  $toggle->start();
   
-if (empty( $sites ) ) {
-  plc_warning('This user is not affiliated with a site !!');
- } 
-$can_manage_sites = $local_peer && plc_is_admin() || $is_my_account;
-$headers=array();
-$headers['Login_base']="string";
-$headers['Name']="string";
-if ($can_manage_sites) $headers[plc_delete_icon()]="none";
-$table_options = array('notes_area'=>false,'search_area'=>false, 'pagesize_area'=>false);
-$table=new PlekitTable ("person_sites",$headers,0,$table_options);
-$table->start();
-foreach( $sites as $site ) {
-  $site_name= $site['name'];
-  $site_id= $site['site_id'];
-  $login_base=$site['login_base'];
-  $table->row_start();
-  $table->cell ($login_base);
-  $table->cell (l_site_t($site_id,$site_name));
-  if ($can_manage_sites)
-    $table->cell ($form->checkbox_html('site_ids[]',$site_id));
-  $table->row_end ();
-}
-if ($can_manage_sites) {
-  $table->tfoot_start();
-
-  if ($sites) {
+  if (empty( $sites ) ) {
+    plc_warning('This user is not affiliated with a site !!');
+  } 
+  $can_manage_sites = $local_peer && plc_is_admin() || $is_my_account;
+  $headers=array();
+  $headers['Login_base']="string";
+  $headers['Name']="string";
+  if ($can_manage_sites) $headers[plc_delete_icon()]="none";
+  $table_options = array('notes_area'=>false,'search_area'=>false, 'pagesize_area'=>false);
+  $table=new PlekitTable ("person_sites",$headers,0,$table_options);
+  $table->start();
+  foreach( $sites as $site ) {
+    $site_name= $site['name'];
+    $site_id= $site['site_id'];
+    $login_base=$site['login_base'];
     $table->row_start();
-    $table->cell($form->submit_html("remove-person-from-sites","Remove Sites"),
-		 $table->columns(),"right");
+    $table->cell ($login_base);
+    $table->cell (l_site_t($site_id,$site_name));
+    if ($can_manage_sites)
+      $table->cell ($form->checkbox_html('site_ids[]',$site_id));
+    $table->row_end ();
+  }
+  if ($can_manage_sites) {
+    $table->tfoot_start();
+
+    if ($sites) {
+      $table->row_start();
+      $table->cell($form->submit_html("remove-person-from-sites","Remove Sites"),
+		   array('hfill'=>true,'align'=>'right'));
+      $table->row_end();
+    }
+
+    $table->row_start();
+
+    // get list of local sites that the person is not in
+    function get_site_id ($site) { return $site['site_id'];}
+    $person_site_ids=array_map("get_site_id",$sites);
+    $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
+    // xxx cannot use onchange=submit() - would need to somehow pass action name 
+    function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
+    $selectors = array_map ("site_selector",$relevant_sites);
+    $table->cell ($form->select_html("site_id",$selectors,array('label'=>"Choose a site to add")).
+		  $form->submit_html("add-person-to-site","Add in site"),
+		  array('hfill'=>true,'align'=>'right'));
     $table->row_end();
   }
-
-  $table->row_start();
-
-  // get list of local sites that the person is not in
-  function get_site_id ($site) { return $site['site_id'];}
-  $person_site_ids=array_map("get_site_id",$sites);
-  $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
-  // xxx cannot use onchange=submit() - would need to somehow pass action name 
-  function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
-  $selectors = array_map ("site_selector",$relevant_sites);
-  $table->cell ($form->select_html("site_id",$selectors,array('label'=>"Choose a site to add")).
-		$form->submit_html("add-person-to-site","Add in site"),
-		$table->columns(),"right");
-  $table->row_end();
+  $table->end();
+  $toggle->end();
  }
-$table->end();
-$toggle->end();
-
 //////////////////// roles
-$toggle=new PlekitToggle ('roles','Roles',array('start-visible'=>false));
-$toggle->start();
+if ($local_peer) {
+  $toggle=new PlekitToggle ('roles','Roles',array('visible'=>get_arg('show_roles',false)));
+  $toggle->start();
 
-if (! $roles) plc_warning ("This user has no role !");
+  if (! $roles) plc_warning ("This user has no role !");
 
-$can_manage_roles= ($local_peer && plc_is_admin());
-$table_options=array("search_area"=>false,"notes_area"=>false);
+  $can_manage_roles= ($local_peer && plc_is_admin());
+  $table_options=array("search_area"=>false,"notes_area"=>false);
 
-$headers=array("Role"=>"string");
-if ($can_manage_roles) $headers [plc_delete_icon()]="none";
+  $headers=array("Role"=>"string");
+  if ($can_manage_roles) $headers [plc_delete_icon()]="none";
 
-$table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
-$table=new PlekitTable("person_roles",$headers,0,$table_options);  
-$table->start();
+  $table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
+  $table=new PlekitTable("person_roles",$headers,0,$table_options);  
+  $table->start();
   
-// construct array of role objs
-$role_objs=array();
-for ($n=0; $n<count($roles); $n++) {
-  $role_objs[]= array('role_id'=>$role_ids[$n], 'name'=>$roles[$n]);
- }
-
-if ($role_objs) foreach ($role_objs as $role_obj) {
-  $table->row_start();
-  $table->cell($role_obj['name']);
-  if ($can_manage_roles) $table->cell ($form->checkbox_html('role_ids[]',$role_obj['role_id']));
-  $table->row_end();
- }
-
-// footers : the remove and add buttons
-if ($can_manage_roles) {
-  $table->tfoot_start();
-  if ($roles) {
-    $table->row_start();
-    $table->cell($form->submit_html("remove-roles-from-person","Remove Roles"),
-		 $table->columns(),"right");
-    $table->row_end();
+  // construct array of role objs
+  $role_objs=array();
+  for ($n=0; $n<count($roles); $n++) {
+    $role_objs[]= array('role_id'=>$role_ids[$n], 'name'=>$roles[$n]);
   }
 
-  $table->row_start();
-  $selectors=$form->role_selectors_excluding($api,$role_ids);
-  $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
-  // add a role : the button
-  $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
-  $table->cell ($add_role_left_area . $add_role_right_area,
-		$table->columns(),"right");
-  $table->row_end();
+  if ($role_objs) foreach ($role_objs as $role_obj) {
+      $table->row_start();
+      $table->cell($role_obj['name']);
+      if ($can_manage_roles) $table->cell ($form->checkbox_html('role_ids[]',$role_obj['role_id']));
+      $table->row_end();
+    }
+
+  // footers : the remove and add buttons
+  if ($can_manage_roles) {
+    $table->tfoot_start();
+    if ($roles) {
+      $table->row_start();
+      $table->cell($form->submit_html("remove-roles-from-person","Remove Roles"),
+		   array('hfill'=>true,'align'=>'right'));
+      $table->row_end();
+    }
+
+    $table->row_start();
+    $selectors=$form->role_selectors_excluding($api,$role_ids);
+    $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
+    // add a role : the button
+    $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
+    $table->cell ($add_role_left_area . $add_role_right_area,
+		  array('hfill'=>true,'align'=>'right'));
+    $table->row_end();
+  }
+  $table->end();
+  $toggle->end();
  }
-$table->end();
-$toggle->end();
 
 //////////////////////////////
 $form->end();

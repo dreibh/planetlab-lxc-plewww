@@ -12,10 +12,8 @@ var nifty_inited = false;
 
 function nifty_init () {
   if ( nifty_inited ) return;
-  var sizes=new Array();
-  sizes[0]='small'; sizes[1]='medium'; sizes[2]='large';
-  for (x in sizes) {
-    size=sizes[x];
+  var sizes= { 0: 'small', 1: 'medium', 2: 'big', length: 3};
+  $A(sizes).each (function (size) {
     
     var elements=document.getElementsByClassName('nifty-'+size);
     for (var i=0; i<elements.length; i++) {
@@ -24,7 +22,7 @@ function nifty_init () {
       // plus, it's more efficient anyway
       pleRounded(elements[i],size);
     }
-  }
+    });
   nifty_inited = true;
 }
 

@@ -18,6 +18,7 @@ require_once 'plc_functions.php';
 require_once 'plc_peers.php';
 require_once 'linetabs.php';
 require_once 'table.php';
+require_once 'nifty.php';
 
 //fix the memory limit for this page
 ini_set("memory_limit","48M");
@@ -134,6 +135,8 @@ if ( ! $persons ) {
   return;
  }
   
+$nifty=new PlekitNifty ('','objects-list','big');
+$nifty->start();
 $headers = array ("Peer"=>"string",
 		  "First"=>"string",
 		  "Last"=>"string",
@@ -174,8 +177,9 @@ foreach ($persons as $person) {
     $table->row_end();
 				 
 }
-$notes=array("The S column shows the number of slices for the given user");
+$notes=array("S = number of slices");
 $table->end(array('notes'=>$notes));
+$nifty->end();
 
 //plekit_linetabs ($tabs,"bottom");
 

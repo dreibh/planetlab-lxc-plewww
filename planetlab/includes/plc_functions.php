@@ -418,4 +418,37 @@ function interface_method_selectors ($api, $method, $primary) {
   }
   return $selectors;
 }
+
+//////////////////// 
+function instantiation_label ($slice) {
+  $instantiation_labels = array ('not-instantiated'=>'NOT',
+				 'plc-instantiated'=>'PLC',
+				 'delegated' => 'DEL',
+				 'nm-controller' => 'NM');
+  $result=$instantiation_labels[$slice['instantiation']];
+  if (!$result) $result = $slice['instantiation'];
+  if (!$result) $result = '??';
+  return $result;
+}
+  
+//////////////////// toggle areas
+// get_arg ('show_persons',false) returns $_GET['show_persons'] if set and false otherwise
+function get_arg ($name,$default,$method='get') {
+  if ($method == 'get') $var=$_GET; else $var=$_POST;
+  if (isset ($var[$name])) return $var[$name];
+  else return $default;
+}
+
+//////////////////// number of ...
+function count_english ($objs,$name) {
+  $count=count($objs);
+  if ($count == 0) return 'No ' . $name;
+  else if ($count == 1) return 'One ' . $name;
+  else return $count . ' ' . $name . 's';
+}
+function count_english_warning ($objs, $name) {
+  $x=count_english ($objs,$name);
+  if (count ($objs) == 0) $x=plc_warning_html($x . ' !!');
+  return $x;
+}
 ?>

@@ -232,14 +232,21 @@ EOF;
   }
 
   ////////////////////
-  public function cell ($text,$colspan=0,$align=NULL) { print $this->cell_html ($text,$colspan,$align); }
-  public function cell_html ($text,$colspan=0,$align=NULL) {
-    $result="";
-    $result .= "<td";
-    if ($colspan) $result .= " colspan='$colspan'";
-    if ($align) $result .= " style='text-align:$align'";
-    $result .= ">$text</td>";
-    return $result;
+  // supported options:
+  // (*) class
+  // (*) columns
+  // (*) hfill
+  // (*) align
+  public function cell ($text,$options=NULL) { print $this->cell_html ($text,$options); }
+  public function cell_html ($text,$options=NULL) {
+    $html="";
+    $html .= "<td";
+    $option=$options['class'];	if ($option) $html .= " class='$option'";
+    $option=$options['columns'];if ($option) $html .= " colspan='$option'";
+    $option=$options['hfill'];	if ($option) $html .= " colspan='" . $this->columns() . "'";
+    $option=$options['align'];	if ($option) $html .= " style='text-align:$option'";
+    $html .= ">$text</td>";
+    return $html;
   }
 
 }

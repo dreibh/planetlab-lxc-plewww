@@ -49,13 +49,16 @@ $max_slices= $site['max_slices'];
 
 $enabled = $site['enabled'];
 
-// extra privileges to admins, and (pi||tech) on this site
-$privileges = plc_is_admin () || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
-  
 // get peer 
 $peer_id= $site['peer_id'];
 $peers = new Peers ($api);
+$local_peer = ! $peer_id;
 
+// extra privileges to admins, and (pi||tech) on this site
+$is_site_pi = ( $local_peer && plc_is_pi() && plc_in_site($site_id) );
+$is_site_tech = ( $local_peer && plc_is_pi() && plc_in_site($site_id) );
+$is_site_admin = ($local_peer && plc_is_admin());
+  
 $address_ids= $site['address_ids'];
 $pcu_ids= $site['pcu_ids'];
 $node_ids= $site['node_ids'];
@@ -76,7 +79,7 @@ $api->GetNodes( $node_ids, array( "node_id", "hostname", "boot_state" ) );
 // gets person info
 $api->GetPersons( $person_ids, array( "role_ids", "person_id", "first_name", "last_name", "email", "enabled" ) );
 
-$api->GetSlices ( $slice_ids, array ("slice_id", "name", "instantiation" ) );
+$api->GetSlices ( $slice_ids, array ("slice_id", "name", "instantiation", "node_ids", "person_ids" ) );
 
 //list( $addresses, $pcus, $nodes, $persons, $slices )= $api->commit();
 list( $addresses, $nodes, $persons, $slices )= $api->commit();
@@ -95,50 +98,54 @@ foreach( $persons as $person ) {
 
 $has_disabled_persons = count ($disabled_persons) !=0;
 
+// get number of slivers
+$slivers_count=0;
+if ($slices) foreach ($slices as $slice) $slivers_count += count ($slice['node_ids']);
+
+////////////////////////////////////////
 drupal_set_title("Details for site " . $sitename);
-$local_peer = ! $peer_id;
-  
-// extra privileges to admins, and pi on this site
-$privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
   
 $tabs=array();
 
 $tabs []= tab_sites_local();
 
 // available actions
-if ( $local_peer  && $privileges ) {
-  
+if ( $is_site_admin)
   $tabs['Expire slices'] = array('url'=>l_actions(),
 				 'method'=>'POST',
 				 'values'=>array('site_id'=>$site_id,
 						 'action'=>'expire-all-slices-in-site'),
 				 'bubble'=>"Expire all slices and prevent creation of new slices",
 				 'confirm'=>"Suspend all slices in $login_base");
-  if (plc_is_admin())
-    $tabs['Delete']=array('url'=>l_actions(),
-			  'method'=>'POST',
-			  'values'=>array('site_id'=>$site_id,
-					  'action'=>'delete-site'),
-			  'bubble'=>"Delete site $sitename",
-			  'confirm'=>"Are you sure you want to delete site $login_base");
+if ( $is_site_admin)
+  $tabs['Delete']=array('url'=>l_actions(),
+			'method'=>'POST',
+			'values'=>array('site_id'=>$site_id,
+					'action'=>'delete-site'),
+			'bubble'=>"Delete site $sitename",
+			'confirm'=>"Are you sure you want to delete site $login_base");
+
+if ( $is_site_pi ) 
+  $tabs ['Add site'] = array ('url'=>l_slice_add(),
+			      'method'=>'post',
+			      'bubble'=>'Create new slice in site');
+
+if (plc_in_site($site_id))
   $tabs["Events"]=array_merge (tablook_event(),
 			       array('url'=>l_event("Site","site",$site_id),
 				     'bubble'=>"Events for site $sitename"));
+if (plc_in_site($site_id))
   $tabs["Comon"]=array_merge(tablook_comon(),
 			     array('url'=>l_comon("site_id",$site_id),
 				   'bubble'=>"Comon page for $sitename"));
 
-  if (plc_is_admin()) 
-    $tabs['Pending'] = array ('url'=>l_sites_pending(),
-			      'bubble'=>'Review pending join requests');
- }
 
 plekit_linetabs($tabs);
 
 // show gray background on foreign objects : start a <div> with proper class
 $peers->block_start ($peer_id);
 
-if ( ! $enabled ) 
+if ( $local_peer && ( ! $enabled ) )
   plc_warning ("This site is not enabled - Please visit " . 
 	       href (l_sites_pending(),"this page") . 
 	       " to review pending applications.");
@@ -147,7 +154,8 @@ $can_update=(plc_is_admin ()  && $local_peer) || ( plc_in_site($site_id) && plc_
 
 
 $toggle = new PlekitToggle ('site',"Details",
-			    array('trigger-bubble'=>'Display and modify details for that site'));
+			    array('visible'=>get_arg('show_details',true),
+				  'bubble'=>'Display and modify details for that site'));
 $toggle->start();
 
 $details = new PlekitDetails($can_update);
@@ -199,7 +207,8 @@ if ( $local_peer ) {
     $nodes_title = plc_warning_html ($nodes_title);
   $nodes_title .= href(l_nodes_site($site_id)," (See as nodes)");
 
-  $toggle=new PlekitToggle ('nodes',$nodes_title);
+  $toggle=new PlekitToggle ('nodes',$nodes_title,
+			    array('visible'=>get_arg('show_nodes',false)));
   $toggle->start();
 
   $headers=array();
@@ -219,7 +228,7 @@ if ( $local_peer ) {
   $table->tfoot_start();
   $table->row_start();
   $button=new PlekitFormButton (l_node_add(),"node_add","Add node","POST");
-  $table->cell($button->html(),$table->columns(),"right");
+  $table->cell($button->html(),array('hfill'=>true,'align'=>'right'));
   $table->row_end();
   $table->end();
   $toggle->end();
@@ -235,7 +244,8 @@ if ( $local_peer ) {
     $persons_title = plc_warning_html ($persons_title);
   $persons_title .= href(l_persons_site($site_id)," (See as users)");
 
-  $toggle=new PlekitToggle ('persons',$persons_title);
+  $toggle=new PlekitToggle ('persons',$persons_title,
+			    array('visible'=>get_arg('show_persons',false)));
   $toggle->start();
 
   $headers = array ();
@@ -245,41 +255,68 @@ if ( $local_peer ) {
   $headers["Tech"]='string';
   if ($has_disabled_persons) $headers["Disabled"]='string';
   $table=new PlekitTable('persons',$headers,'1r-3r-0',array('search_area'=>false,
-							 'notes_area'=>false,
-							 'pagesize_area'=>false));
+							    'notes_area'=>false,
+							    'pagesize_area'=>false));
   $table->start();
-  foreach ($persons as $person) {
+  if ($persons) foreach ($persons as $person) {
     $table->row_start();
     $table->cell(l_person_obj($person));
     $table->cell( in_array ('20',$person['role_ids']) ? "yes" : "no");
     $table->cell( in_array ('30',$person['role_ids']) ? "yes" : "no");
     $table->cell( in_array ('40',$person['role_ids']) ? "yes" : "no");
-    if ($has_disabled_persons) $table->cell( $person['enabled'] ? "no" : "yes");
+    if ($has_disabled_persons) $table->cell( $person['enabled'] ? "no" : plc_warning_html("yes"));
     $table->row_end();
   }
   $table->end();
   $toggle->end();
 
   //////////////////// Slices
-  // xxx to review after slices gets reworked
-  $toggle=new PlekitToggle ('slices',"Slices");
-  $toggle->start();
-  $details=new PlekitDetails (false);
-  $details->start();
-  // summary on slices
-  $slice_label = count($slice_ids) . " running / " . $max_slices . " max";
+  $slices_title="Slices : ";
+  $slices_title .= $max_slices . " max";
+  $slices_title .= " / " . count($slice_ids) . " running";
+  $slices_title .= " / $slivers_count slivers";
   if (count($slice_ids) >= $max_slices) 
-    $slice_label = plc_warning_html ($slice_label);
-  $details->th_td("# Slices", href(l_slices_site($site_id),$slice_label));
-  if ($slices) foreach ($slices as $slice)
-     $details->th_td($slice['instantiation'],l_slice_obj($slice));
-  $button=new PlekitFormButton (l_slice_add(),"slice_add","Add slice","POST");
-  $details->tr($button->html(),"right");
-  $details->end();
+    $slices_title = plc_warning_html($slices_title);
+  $slices_title .= href(l_slices_site($site_id)," (See as slices)");
+  
+  $toggle=new PlekitToggle ('slices',$slices_title,
+			    array('visible'=>get_arg('show_slices',false)));
+  $toggle->start();
+
+  $headers = array ();
+  $headers ['name']='string';
+  $headers ['I'] = 'string';
+  $headers ['N']='int';
+  $headers ['U']='int';
+  $notes=array('I column shows instantiation type',
+	       'N column shows number of nodes',
+	       'U column shows number of users');
+  $table=new PlekitTable ('slices',$headers,0,array('search_area'=>false,
+						    'pagesize_area'=>false,
+						    'notes'=>$notes));
+
+  $table->start();
+  if ($slices) foreach ($slices as $slice) {
+      $table->row_start();
+      $table->cell(l_slice_obj($slice));
+      $table->cell(instantiation_label($slice));
+      $table->cell (href(l_nodes_slice($slice['slice_id']),count($slice['node_ids'])));
+      $table->cell (count($slice['person_ids']));
+      $table->row_end();
+    }
+  if ($is_site_pi) {
+    $button=new PlekitFormButton (l_slice_add(),"slice_add","Add slice","post");
+    $table->tfoot_start();
+    $table->row_start();
+    $table->cell($button->html(),array('hfill'=>true,'align'=>'right'));
+  }
+    
+  $table->end();
   $toggle->end();
 
-  // Addresses
-  $toggle=new PlekitToggle ('addresses',"Addresses",array('start-visible'=>false));
+  //////////////////// Addresses
+  $toggle=new PlekitToggle ('addresses',"Addresses",
+			    array('visible'=>get_arg('show_addresses',false)));
   $toggle->start();
   if ( ! $addresses) {
     print "<p class='addresses'>No known address for this site</p>";
