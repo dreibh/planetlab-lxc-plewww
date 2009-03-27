@@ -81,6 +81,10 @@ $known_actions []= 'remove-nodes-from-slice';
 //	expects:	slice_id & node_ids
 $known_actions []= 'add-nodes-in-slice';
 //	expects:	slice_id & node_ids
+$known_actions []= 'delete-slice-tags';
+//      expects:        slice_tag_id
+$known_actions []= 'add-slice-tag';
+//      expects:        slice_id & tag_type_id & node_id & nodegroup_id
 
 //////////////////////////////////////// tag types
 $known_actions []= "update-tag-type";
@@ -561,6 +565,47 @@ switch ($action) {
    break;
  }
 
+ case 'delete-slice-tags': {
+   $slice_id = intval($_POST['slice_id']);
+   $slice_tag_ids = array_map("intval", $_POST['slice_tag_ids']);
+   $count = 0;
+   $success = true;
+   foreach($slice_tag_ids as $slice_tag_id) {
+     if ($api->DeleteSliceTag($slice_tag_id)) $count += 1;
+     else {
+       drupal_set_error("Could not delete slice tag: slice_tag_id = $slice_tag_id");
+       $success = false;
+     }
+   }
+   if ($success)
+     drupal_set_message ("Deleted $count slice tag(s)");
+   plc_redirect(l_slice($slice_id) . "&show_tags=true" );
+   break;
+ }
+  
+ case 'add-slice-tag': {
+   $slice_id = intval($_POST['slice_id']);
+   $tag_type_id = intval($_POST['tag_type_id']);
+   $value = $_POST['value'];
+   $node_id = intval($_POST['node_id']);
+   $nodegroup_id = intval($_POST['nodegroup_id']);
+  
+   $result = null;
+   if ($node_id) {
+     $result = $api->AddSliceTag($slice_id, $tag_type_id, $value, $node_id);
+   } elseif ($nodegroup_id) {
+     $result = $api->AddSliceTag($slice_id, $tag_type_id, $value, null, $nodegroup_id);
+   } else {
+     $result = $api->AddSliceTag($slice_id, $tag_type_id, $value);
+   }
+   if ($result)
+     drupal_set_message ("Added slice tag.");
+   else 
+     drupal_set_error("Could not add slice tag");
+   plc_redirect(l_slice($slice_id) . "&show_tags=true" );
+   break;
+ }
+
 //////////////////////////////////////////////////////////// tag types
 
  case 'update-tag-type': {
@@ -569,7 +614,7 @@ switch ($action) {
    $tagname = $_POST['tagname'];
    $min_role_id= intval( $_POST['min_role_id'] );
    $description= $_POST['description'];  
-   $category= $_POST['category'];  
+   $category= $_POST['category'];
   
    // make tag_type_fields dict
    $tag_type_fields= array( "min_role_id" => $min_role_id, 

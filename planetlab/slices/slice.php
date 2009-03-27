@@ -401,8 +401,12 @@ $headers=array();
 $headers['hostname']='string';
 $headers['arch']='string';
 if ($privileges) $headers[plc_delete_icon()]="none";
-$table=new PlekitTable('nodes',$headers,'0',
-		       array('notes_area'=>false));
+
+$table_options = array('notes_area'=>false,
+                       'search_width'=>15,
+                       'pagesize'=>20);
+$table=new PlekitTable('nodes',$headers,'0',$table_options);
+
 $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
 $table->start();
@@ -443,11 +447,8 @@ if ($privileges) {
     $headers['hostname']='string';
     $headers['arch']='string';
     $headers['Add']="none";
-    $options = array('notes_area'=>false,
-		     'search_width'=>15,
-		     'pagesize'=>20);
     
-    $table=new PlekitTable('add_nodes',$headers,'1',$options);
+    $table=new PlekitTable('add_nodes',$headers,'1', $table_options);
     $form=new PlekitForm(l_actions(),
 			 array('slice_id'=>$slice['slice_id']));
     $form->start();
@@ -472,8 +473,98 @@ if ($privileges) {
 }
 $toggle->end();
 
-//////////////////// tags
+//////////////////////////////////////////////////////////// Tags
+if ( $local_peer ) {
+  $tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
+  function get_tagname ($tag) { return $tag['tagname'];}
+  $tagnames = array_map ("get_tagname",$tags);
+  
+  $toggle = new PlekitToggle ('slice-tags',count_english_warning($tags,'tag'),
+			      array('bubble'=>'Inspect and set tags on tat slice',
+				    'visible'=>get_arg('show_tags',false)));
+  $toggle->start();
+  
+  $headers=array(
+    "Name"=>"string",
+    "Value"=>"string",
+    "Node"=>"string",
+    "NodeGroup"=>"string");
+  if ($privileges) $headers[plc_delete_icon()]="none";
+  
+  $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
+  $table=new PlekitTable("slice_tags",$headers,'0',$table_options);
+  $form=new PlekitForm(l_actions(),
+                       array('slice_id'=>$slice['slice_id']));
+  $form->start();
+  $table->start();
+  if ($tags) {
+    foreach ($tags as $tag) {
+      $node_name = "ALL";
+      if ($tag['node_id']) {
+        $nodes = $api->GetNodes(array('node_id'=>$tag['node_id']));
+        if($nodes) {
+          $node = $nodes[0];
+          $node_name = $node['hostname'];
+        }
+      }
+      $nodegroup_name="n/a";
+      if ($tag['nodegroup_id']) { 
+        $nodegroup=$api->GetNodeGroups(array('nodegroup_id'=>$tag['nodegroup_id']));
+        if ($nodegroup) {
+          $nodegroup = $nodegroup[0];
+          $nodegroup_name = $nodegroup['groupname'];
+        }
+      }
+      $table->row_start();
+      $table->cell(l_tag_obj($tag));
+      $table->cell($tag['value']);
+      $table->cell($node_name);
+      $table->cell($nodegroup_name);
+      if ($privileges) $table->cell ($form->checkbox_html('slice_tag_ids[]',$tag['slice_tag_id']));
+      $table->row_end();
+    }
+  }
+  if ($privileges) {
+    $table->tfoot_start();
+    $table->row_start();
+    $table->cell($form->submit_html ("delete-slice-tags","Remove selected"),
+                 array('hfill'=>true,'align'=>'right'));
+    $table->row_end();
+    
+    $table->row_start();
+    function tag_selector ($tag) {
+      return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']);
+    }
+    $all_tags= $api->GetTagTypes( array ("category"=>"slice*"), array("tagname","tag_type_id"));
+    $selector_tag=array_map("tag_selector",$all_tags);
+    
+    function node_selector($node) { 
+      return array("display"=>$node["hostname"],"value"=>$node['node_id']);
+    }
+    $all_nodes = $api->GetNodes( array ("node_id" => $slice['node_ids']), array("hostname","node_id"));
+    $selector_node=array_map("node_selector",$all_nodes);
+    
+    function nodegroup_selector($ng) {
+      return array("display"=>$ng["groupname"],"value"=>$ng['nodegroup_id']);
+    }
+    $all_nodegroups = $api->GetNodeGroups( array("groupname"=>"*"), array("groupname","nodegroup_id"));
+    $selector_nodegroup=array_map("nodegroup_selector",$all_nodegroups);
+    
+    $table->cell($form->select_html("tag_type_id",$selector_tag,array('label'=>"Choose Tag")));
+    $table->cell($form->text_html("value","",array('width'=>8)));
+    $table->cell($form->select_html("node_id",$selector_node,array('label'=>"All Nodes")));
+    $table->cell($form->select_html("nodegroup_id",$selector_nodegroup,array('label'=>"No Nodegroup")));
+    $table->cell($form->submit_html("add-slice-tag","Set Tag"),array('columns'=>2,'align'=>'left'));
+    $table->row_end();
+  }
+    
+  $form->end();
+  $table->end();
+  $toggle->end();
+}
 
+
+//////////////////////// renew slice
 if ($local_peer ) {
   if ( ! $renew_visible) renew_area ($slice,$site,false);
  }
