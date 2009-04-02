@@ -250,6 +250,7 @@ $form->start();
       $table->row_start();
       $table->cell ($peers->shortname($peer_id));
       $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
+      # xxx l_sliver not implemented yet - what should we show exactly ?
       $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
       $table->row_end();
     }

@@ -64,7 +64,8 @@ echo "All files just need to be installed as is from the codebase"
 rm -rf $RPM_BUILD_ROOT
 
 #
-# plcwww
+# plewww
+# xxx : uninstall should undo this
 #
 
 echo "* PLEWWW: Installing web pages"
