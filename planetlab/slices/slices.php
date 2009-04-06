@@ -119,22 +119,24 @@ $table->start();
 $peers = new Peers ($api);
 // write rows
 foreach ($slices as $slice) {
+  $slice_id=$slice['slice_id'];
   $peer_id=$slice['peer_id'];
-  $shortname = $peers->shortname($peer_id);
   $users=plc_vertical_table (array_map ("email_link_from_hash",$slice['person_ids']));
   $expires= date( "d/m/Y", $slice['expires'] );
 
   $table->row_start();
-  $table->cell ($peers->link($peer_id,$shortname));
+  $peers->cell($table,$peer_id);
   $table->cell (l_slice_obj($slice));
   $table->cell ($users);
-  $table->cell(count($slice['person_ids']));
-  $table->cell (href(l_nodes_slice($slice['slice_id']),count($slice['node_ids'])));
+  $table->cell(href(l_persons_slice($slice_id),count($slice['person_ids'])));
+  $table->cell (href(l_nodes_slice($slice_id),count($slice['node_ids'])));
   $table->cell ($expires);
   $table->row_end();
 }
 
-$notes=array("U = number of users / N = number of nodes");
+$notes=array();
+$notes []= "U = number of users";
+$notes []= "N = number of nodes";
 $table->end(array('notes'=>$notes));
 $nifty->end();
 

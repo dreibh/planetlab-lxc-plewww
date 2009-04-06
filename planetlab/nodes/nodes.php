@@ -42,14 +42,14 @@ $node_filter=array();
 // performs sanity check and summarize the result in a single column
 function node_status ($node) {
 
-  $messages=array();
-  
   // do all this stuff on local nodes only
-  if ( ! $node['peer_id'] ) {
-    // check that the node has keys
-    if (count($node['interface_ids']) == 0) {
-      $messages [] = "No interface";
-    }
+  if ( $node['peer_id'] )
+    return "n/a";
+
+  $messages=array();
+  // check that the node has interfaces
+  if (count($node['interface_ids']) == 0) {
+    $messages [] = "No interface";
   }
   return plc_vertical_table($messages,'plc-warning');
 }
@@ -127,17 +127,18 @@ if ( ! $nodes ) {
   
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
-$headers = array ("P"=>"string",
-		  "Region"=>"string",
-		  "Site"=>"string",
-		  "State"=>"string",
-		  "Hostname"=>"string",
-		  "IP"=>"IPAddress",
-		  "Type"=>"string",
-		  "Arch"=>"string",
-		  "S"=>'int',
-		  "?"=>"string",
-		  );
+$headers = array ();
+$headers["P"]="string";
+$headers["R"]="string";
+$headers["Site"]="string";
+$headers["State"]="string";
+$headers["Hostname"]="string";
+$headers["Type"]="string";
+$headers["IP"]="IPAddress";
+$headers["A"]="string";
+$headers["S"]='int';
+if (plc_is_admin()) $headers["I"]="int";
+$headers["?"]="string";
 
 # initial sort on hostnames
 $table=new PlekitTable ("nodes",$headers,4);
@@ -151,7 +152,6 @@ foreach ($nodes as $node) {
   $site_id=$node['site_id'];
   $site=$site_hash[$site_id];
   $login_base = $site['login_base'];
-  $node_id=$node['node_id'];
   $ip=$interface_hash[$node['node_id']]['ip'];
   $interface_id=$interface_hash[$node['node_id']]['interface_id'];
   $peer_id=$node['peer_id'];
@@ -163,16 +163,21 @@ foreach ($nodes as $node) {
   $table->cell (l_site_t($site_id,$login_base));
   $table->cell ($node['boot_state']);
   $table->cell (l_node_t($node_id,$hostname));
-  $table->cell (l_interface_t($interface_id,$ip));
   $table->cell ($node_type);
-  $table->cell ($node['arch']);
+  $table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
+  $table->cell ($node['arch'],array('only-if'=> !$peer_id));
   $table->cell (count($node['slice_ids']));
+  if (plc_is_admin()) $table->cell(l_node_t($node_id,$node_id));
   $table->cell (node_status($node));
   $table->row_end();
   
 }
 
-$notes=array("S = number of slivers");
+$notes=array();
+$notes []= "R = region";
+$notes []= "A = arch";
+$notes []= "S = number of slivers";
+if (plc_is_admin()) $notes []= "I = node_id";
 $table->end(array('notes'=>$notes));
 $nifty->end();
 

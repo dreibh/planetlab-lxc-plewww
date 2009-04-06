@@ -90,6 +90,7 @@ function l_persons_peer ($peer_id)	{ return "/db/persons/index.php?peerscope=$pe
 function l_person ($person_id)		{ return "/db/persons/index.php?id=$person_id"; }
 function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text); }
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
+function l_persons_slice ($slice_id)	{ return "/db/persons/index.php?slice_id=$slice_id"; }
 function l_person_obj ($person)		{ return l_person_t($person['person_id'],$person['email']); }
 
 function l_tags ()			{ return "/db/tags/index.php"; }

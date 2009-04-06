@@ -36,12 +36,12 @@ $site_filter=array();
 
 function site_status ($site) {
 
+  $class=($site['peer_id']) ? 'plc-foreign' : 'plc-warning';
+
   $messages=array();
   
   if (empty ($site['node_ids'])) 
     $messages [] = "No node";
-
-  $class=($site['peer_id']) ? 'plc-foreign' : 'plc-warning';
 
   // do all this stuff on local sites only
   if ( ! $site['peer_id'] ) {
@@ -120,6 +120,7 @@ if (plc_is_admin()) {
   $headers['N']="int";
   $headers['U']="int";
   $headers['S']="int";
+  $headers['I']='int';
   $headers['?']="string";
  }
 
@@ -127,21 +128,31 @@ $table=new PlekitTable("sites",$headers,2);
 $table->start();
 
 if ($sites) foreach ($sites as $site) {
-  $shortname = $peers->shortname($site['peer_id']);
+  $peer_id=$site['peer_id'];
+  $site_id=$site['site_id'];
+  $login_base=$site['login_base'];
   $table->row_start();
-  $table->cell($shortname);
-  $table->cell (l_site_t($site['site_id'],htmlentities($site['name'])));
-  $table->cell ($site['login_base']);
+  $peers->cell($table,$peer_id);
+  $table->cell (l_site_t($site_id,htmlentities($site['name'])));
+  $table->cell (l_site_t($site_id,$login_base));
   $table->cell (htmlentities($site['abbreviated_name']));
   if (plc_is_admin()) {
-    $table->cell(count($site['node_ids']));
-    $table->cell(count($site['person_ids']));
-    $table->cell(count($site['slice_ids']));
+    $table->cell(href(l_nodes_site($site_id),count($site['node_ids'])));
+    $table->cell(href(l_persons_site($site_id),count($site['person_ids'])));
+    $table->cell(href(l_slices_site($site_id),count($site['slice_ids'])));
+    $table->cell(l_site_t($site_id,$site_id));
     $table->cell(site_status($site));
   }
   $table->row_end();
 }
-$notes=array("N = number of sites / U = number of users / S = number of slices");
+$notes=array();
+if (plc_is_admin()) {
+  $notes []= "N = number of sites";
+  $notes []= "U = number of users";
+  $notes []= "S = number of slices";
+  $notes []= "I = site_id";
+  $notes []= "? = status";
+ }
 
 $table->end(array('notes'=>$notes));
 $nifty->end();

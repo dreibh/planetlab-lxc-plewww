@@ -158,26 +158,28 @@ $peers=new Peers ($api);
 foreach ($persons as $person) {
     $person_id=$person['person_id'];
     $email=$person['email'];
-    $shortname = $peers->shortname($person['peer_id']);
     $site_id=$person['site_ids'][0];
     $site=$site_hash[$site_id];
     $login_base = $site['login_base'];
     $roles = plc_vertical_table ($person['roles']);
+    $peer_id=$person['peer_id'];
 
     $table->row_start();
     
-    $table->cell($shortname);
-    $table->cell ($person['first_name']);
-    $table->cell ($person['last_name']);
+    $peers->cell($table,$peer_id);
+    $table->cell (href(l_person($person_id),$person['first_name']));
+    $table->cell (href(l_person($person_id),$person['last_name']));
     $table->cell(l_person_t($person_id,$email));
-    $table->cell(l_site_t($site_id,$login_base));
-    $table->cell($roles);
+    $table->cell(l_site_t($site_id,$login_base),array('only-if'=>!$peer_id));
+    $table->cell($roles,array('only-if'=>!$peer_id));
     $table->cell(count($person['slice_ids']));
     $table->cell(person_status($person));
     $table->row_end();
 				 
 }
-$notes=array("S = number of slices");
+$notes = array();
+$notes []= "R = roles";
+$notes []= "S = number of slices";
 $table->end(array('notes'=>$notes));
 $nifty->end();
 

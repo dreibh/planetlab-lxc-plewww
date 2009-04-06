@@ -129,7 +129,7 @@ EOF;
     $selectors = array();
     foreach ( array ( 1 => "One more week", 
  		      2 => "Two more weeks", 
- 		      3 => "Two more weeks", 
+ 		      3 => "Three more weeks", 
  		      4 => "One more month" ) as $weeks => $text ) {
       $candidate_exp = $current_exp + $weeks*$WEEK;
       if ( $candidate_exp < $max_exp) {

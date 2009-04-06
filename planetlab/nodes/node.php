@@ -328,7 +328,7 @@ if ( $local_peer ) {
 
 //////////////////////////////////////////////////////////// interfaces
 if ( $local_peer ) {
-  $toggle=new PlekitToggle ('interfaces',count_english_warning($interfaces,'interfaces'),
+  $toggle=new PlekitToggle ('interfaces',count_english_warning($interfaces,'interface'),
 			    array('bubble'=>'Inspect and tune interfaces on that node',
 				  'visible'=>get_arg('show_interfaces',false)));
   $toggle->start();

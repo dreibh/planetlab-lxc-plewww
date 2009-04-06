@@ -233,12 +233,15 @@ EOF;
 
   ////////////////////
   // supported options:
+  // (*) only-if : if set and false, then print 'n/a' instead of (presumably void) $text
   // (*) class
   // (*) columns
   // (*) hfill
   // (*) align
   public function cell ($text,$options=NULL) { print $this->cell_html ($text,$options); }
   public function cell_html ($text,$options=NULL) {
+    if (isset ($options['only-if']) && ! $options['only-if'] )
+      $text="n/a";
     $html="";
     $html .= "<td";
     $option=$options['class'];	if ($option) $html .= " class='$option'";
