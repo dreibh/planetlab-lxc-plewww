@@ -99,7 +99,7 @@ if (! plc_is_admin()) {
  }
 
 if (plc_is_admin()) 
-  $tabs['Pending'] = array ('url'=>l_sites_pending(),
+  $tabs['Joining Sites'] = array ('url'=>l_sites_pending(),
 			    'bubble'=>'Review pending join requests');
 
 drupal_set_title($title);

@@ -73,9 +73,3 @@ p.node_add {
     font-size: larger;
 }
 
-/* some air around the list tables */
-table#sites, table#persons, table#nodes, table#slices {
-    margin-left: 10px;
-    margin-right: 10px;
-}
-    

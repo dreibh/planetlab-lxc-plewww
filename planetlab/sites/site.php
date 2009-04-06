@@ -77,7 +77,7 @@ $api->GetAddresses( $address_ids );
 $api->GetNodes( $node_ids, array( "node_id", "hostname", "boot_state" ) );
 
 // gets person info
-$api->GetPersons( $person_ids, array( "role_ids", "person_id", "first_name", "last_name", "email", "enabled" ) );
+$api->GetPersons( $person_ids, array( "role_ids", "person_id", "first_name", "last_name", "email", "enabled" , "slice_ids") );
 
 $api->GetSlices ( $slice_ids, array ("slice_id", "name", "instantiation", "node_ids", "person_ids" ) );
 
@@ -107,8 +107,6 @@ drupal_set_title("Details for site " . $sitename);
   
 $tabs=array();
 
-$tabs []= tab_sites_local();
-
 // available actions
 if ( $is_site_admin)
   $tabs['Expire slices'] = array('url'=>l_actions(),
@@ -126,15 +124,15 @@ if ( $is_site_admin)
 			'confirm'=>"Are you sure you want to delete site $login_base");
 
 if ( $is_site_pi ) 
-  $tabs ['Add site'] = array ('url'=>l_slice_add(),
+  $tabs ['Add slice'] = array ('url'=>l_slice_add(),
 			      'method'=>'post',
 			      'bubble'=>'Create new slice in site');
 
-if (plc_in_site($site_id))
+if (plc_is_admin() || plc_in_site($site_id))
   $tabs["Events"]=array_merge (tablook_event(),
 			       array('url'=>l_event("Site","site",$site_id),
 				     'bubble'=>"Events for site $sitename"));
-if (plc_in_site($site_id))
+if (plc_is_admin() || plc_in_site($site_id))
   $tabs["Comon"]=array_merge(tablook_comon(),
 			     array('url'=>l_comon("site_id",$site_id),
 				   'bubble'=>"Comon page for $sitename"));
@@ -250,6 +248,7 @@ if ( $local_peer ) {
 
   $headers = array ();
   $headers["email"]='string';
+  $headers["S"]='int';
   $headers["PI"]='string';
   $headers['User']='string';
   $headers["Tech"]='string';
@@ -261,6 +260,7 @@ if ( $local_peer ) {
   if ($persons) foreach ($persons as $person) {
     $table->row_start();
     $table->cell(l_person_obj($person));
+    $table->cell(count($person['slice_ids']));
     $table->cell( in_array ('20',$person['role_ids']) ? "yes" : "no");
     $table->cell( in_array ('30',$person['role_ids']) ? "yes" : "no");
     $table->cell( in_array ('40',$person['role_ids']) ? "yes" : "no");

@@ -129,7 +129,7 @@ function l_sites_pending()		{ return "/db/sites/join_request.php"; }
 function tab_nodes ()		{ return array ('label'=>'All nodes','url'=>l_nodes(), 
 						'bubble'=>'Display nodes from all peers'); }
 function tab_nodes_local ()	{ return array ('label'=>'Local nodes', 'url'=>l_nodes_peer('local'), 
-						'bubble'=>'Display local nodes only'); }
+						'bubble'=>'Display all nodes local to this peer'); }
 function tab_nodes_site($site_id){ return array ('label'=>'Site nodes', 'url'=>l_nodes_site($site_id), 
 						 'bubble'=>'Display nodes on that site'); }
 function tab_nodes_slice($slice_id){ return array ('label'=>'Slice nodes', 'url'=>l_nodes_slice($slice_id), 
@@ -145,7 +145,7 @@ function tab_mysite()		{ return array ('label'=>'My site', 'url'=>l_site(plc_my_
 						'bubble'=>'Details for site ' . plc_my_site_id()); }
 function tab_sites ()		{ return array ('label'=>'All sites' , 'url'=>l_sites(), 'bubble'=> 'Display all sites'); }
 function tab_sites_local ()	{ return array ('label'=>'Local sites' , 'url'=>l_sites_peer('local'), 
-						'bubble'=> 'Display local sites'); }
+						'bubble'=> 'Display all siteslocal to this peer'); }
 //////////
 function tab_slices()		{ return array ('label'=>'All slices', 'url'=>l_slices(),
 						'bubble' => 'Display all slices'); }
@@ -154,14 +154,14 @@ function tab_slices_mysite ()	{ return array ('label'=>'My site slices', 'url'=>
 function tab_slices_mine ()	{ return array ('label'=>'My site slices', 'url'=>l_slices_site(plc_my_site_id()), 
 						'bubble'=>'Display all slices on my site'); }
 function tab_slices_local ()	{ return array ('label'=>'Local slices', 'url'=>l_slices_local(), 
-						'bubble'=>'Display all slices on my site'); }
+						'bubble'=>'Display all slices local to this peer'); }
 function tab_slice($slice)	{ return array ('label'=>'Slice '.$slice['name'], 'url'=>l_slice($slice['slice_id']),
 						'bubble' => 'Details for ' . $slice['name']); }
 //////////
 function tab_persons()		{ return array ('label'=>'All accounts', 'url'=>l_persons(),
 						'bubble'=>'Display users from all peers'); }
 function tab_persons_local()	{ return array ('label'=>'Local accounts', 'url'=>l_persons_peer('local'),
-						'bubble'=>'Display local users'); }
+						'bubble'=>'Display all users local to this peer'); }
 function tab_persons_mysite()	{ return array ('label'=>'My accounts' , 'url'=>l_persons_site(plc_my_site_id()),
 						'bubble'=>'Display accounts on site ' . plc_my_site_id()); }
 function tab_person($person)	{ return array ('label'=>'Account '.$person['email'], 'url'=>l_person($person['person_id']),

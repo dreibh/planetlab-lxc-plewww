@@ -73,9 +73,17 @@ $is_my_account = plc_my_person_id() == $person_id;
 $privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
 
 $tabs=array();
-$tabs []= tab_persons();
 
 // enable / disable
+// become
+if (plc_is_admin() && ! $is_my_account && $local_peer) 
+  $tabs['Become'] = array('method'=>'POST',
+			  'url'=>l_actions(),
+			  'values'=>array('action'=>'become-person',
+					  'person_id'=>$person_id),
+			  'bubble'=>"Become $first_name $last_name",
+			  'confirm'=>"Are you sure you want to su $first_name $last_name");
+    
 if ($local_peer && $privileges) 
   if ($enabled) 
     $tabs['Disable'] = array ('method'=>'POST',
@@ -92,15 +100,6 @@ if ($local_peer && $privileges)
 			     'bubble'=>"Enable $first_name $last_name",
 			     'confirm'=>"Are you sure you want to enable $first_name $last_name");
 
-// become
-if (plc_is_admin() && ! $is_my_account && $local_peer) 
-  $tabs['Become'] = array('method'=>'POST',
-			  'url'=>l_actions(),
-			  'values'=>array('action'=>'become-person',
-					  'person_id'=>$person_id),
-			  'bubble'=>"Become $first_name $last_name",
-			  'confirm'=>"Are you sure you want to su $first_name $last_name");
-    
 // delete
 if ($local_peer && $privileges && $local_peer) 
   $tabs['Delete'] = array ('method'=>'POST',
