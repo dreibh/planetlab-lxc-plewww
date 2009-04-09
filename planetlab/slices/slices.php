@@ -23,6 +23,8 @@ require_once 'linetabs.php';
 require_once 'table.php';
 require_once 'nifty.php';
 
+ini_set('memory_limit','48M');
+
 // -------------------- 
 // recognized URL arguments
 $peerscope=$_GET['peerscope'];
