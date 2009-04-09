@@ -102,9 +102,18 @@ function plekit_tr_text (tr) {
   return text;
 }
 
+var plekit_table_filter_timeout = null;
 /* scan the table, and mark as visible 
    the rows that match (either AND or OR the patterns) */
-function plekit_table_filter (table_id,pattern_id,and_id) {
+function plekit_table_filter(table_id,pattern_id,and_id) {
+  clearTimeout(plekit_table_filter_timeout);
+  plekit_table_filter_timeout = setTimeout(function() {
+                                             plekit_lazy_table_filter(table_id,pattern_id,and_id)
+                                           },
+                                           200);
+}
+
+function plekit_lazy_table_filter (table_id,pattern_id,and_id) {
   var table=$(table_id);
   var css='#'+table_id+'>tbody';
   var rows = $$(css)[0].rows;
