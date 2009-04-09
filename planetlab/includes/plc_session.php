@@ -23,6 +23,10 @@ require_once 'plc_config.php';
 // Usually in /usr/share/plc_api/php
 require_once 'plc_api.php';
 
+
+require_once 'plc_functions.php';
+
+
 $cwd = getcwd();
 chdir($_SERVER['DOCUMENT_ROOT']);
 $included = include_once('./includes/bootstrap.inc');
@@ -154,5 +158,12 @@ if (!empty($_SESSION['plc'])) {
 
 // For convenience
 $api = $plc->api;
+
+if ($api && $api->AuthCheck() != 1) {
+  $current_pagename = basename($_SERVER['PHP_SELF']);
+  if ($current_pagename != basename(l_logout())) {
+    plc_redirect(l_logout());
+  }
+}
 
 ?>
