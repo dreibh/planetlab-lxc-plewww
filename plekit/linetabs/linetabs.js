@@ -24,6 +24,7 @@ function linetabs () {
   this.c = 0;
   this.d = 20;
   this.animInterval = null;
+  this.elem_div_linetabs = null;
   this.slideObj = null;
   this.aHeight = 0;
 }
@@ -163,16 +164,29 @@ linetabs.prototype.submit = function (message) {
 // globals
 var linetabs_namespace = {
  init: function () {
-    $$('div.linetabs').each (function (div) {   
+    // just give it a little time to load everything.
+    setTimeout('linetabs_namespace.lazyInit()', 1000);
+ },
+
+ lazyInit: function() {
+    linetabs_namespace.elem_div_linetabs = $$('div.linetabs');
+
+    Event.observe('linetabs',
+                  'mouseover', 
+                  function() {
+                      linetabs_namespace.elem_div_linetabs = $$('div.linetabs');
+                  });
+
+    linetabs_namespace.elem_div_linetabs.each (function (div) {   
 	/* create instance and attach it to the <div> element */
 	div.linetabs = new linetabs ();
 	div.linetabs.init(div);
       } ) ;
     
     var intervalMethod = function () {
-      $$('div.linetabs').each (function (div) {
-	  linetabs_namespace.the_linetabs(div).slideIt();
-	} ) ;
+        linetabs_namespace.elem_div_linetabs.each (function (div) {
+                linetabs_namespace.the_linetabs(div).slideIt();
+            } ) ;
     } ;
     linetabs_namespace.animInterval = setInterval(intervalMethod,10);
   },
@@ -180,6 +194,7 @@ var linetabs_namespace = {
  cleanUp: function() {
     clearInterval(linetabs_namespace.animInterval);
     linetabs_namespace.animInterval = null;
+    linetabs_namespace.elem_div_linetabs = null;
   },
  
  resize: function (e) {
@@ -203,6 +218,6 @@ var linetabs_namespace = {
  
 };
  
-Event.observe(window, 'load',linetabs_namespace.init);
+Event.observe(window, 'load', linetabs_namespace.init);
 Event.observe(window, 'unload', linetabs_namespace.cleanUp);
 Event.observe(window, 'resize', linetabs_namespace.resize);
