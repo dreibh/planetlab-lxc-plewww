@@ -67,7 +67,8 @@ function plekit_pagesize_reset(table_id, size_id, size) {
 function plekit_table_row_visible (row,visible) {
   var cn=row.className;
   /* clear */
-  cn=cn.replace(" invisibleRow","");
+  cn=cn.replace("invisibleRow","");
+  cn.strip();
   if (! visible) cn += " invisibleRow";
   row.className=cn;
 }
@@ -148,14 +149,16 @@ function plekit_lazy_table_filter (table_id,pattern_id,and_id) {
     return;
   }
 
-  // re compile all patterns 
-  var pattern_texts = pattern_text.strip().split(" ");
   var searches=new Array();
   var patterns=new Array();
-  for (var i=0; i < pattern_texts.length; i++) {
-    // ignore case
-    searches[i]=pattern_texts[i].toLowerCase();
-    patterns[i]=new RegExp(pattern_texts[i],"i");
+  if (pattern_text.length > 0) {
+      // re compile all patterns 
+      var pattern_texts = pattern_text.strip().split(" ");
+      for (var i=0; i < pattern_texts.length; i++) {
+          // ignore case
+          searches[i]=pattern_texts[i].toLowerCase();
+          patterns[i]=new RegExp(pattern_texts[i],"i");
+      }
   }
 
   // scan rows, elaborate 'visible'
