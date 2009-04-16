@@ -28,7 +28,7 @@ drupal_set_html_head('
 ');
 
 // -------------------- admins potentially need to get full list of users
-ini_set('memory_limit','32M');
+ini_set('memory_limit','48M');
 
 // -------------------- 
 // recognized URL arguments
