@@ -341,7 +341,7 @@ if ($privileges) {
     $headers['first']='string';
     $headers['last']='string';
     $headers['R']='string';
-    $headers['Add']="none";
+    $headers['+']="none";
     $options = array('notes_area'=>false,
 		     'search_width'=>15,
 		     'pagesize'=>8);
@@ -398,6 +398,7 @@ $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
 $toggle_nodes->start();
 
 $headers=array();
+$headers['peer']='string';
 $headers['hostname']='string';
 $headers['arch']='string';
 if ($privileges) $headers[plc_delete_icon()]="none";
@@ -412,6 +413,7 @@ $form->start();
 $table->start();
 if ($nodes) foreach ($nodes as $node) {
   $table->row_start();
+  $peers->cell($table,$node['peer_id']);
   $table->cell(l_node_obj($node));
   $table->cell($node['arch']);
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
@@ -444,9 +446,10 @@ if ($privileges) {
     echo "<p class='not-relevant'>No node to add</p>";
   } else {
     $headers=array();
+    $headers['peer']='string';
     $headers['hostname']='string';
     $headers['arch']='string';
-    $headers['Add']="none";
+    $headers['+']="none";
     
     $table=new PlekitTable('add_nodes',$headers,'1', $table_options);
     $form=new PlekitForm(l_actions(),
@@ -455,6 +458,7 @@ if ($privileges) {
     $table->start();
     if ($potential_nodes) foreach ($potential_nodes as $node) {
 	$table->row_start();
+	$peers->cell($table,$node['peer_id']);
 	$table->cell(l_node_obj($node));
 	$table->cell($node['arch']);
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
