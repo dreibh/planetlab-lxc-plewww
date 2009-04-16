@@ -15,7 +15,7 @@ drupal_set_html_head('
 ////////////////////////////////////////
 // table_id: <table>'s id tag - WARNING : do not use '-' in table ids as it's used for generating javascript code
 // headers: an associative array "label"=>"type" 
-// column_sort: the column to sort on at load-time
+// sort_column: the column to sort on at load-time
 // options : an associative array to override options 
 //  - search_area : boolean (default true)
 //  - pagesize_area : boolean (default true)
@@ -30,7 +30,7 @@ class PlekitTable {
   // mandatory
   var $table_id;
   var $headers;
-  var $column_sort;
+  var $sort_column;
   // options
   var $caption;
   var $search_area;   // boolean (default true)
@@ -43,10 +43,10 @@ class PlekitTable {
   var $notes;         // an array of additional notes
   var $has_tfoot;
 
-  function PlekitTable ($table_id,$headers,$column_sort,$options=NULL) {
+  function PlekitTable ($table_id,$headers,$sort_column,$options=NULL) {
     $this->table_id = $table_id;
     $this->headers = $headers;
-    $this->column_sort = $column_sort;
+    $this->sort_column = $sort_column;
     
     $this->has_tfoot=false;
 
@@ -94,7 +94,7 @@ function $paginator (opts) { plekit_table_paginator (opts,"$this->table_id"); }
 </script>
 <br/>
 <table id="$this->table_id" cellpadding="0" cellspacing="0" border="0" 
-class="plekit_table sortable-onload-$this->column_sort rowstyle-alt colstyle-alt no-arrow $classname">
+class="plekit_table sortable-onload-$this->sort_column rowstyle-alt colstyle-alt no-arrow $classname">
 <thead>
 EOF;
 
