@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 7
+%define taglevel 8
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -123,6 +123,10 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Fri Apr 17 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-8
+- cosmetic fixes to be in 4.3-rc2
+- also a first (unpackaged) draft of the plekit table in python
+
 * Tue Apr 14 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-7
 - search in tables more robust
 
