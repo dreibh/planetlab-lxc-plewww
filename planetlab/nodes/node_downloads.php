@@ -38,6 +38,7 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'details.php';
 
 // NOTE: this function exits() after it completes its job, 
 // simply returning leads to html decorations being added around the contents
@@ -74,7 +75,8 @@ function show_download_confirm_button ($api, $node_id, $action, $can_gen_config,
   if( $can_gen_config ) {
     if ($show_details) {
       $preview=$api->GetBootMedium($node_id,"node-preview","");
-      print ("<hr /> <h3>Current node configuration contents</h3>");
+      print ("<hr />");
+      print ("<h3 class='node_download'>Configuration file contents</h3>");
       print ("<pre>\n$preview</pre>\n");
       print ("<hr />");
     }
@@ -83,12 +85,12 @@ function show_download_confirm_button ($api, $node_id, $action, $can_gen_config,
 			    'download-node-usb' => 'USB image' );
     
     $format = $action_labels [ $action ] ;
-    print( "<p><form method='post' action='node_downloads.php'>\n");
-    print ("<input type='hidden' name='node_id' value='$node_id'>\n");
-    print ("<input type='hidden' name='action' value='$action'>\n");
-    print ("<input type='hidden' name='download' value='1'>\n");
-    print( "<input type='submit' value='Download $format'>\n" );
-    print( "</form>\n" );
+    print( "<div id='download_button'> <form method='post' action='node_downloads.php'>");
+    print ("<input type='hidden' name='node_id' value='$node_id'>");
+    print ("<input type='hidden' name='action' value='$action'>");
+    print ("<input type='hidden' name='download' value='1'>");
+    print( "<input type='submit' value='Download $format'>" );
+    print( "</form></div>\n" );
   } else {
     echo "<p><font color=red>Configuration file cannot be created until missing values above are updated.</font>";
   }
@@ -142,63 +144,48 @@ switch ($action) {
  case "download-node-iso":
  case "download-node-usb":
    
-   $return= $api->GetNodes( array( $node_id ) );
-   $node_detail= $return[0];
+   $nodes = $api->GetNodes( array( $node_id ) );
+   $node = $nodes[0];
 
    // non-admin people need to be affiliated with the right site
    if( ! plc_is_admin() ) {
-     $node_site_id = $node_detail['site_id'];
+     $node_site_id = $node['site_id'];
      $in_site = plc_in_site($node_site_id);
      if( ! $in_site) {
        $error= "Insufficient permission. You cannot create configuration files for this node.";
      }
    }
 
-   $hostname= $node_detail['hostname'];
-   $return= $api->GetInterfaces( array( "node_id" => $node_id ), NULL );
+   $hostname= $node['hostname'];
+   // search for the primary interface
+   $interfaces = $api->GetInterfaces( array( "node_id" => $node_id, "is_primary"=>true ), NULL );
    
    $can_gen_config= 1;
-   $has_primary= 0;
-   
-   if( count($return) > 0 ) {
-     foreach( $return as $interface_detail ) {
-       if( $interface_detail['is_primary'] == true ) {
-	 $has_primary= 1;
-	 break;
-       }
-     }
-   }
 
-   if( !$has_primary ) {
+   if ( ! $interfaces ) {
      $can_gen_config= 0;
    } else {
-     if( $node_detail['hostname'] == "" ) {
+     $interface = $interfaces[0];
+     if ( $node['hostname'] == "" ) {
        $can_gen_config= 0;
-       $node_detail['hostname']= "<i>Missing</i>";
+       $node['hostname']= plc_warning("Missing");
      }
      
+     # fields to check
      $fields= array("method","ip");
+     if ( $interface['method'] == "static" ) 
+       $fields = array_merge ( $fields, array("gateway","netmask","network","broadcast","dns1"));
      foreach( $fields as $field ) {
-       if( $interface_detail[$field] == "" ) {
+       if( $interface[$field] == "" ) {
 	 $can_gen_config= 0;
-	 $interface_detail[$field]= "<i>Missing</i>";
+	 $interface[$field]= plc_warning("Missing");
        }
      }
 
-     if( $interface_detail['method'] == "static" ) {
-       $fields= array("gateway","netmask","network","broadcast","dns1");
-       foreach( $fields as $field ) {
-	 if( $interface_detail[$field] == "" ) {
-	   $can_gen_config= 0;
-	   $interface_detail[$field]= "<i>Missing</i>";
-	 }
-       }
-     }
-
-     if(    $interface_detail['method'] != "static" 
-	 && $interface_detail['method'] != "dhcp" ) {
+     if(    $interface['method'] != "static" 
+	 && $interface['method'] != "dhcp" ) {
        $can_gen_config= 0;
-       $interface_detail['method']= "<i>Unknown method</i>";
+       $interface['method']= "<i>Unknown method</i>";
      }
    }
 
@@ -235,77 +222,66 @@ switch ($action) {
      }
    }
 
-   drupal_set_title("Download boot material for $hostname");
+   drupal_set_title("Download boot medium for $hostname");
 
    $header= <<<EOF
-
-WARNING: Creating a new configuration file for this node will generate
-a new node key, and any existing configuration file will be unusable and
- must be updated before the node can successfully boot, install, or
-go into debug mode.
-
-<p>In order to create a configuration file for this node using this page,
-all the interface settings must be up to date. Below is summary of these
-values. Any missing values must be entered before this can be used.
+<p class='node_download'>
+<span class='bold'>WARNING:</span> Downloading a new boot medium
+for this node will generate <span class='bold'>a new node key</span>, and any 
+formerly downloaded boot medium for that node will become <span class='bold'>outdated</span>.
+<br/>
+<br/>
+In order to create a configuration file for this node using this page,
+the interface settings must be up to date. Below is summary of these
+values. 
+</p>
 
 EOF;
 
    echo $header;
 
    show_download_confirm_button($api, $node_id, $action, $can_gen_config, false);
-   print ("<p>");
-   print ("<h3>Current interface settings</h3>\n");
-   
-if( $has_primary ) {
-  print( "<table border=\"0\" cellspacing=\"4\">\n" );
-  
-  print( "<tr><th colspan='2'><a href='index.php?id=$node_id'>Node Details</a></th></tr>" );
-  print( "<tr><th>node_id:</th>" );
-  print( "<td>$node_id</td></tr>\n" );
-  print( "<tr><th>Hostname:</th>" );
-  print( "<td>" . $node_detail['hostname'] . "</td></tr>\n" );
+   print ("<hr />");
+   print ("<h3 class='node_download'>Current node configuration</h3>");
 
-  $nn_id = $interface_detail['interface_id'];
-  print( "<tr><th colspan='2'><a href='interface.php?id=$nn_id'>Interface Details</a></th></tr>" );
+   $details = new PlekitDetails (false);
+   $details->start();
 
-  print( "<tr><th>Method:</th>" );
-  print( "<td>" . $interface_detail['method'] . "</td></tr>\n" );
-  print( "<tr><th>IP:</th>" );
-  print( "<td>" . $interface_detail['ip'] . "</td></tr>\n" );
+   if( ! $interface ) {
+     print (plc_warning("This node has no configured primary interface."));
+   } else {
+     $details->tr(l_node_t($node_id,"Node details"),"center");
+     $details->th_td("node_id",$node_id);
+     $details->th_td("Hostname",$node['hostname']);
 
-  if( $interface_detail['method'] == "static" ) {
-      print( "<tr><th>Gateway:</th>" );
-      print( "<td>" . $interface_detail['gateway'] . "</td></tr>\n" );
-      print( "<tr><th>Network mask:</th>" );
-      print( "<td>" . $interface_detail['netmask'] . "</td></tr>\n" );
-      print( "<tr><th>Network address:</th>" );
-      print( "<td>" . $interface_detail['network'] . "</td></tr>\n" );
-      print( "<tr><th>Broadcast address:</th>" );
-      print( "<td>" . $interface_detail['broadcast'] . "</td></tr>\n" );
-      print( "<tr><th>DNS 1:</th>" );
-      print( "<td>" . $interface_detail['dns1'] . "</td></tr>\n" );
-      print( "<tr><th>DNS 2:</th>" );
-      if( $interface_detail['dns2'] == "" ) {
-	print( "<td><i>Optional, missing</i></td></tr>\n" );
-      } else {
-	print( "<td>" . $interface_detail['dns2'] . "</td></tr>\n" );
+     $interface_id = $interface['interface_id'];
+     $details->tr(l_interface_t($interface_id,"Interface Details"),"center");
+     $details->th_td("Method",$interface['method']);
+     $details->th_td("IP",$interface['ip']);
+
+     if( $interface['method'] == "static" ) {
+       $details->th_td("Gateway",$interface['gateway']);
+       $details->th_td("Network mask",$interface['netmask']);
+       $details->th_td("Network address",$interface['network']);
+       $details->th_td("Broadcast address",$interface['broadcast']);
+       $details->th_td("DNS 1",$interface['dns1']);
+       if ($interface['dns2'])
+	 $details->th_td("DNS 2",$interface['dns2']);
       }
-    }
 
-  print ("<tr><th colspan='2'><a href='interface.php?id=$nn_id'>Additional Settings</a></th></tr>\n");
-  $nn_id = $interface_detail['interface_id'];
-  $settings=$api->GetInterfaceTags(array("interface_id" => array($nn_id)));
-  foreach ($settings as $setting) {
-    $category=$setting['category'];
-    $name=$setting['tagname'];
-    $value=$setting['value'];
-    print (" <tr><th> $category $name </th><td> $value </td></tr>\n");
-  }
-
-  print( "</table>\n" );
-} else {
-  print( "<p class='plc-warning'>This node has no configured primary interface.</p>\n" );
-}
+     $details->tr(href(l_interface_tags($interface_id),"Interface extra settings (tags)"),"center");
+     $interface_id = $interface['interface_id'];
+     $settings=$api->GetInterfaceTags(array("interface_id" => array($interface_id)));
+     if ( ! $settings) {
+       $details->tr("no tag set","center");
+     } else foreach ($settings as $setting) {
+       $category=$setting['category'];
+       $name=$setting['tagname'];
+       $value=$setting['value'];
+       $details->th_td($category . " " . $name,$value);
+     }
+   }
+   $details->end();
 
  show_download_confirm_button($api, $node_id, $action, $can_gen_config, true);
  break;

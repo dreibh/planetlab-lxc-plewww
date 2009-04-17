@@ -100,7 +100,7 @@ if (! plc_is_admin()) {
 
 if (plc_is_admin()) 
   $tabs['Joining Sites'] = array ('url'=>l_sites_pending(),
-			    'bubble'=>'Review pending join requests');
+				  'bubble'=>'Review pending join requests');
 
 drupal_set_title($title);
 plekit_linetabs($tabs);

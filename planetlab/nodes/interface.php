@@ -70,6 +70,11 @@ drupal_set_html_head ('
 <script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
 ');
 
+$toggle = new PlekitToggle ('interface',"Details",
+			    array('bubble'=>'Display and modify details for that interface',
+				  'visible'=>get_arg('show_details',true)));
+$toggle->start();
+
 $details=new PlekitDetails($can_update);
 
 // xxx hardwire network type for now
@@ -125,6 +130,7 @@ switch ($mode) {
 
 $details->end();
 $form->end();
+$toggle->end();
 
 // no tags if the interface has not been created yet
 if ($mode == 'add') return;

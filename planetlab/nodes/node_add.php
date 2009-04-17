@@ -18,19 +18,12 @@ require_once 'form.php';
 // xxx does not take site into account
 $has_privileges=plc_is_admin() || plc_is_pi() || plc_is_tech();
 if( ! $has_privileges) {
-  drupal_set_error ("Unsufficient provileges to add a node");
+  drupal_set_error ("Insufficient provileges to add a node");
   header( "index.php" );
+  return 0;
 }
 
 //plc_debug('POST',$_POST);
-
-// this sets up which box is to be checked the first time the page is loaded
-// start with static; starting with dhcp does not disable the useless fields
-$method= $_POST['method'];
-if( $method == "" ) $method= "static";
-
-$model= $_POST['model'];
-if( $model == "" ) $model= "Custom";
 
 // if submitted validate and add
 // could go in actions.php but OTOH when things fail it's more convenient 
@@ -144,9 +137,17 @@ drupal_set_html_head ('
 ');
 
 $sites=$api->GetSites(array(plc_my_site_id()));
-$sitename=$sites[0]['name'];
+$site=$site;
+$sitename=$site['name'];
 		       
 drupal_set_title('Add a new node in site "' . $sitename . '"');
+
+// defaults
+$method = $_POST['method'];
+if( ! $method ) $method= "static";
+
+$model = $_POST['model'];
+if( ! $model ) $model= "Custom";
 
 print <<< EOF
 <p class='node_add'>

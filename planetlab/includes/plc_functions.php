@@ -28,6 +28,11 @@ function plc_in_site ($site_id) {
   return in_array( $site_id, $plc->person['site_ids']);
 }
 
+function plc_my_site_ids () {
+  global $plc;
+  return $plc->person['site_ids'];
+}
+
 function plc_my_site_id () {
   global $plc;
   return $plc->person['site_ids'][0];
@@ -61,6 +66,7 @@ function l_nodes_site ($site_id)	{ return "/db/nodes/index.php?site_id=$site_id"
 function l_nodes_slice ($slice_id)	{ return "/db/nodes/index.php?slice_id=$slice_id"; }
 
 function l_interface ($interface_id)	{ return "/db/nodes/interface.php?id=$interface_id"; }
+function l_interface_tags($interface_id){ return "/db/nodes/interface.php?id=$interface_id&show_details=0&show_tags=1"; }
 function l_interface_t ($interface_id,$text) { 
 					  return href (l_interface($interface_id),$text); }
 function l_interface_add($node_id)	{ return "/db/nodes/interface.php?node_id=$node_id"; }
