@@ -82,7 +82,7 @@ if (plc_is_admin() && ! $is_my_account && $local_peer)
 			  'values'=>array('action'=>'become-person',
 					  'person_id'=>$person_id),
 			  'bubble'=>"Become $first_name $last_name",
-			  'confirm'=>"Are you sure you want to su $first_name $last_name");
+			  'confirm'=>"Are you sure you want to become $first_name $last_name");
     
 if ($local_peer && $privileges) 
   if ($enabled) 
