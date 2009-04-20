@@ -240,7 +240,7 @@ switch ($action) {
    
    $key_id = $api->AddPersonKey( intval( $person_id ), array( "key_type"=> 'ssh', "key"=> $key ) );
    
-   if ( $key_id == 1) 
+   if ( $key_id >= 1) 
      drupal_set_message ("New key added");
    else
      drupal_set_error("Could not add key, please verify your SSH file content\n" . $api->error());
