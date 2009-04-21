@@ -73,3 +73,28 @@ p.node_add {
     font-size: larger;
 }
 
+p.node_download {
+    font-style: italic;
+    padding: 20px 40px;
+    font-size: larger;
+}
+
+div.slice_add {
+    padding: 20px 40px;
+}
+div.slice_add p {
+    font-size: larger;
+*    text-align: center; */
+}
+div.slice_add * {
+    font-style: italic;
+}
+.bold {
+    font-weight: bold;
+}
+#download_button, #slice_add_button {
+    text-align:center;
+}
+h3.node_download {
+    text-align: center;
+}
