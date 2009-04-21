@@ -183,7 +183,7 @@ if ($am_in_slice) {
   drupal_set_title("Slice " . $name);
 }
 
-$privileges = ( $local_peer && (plc_is_admin()  || $am_in_slice));
+$privileges = ( $local_peer && (plc_is_admin()  || plc_is_pi() || $am_in_slice));
 
 $tabs=array();
 $tabs [] = tab_nodes_slice($slice_id);
@@ -195,7 +195,7 @@ if ($privileges) {
 			  'method'=>'post',
 			  'values'=>array('action'=>'delete-slice','slice_id'=>$slice_id),
 			  'bubble'=>"Delete slice $name",
-			  'confirm'=>'Are you sure to delete $name');
+			  'confirm'=>"Are you sure to delete slice $name");
 
   $tabs["Events"]=array_merge(tablook_event(),
 			      array('url'=>l_event("Slice","slice",$slice_id),

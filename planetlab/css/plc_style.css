@@ -98,3 +98,9 @@ div.slice_add * {
 h3.node_download {
     text-align: center;
 }
+div#add_slice_in_site {
+    text-align:center;
+}
+#add_slice_choose_site {
+    margin:20px ;
+}

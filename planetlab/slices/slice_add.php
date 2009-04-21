@@ -87,10 +87,7 @@ if ( $_POST['add-slice'] ) {
     // add it!
     $slice_id= $api->AddSlice( $fields );
 
-    if ($slice_id < 0) {
-      drupal_set_error("Could not create slice $name " . $api->error() );
-      $check=false;
-    } else {
+    if ($slice_id > 0) {
       drupal_set_message ("Slice $slice_id created");
       if ($person_ids) {
         // Add people
@@ -111,6 +108,9 @@ if ( $_POST['add-slice'] ) {
 	  drupal_set_error ("Could not add all selected persons, only $counter were added");
       }
       plc_redirect(l_slice($slice_id) );
+    } else {
+      drupal_set_error("Could not create slice $name " . $api->error() );
+      $check=false;
     }
   }
  }
@@ -148,18 +148,37 @@ if( $error['description'] )
   $desc_error= " class='plc-warning'";
 
 
-// add javaScript code
-print <<< EOF
-<script type='text/javascript'>
-  function update(str1) {
-  var temp= new Array()
-  temp= str1.split('->');
-  var c= ( temp[1] + '_' )
-  document.getElementById('textbox').value = c;
-}
-</script>
-EOF;
+// is there a need to consider several sites ?
+$multiple_sites=false;
+$site_columns=array('name','login_base','site_id');
+if (plc_is_admin ()) {
+  $multiple_sites=true;
+  $filter=NULL;
+ } else if (count (plc_my_site_ids()) > 1) {
+  $multiple_sites=true;
+  $filter=plc_my_site_ids();
+ }
 
+if ($multiple_sites) {
+  print "<div id='add_slice_in_site'>";
+  $other_sites=$api->GetSites($filter,$site_columns);
+  $selectors=array();
+  foreach ($other_sites as $other_site) {
+    $selector=array('display'=>$other_site['name'],
+		    'value'=>$other_site['site_id']);
+    if ($other_site['site_id']==$other_site_id) $selector['selected']='selected';
+    $selectors []= $selector;
+  }
+
+  $site_form = new  PleKitForm (l_slice_add(),array(),'get');
+  $site_form->start();
+  print $site_form->label_html('site_id','Or choose some other site');
+  print $site_form->select_html('site_id',$selectors,array('autosubmit'=>true,
+							   'id'=>'add_slice_choose_site'));
+  $site_form->end();
+  print "</div>";
+ }
+		  
 print <<< EOF
 <div class='slice_add'>
 <p>You must provide a short description of the new slice 
@@ -189,30 +208,11 @@ print $form->hidden_html("site_id",$site_id);
 
 $details->start();
 
-// is the user on several sites ?
-if (plc_is_admin () || count (plc_my_site_ids()) > 1) {
-  // site selector - not implemented yet
-//// // displays a site select list for admins and multi-site users
-//// if( count( $_person['site_ids'] ) > 1 || in_array( 10, $_roles ) ) {
-////   // get sites depending on role and sites associated.
-////   if( in_array( 10, $_roles ) )
-////     $site_info= $api->GetSites( NULL, array( "name", "site_id", "login_base" ) );
-////   elseif( count( $_person['site_ids'] ) > 1 )
-////     $site_info= $api->GetSites( $_person['site_ids'], array( "name", "site_id", "login_base" ) );
-//// 
-////   echo "<tr><th>Site: </th><td><select onchange='update(this[selectedIndex].text)' name='site_id'>\n";
-//// 
-////   foreach( $site_info as $site ) {
-////     echo "<option value=". $site['site_id'];
-////     if( $site['site_id'] == $_person['site_ids'][0] )
-////       echo " selected";
-////     echo ">". $site['name'] ."->". $site['login_base'] ."</option>\n";
-////   }
-//// 
-////   echo "</select></td><td></td></tr>\n";
-
-}
-
+$running=count($site['slice_ids']);
+$max=$site['max_slices'];
+$allocated = " $running running / $max max";
+if ($running >= $max) $allocated = plc_warning_html($allocated);
+$details->th_td("Allocated slices",$allocated);
 $details->th_td("Name",$name ? $name : $base, "name");
 $details->th_td("URL",$url,"url");
 $details->th_td("Description",$description,"description",

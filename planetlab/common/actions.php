@@ -448,12 +448,11 @@ switch ($action) {
 //////////////////////////////////////////////////////////// slices
  case 'delete-slice': {
    $slice_id = $_POST['slice_id'];
-   $api->DeleteSlice( intval( $slice_id ) );
-   $error= $api->error();
-   if( empty( $error ) ) {
-       drupal_set_message("Deleted slice $slice_id");
+   if ($api->DeleteSlice( intval( $slice_id )) == 1 ) {
+     drupal_set_message("Slice $slice_id deleted");
+     plc_redirect(l_slices());
    } else {
-       drupal_set_error($error);
+     drupal_set_error("Could not delete slice $slice_id " . $api->error());
    }
    break;
  }
