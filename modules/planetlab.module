@@ -37,7 +37,7 @@ function planetlab_menu($may_cache) {
   if ($may_cache) {
     $items[] = array(
 		     'path' => 'planetlab/common/logout',
-		     'title' => t('Log out of %s', array('%s' => variable_get('site_name', 'local'))),
+		     'title' => t('Logout of %s', array('%s' => variable_get('site_name', 'local'))),
 		     'callback' => 'planetlab_logout',
 		     'access' => TRUE,
 		     'type' => MENU_CALLBACK
@@ -113,22 +113,22 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $is_user  = in_array(30,$plc->person['role_ids']);
       $is_tech  = in_array(40,$plc->person['role_ids']);
 
-      //////////////////// Log out
+      //////////////////// Logout
       if ($user->uid) {
 	// Drupal logout (destroys the session and cleans up $user)
 	// Thierry unclear when this triggers, I suspect this is obsolete
-	$items[] = leaf (l(t('Log out of %s', 
+	$items[] = leaf (l(t('Logout of %s', 
 			     array('%s' => variable_get('site_name', 'local'))), 'logout'));
       } else {
 	// PlanetLab logout (just destroy the session)
-	$items[] = leaf ( href (l_logout(),'Log out'));
+	$items[] = leaf ( href (l_logout(),'Logout'));
       }
       
       //////////////////// Sites
       $site_item = '';
       $site_item .= href(l_sites(),"Sites");
       $site_item .= ul_start();
-      $site_item .= leaf( href(l_site(plc_my_site_id()),"My site"));
+      $site_item .= leaf( href(l_site(plc_my_site_id()),"My Site"));
       if ( $is_admin ) 
 	$site_item .= leaf( href(l_sites_pending(),"Pending Requests"));
       $site_item .= ul_end();
@@ -138,12 +138,12 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $user_item = '';
       $user_item .= href(l_persons(),'Users');
       $user_item .= ul_start();
-      $user_item .= leaf( l_person_t(plc_my_person_id(),"My account"));
+      $user_item .= leaf( l_person_t(plc_my_person_id(),"My Account"));
       if (is_pi) 
-	$user_item .= leaf( href( l_persons_site(plc_my_site_id()), "My users"));
+	$user_item .= leaf( href( l_persons_site(plc_my_site_id()), "My Users"));
       if ( $plc->alt_person && $plc->alt_auth) {
 	$email = truncate($plc->person['email'],20); 
-	$user_item .= leaf( href( l_sulogout(),"Log out of $email"));
+	$user_item .= leaf( href( l_sulogout(),"Logout of $email"));
       }	
       $user_item .= ul_end();
       $items [] = expanded($user_item);
