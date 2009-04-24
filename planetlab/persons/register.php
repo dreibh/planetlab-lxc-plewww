@@ -189,7 +189,8 @@ $adm->begin();
 
 // All defined sites
 // cannot register with foreign site
-$adm->GetSites(array('is_public' => TRUE, 'peer_id' => NULL), array('site_id', 'name','enabled','peer_id'));
+$adm->GetSites(array('is_public' => TRUE, 'peer_id' => NULL,'-SORT'=>'name'), 
+	       array('site_id', 'name','enabled','peer_id'));
 // All defined roles
 $adm->GetRoles();
 
