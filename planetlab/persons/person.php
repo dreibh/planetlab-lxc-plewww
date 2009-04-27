@@ -69,8 +69,10 @@ $local_peer = ! $peer_id;
 
 $peers = new Peers ($api);
 
+if (count($site_ids))
+    $site_id = $site_ids[0];
 $is_my_account = plc_my_person_id() == $person_id;
-$privileges = plc_is_admin () || ( plc_in_site($site_id) && plc_is_pi());
+$privileges = plc_is_admin () || ( plc_in_site($site_ids[0]) && plc_is_pi());
 
 $tabs=array();
 
