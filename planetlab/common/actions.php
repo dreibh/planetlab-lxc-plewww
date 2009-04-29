@@ -600,8 +600,11 @@ switch ($action) {
    if ($result)
      drupal_set_message ("Added slice tag.");
    else 
-     drupal_set_error("Could not add slice tag");
-   plc_redirect(l_slice($slice_id) . "&show_tags=true" );
+       drupal_set_error("Could not add slice tag");
+   if ($_POST['sliver_action'])
+       plc_redirect(l_sliver($node_id,$slice_id));
+   else
+       plc_redirect(l_slice($slice_id) . "&show_tags=true" );
    break;
  }
 
