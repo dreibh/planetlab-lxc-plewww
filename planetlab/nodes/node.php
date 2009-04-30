@@ -235,7 +235,7 @@ $form->start();
   } else {
     $headers=array();
     $headers['Peer']="string";
-    $headers['Name']="string";
+    $headers['Slice Name']="string";
     $headers['Sliver']="string";
     $reasonable_page=10;
     $table_options = array('notes_area'=>false,"search_width"=>10,'pagesize'=>$reasonable_page);
@@ -251,7 +251,7 @@ $form->start();
       $peers->cell ($table,$slice['peer_id']);
       $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
       # xxx l_sliver not implemented yet - what should we show exactly ?
-      $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'view'));
+      $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'sliver tags'));
       $table->row_end();
     }
     $table->end();
