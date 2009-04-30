@@ -41,6 +41,7 @@ $node=$nodes[0];
 // node info
 $hostname= $node['hostname'];
 $boot_state= $node['boot_state'];
+$run_level = $node['run_level'];
 $site_id= $node['site_id'];
 $model= $node['model'];
 $version= $node['version'];
@@ -166,6 +167,7 @@ $details->th_td("Last update",$Node->lastUpdated());
 
 // boot area
 $details->space ();
+$details->th_td ("Observed Boot state",$run_level);
 if ( ! ($local_peer && $privileges)) {
   // just display it
   $boot_value=$boot_state;
@@ -174,8 +176,8 @@ if ( ! ($local_peer && $privileges)) {
   $boot_form = new PlekitForm (l_actions(), array("node_id"=>$node_id,
 					       "action"=>"node-boot-state"));
   $boot_value .= $boot_form->start_html();
-  $states = array( 'boot'=>'Boot', 'safeboot'=>'SafeBoot', 'failboot'=>'FailBoot', 
-		   'disabled' => 'Disabled', 'install'=>'Install', 'reinstall'=>'Reinstall');
+  $states = array( 'boot'=>'Boot', 'safeboot'=>'SafeBoot', 
+		   'disabled' => 'Disabled', 'reinstall'=>'Reinstall');
   $selectors=array();
   foreach ($states as $dbname=>$displayname) { 
     $selector=array("display"=>$displayname, "value"=>$dbname);
@@ -185,7 +187,7 @@ if ( ! ($local_peer && $privileges)) {
   $boot_value .= $boot_form->select_html("boot_state",$selectors,array('autosubmit'=>true));
   $boot_value .= $boot_form->end_html();
  }
-$details->th_td ("Boot state",$boot_value);
+$details->th_td ("Preferred Boot state",$boot_value);
 
 // same here for the download area
 if ( $local_peer  && $privileges) {
