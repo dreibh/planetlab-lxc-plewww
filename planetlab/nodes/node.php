@@ -197,6 +197,7 @@ if ( $local_peer  && $privileges) {
 		     array("display"=>"-- All in one images --","disabled"=>true),
 		     array("value"=>"download-node-iso","display"=>"Download ISO image for $hostname"),
 		     array("value"=>"download-node-usb","display"=>"Download USB image for $hostname"),
+		     array("value"=>"download-node-usb-partition", "display"=>"Download partitioned, USB image for $hostname"),
 		     array("display"=>"-- Floppy + generic image --","disabled"=>true),
 		     array("value"=>"download-node-floppy","display"=>"Download Floppy file for $hostname"),
 		     array("value"=>"download-generic-iso","display"=>"Download generic ISO image (requires floppy)"),

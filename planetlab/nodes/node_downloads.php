@@ -143,6 +143,8 @@ switch ($action) {
  case "download-node-floppy":
  case "download-node-iso":
  case "download-node-usb":
+ case "download-node-usb-partition":
+
    
    $nodes = $api->GetNodes( array( $node_id ) );
    $node = $nodes[0];
@@ -196,18 +198,26 @@ switch ($action) {
      case 'download-node-floppy':
        $boot_action='node-floppy'; 
        $location = "%d/%n-%v-rename-into-plnode%s";
+       $options = array();
        break;
      case 'download-node-iso':
        $boot_action='node-iso';
        $location = "%d/%n-%a-%v%s";
+       $options = array();
        break;
      case 'download-node-usb':
        $boot_action='node-usb';
        $location = "%d/%n-%a-%v%s";
+       $options = array();
+       break;
+     case "download-node-usb-partition":
+       $boot_action='node-usb';
+       $location = "%d/%n-%a-%v-partition%s";
+       $options = array('partition');
        break;
      }	 
 
-     $filename=$api->GetBootMedium($node_id,$boot_action,$location);
+     $filename=$api->GetBootMedium($node_id,$boot_action,$location,$options);
      $error=$api->error();
      if (empty($error) && empty($filename)) {
        $error="Unexpected error from GetBootMedium - probably wrong directory modes";
