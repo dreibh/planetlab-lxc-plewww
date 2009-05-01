@@ -271,6 +271,15 @@ class Node extends PlcObject {
   function lastContact() {
     return $this->timeaway($this->last_contact);
   }
+  function stale() {
+    $now = time();
+	$STALE_LENGTH = 60*60;	/* TODO: set by some policy */
+    if ( $this->last_contact + $STALE_LENGTH > $now ) {
+	    return False;
+	} else {
+	    return True;
+	}
+  }
   function timeaway($val) {
     if ( $val != NULL ) {
       $ret = timeDiff(intval($val));

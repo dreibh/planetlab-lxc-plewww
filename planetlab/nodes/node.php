@@ -167,7 +167,7 @@ $details->th_td("Last update",$Node->lastUpdated());
 
 // boot area
 $details->space ();
-$details->th_td ("Observed Boot state",$run_level);
+$details->th_td ("Observed Boot state",$run_level . ( $Node->stale() ? " -- stale value" : "" ));
 if ( ! ($local_peer && $privileges)) {
   // just display it
   $boot_value=$boot_state;
