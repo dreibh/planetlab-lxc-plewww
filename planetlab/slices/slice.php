@@ -28,7 +28,7 @@ drupal_set_html_head('
 ');
 
 // -------------------- admins potentially need to get full list of users
-ini_set('memory_limit','64M');
+ini_set('memory_limit','32M');
 
 // -------------------- 
 // recognized URL arguments
@@ -267,7 +267,9 @@ $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']));
 // just propose to add everyone else, 
 // as regular persons can see only a fraction of the db anyway
 if (empty($persons))
-    $potential_persons=$api->GetPersons();
+    $potential_persons=$api->GetPersons(
+        array(),
+        array('email','person_id','first_name','last_name','roles'));
 else
     $potential_persons=
         $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
@@ -379,7 +381,8 @@ $toggle->end();
 $node_columns = array('hostname','node_id','arch');
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 if (empty($nodes))
-    $potential_nodes=$api->GetNodes();
+    $potential_nodes=$api->GetNodes(array(),
+                                    $node_columns);
 else
     $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
