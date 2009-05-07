@@ -164,7 +164,7 @@ EOF;
     $search_and_id = $this->table_id . "_search_and";
     $result = <<< EOF
 <tr class='search_area'><td class='search_area' colspan='$width'>
-<form class='search' action='satisfy_xhtml_validator'><fieldset>
+<div class='search'><fieldset>
    <label class='search_label'> Search </label> 
    <input class='search_input' type='text' id='$search_text_id'
       onkeyup='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");'
@@ -175,7 +175,7 @@ EOF;
       onchange='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");' />
    <img class='reset' src="/planetlab/icons/clear.png" alt="reset search"
       onmousedown='plekit_table_filter_reset("$this->table_id","$search_text_id","$search_and_id");' />
-</fieldset></form></td></tr>
+</fieldset></div></td></tr>
 EOF;
     return $result;
   }

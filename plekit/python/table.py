@@ -94,7 +94,7 @@ class="plekit_table sortable-onload-self.sort_column rowstyle-alt colstyle-alt n
         search_and_id = self.table_id + "_search_and"
         result = """
 <tr class='search_area'><td class='search_area' colspan='%(width)s'>
-<form class='search' action='satisfy_xhtml_validator'><fieldset>
+<div class='search'><fieldset>
    <label class='search_label'> Search </label> 
    <input class='search_input' type='text' id='%(search_text_id)s'
       onkeyup='plekit_table_filter("self.table_id","%(search_text_id)s","%(search_and_id)s");'
@@ -105,7 +105,7 @@ class="plekit_table sortable-onload-self.sort_column rowstyle-alt colstyle-alt n
       onchange='plekit_table_filter("self.table_id","%(search_text_id)s","%(search_and_id)s");' />
    <img class='reset' src="/planetlab/icons/clear.png" alt="reset search"
       onmousedown='plekit_table_filter_reset("self.table_id","%(search_text_id)s","%(search_and_id)s");' />
-</fieldset></form></td></tr>
+</fieldset></div></td></tr>
 """ % locals()
         return result
 
