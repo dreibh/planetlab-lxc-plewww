@@ -20,6 +20,7 @@ class plekit_table:
         self.pagesize_def=pagesize_def
         self.max_pages=max_pages
         self.notes=notes
+        self.has_tfoot=False
 
     def columns (self):
         return len(self.headers)
@@ -135,8 +136,8 @@ class="plekit_table sortable-onload-self.sort_column rowstyle-alt colstyle-alt n
         if (self.notes):
             notes=self.notes
         else:
-            notes=array()
-        notes = notes + default_notes
+            notes=[]
+        notes = notes + self.default_notes
         result = ""
         result += "<p class='table_note'> <span class='table_note_title'>Notes</span>\n"
         for note in notes:
