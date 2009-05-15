@@ -94,7 +94,7 @@ if (! plc_is_admin()) {
   $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" );
   $site_filter = array_merge ($site_filter, array ("enabled" => TRUE));
  } else {
-  $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" , 
+  $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" , "is_public",
 			"enabled", "person_ids", "max_slices", "slice_ids", "node_ids");
  }
 
