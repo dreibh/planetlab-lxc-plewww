@@ -74,17 +74,19 @@ class="plekit_table sortable-onload-self.sort_column rowstyle-alt colstyle-alt n
     def pagesize_area_html (self):
         width=len(self.headers)
         pagesize_text_id = self.table_id + "_pagesize"
+        result_dict = locals()
+        result_dict.update(self.__dict__)
         result = """
 <tr class='pagesize_area'><td class='pagesize_area' colspan='%(width)s'>
 <form class='pagesize' action='satisfy_xhtml_validator'><fieldset>
-   <input class='pagesize_input' type='text' id="%(pagesize_text_id)s" value='self.pagesize'
-      onkeyup='plekit_pagesize_set("self.table_id","%(pagesize_text_id)s", self.pagesize);' 
+   <input class='pagesize_input' type='text' id="%(pagesize_text_id)s" value='%(pagesize)s'
+      onkeyup='plekit_pagesize_set("%(table_id)s","%(pagesize_text_id)s", %(pagesize)s);' 
       size='3' maxlength='3' /> 
   <label class='pagesize_label'> items/page </label>   
   <img class='reset' src="/planetlab/icons/clear.png" alt="reset visible size"
-      onmousedown='plekit_pagesize_reset("self.table_id","%(pagesize_text_id)s",self.pagesize_def);' />
+      onmousedown='plekit_pagesize_reset("%(table_id)s","%(pagesize_text_id)s",%(pagesize_def)s);' />
 </fieldset></form></td></tr>
-""" % locals()
+""" % result_dict
         return result
 
     ##########      
@@ -93,21 +95,23 @@ class="plekit_table sortable-onload-self.sort_column rowstyle-alt colstyle-alt n
         search_text_id = self.table_id + "_search"
         search_reset_id = self.table_id + "_search_reset"
         search_and_id = self.table_id + "_search_and"
+        result_dict = locals()
+        result_dict.update(self.__dict__)
         result = """
 <tr class='search_area'><td class='search_area' colspan='%(width)s'>
 <div class='search'><fieldset>
    <label class='search_label'> Search </label> 
    <input class='search_input' type='text' id='%(search_text_id)s'
-      onkeyup='plekit_table_filter("self.table_id","%(search_text_id)s","%(search_and_id)s");'
-      size='self.search_width' maxlength='256' />
+      onkeyup='plekit_table_filter("%(table_id)s","%(search_text_id)s","%(search_and_id)s");'
+      size='%(search_width)s' maxlength='256' />
    <label>and</label>
    <input id='%(search_and_id)s' class='search_and' 
       type='checkbox' checked='checked' 
-      onchange='plekit_table_filter("self.table_id","%(search_text_id)s","%(search_and_id)s");' />
+      onchange='plekit_table_filter("%(table_id)s","%(search_text_id)s","%(search_and_id)s");' />
    <img class='reset' src="/planetlab/icons/clear.png" alt="reset search"
-      onmousedown='plekit_table_filter_reset("self.table_id","%(search_text_id)s","%(search_and_id)s");' />
+      onmousedown='plekit_table_filter_reset("%(table_id)s","%(search_text_id)s","%(search_and_id)s");' />
 </fieldset></div></td></tr>
-""" % locals()
+""" % result_dict
         return result
 
     ##########
