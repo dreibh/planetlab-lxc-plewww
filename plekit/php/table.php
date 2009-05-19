@@ -17,6 +17,9 @@ drupal_set_html_head('
 // headers: an associative array "label"=>"type" 
 // sort_column: the column to sort on at load-time
 // options : an associative array to override options 
+//  - bullets1 : set to true if you want decorative bullets in column 1 (need white background)
+//  - stripes : use diferent colors for odd and even rows
+//  - caption : a caption for the table -- never used I'm afraid
 //  - search_area : boolean (default true)
 //  - pagesize_area : boolean (default true)
 //  - notes_area : boolean (default true)
@@ -32,6 +35,8 @@ class PlekitTable {
   var $headers;
   var $sort_column;
   // options
+  var $bullets1;      // boolean - default false - display decorative bullets in column 1
+  var $stripes;	      // boolean - default true - use different colors for odd and even rows
   var $caption;
   var $search_area;   // boolean (default true)
   var $pagesize_area; // boolean (default true)
@@ -47,6 +52,8 @@ class PlekitTable {
     $this->table_id = $table_id;
     $this->headers = $headers;
     $this->sort_column = $sort_column;
+    $this->bullets1 = true;
+    $this->stripes=true;
     
     $this->has_tfoot=false;
 
@@ -65,6 +72,8 @@ class PlekitTable {
   function set_options ($options) {
     if ( ! $options)
       return;
+    if (array_key_exists('bullets1',$options)) $this->bullets1=$options['bullets1'];
+    if (array_key_exists('stripes',$options)) $this->stripes=$options['stripes'];
     if (array_key_exists('caption',$options)) $this->caption=$options['caption'];
     if (array_key_exists('search_area',$options)) $this->search_area=$options['search_area'];
     if (array_key_exists('pagesize_area',$options)) $this->pagesize_area=$options['pagesize_area'];
@@ -87,6 +96,8 @@ class PlekitTable {
     $classname="paginationcallback-".$paginator;
     $classname.=" max-pages-" . $this->max_pages;
     $classname.=" paginate-" . $this->pagesize;
+    if ($this->bullets1) { $classname .= " bullets1"; }
+    if ($this->stripes) { $classname .= " rowstyle-alt"; }
   // instantiate paginator callback
     print <<< EOF
 <script type="text/javascript"> 
@@ -94,7 +105,7 @@ function $paginator (opts) { plekit_table_paginator (opts,"$this->table_id"); }
 </script>
 <br/>
 <table id="$this->table_id" cellpadding="0" cellspacing="0" border="0" 
-class="plekit_table sortable-onload-$this->sort_column rowstyle-alt colstyle-alt no-arrow $classname">
+class="plekit_table sortable-onload-$this->sort_column colstyle-alt no-arrow $classname">
 <thead>
 EOF;
 

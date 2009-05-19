@@ -90,12 +90,12 @@ table.plekit_table>tbody>tr>td [class~="alt"] {
     background: #edf3f3 url(/plekit/icons/tablesort-col-alt.jpg) no-repeat !important;
 }
 /* Poor old Internet Explorer won't see the next two rules either as it doesn't get :first-child */
-table.plekit_table>tbody>tr.alt>td:first-child {
+table.bullets1>tbody>tr.alt>td:first-child {
     background-color: #F5FAFA;
     background-image: url(/plekit/icons/tablesort-bullet2.gif);
     background-repeat: no-repeat;
 }
-table.plekit_table>tbody>tr>td:first-child {
+table.bullets1>tbody>tr>td:first-child {
     background-image: url(/plekit/icons/tablesort-bullet1.gif);
     background-repeat: no-repeat;
 }

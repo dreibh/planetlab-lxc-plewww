@@ -18,6 +18,7 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_objects.php';
+require_once 'plc_peers.php';
 require_once 'table.php';
 require_once 'form.php';
 require_once 'toggle.php';
@@ -51,9 +52,12 @@ function display_form ($pattern) {
   $toggle->start();
   print <<< EOF
 <p id='admin-search-message'>
-This form searches for any entry in the database matching a name fragment, or token. <br/>
-Specifically it searches for persons, slices, sites and nodes. <br/>
-You can specify a space-separated list of tokens, all entries matching any token would then get listed.
+This form searches for <span class="bold">any entry</span> in the database 
+(among <span class="bold">persons</span>, <span class="bold">slices</span>, 
+<span class="bold">sites</span> and <span class="bold">nodes</span>) 
+matching a name fragment, or token. <br/>
+You can specify a space-separated list of tokens, all entries matching 
+<span class="bold">any token</span> would then get listed.
 </p>
 EOF;
   print "<div id='admin-search-form'>";
@@ -123,6 +127,9 @@ function plc_node_link ($node_id) {global $nodes_hash; return l_node_obj($nodes_
 global $table_options;
 $table_options = array('notes_area'=>false);
 
+global $peers;
+$peers = new Peers ($api);
+
 function display_persons ($persons,$visible) {
   if ( ! $persons) return;
   
@@ -130,16 +137,19 @@ function display_persons ($persons,$visible) {
   $toggle->start();
 
   $headers=array('id'=>'int',
+		 'P'=>'string',
 		 'email'=>'string',
 		 'sites'=>'string',
 		 'slices'=>'string',
 		 'roles'=>'string');
   global $table_options;
+  global $peers;
   $table=new PlekitTable('persons',$headers,1,$table_options);
   $table->start();
   foreach ($persons as $person) {
     $table->row_start();	
     $table->cell($person['person_id']);
+    $peers->cell($table,$person['peer_id']);
     $table->cell(l_person_obj($person));
     $table->cell(plc_vertical_table(array_map("plc_site_link",$person['site_ids'])));
     $table->cell(plc_vertical_table(array_map("plc_slice_link",$person['slice_ids'])));
@@ -157,16 +167,19 @@ function display_slices ($slices,$visible) {
   $toggle->start();
 
   $headers=array('id'=>'int',
+		 'P'=>'string',
 		 'name'=>'string',
 		 'site'=>'string',
 		 'persons'=>'string',
 		 'N'=>'string');
   global $table_options;
+  global $peers;
   $table=new PlekitTable('slices',$headers,1,$table_options);
   $table->start();
   foreach ($slices as $slice) {
     $table->row_start();	
     $table->cell($slice['slice_id']);
+    $peers->cell($table,$slice['peer_id']);
     $table->cell(l_slice_obj($slice));
     global $sites_hash;
     $site=$sites_hash[$slice['site_id']];
@@ -188,17 +201,20 @@ function display_sites ($sites,$visible) {
   $toggle->start();
 
   $headers=array('id'=>'int',
+		 'P'=>'string',
 		 'name'=>'string',
 		 'url'=>'string',
 		 'persons'=>'string',
 		 'slices'=>'string',
 		 'nodes'=>'string');
   global $table_options;
+  global $peers;
   $table=new PlekitTable('sites',$headers,1,$table_options);
   $table->start();
   foreach ($sites as $site) {
     $table->row_start();	
     $table->cell($site['site_id']);
+    $peers->cell($table,$site['peer_id']);
     $table->cell(l_site_obj($site));
     $table->cell(href($site['url'],$site['url']));
     $table->cell(plc_vertical_table(array_map("plc_person_link",$site['person_ids'])));
@@ -217,15 +233,18 @@ function display_nodes ($nodes,$visible) {
   $toggle->start();
 
   $headers=array('id'=>'int',
+		 'P'=>'string',
 		 'hostname'=>'string',
 		 'site'=>'string',
 		 'slices'=>'string');
   global $table_options;
+  global $peers;
   $table=new PlekitTable('nodes',$headers,1,$table_options);
   $table->start();
   foreach ($nodes as $node) {
     $table->row_start();	
     $table->cell($node['node_id']);
+    $peers->cell($table,$node['peer_id']);
     $table->cell(l_node_obj($node));
     global $sites_hash;
     $site=$sites_hash[$node['site_id']];
