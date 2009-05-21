@@ -26,7 +26,7 @@ include 'plc_header.php';
 <?php
 
 // All defined sites
-$sites = $adm->GetSites(array('is_public' => TRUE), array('name', 'url'));
+$sites = $adm->GetSites(array('is_public' => TRUE, 'peer_id' => NULL), array('name', 'url'));
 
 foreach ($sites as $site) {
   $name = htmlspecialchars($site['name']);
