@@ -263,17 +263,13 @@ $details->form_end();
 $toggle->end();
 
 //////////////////// persons
+$person_columns = array('email','person_id','first_name','last_name','roles');
 $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']));
 // just propose to add everyone else, 
 // as regular persons can see only a fraction of the db anyway
-if (empty($persons))
-    $potential_persons=$api->GetPersons(
-        array(),
-        array('email','person_id','first_name','last_name','roles'));
-else
-    $potential_persons=
-        $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
-                         array('email','person_id','first_name','last_name','roles'));
+$potential_persons=
+  $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
+		   $person_columns);
 $count=count($persons);
 
 $toggle=
@@ -380,11 +376,7 @@ $toggle->end();
 // minimal list as a start
 $node_columns = array('hostname','node_id','arch');
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
-if (empty($nodes))
-    $potential_nodes=$api->GetNodes(array(),
-                                    $node_columns);
-else
-    $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
+$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
 
 $toggle=new PlekitToggle ('my-slice-nodes',"$count Nodes",
