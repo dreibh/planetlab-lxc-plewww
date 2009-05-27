@@ -184,6 +184,7 @@ if ($am_in_slice) {
 }
 
 $privileges = ( $local_peer && (plc_is_admin()  || plc_is_pi() || $am_in_slice));
+$tags_privileges = $privileges || plc_is_admin();
 
 $tabs=array();
 $tabs [] = tab_nodes_slice($slice_id);
@@ -473,7 +474,7 @@ if ($privileges) {
 $toggle->end();
 
 //////////////////////////////////////////////////////////// Tags
-if ( $local_peer ) {
+//if ( $local_peer ) {
   $tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
   function get_tagname ($tag) { return $tag['tagname'];}
   $tagnames = array_map ("get_tagname",$tags);
@@ -488,7 +489,7 @@ if ( $local_peer ) {
     "Value"=>"string",
     "Node"=>"string",
     "NodeGroup"=>"string");
-  if ($privileges) $headers[plc_delete_icon()]="none";
+  if ($tags_privileges) $headers[plc_delete_icon()]="none";
   
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
   $table=new PlekitTable("slice_tags",$headers,'0',$table_options);
@@ -519,11 +520,11 @@ if ( $local_peer ) {
       $table->cell($tag['value']);
       $table->cell($node_name);
       $table->cell($nodegroup_name);
-      if ($privileges) $table->cell ($form->checkbox_html('slice_tag_ids[]',$tag['slice_tag_id']));
+      if ($tags_privileges) $table->cell ($form->checkbox_html('slice_tag_ids[]',$tag['slice_tag_id']));
       $table->row_end();
     }
   }
-  if ($privileges) {
+  if ($tags_privileges) {
     $table->tfoot_start();
     $table->row_start();
     $table->cell($form->submit_html ("delete-slice-tags","Remove selected"),
@@ -534,7 +535,7 @@ if ( $local_peer ) {
     function tag_selector ($tag) {
       return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']);
     }
-    $all_tags= $api->GetTagTypes( array ("category"=>"slice*"), array("tagname","tag_type_id"));
+    $all_tags= $api->GetTagTypes( array ("category"=>"slice*","-SORT"=>"+tagname"), array("tagname","tag_type_id"));
     $selector_tag=array_map("tag_selector",$all_tags);
     
     function node_selector($node) { 
@@ -560,7 +561,7 @@ if ( $local_peer ) {
   $form->end();
   $table->end();
   $toggle->end();
-}
+//}
 
 
 //////////////////////// renew slice
