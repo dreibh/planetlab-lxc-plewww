@@ -375,7 +375,7 @@ $toggle->end();
 
 //////////////////// nodes
 // minimal list as a start
-$node_columns = array('hostname','node_id','arch');
+$node_columns = array('hostname','node_id','arch','peer_id');
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
