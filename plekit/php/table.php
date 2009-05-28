@@ -15,7 +15,7 @@ drupal_set_html_head('
 ////////////////////////////////////////
 // table_id: <table>'s id tag - WARNING : do not use '-' in table ids as it's used for generating javascript code
 // headers: an associative array "label"=>"type" 
-// sort_column: the column to sort on at load-time
+// sort_column: the column to sort on at load-time - set to negative number for no onload- sorting
 // options : an associative array to override options 
 //  - bullets1 : set to true if you want decorative bullets in column 1 (need white background)
 //  - stripes : use diferent colors for odd and even rows
@@ -24,10 +24,11 @@ drupal_set_html_head('
 //  - pagesize_area : boolean (default true)
 //  - notes_area : boolean (default true)
 //  - search_width : size in chars of the search text dialog
-//  - notes : an array of additional notes
 //  - pagesize: the initial pagination size
 //  - pagesize_def: the page size when one clicks the pagesize reset button
 //  - max_pages: the max number of pages to display in the paginator
+//  - notes : an array of additional notes
+//  - debug: enables debug callbacks (prints out on console.log)
 
 class PlekitTable {
   // mandatory
@@ -37,26 +38,28 @@ class PlekitTable {
   // options
   var $bullets1;      // boolean - default false - display decorative bullets in column 1
   var $stripes;	      // boolean - default true - use different colors for odd and even rows
-  var $caption;
+  var $caption;	      // string - never used so far
   var $search_area;   // boolean (default true)
   var $pagesize_area; // boolean (default true)
   var $notes_area;    // boolean (default true)
   var $search_width;  // size in chars of the search text dialog
-  var $pagesize;       // the initial pagination size
+  var $pagesize;      // the initial pagination size
   var $pagesize_def;  // the page size when one clicks the pagesize reset button
   var $max_pages;     // the max number of pages to display in the paginator
   var $notes;         // an array of additional notes
+  var $debug;	      // set to true for enabling various log messages on console.log
+
+  // internal
   var $has_tfoot;
 
   function PlekitTable ($table_id,$headers,$sort_column,$options=NULL) {
     $this->table_id = $table_id;
     $this->headers = $headers;
     $this->sort_column = $sort_column;
+
     $this->bullets1 = true;
     $this->stripes=true;
-    
-    $this->has_tfoot=false;
-
+    $this->caption='';
     $this->search_area = true;
     $this->pagesize_area = true;
     $this->notes_area = true;
@@ -65,8 +68,12 @@ class PlekitTable {
     $this->pagesize_def = 999;
     $this->max_pages = 10;
     $this->notes = array();
+    $this->debug = false;
 
     $this->set_options ($options);
+
+    // internal
+    $this->has_tfoot=false;
   }
 
   function set_options ($options) {
@@ -82,8 +89,8 @@ class PlekitTable {
     if (array_key_exists('pagesize',$options)) $this->pagesize=$options['pagesize'];
     if (array_key_exists('pagesize_def',$options)) $this->pagesize_def=$options['pagesize_def'];
     if (array_key_exists('max_pages',$options)) $this->max_pages=$options['max_pages'];
-
     if (array_key_exists('notes',$options)) $this->notes=array_merge($this->notes,$options['notes']);
+    if (array_key_exists('debug',$options)) $this->debug=$options['debug'];
   }
 
   public function columns () {
@@ -98,45 +105,47 @@ class PlekitTable {
     $classname.=" paginate-" . $this->pagesize;
     if ($this->bullets1) { $classname .= " bullets1"; }
     if ($this->stripes) { $classname .= " rowstyle-alt"; }
-  // instantiate paginator callback
-    print <<< EOF
-<script type="text/javascript"> 
-function $paginator (opts) { plekit_table_paginator (opts,"$this->table_id"); }
-</script>
-<br/>
-<table id="$this->table_id" cellpadding="0" cellspacing="0" border="0" 
-class="plekit_table sortable-onload-$this->sort_column colstyle-alt no-arrow $classname">
-<thead>
-EOF;
+    if ($this->sort_column >= 0) { $classname .= " sortable-onload-$this->sort_column"; }
 
-  if ($this->pagesize_area)
-    print $this->pagesize_area_html ();
-  if ($this->search_area) 
-    print $this->search_area_html ();
-
-  if ($this->caption) 
-    print "<caption> $this->caption </caption>";
-  print "<tr>";
-  foreach ($this->headers as $label => $type) {
-    switch ($type) {
-    case "none" : 
-      $class=""; break;
-    case "string": case "int": case "float":
-      $class="sortable"; break;
-    case ( strpos($type,"date-") == 0):
-      $class="sortable-" . $type; break;
-    default:
-      $class="sortable-sort" . $type; break;
+    // instantiate paginator callback
+    print "<script type='text/javascript'> function $paginator (opts) { plekit_table_paginator (opts,'$this->table_id'); } </script>\n";
+    
+    // instantiate debug hooks if needed
+    if ($this->debug) {
+      $cb_init = $this->table_id."_init";
+      print "<script type='text/javascript'> function $cb_init () { plc_message ('sorting table $this->table_id'); } </script>\n";
+      $classname .= " sortinitiatedcallback-$cb_init";
+      $cb_comp = $this->table_id."_comp";
+      print "<script type='text/javascript'> function $cb_comp () { plc_message ('table $this->table_id sorted'); } </script>\n";
+      $classname .= " sortcompletecallback-$cb_comp";
     }
-    printf ('<th class="%s plekit_table">%s</th>',$class,$label);
-  }
+    // start actual table
+    print "<table id='$this->table_id' class='plekit_table colstyle-alt no-arrow $classname'><thead>\n";
 
-  print <<< EOF
-</tr>
-</thead>
-<tbody>
-EOF;
-}
+    if ($this->pagesize_area)
+      print $this->pagesize_area_html ();
+    if ($this->search_area) 
+      print $this->search_area_html ();
+    
+    if ($this->caption) 
+      print "<caption> $this->caption </caption>";
+    print "<tr>";
+    foreach ($this->headers as $label => $type) {
+      switch ($type) {
+      case "none" : 
+	$class=""; break;
+      case "string": case "int": case "float":
+	$class="sortable"; break;
+      case ( strpos($type,"date-") == 0):
+	$class="sortable-" . $type; break;
+      default:
+	$class="sortable-sort" . $type; break;
+      }
+      printf ('<th class="%s plekit_table">%s</th>',$class,$label);
+    }
+
+    print "</tr></thead><tbody>";
+  }
 
   ////////////////////
   // for convenience, the options that apply to the bottom area can be passed here

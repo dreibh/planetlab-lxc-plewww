@@ -137,18 +137,19 @@ if ( ! $persons ) {
   
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
-$headers = array ("Peer"=>"string",
-		  "First"=>"string",
-		  "Last"=>"string",
-		  "Email"=>"string",
-		  "Site" => "string",
-		  "R"=>"string",
-		  "S" => "int",
-		  "Status"=>"string",
-		  );
+$headers=array();
+if (plc_is_admin()) $headers["I"]='int';
+$headers["Peer"]="string";
+$headers["First"]="string";
+$headers["Last"]="string";
+$headers["Email"]="string";
+$headers["Site" ]= "string";
+$headers["R"]="string";
+$headers["S" ]= "int";
+$headers["Status"]="string";
 
-// initial sort on email
-$table=new PlekitTable("persons",$headers,3);
+// turn off initial sort as this slows stuff down terribly
+$table=new PlekitTable("persons",$headers,-1,array('debug'=>true));
 $table->start();
 
 $peers=new Peers ($api);
@@ -166,6 +167,7 @@ foreach ($persons as $person) {
 
     $table->row_start();
     
+    if (plc_is_admin()) $table->cell(href(l_person($person_id),$person_id));
     $peers->cell($table,$peer_id);
     $table->cell (href(l_person($person_id),$person['first_name']));
     $table->cell (href(l_person($person_id),$person['last_name']));
@@ -178,6 +180,7 @@ foreach ($persons as $person) {
 				 
 }
 $notes = array();
+if (plc_is_admin()) $notes[]= "I = person_id";
 $notes []= "R = roles";
 $notes []= "S = number of slices";
 $table->end(array('notes'=>$notes));

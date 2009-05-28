@@ -25,6 +25,8 @@
         * Any of these conditions can be waived if you get permission from the copyright holder.
 */
 
+var debug=false;
+
 (function() {
 fdTableSort = {
         regExp_Currency:        /^[£$€¥¤]/,
@@ -127,6 +129,7 @@ fdTableSort = {
                 fdTableSort.init(false);
         },
         init: function(tableId) {
+		if (debug) plc_message ('entering tablesort.init');
                 if (!document.getElementsByTagName || !document.createElement || !document.getElementById) return;
 
                 var tables = tableId && document.getElementById(tableId) ? [document.getElementById(tableId)] : document.getElementsByTagName("table");
@@ -286,6 +289,7 @@ fdTableSort = {
                 };
 
                 fdTableSort.thNode = aclone = a = span = columnNumSortObj = thNode = tbl = allRowArr = rowArr = null;
+		if (debug) plc_message ('exiting tablesort.init');
         },
         initWrapper: function(e) {
                 e = e || window.event;
@@ -657,6 +661,7 @@ fdTableSort = {
                 fdTableSort.thNode = null;
         },
         redraw: function(tableid, identical) {
+		if (debug) plc_message ('entering tablesort.redraw');
                 if(!tableid || !(tableid in fdTableSort.tableCache)) { return; };
                 var dataObj     = fdTableSort.tableCache[tableid];
                 var data        = dataObj.data;
@@ -691,6 +696,7 @@ fdTableSort = {
                         };
                 };
                 tr = tds = hook = null;
+		if (debug) plc_message ('exiting tablesort.redraw');
         },
         getInnerText: function(el, allowBrTags) {
                 if (typeof el == "string" || typeof el == "undefined") return el;

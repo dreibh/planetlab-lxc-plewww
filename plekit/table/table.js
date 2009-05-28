@@ -1,5 +1,17 @@
 /* $Id$ */
 
+var debug=false;
+
+/* for debugging purposes */
+function plc_timestamp () {
+  var now = new Date();
+  return now.getMinutes() + ':' + now.getSeconds() + '.' + now.getMilliseconds() ; 
+}
+
+function plc_message (message) {
+  console.log ( plc_timestamp() + ' : ' + message);
+}
+
 /* when a table gets paginated, displays context info */
 function plekit_table_paginator (opts,table_id) {
 
@@ -115,6 +127,9 @@ function plekit_table_filter(table_id,pattern_id,and_id) {
 }
 
 function plekit_lazy_table_filter (table_id,pattern_id,and_id) {
+
+  if (debug) plc_message ('entering plekit_lazy_table_filter');
+
   var table=$(table_id);
   var css='#'+table_id+'>tbody';
   var rows = $$(css)[0].rows;
@@ -148,6 +163,8 @@ function plekit_lazy_table_filter (table_id,pattern_id,and_id) {
   if ( (previous_pattern == pattern_text) && (previous_mode == and_if_true) ) {
     return;
   }
+
+  if (debug) plc_message ('inside plekit_lazy_table_filter');
 
   var searches=new Array();
   var patterns=new Array();
@@ -205,6 +222,8 @@ function plekit_lazy_table_filter (table_id,pattern_id,and_id) {
   var end=(new Date).getTime();
   var match_ms=end-start;
 
+  if (debug) plc_message ('almost at end of plekit_lazy_table_filter');
+
   // optimize useless calls to init, by comparing # of matching entries
   var previous_matching=table['previous_matching'];
   if (matching_entries == previous_matching) {
@@ -216,7 +235,9 @@ function plekit_lazy_table_filter (table_id,pattern_id,and_id) {
   tablePaginater.init(table_id);
   var end2=(new Date).getTime();
   var paginate_ms=end2-end;
-  
+
+  if (debug) plc_message ('exiting plekit_lazy_table_filter with paginate_ms=' + paginate_ms);
+
 }
 
 function plekit_table_filter_reset (table_id, pattern_id,and_id) {

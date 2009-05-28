@@ -127,7 +127,8 @@ if ( ! $nodes ) {
   
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
-$headers = array ();
+$headers = array (); $offset=0;
+if (plc_is_admin()) { $headers["I"]="int"; $offset=1; }
 $headers["P"]="string";
 $headers["R"]="string";
 $headers["Site"]="string";
@@ -137,11 +138,10 @@ $headers["Type"]="string";
 $headers["IP"]="IPAddress";
 $headers["A"]="string";
 $headers["S"]='int';
-if (plc_is_admin()) $headers["I"]="int";
 $headers["?"]="string";
 
 # initial sort on hostnames
-$table=new PlekitTable ("nodes",$headers,4);
+$table=new PlekitTable ("nodes",$headers,4+$offset);
 $table->start();
 
 $peers = new Peers ($api);
@@ -158,6 +158,7 @@ foreach ($nodes as $node) {
   $node_type = $node['node_type'];
   
   $table->row_start();
+  if (plc_is_admin()) $table->cell(l_node_t($node_id,$node_id));
   $peers->cell ($table,$peer_id);
   $table->cell (topdomain($hostname));
   $table->cell (l_site_t($site_id,$login_base));
@@ -167,17 +168,17 @@ foreach ($nodes as $node) {
   $table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
   $table->cell ($node['arch'],array('only-if'=> !$peer_id));
   $table->cell (count($node['slice_ids']));
-  if (plc_is_admin()) $table->cell(l_node_t($node_id,$node_id));
   $table->cell (node_status($node));
   $table->row_end();
   
 }
 
 $notes=array();
+if (plc_is_admin()) $notes []= "I = node_id";
 $notes []= "R = region";
 $notes []= "A = arch";
 $notes []= "S = number of slivers";
-if (plc_is_admin()) $notes []= "I = node_id";
+$notes []= "? = status";
 $table->end(array('notes'=>$notes));
 $nifty->end();
 

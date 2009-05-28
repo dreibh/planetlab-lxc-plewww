@@ -4,6 +4,11 @@ table.plekit_table {
     padding: 0;
     margin: 0 auto 1.5em auto;
     border-collapse:collapse;
+/* this used to be hard-wired in the <table> tag, but looks useless now
+    cellpadding:0;
+    cellspacing:0;
+    border:0;    
+    */
 }
 table.plekit_table>thead>tr, table.plekit_table>tbody>tr {
     border-left: 1px solid #C1DAD7; 
