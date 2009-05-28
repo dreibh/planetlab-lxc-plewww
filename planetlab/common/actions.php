@@ -184,7 +184,7 @@ switch ($action) {
 
  case 'become-person' : {
    $plc->BecomePerson (intval($person_id));
-   plc_redirect (l_persons());
+   plc_redirect (l_person(intval($person_id)));
  }
 
  case 'delete-person' : {

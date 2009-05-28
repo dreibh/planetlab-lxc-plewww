@@ -108,89 +108,96 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $block['content'] .= p( href(l_site_register(),"File a site registration") );
     } else {
       $block['subject'] = truncate($plc->person['email'],30);
-      $is_admin = in_array(10,$plc->person['role_ids']);
-      $is_pi    = in_array(20,$plc->person['role_ids']);
-      $is_user  = in_array(30,$plc->person['role_ids']);
-      $is_tech  = in_array(40,$plc->person['role_ids']);
 
-      //////////////////// Logout
+      //////////////////// Logout 
+      $bullet_item = '';
       if ($user->uid) {
 	// Drupal logout (destroys the session and cleans up $user)
 	// Thierry unclear when this triggers, I suspect this is obsolete
-	$items[] = leaf (l(t('Logout of %s', 
-			     array('%s' => variable_get('site_name', 'local'))), 'logout'));
+	$bullet_item .= l(t('Logout of %s', 
+			  array('%s' => variable_get('site_name', 'local'))), 'logout');
       } else {
 	// PlanetLab logout (just destroy the session)
-	$items[] = leaf ( href (l_logout(),'Logout'));
+	$bullet_item .= href (l_logout(),'Logout');
       }
-      
-      //////////////////// Sites
-      $site_item = '';
-      $site_item .= href(l_sites(),"Sites");
-      $site_item .= ul_start();
-      $site_item .= leaf( href(l_site(plc_my_site_id()),"My Site"));
-      if ( $is_admin ) 
-	$site_item .= leaf( href(l_sites_pending(),"Pending Requests"));
-      $site_item .= ul_end();
-      $items[] = expanded($site_item);
-
-      //////////////////// Users
-      $user_item = '';
-      $user_item .= href(l_persons(),'Users');
-      $user_item .= ul_start();
-      $user_item .= leaf( l_person_t(plc_my_person_id(),"My Account"));
-      if (is_pi) 
-	$user_item .= leaf( href( l_persons_site(plc_my_site_id()), "My Users"));
+      $bullet_item .= ul_start();
+      // logout 
       if ( $plc->alt_person && $plc->alt_auth) {
 	$email = truncate($plc->person['email'],20); 
-	$user_item .= leaf( href( l_sulogout(),"Logout of $email"));
+	$bullet_item .= leaf( href( l_sulogout(),"Un-become $email"));
       }	
-      $user_item .= ul_end();
-      $items [] = expanded($user_item);
+      $bullet_item .= ul_end();
+      $items []= expanded ($bullet_item);
+
+      //////////////////// accounts
+      $bullet_item = '';
+      $bullet_item .=  l_person_t(plc_my_person_id(),"My Account");
+      $bullet_item .= ul_start();
+      if (plc_is_admin() || plc_is_pi()) 
+	$bullet_item .= leaf( href( l_persons_site(plc_my_site_id()), "My Users"));
+      if (plc_is_admin()) {
+	$bullet_item .= leaf(href(l_persons_peer('local'),'Local users (looong)'));
+	$bullet_item .= leaf(href(l_persons(),'All users (looong)'));
+      }
+	
+      $bullet_item .= ul_end();
+      $items [] = expanded($bullet_item);
+
+      //////////////////// Sites
+      $bullet_item = '';
+      $bullet_item .= href(l_sites(),"Sites");
+      $bullet_item .= ul_start();
+      $bullet_item .= leaf( href(l_site(plc_my_site_id()),"My Site"));
+      if ( plc_is_admin() ) 
+	$bullet_item .= leaf( href(l_sites_pending(),"Pending Requests"));
+      $bullet_item .= ul_end();
+      $items[] = expanded($bullet_item);
 
       //////////////////// Nodes
-      $node_item = '';
-      $node_item .= href(l_nodes(),"Nodes");
-      $node_item .= ul_start();
-      $node_item .= leaf( href (l_nodes_site (plc_my_site_id()),"My Site Nodes"));
-      $node_item .= leaf( href (l_node_add(),"Add Node"));
-      $node_item .= ul_end();
-      $items [] = expanded($node_item);
+      $bullet_item = '';
+      $bullet_item .= href(l_nodes(),"Nodes");
+      $bullet_item .= ul_start();
+      $bullet_item .= leaf( href (l_nodes_site (plc_my_site_id()),"My Site Nodes"));
+      $bullet_item .= leaf( href (l_node_add(),"Add Node"));
+      $bullet_item .= ul_end();
+      $items [] = expanded($bullet_item);
 
       //////////////////// Slices
-      $slice_item = '';
-      //if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
-      $slice_item .= href(l_slices(),"Slices");
-      $slice_item .= ul_start();
-      if( $is_admin || $is_pi ) {
-	$slice_item .= leaf(href(l_slice_add(),"Create Slice"));
+      $bullet_item = '';
+      //if( !( plc_is_tech() && ! plc_is_user() && ! plc_is_pi() && ! plc_is_admin() ) ) 
+      $bullet_item .= href(l_slices(),"Slices");
+      $bullet_item .= ul_start();
+      if (plc_is_admin()) 
+	$bullet_item .= leaf ( href(l_slices_site(plc_my_site_id()), 'My Site Slices'));
+      if( plc_is_admin() || plc_is_pi() ) {
+	$bullet_item .= leaf(href(l_slice_add(),"Create Slice"));
       }
-      if( !( $is_tech && ! $is_user && ! $is_pi && ! $is_admin ) ) 
-	$slice_item .= leaf(href(l_sirius(),"Sirius"));
-      $slice_item .= ul_end();
-      $items [] = expanded($slice_item);
+      if( !( plc_is_tech() && ! plc_is_user() && ! plc_is_pi() && ! plc_is_admin() ) ) 
+	$bullet_item .= leaf(href(l_sirius(),"Sirius"));
+      $bullet_item .= ul_end();
+      $items [] = expanded($bullet_item);
 
       //////////////////// Admin
-      if( $is_admin || $is_pi ) {
-	$admin_item = '';
-	$admin_item .= href(l_admin(),"Admin");
-	$admin_item .= ul_start();
-	$admin_item .= leaf( href( l_tags(),"Tags"));
-	$admin_item .= leaf( href( l_nodegroups(),"Node groups"));
-	$admin_item .= leaf (href(l_peers(),'Peers'));
-	if ( $is_admin )
-	  $admin_item .= leaf (href(l_events(),'Events'));
-	$admin_item .= ul_end();
-	$items [] = expanded($admin_item);
+      if( plc_is_admin() || plc_is_pi() ) {
+	$bullet_item = '';
+	$bullet_item .= href(l_admin(),"Admin search");
+	$bullet_item .= ul_start();
+	$bullet_item .= leaf( href( l_tags(),"Tags"));
+	$bullet_item .= leaf( href( l_nodegroups(),"Node groups"));
+	$bullet_item .= leaf (href(l_peers(),'Peers'));
+	if ( plc_is_admin() )
+	  $bullet_item .= leaf (href(l_events(),'Events'));
+	$bullet_item .= ul_end();
+	$items [] = expanded($bullet_item);
       }
 
-      $doc_item = '';
-      $doc_item .= href(l_about(),'About MyPLC');
-      $doc_item .= ul_start();
-      $doc_item .= leaf ( href (l_doc_plcapi(),"PLCAPI doc"));
-      $doc_item .= leaf ( href (l_doc_nmapi(),"NMAPI doc"));
-      $doc_item .= ul_end();
-      $items[] = expanded($doc_item);
+      $bullet_item = '';
+      $bullet_item .= href(l_about(),'About MyPLC');
+      $bullet_item .= ul_start();
+      $bullet_item .= leaf ( href (l_doc_plcapi(),"PLCAPI doc"));
+      $bullet_item .= leaf ( href (l_doc_nmapi(),"NMAPI doc"));
+      $bullet_item .= ul_end();
+      $items[] = expanded($bullet_item);
 
       //$block['content'] = theme('list_item', $items);
       $block['content'] = menu_theme($items);

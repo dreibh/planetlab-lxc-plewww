@@ -24,6 +24,6 @@ if ($plc->person) {
 }
 
 
-plc_redirect(l_persons());
+plc_redirect(l_person(plc_my_person_id()));
 
 ?>
