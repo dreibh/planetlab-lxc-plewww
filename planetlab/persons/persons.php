@@ -148,8 +148,11 @@ $headers["R"]="string";
 $headers["S" ]= "int";
 $headers["Status"]="string";
 
-// turn off initial sort as this slows stuff down terribly
-$table=new PlekitTable("persons",$headers,-1,array('debug'=>true));
+// sort on email
+if (! plc_is_admin()) $sort_column=3; 
+// but turn off initial sort for admins as this slows stuff down terribly
+else $sort_column =-1;
+$table=new PlekitTable("persons",$headers,$sort_column);
 $table->start();
 
 $peers=new Peers ($api);
