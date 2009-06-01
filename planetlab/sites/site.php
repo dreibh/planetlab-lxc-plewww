@@ -161,7 +161,7 @@ $details = new PlekitDetails($can_update);
 if ( ! $site['is_public']) 
   plc_warning("This site is not public!");
 
-$details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
+$f = $details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
 
 $details->start();
 
@@ -180,6 +180,18 @@ if (plc_is_admin())
   $details->th_td("Max slices",$max_slices,'max_slices');
 else
   $details->th_td("Max slices",$max_slices);
+if (plc_is_admin())
+{
+  $selectors=array(array('display'=>"False",'value'=>'0'), 
+  				   array('display'=>"True",'value'=>'1'));
+  $selectors[intval($enabled)]['selected'] = 'selected';
+
+  $enable_select = $f->select_html ("enabled", $selectors);
+
+  $details->th_td("Enabled",$enable_select,'enabled', array('input_type' => 'select', 'value'=>$enabled));
+} else
+  $details->th_td("Enabled",$enabled);
+
 $details->tr_submit("submit","Update Site");
 
 if ( ! $local_peer) {

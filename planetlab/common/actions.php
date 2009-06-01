@@ -434,6 +434,9 @@ switch ($action) {
      $fields['login_base'] = $_POST['login_base'];
    if ($_POST['max_slices']) 
      $fields['max_slices'] = intval($_POST['max_slices']);
+   if (isset($_POST['enabled'])) {
+     $fields['enabled'] = (bool)$_POST['enabled'];
+   }
    
    $retcod=$api->UpdateSite( intval( $site_id ), $fields );
    if ($retcod == 1) 
