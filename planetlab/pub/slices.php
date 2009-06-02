@@ -58,9 +58,8 @@ comment on, then click <b>Provide Feedback</b>.</p>
 <?php
 
 // Get all sites
-$sites = array();
-foreach ($adm->GetSites(NULL, array('abbreviated_name', 'site_id'))
-	 as $site) {
+$sites = $adm->GetSites(NULL, array('abbreviated_name', 'site_id'));
+if (!empty($sites)) foreach ($sites as $site) {
   $sites[$site['site_id']] = $site;
 }
 
@@ -91,8 +90,12 @@ if (isset($_REQUEST['active'])) {
   }
   usort($slices, '__cmp_slices_by_bytes');
 } else {
+  // slice sort on name
+  function __cmp_slices($a, $b) {
+    return strcasecmp($a['name'], $b['name']);
+  }
   // Alphabetically sort slices
-  sort_slices($slices);
+  usort($slices, '__cmp_slices');
 }
 
 $class = "";  
