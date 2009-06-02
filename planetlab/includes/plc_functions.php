@@ -55,6 +55,7 @@ function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; 
 function l_actions ()			{ return "/db/common/actions.php"; }
 // some complex node actions are kept separate, e.g. the ones related to getbootmedium
 function l_actions_download ()		{ return "/db/nodes/node_downloads.php"; }
+function l_register_node ()		{ return "/registerwizard/index.php"; }
 
 function l_nodes ()			{ return "/db/nodes/index.php"; }
 function l_nodes_peer ($peer_id)	{ return "/db/nodes/index.php?peerscope=$peer_id"; }

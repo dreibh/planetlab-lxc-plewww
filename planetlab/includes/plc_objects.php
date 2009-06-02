@@ -216,7 +216,7 @@ class Node extends PlcObject {
     $this->last_contact = $node['last_contact'];
     $this->site_id = $node['site_id'];
     $this->pcu_ids = $node['pcu_ids'];
-    $this->nn = $api->GetNodeNetworks($node['nodenetwork_ids']);
+    $this->nn = $api->GetInterfaces($node['interface_ids']);
     foreach ($this->nn as $nnet)
       {
 	if ( $nnet['is_primary'] == true )
