@@ -375,7 +375,7 @@ $toggle->end();
 
 //////////////////// nodes
 // minimal list as a start
-$node_columns = array('hostname','node_id','arch','peer_id');
+$node_columns = array('hostname','node_id','arch','peer_id','slice_ids_whitelist');
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
@@ -431,6 +431,15 @@ $toggle_nodes->end();
 
 ////////// nodes to add
 if ($privileges) {
+  $new_potential_nodes = array();
+  if ($potential_nodes) foreach ($potential_nodes as $node) {
+      $emptywl=empty($node['slice_ids_whitelist']);
+      $inwl = (!emptywl) and in_array($slice['slice_id'],$node['slice_ids_whitelist']);
+      if ($emptywl or $inwl)
+	$new_potential_nodes[]=$node;
+  }
+  $potential_nodes=$new_potential_nodes;
+
   $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
 				 "$count more nodes available",
