@@ -353,7 +353,11 @@ function sliceDropDown() {
   
   $slice_list= array();
   $result= $api->GetSlices( Null, array( "name", "slice_id" ) );
-  sort_slices( $result );
+  // sort_slices( $result ); --> slice sort on name
+  function __cmp_slices($a, $b) {
+    return strcasecmp($a['name'], $b['name']);
+  }
+  usort($result, '__cmp_slices');
 
   foreach ( $result AS $slice )
   {
