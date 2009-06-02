@@ -20,7 +20,7 @@ if (!$plc->person) {
     $url .= "?" . $_SERVER['QUERY_STRING'];
   }
 
-  Header("Location: /db/login.php?url=" . urlencode($url));
+  Header("Location: /db/common/login.php?url=" . urlencode($url));
   exit();
 }
 

@@ -22,7 +22,7 @@ if (!empty($_REQUEST['id']) && !empty($_REQUEST['key'])) {
   if ($adm->ResetPassword($person_id, $_REQUEST['key']) != 1) {
     print '<div class="messages error">' . $adm->error() . '.</div>';
   } else {
-    drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"5; URL=/db/login.php\"");
+    drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"5; URL=/db/common/login.php\"");
     print '<div class="messages status">';
     print "An e-mail has been sent to you with your new temporary password. ";
     print "Please change this password as soon as possible. ";
@@ -33,7 +33,7 @@ if (!empty($_REQUEST['id']) && !empty($_REQUEST['key'])) {
   if ($adm->ResetPassword($_REQUEST['email']) != 1) {
     print '<div class="messages error">' . $adm->error() . '.</div>';
   } else {
-    drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"5; URL=/db/login.php\"");
+    drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"5; URL=/db/common/login.php\"");
     print '<div class="messages status">';
     print "An e-mail has been sent to " . $_REQUEST['email'] . " with further instructions. ";
     print "You will be re-directed to the login page in 5 seconds.";
