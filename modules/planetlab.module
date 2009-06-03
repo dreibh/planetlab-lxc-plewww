@@ -182,7 +182,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
 	$bullet_item = '';
 	$bullet_item .= href(l_admin(),"Admin search");
 	$bullet_item .= ul_start();
-    $bullet_item .= leaf( href (l_node_add(),"Add Node"));
+	$bullet_item .= leaf( href (l_node_add(),"Add Node"));
 	$bullet_item .= leaf( href( l_tags(),"Tags"));
 	$bullet_item .= leaf( href( l_nodegroups(),"Node groups"));
 	$bullet_item .= leaf (href(l_peers(),'Peers'));
