@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 15
+%define taglevel 16
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -123,6 +123,12 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Jun 03 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-16
+- fix for whitelisted nodes
+- now links to the node register wizard
+- can enable sites
+- various other minor fixes, like broken planetlab.module for techs, and login link
+
 * Sat May 30 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-15
 - plekittable knows how to turn off sort-on-load, and the admin users pages do
 - + various cosmetic fixes
