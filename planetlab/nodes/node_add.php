@@ -137,7 +137,7 @@ drupal_set_html_head ('
 ');
 
 $sites=$api->GetSites(array(plc_my_site_id()));
-$site=$site;
+$site=$sites[0];
 $sitename=$site['name'];
 		       
 drupal_set_title('Add a new node in site "' . $sitename . '"');
