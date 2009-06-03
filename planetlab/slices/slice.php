@@ -567,8 +567,8 @@ $toggle->end();
     $table->row_end();
   }
     
-  $form->end();
   $table->end();
+  $form->end();
   $toggle->end();
 //}
 
