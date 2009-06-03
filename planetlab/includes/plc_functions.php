@@ -19,6 +19,10 @@ function plc_is_pi () {
   global $plc;
   return in_array( 20, $plc->person['role_ids']);
 }
+function plc_is_user () {
+  global $plc;
+  return in_array( 30, $plc->person['role_ids']);
+}
 function plc_is_tech () {
   global $plc;
   return in_array( 40, $plc->person['role_ids']);
