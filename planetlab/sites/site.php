@@ -69,20 +69,25 @@ $api->begin();
 // gets address info
 $api->GetAddresses( $address_ids );
 
-// gets pcu info
-// GetPCUs is not accessible to the 'user' role
-//$api->GetPCUs( $pcu_ids );
-
 // gets node info
-$api->GetNodes( $node_ids, array( "node_id", "hostname", "boot_state" ) );
+$api->GetNodes( $node_ids, array( "node_id", "hostname", "boot_state", "pcu_ids", "ports" ) );
 
 // gets person info
 $api->GetPersons( $person_ids, array( "role_ids", "person_id", "first_name", "last_name", "email", "enabled" , "slice_ids") );
 
 $api->GetSlices ( $slice_ids, array ("slice_id", "name", "instantiation", "node_ids", "person_ids" ) );
 
-//list( $addresses, $pcus, $nodes, $persons, $slices )= $api->commit();
-list( $addresses, $nodes, $persons, $slices )= $api->commit();
+////////////////////
+// PCU stuff - not too sure why, but GetPCUs is not exposed to the 'user' role
+$display_pcus = (plc_is_admin() || plc_is_pi() || plc_is_tech());
+if ($display_pcus) 
+  $api->GetPCUs ($pcu_ids, array ('hostname', 'pcu_id' ));
+
+// get results
+if ($display_pcus)
+  list( $addresses, $nodes, $persons, $slices, $pcus )= $api->commit();
+else
+  list( $addresses, $nodes, $persons, $slices )= $api->commit();
   
 $techs = array();
 $pis = array();
@@ -158,12 +163,12 @@ $toggle->start();
 
 $details = new PlekitDetails($can_update);
 
-if ( ! $site['is_public']) 
-  plc_warning("This site is not public!");
-
 $f = $details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$site_id));
 
 $details->start();
+
+if ( ! $site['is_public']) 
+  $details->tr(plc_warning_html("This site is not public!"));
 
 $details->th_td("Full name",$sitename,'name',array('width'=>50));
 $details->th_td("Abbreviated name",$abbreviated_name,'abbreviated_name',array('width'=>15));
@@ -206,7 +211,6 @@ $toggle->end();
 if ( $local_peer ) {
 
   //////////////////// nodes
-  // xxx missing : would need to add columns on attached PCU name and port if avail
   $nb_boot = 0;
   if ($nodes) foreach ($nodes as $node) if ($node['boot_state'] == 'boot') $nb_boot ++;
 
@@ -222,19 +226,55 @@ if ( $local_peer ) {
   $toggle->start();
 
   $headers=array();
-  $headers['hostname']='string';
+  $sort_column = '0';
+  if ($display_pcus) { $headers['PCU']='string'; $sort_column = '1' ; }
+  $headers['hostname']='string'; 
   $headers['state']='string';
 
-  $table = new PlekitTable ('nodes',$headers,'0',array('search_area'=>false,
-						    'notes_area'=>false,
-						    'pagesize_area'=>false));
+  $table = new PlekitTable ('nodes',$headers,$sort_column,array('search_area'=>false,
+								'notes_area'=>false,
+								'pagesize_area'=>false));
+  // hash pcus on pcu_id
+  if ($display_pcus) {
+    global $pcu_hash;
+    $pcu_hash= array();
+    if ($pcus) foreach ($pcus as $pcu) $pcu_hash[$pcu['pcu_id']]=$pcu;
+  }
+  // search the pcu, return the string to display and mark the pcu as displayed
+  //  function display_and_mark ($pcu_hash,$pcu_ids,$ports) {
+  function display_and_mark ($pcu_ids,$ports) {
+    global $pcu_hash;
+    if (empty($pcu_ids)) return plc_warning_html('None');
+    $pcu_id=$pcu_ids[0];
+    if (empty($ports)) return plc_error_html('???');
+    $port=$ports[0];
+    $pcu=$pcu_hash[$pcu_id];
+    $display= $pcu['hostname'] . ' : ' . $port;
+    $pcu_hash[$pcu_id]['displayed']=true;
+    return $display;
+  }
+
   $table->start();
   foreach ($nodes as $node) {
     $table->row_start();
+    if ($display_pcus) {
+      //      $table->cell(display_and_mark($pcu_hash,$node['pcu_ids'],$node['ports']));
+      $table->cell(display_and_mark($node['pcu_ids'],$node['ports']));
+    }
     $table->cell (l_node_obj($node));
     $table->cell ($node['boot_state']);
     $table->row_end();
   }
+  // show undisplayed PCU's if any
+  if ($display_pcus) 
+    if ($pcu_hash) foreach ($pcu_hash as $id=>$pcu) {
+	if (!$pcu['displayed']) {
+	  $table->row_start();
+	  $table->cell($pcu['hostname']); $table->cell(''); $table->cell('');
+	  $table->row_end();
+	}
+      }
+    
   $table->tfoot_start();
   $table->row_start();
   $button=new PlekitFormButton (l_node_add(),"node_add","Add node","POST");

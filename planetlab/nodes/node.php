@@ -154,7 +154,7 @@ if ($privileges) $details->space();
 
 ////////////////////
 // PCU stuff - not too sure why, but GetPCUs is not exposed to the 'user' role
-$display_pcus = (plc_is_admin() || plc_is_pi() || plc_is_tech());
+$display_pcus = ( $local_peer && (plc_is_admin() || plc_is_pi() || plc_is_tech()));
 if ($display_pcus) {
   $pcu_ids= $node['pcu_ids'];
   $ports= $node['ports'];
