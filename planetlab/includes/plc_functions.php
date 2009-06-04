@@ -36,6 +36,27 @@ function plc_my_site_ids () {
   global $plc;
   return $plc->person['site_ids'];
 }
+function plc_my_site_names () {
+  global $plc;
+  global $api;
+  $ret = $api->GetSites($plc->person['site_ids'], array('site_id', 'abbreviated_name'));
+  return $ret;
+}
+
+function plc_my_site_links()
+{
+  $site_item = '';
+  if ( sizeof(plc_my_site_ids()) > 1 )
+  {
+    foreach (plc_my_site_names() as $site) 
+    {
+	$site_item .= leaf( href(l_site($site['site_id']),$site['abbreviated_name']));
+    }
+  } else {
+      $site_item .= leaf( href(l_site(plc_my_site_id()),"My Site"));
+  }
+  return $site_item;
+}
 
 function plc_my_site_id () {
   global $plc;
