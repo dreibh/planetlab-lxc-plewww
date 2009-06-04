@@ -222,7 +222,7 @@ if ( $local_peer ) {
   $nodes_title .= href(l_nodes_site($site_id)," (See as nodes)");
 
   $toggle=new PlekitToggle ('nodes',$nodes_title,
-			    array('visible'=>get_arg('show_nodes',false)));
+			    array('visible'=>get_arg('show_nodes',true)));
   $toggle->start();
 
   $headers=array();
