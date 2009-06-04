@@ -328,10 +328,10 @@ function plc_itemize ($messages, $class="") {
   return $formatted;
 }
 
-function plc_error ($text) {
-  // should use the same channel as the php errors..
-  print "<div class='plc-error'> Error " . $text . "</div>";
-}
+//////////
+// should use the same channel as the php errors..
+function plc_error_html ($text)		{ return  "<div class='plc-error'> " . $text . "</div>"; }
+function plc_error ($text)		{ print plc_error_html ("Error " . $text); }
 
 function plc_errors ($errors) {
   if ($errors) {

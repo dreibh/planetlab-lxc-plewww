@@ -340,9 +340,7 @@ switch ($action) {
    $port=intval($_POST['port']);
    // always start with deleting former PCUs
    $nodes = $api->GetNodes(array($node_id),array('pcu_ids'));
-   drupal_set_message('got ' . count($nodes) . ' nodes');
    $former_pcu_ids = $nodes[0]['pcu_ids'];
-   drupal_set_message('got ' . count($former_pcu_ids) . ' former_pcu_ids');
    if ($former_pcu_ids) foreach ($former_pcu_ids as $former_pcu_id) {
        if ($api->DeleteNodeFromPCU($node_id,$former_pcu_id) == 1) 
 	 drupal_set_message ('Detached node ' . $node_id . ' from PCU ' . $pcu_id);
@@ -350,7 +348,6 @@ switch ($action) {
 	 drupal_set_error ('Could not detach node ' . $node_id . ' from PCU ' . $pcu_id);
      }
    // re-attach only if provided pcu_id >=0
-   plc_debug('pcu_id',$pcu_id);
    if ($pcu_id >= 0) {
      if ($api->AddNodeToPCU($node_id,$pcu_id,$port) == 1)
        drupal_set_message ('Attached node ' . $node_id . ' to PCU ' . $pcu_id . ' on port ' . $port);

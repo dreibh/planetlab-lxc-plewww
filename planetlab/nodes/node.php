@@ -166,7 +166,7 @@ if ($display_pcus) {
   $site_pcus = $api->GetPCUs(array('site_id'=>$site_id));
   // not sure what the exact semantics is, but I expect pcu_ids and ports should have same cardinality
   if (count ($pcu_ids) != count ($ports)) 
-    $pcu_string = "Unexpected condition: " . count($pcu_ids) . " pcu_ids and " . count($ports) . " ports";
+    $pcu_string = plc_error_html("Unexpected condition: " . count($pcu_ids) . " pcu_ids and " . count($ports) . " ports");
   else if (count($pcu_ids) == 0) 
     $pcu_string = plc_warning_html("No PCU !");
   else if (count($pcu_ids) == 1) {
@@ -175,12 +175,12 @@ if ($display_pcus) {
     $pcu_columns = array('hostname');
     $pcu=search_pcu($site_pcus,$pcu_id);
     if ( ! $pcu ) 
-      $pcu_string = "Cannot find PCU " . $pcu_id;
-    else
-      $pcu_string = $pcu['hostname'] . " on port " . $port;
+      $pcu_string = plc_error_html("Cannot find PCU " . $pcu_id);
+    // else : regular case - don't set pcu_string
   } else 
     $pcu_string = plc_warning_html("More than one PCU attached ? ");
 
+  // in the regular case, pcu_string is not set here
   
   $details->form_start(l_actions(),array("action"=>"attach-pcu","node_id"=>$node_id));
   // prepare selectors
@@ -220,7 +220,12 @@ if ($display_pcus) {
     $pcu_update_area = $pcu_add_link . " " . $pcu_chooser . " " . $port_chooser . " " . $pcu_attach_button;
   }
 
-  $details->th_td("PCU",plc_vertical_table(array($pcu_string,$pcu_update_area)));
+  if ($pcu_string) 
+    $pcu_value_area=plc_vertical_table(array($pcu_string,$pcu_update_area));
+  else 
+    $pcu_value_area=$pcu_update_area;
+    
+  $details->th_td("PCU",$pcu_value_area);
   $details->form_end();
   $details->space();
  }
