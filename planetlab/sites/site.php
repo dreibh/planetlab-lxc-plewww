@@ -305,8 +305,9 @@ if ( $local_peer ) {
   $headers['User']='string';
   $headers["Tech"]='string';
   if ($has_disabled_persons) $headers["Disabled"]='string';
+  $notes=array('S = slices');
   $table=new PlekitTable('persons',$headers,'1r-3r-0',array('search_area'=>false,
-							    'notes_area'=>false,
+							    'notes'=>$notes,
 							    'pagesize_area'=>false));
   $table->start();
   if ($persons) foreach ($persons as $person) {
@@ -340,9 +341,9 @@ if ( $local_peer ) {
   $headers ['I'] = 'string';
   $headers ['N']='int';
   $headers ['U']='int';
-  $notes=array('I column shows instantiation type',
-	       'N column shows number of nodes',
-	       'U column shows number of users');
+  $notes=array('I = instantiation type',
+	       'N = number of nodes',
+	       'U = number of users');
   $table=new PlekitTable ('slices',$headers,0,array('search_area'=>false,
 						    'pagesize_area'=>false,
 						    'notes'=>$notes));

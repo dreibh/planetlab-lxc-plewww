@@ -220,15 +220,18 @@ EOF;
 
   ////////////////////////////////////////
   function notes_area_html () {
-    $default_notes =  array(
-	"Enter &amp; or | in the search area to switch between <span class='bold'>AND</span> and <span class='bold'>OR</span> search modes",
-	"Hold down the shift key to select multiple columns to sort");
+    $search_notes =  
+      array("Enter &amp; or | in the search area to switch between <span class='bold'>AND</span> and <span class='bold'>OR</span> search modes");
+    $sort_notes = 
+      array ("Hold down the shift key to select multiple columns to sort");
 
     if ($this->notes)
       $notes=$this->notes;
     else
       $notes=array();
-    $notes=array_merge($notes,$default_notes);
+    $notes=array_merge($notes,$sort_notes);
+    if ($this->search_area)
+      $notes=array_merge($notes,$search_notes);
     if (! $notes)
       return "";
     $result = "";
