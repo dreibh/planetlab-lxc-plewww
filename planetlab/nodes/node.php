@@ -52,7 +52,6 @@ $slice_ids= $node['slice_ids'];
 $conf_file_ids= $node['conf_file_ids'];
 $interface_ids= $node['interface_ids'];
 $nodegroup_ids= $node['nodegroup_ids'];
-$pcu_ids= $node['pcu_ids'];
 
 // get peers
 $peer_id = $node['peer_id'];
@@ -87,17 +86,13 @@ if( !empty( $interface_ids ) )
 if( !empty( $nodegroup_ids ) )
   $nodegroups= $api->GetNodeGroups( $nodegroup_ids, array("groupname","tag_type_id","value"));
 
-// xxx Thierry : remaining stuff
-// (*) events: should display the latest events relating to that node.
-// disabling call to GetEvents, that gets the session deleted in the DB
-// (*) conf_files: is fetched but not displayed
-if( !empty( $conf_file_ids ) )
-  $conf_files= $api->GetConfFiles( $conf_file_ids );
-// (*) idem for PCUs
-// gets pcu and port info key to both is $pcu_id
-// turning this off: GetPCUs is not allowed to users, and we don't show PCUs yet anyway
-//if( !empty( $pcu_ids ) )
-//  $PCUs= $api->GetPCUs( $pcu_ids );
+// Thierry : remaining stuff
+// (*) events: xxx todo xxx for admins xxx 
+// should display the latest events relating to that node.
+// historically we had to turn this off at some point as GetEvents was getting the session deleted in the DB
+// (*) conf_files: xxx todo xxx for admins xxx
+//if( !empty( $conf_file_ids ) )
+//  $conf_files= $api->GetConfFiles( $conf_file_ids );
 
 //////////////////// display node info
 
@@ -157,6 +152,72 @@ $details->tr_submit("submit","Update Node");
 $details->form_end();
 if ($privileges) $details->space();
 
+// PCU stuff - not too sure why, but GetPCUs is not exposed to the 'user' role
+$display_pcus = (plc_is_admin() || plc_is_pi() || plc_is_tech());
+if ($display_pcus) {
+  $pcu_ids= $node['pcu_ids'];
+  $ports= $node['ports'];
+  // avoid 2 API calls : get all site PCUs and then search from there
+  function search_pcu ($site_pcus,$pcu_id) {
+    if ($site_pcus) foreach ($site_pcus as $site_pcu) if ($site_pcu['pcu_id']==$pcu_id) return $site_pcu;
+    return FALSE;
+  }
+  $site_pcus = $api->GetPCUs(array('site_id'=>$site_id));
+  // not sure what the exact semantics is, but I expect pcu_ids and ports should have same cardinality
+  if (count ($pcu_ids) != count ($ports)) 
+    $pcu_string = "Unexpected condition: " . count($pcu_ids) . " pcu_ids and " . count($ports) . " ports";
+  else if (count($pcu_ids) == 0) 
+    $pcu_string = plc_warning_html("No PCU !");
+  else if (count($pcu_ids) == 1) {
+    $pcu_id=$pcu_ids[0];
+    $port=$ports[0];
+    $pcu_columns = array('hostname');
+    $pcu=search_pcu($site_pcus,$pcu_id);
+    if ( ! $pcu ) 
+      $pcu_string = "Cannot find PCU " . $pcu_id;
+    else
+      $pcu_string = $pcu['hostname'] . " on port " . $port;
+  } else 
+    $pcu_string = plc_warning_html("More than one PCU attached ? ");
+
+  
+  $details->form_start(l_actions(),array("action"=>"attach-pcu","node_id"=>$node_id));
+  // prepare selectors
+  if (! $site_pcus) {
+    $pcu_update_area = "This site has no PCU - " . href ( l_pcu_add(), "add one here");
+  } else {
+    $pcu_add_link = href (l_pcu_add(),plc_add_icon());
+
+    $pcu_selectors = array(array('display'=>'None','value'=>-1));
+    foreach ($site_pcus as $site_pcu) {
+      $selector=array('display'=>$site_pcu['hostname'],'value'=>$site_pcu['pcu_id']);
+      if ($pcu_id == $site_pcu['pcu_id']) $selector['selected']=true;
+      $pcu_selectors []= $selector;
+    }
+    $pcu_chooser = $details->form()->select_html('pcu_id',$pcu_selectors);
+
+    function port_selector ($i,$port) { 
+      $selector = array ('display'=>'port ' . $i, 'value'=>$i); 
+      if ($i == $port) $selector['selected'] = true;
+      return $selector;
+    }
+    $port_selectors = array () ;
+    $available_ports =range(1,8);
+    foreach ($available_ports as $available_port) 
+      $port_selectors []= port_selector ($available_port,$port);
+    $port_chooser = $details->form()->select_html('port',$port_selectors);
+
+    $pcu_attach_button = 
+      $details->form()->submit_html('attach_pcu',"Attach PCU");
+
+    $pcu_update_area = $pcu_add_link . " " . $pcu_chooser . " " . $port_chooser . " " . $pcu_attach_button;
+  }
+
+  $details->th_td("PCU",plc_vertical_table(array($pcu_string,$pcu_update_area)));
+  $details->form_end();
+  $details->space();
+ }
+
 $details->th_td("Type",$node_type);
 $details->th_td("Version",$version);
 // let's use plc_objects
@@ -208,6 +269,7 @@ if ( $local_peer  && $privileges) {
 						 array('label'=>"Download mode",'autosubmit'=>true));
   $download_value .= $download_form->end_html();
   $details->th_td ("Download",$download_value);
+
  }
 
 // site info and all site nodes
