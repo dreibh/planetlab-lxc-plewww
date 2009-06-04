@@ -50,7 +50,7 @@ $known_actions []= "delete-node";
 $known_actions []= "update-node";	
 //	expects:	node_id, hostname, model
 $known_actions []= "attach-pcu";
-//	expects:	node_id, pcu_id, port_id (pcu_id <0 means detach)
+//	expects:	node_id, pcu_id, port (pcu_id <0 means detach)
 
 //////////////////////////////////////// interfaces
 $known_actions []= "delete-interfaces";	
@@ -335,17 +335,22 @@ switch ($action) {
 
  // this code will ensure that at most one PCU gets attached to the node
  case 'attach-pcu': {
-   $node_id=$_POST['node_id'];
-   $pcu_id=$_POST['node_id'];
-   $port=$_POST['port'];
+   $node_id=intval($_POST['node_id']);
+   $pcu_id=intval($_POST['pcu_id']);
+   $port=intval($_POST['port']);
    // always start with deleting former PCUs
-   $former_pcu_ids = $api->GetNodes(array($node_id),array('pcu_ids'));
+   $nodes = $api->GetNodes(array($node_id),array('pcu_ids'));
+   drupal_set_message('got ' . count($nodes) . ' nodes');
+   $former_pcu_ids = $nodes[0]['pcu_ids'];
+   drupal_set_message('got ' . count($former_pcu_ids) . ' former_pcu_ids');
    if ($former_pcu_ids) foreach ($former_pcu_ids as $former_pcu_id) {
-       if ($api->DeleteNodeFromPCU($node_id,$former_pcu_id) != 1) {
-	 drupal_set_error ('Could not detach from PCU ' . $pcu_id);
-       }
+       if ($api->DeleteNodeFromPCU($node_id,$former_pcu_id) == 1) 
+	 drupal_set_message ('Detached node ' . $node_id . ' from PCU ' . $pcu_id);
+       else 
+	 drupal_set_error ('Could not detach node ' . $node_id . ' from PCU ' . $pcu_id);
      }
    // re-attach only if provided pcu_id >=0
+   plc_debug('pcu_id',$pcu_id);
    if ($pcu_id >= 0) {
      if ($api->AddNodeToPCU($node_id,$pcu_id,$port) == 1)
        drupal_set_message ('Attached node ' . $node_id . ' to PCU ' . $pcu_id . ' on port ' . $port);

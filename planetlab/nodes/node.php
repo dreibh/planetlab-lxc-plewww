@@ -152,6 +152,7 @@ $details->tr_submit("submit","Update Node");
 $details->form_end();
 if ($privileges) $details->space();
 
+////////////////////
 // PCU stuff - not too sure why, but GetPCUs is not exposed to the 'user' role
 $display_pcus = (plc_is_admin() || plc_is_pi() || plc_is_tech());
 if ($display_pcus) {
@@ -188,7 +189,13 @@ if ($display_pcus) {
   } else {
     $pcu_add_link = href (l_pcu_add(),plc_add_icon());
 
-    $pcu_selectors = array(array('display'=>'None','value'=>-1));
+    // first option in pcus
+    if ($pcu_ids) 
+      $none_detach = 'Detach';
+    else 
+      $none_detach='None';
+    $pcu_selectors = array(array('display'=>$none_detach,'value'=>-1));
+    // one option per site pcu
     foreach ($site_pcus as $site_pcu) {
       $selector=array('display'=>$site_pcu['hostname'],'value'=>$site_pcu['pcu_id']);
       if ($pcu_id == $site_pcu['pcu_id']) $selector['selected']=true;
@@ -218,6 +225,7 @@ if ($display_pcus) {
   $details->space();
  }
 
+//////////////////// type & version
 $details->th_td("Type",$node_type);
 $details->th_td("Version",$version);
 // let's use plc_objects
