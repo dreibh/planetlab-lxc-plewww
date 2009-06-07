@@ -96,12 +96,11 @@ class Peers {
   }
 
   // writes a cell in the table with the peer's shortname, link to the peer page, 
-  // and classname set for proper background
+  // and classname set for proper color
   function cell ($table, $peer_id) {
-    $shortname = $this->shortname($peer_id);
-    $table->cell ($this->link($peer_id,$shortname),array('class'=>'peer-'.strtolower($shortname)));
+    $table->cell ($this->link($peer_id,$shortname),
+		  array('class'=>$this->classname($peer_id)));
   }
-    
   
 }
 

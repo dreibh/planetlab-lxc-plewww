@@ -13,7 +13,7 @@ div.objects-list {
 
 /* -------------------- PLC is bluish */
 div.peer-plc {
-    background-color:  #0e5e95;
+    background-color:  #90a0cc; 
 }
 table.plekit_table>tbody>tr>td.peer-plc a {
     font-weight: bold;
@@ -22,7 +22,7 @@ table.plekit_table>tbody>tr>td.peer-plc a {
     
 /* -------------------- PLE is redish */
 div.peer-ple {
-    background-color: #6e1c19; 
+    background-color: #cc8080; 
 }
 table.plekit_table>tbody>tr>td.peer-ple a {
     font-weight: bold;
