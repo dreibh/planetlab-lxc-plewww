@@ -92,7 +92,7 @@ else
 $techs = array();
 $pis = array();
 $disabled_persons = array();
-foreach( $persons as $person ) {
+if ($persons) foreach( $persons as $person ) {
   $role_ids= $person['role_ids'];
 
   if ( in_array( '20', $role_ids ))	$pis[] = $person;
