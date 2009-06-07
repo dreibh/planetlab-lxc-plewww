@@ -28,6 +28,7 @@ $peerscope=$_GET['peerscope'];
 $pattern=$_GET['pattern'];
 $site_id=intval($_GET['site_id']);
 $slice_id=intval($_GET['slice_id']);
+$person_id=intval($_GET['person_id']);
 
 // --- decoration
 $title="Nodes";
@@ -53,7 +54,6 @@ function node_status ($node) {
   }
   return plc_vertical_table($messages,'plc-warning');
 }
-
 
 // fetch nodes 
 $node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id', 'arch','slice_ids');
@@ -86,6 +86,23 @@ if ($slice_id) {
   $title .= t_slice($slice);
   $tabs []= tab_slice($slice);
   $node_filter['node_id'] = $slice['node_ids'];
+ }
+
+// person_id is set : this is mostly oriented towards people managing several sites
+if ($person_id) {
+  // avoid doing a useless call to GetPersons if the person_id is already known though $plc,
+  // as this is mostly done for the 'all my sites nodes' link
+  if ($person_id == plc_my_person_id()) { 
+    $person=plc_my_person();
+    $site_ids = plc_my_site_ids();
+  } else {
+    // fetch the person's site_ids
+    $persons = $api->GetPersons(array('person_id'=>$person_id),array('person_id','email','site_ids'));
+    $person=$persons[0];
+    $site_ids=$person['site_ids'];
+  }
+  $title .= t_person($person);
+  $node_filter['site_id']=$site_ids;
  }
 
 // go

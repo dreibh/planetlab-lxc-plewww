@@ -73,6 +73,17 @@ function plc_my_site_links() {
   return $html;
 }
 
+// ditto
+function plc_my_node_links () {
+  $html = '';
+  if (count (plc_my_site_ids()) == 1) {
+    $html .= leaf( href (l_nodes_site (plc_my_site_id()),"My Site Nodes"));
+  } else {
+    $html .= leaf( href (l_nodes_person (plc_my_person_id()),"All My Sites Nodes"));
+  }
+  return $html;
+}
+
 // fake theme to look like menu
 function menu_theme ($menu) {
   $result = '';
@@ -170,7 +181,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $bullet_item = '';
       $bullet_item .= href(l_nodes(),"Nodes");
       $bullet_item .= ul_start();
-      $bullet_item .= leaf( href (l_nodes_site (plc_my_site_id()),"My Site Nodes"));
+      $bullet_item .= plc_my_node_links();
       $bullet_item .= leaf( href (l_register_node(),"Register Node"));
       $bullet_item .= ul_end();
       $items [] = expanded($bullet_item);
