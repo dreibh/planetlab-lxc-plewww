@@ -126,7 +126,11 @@ if (plc_is_admin()) {
   $headers['?']="string";
  }
 
-$table=new PlekitTable("sites",$headers,2);
+if (plc_is_admin()) {
+  $table=new PlekitTable("sites",$headers,3);
+} else {
+  $table=new PlekitTable("sites",$headers,2);
+}
 $table->start();
 
 if ($sites) foreach ($sites as $site) {

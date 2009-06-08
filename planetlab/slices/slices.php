@@ -115,7 +115,7 @@ $headers["N"]="int";
 $headers["Exp. d/m/y"]="date-dmy";
 
 # initial sort on hostnames
-$table=new PlekitTable ("slices",$headers,2,
+$table=new PlekitTable ("slices",$headers,3,
 			array('search_width'=>20));
 $table->start();
 
