@@ -112,6 +112,9 @@ $peers=new Peers($api);
 
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
+if (plc_is_admin()) {
+  $headers['I']='int';
+}
 $headers['Peer']="string";
 $headers['Full Name']="string";
 $headers['Login']="string";
@@ -120,7 +123,6 @@ if (plc_is_admin()) {
   $headers['N']="int";
   $headers['U']="int";
   $headers['S']="int";
-  $headers['I']='int';
   $headers['?']="string";
  }
 
@@ -132,6 +134,9 @@ if ($sites) foreach ($sites as $site) {
   $site_id=$site['site_id'];
   $login_base=$site['login_base'];
   $table->row_start();
+  if (plc_is_admin()) {
+    $table->cell(l_site_t($site_id,$site_id));
+  }
   $peers->cell($table,$peer_id);
   $table->cell (l_site_t($site_id,htmlentities($site['name'])));
   $table->cell (l_site_t($site_id,$login_base));
@@ -140,7 +145,6 @@ if ($sites) foreach ($sites as $site) {
     $table->cell(href(l_nodes_site($site_id),count($site['node_ids'])));
     $table->cell(href(l_persons_site($site_id),count($site['person_ids'])));
     $table->cell(href(l_slices_site($site_id),count($site['slice_ids'])));
-    $table->cell(l_site_t($site_id,$site_id));
     $table->cell(site_status($site));
   }
   $table->row_end();

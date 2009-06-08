@@ -106,12 +106,13 @@ if ( ! $slices ) {
   
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
-$headers = array ("Peer"=>"string",
-		  "Name"=>"string",
-		  "Users"=>"string",
-		  "U"=>"int",
-		  "N"=>"int",
-		  "Exp. d/m/y"=>"date-dmy");
+$headers["I"]="int";
+$headers["Peer"]="string";
+$headers["Name"]="string";
+$headers["Users"]="string";
+$headers["U"]="int";
+$headers["N"]="int";
+$headers["Exp. d/m/y"]="date-dmy";
 
 # initial sort on hostnames
 $table=new PlekitTable ("slices",$headers,2,
@@ -127,6 +128,7 @@ foreach ($slices as $slice) {
   $expires= date( "d/m/Y", $slice['expires'] );
 
   $table->row_start();
+  $table->cell (l_slice_t($slice_id,$slice_id));
   $peers->cell($table,$peer_id);
   $table->cell (l_slice_obj($slice));
   $table->cell ($users);
