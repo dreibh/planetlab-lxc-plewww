@@ -269,7 +269,7 @@ $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']));
 // just propose to add everyone else, 
 // as regular persons can see only a fraction of the db anyway
 $potential_persons=
-  $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL),
+  $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL,'enabled'=>true),
 		   $person_columns);
 $count=count($persons);
 

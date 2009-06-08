@@ -129,7 +129,9 @@ if ( ! $_POST['name'])
 
 // propose to add all 'reachable' persons 
 $site_person_ids=$site['person_ids'];
-$persons=$api->GetPersons($site_person_ids,array('email','enabled','first_name','last_name','person_id'));
+$persons_filter=array("person_id"=>$site_person_ids,
+                      "enabled"=>true);
+$persons=$api->GetPersons($persons_filter,array('email','enabled','first_name','last_name','person_id'));
 
 drupal_set_title('Create slice in site "' . $sitename . '"');
 
