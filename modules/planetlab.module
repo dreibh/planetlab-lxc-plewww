@@ -189,7 +189,11 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       //////////////////// Slices
       $bullet_item = '';
       //if( !( plc_is_tech() && ! plc_is_user() && ! plc_is_pi() && ! plc_is_admin() ) ) 
-      $bullet_item .= href(l_slices(),"Slices");
+      if (plc_is_admin()) {
+        $bullet_item .= href(l_slices(),"Slices");
+      } else {
+        $bullet_item .= href(l_slices(),"My Slices");
+      }
       $bullet_item .= ul_start();
       if (plc_is_admin()) 
 	$bullet_item .= leaf ( href(l_slices_site(plc_my_site_id()), 'My Site Slices'));
