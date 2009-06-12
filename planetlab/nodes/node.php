@@ -236,8 +236,8 @@ $details->th_td("Version",$version);
 // let's use plc_objects
 $Node = new Node($node);
 $details->th_td("Date created",$Node->dateCreated());
-$details->th_td("Last contact",$Node->lastContact());
 $details->th_td("Last update",$Node->lastUpdated());
+$details->th_td("Last contact",$Node->lastContact());
 
 // boot area
 $details->space ();
