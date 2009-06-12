@@ -37,6 +37,13 @@ else
 	+$(RSYNC) planetlab plekit modules $(SSHURL)/var/www/html/
 endif
 
+compress:
+	$(foreach file,\
+		$(shell find . -type f -iname "*.js"),\
+		$(shell python jsmin.py < $(file) > $(file).new && mv $(file).new $(file)))
+	@echo "Compressed .js files with jsmin.py"
+
+.PHONY: compress
 
 #################### convenience, for debugging only
 # make +foo : prints the value of $(foo)

@@ -20,6 +20,7 @@ Group: Applications/Systems
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
+BuildRequires: python
 
 Vendor: OneLab
 Packager: OneLab <support@one-lab.org>
@@ -57,8 +58,8 @@ This subset of the plewww package has general purpose features for the benefit o
 %setup -q
 
 %build
-echo "There is no build stage for this component"
-echo "All files just need to be installed as is from the codebase"
+echo "Compressing javascript files"
+make compress
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -71,7 +72,7 @@ rm -rf $RPM_BUILD_ROOT
 echo "* PLEWWW: Installing web pages"
 mkdir -p $RPM_BUILD_ROOT/var/www/html
 # exclude codebase just in case
-rsync -a --exclude Makefile --exclude httpd --exclude \*.spec --exclude .svn ./ $RPM_BUILD_ROOT/var/www/html/
+rsync -a --exclude jsmin.py --exclude Makefile --exclude httpd --exclude \*.spec --exclude .svn ./ $RPM_BUILD_ROOT/var/www/html/
 
 echo "* PLEWWW: Installing conf files for httpd"
 mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d
