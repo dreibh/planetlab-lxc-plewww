@@ -45,13 +45,14 @@ drupal_set_html_head('
 //     (the form gets submitted whatever the confirmation....)
 // (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
 
-function plekit_linetabs ($array, $id=NULL) {
+function plekit_linetabs ($tabs, $id=NULL) {
+  $active_line_tab=$_GET['active_line_tab'];
   // need id to pass to the onclick function attached to the input buttons
   $id="linetabs";
   if (! $id) $id .= '-' + $id;
   print "<div id='$id' class='linetabs'>";
   print "<ul>";
-  foreach ($array as $label=>$todo) {
+  foreach ($tabs as $label=>$todo) {
     // in case we have a simple string, rewrite it as an array
     if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
     // the 'label' key, if set in the hash, supersedes key
@@ -76,8 +77,10 @@ function plekit_linetabs ($array, $id=NULL) {
     if ($url_values) $values = array_merge($values,$url_values);
     if ( $values ) foreach ($values as $key=>$value) {
 	print "<input type='hidden' name='$key' value='$value' />";
-      }
-    $tracer="class='linetabs-submit'";
+    }
+    print "<input type='hidden' name='active_line_tab' value='$label' />";
+    if ($label == $active_line_tab) $tracer = "class='linetabs-submit active'";
+    else $tracer="class='linetabs-submit'";
     // image and its companions 'height' 
     if ($todo['image']) {
       $what=$todo['image'];
