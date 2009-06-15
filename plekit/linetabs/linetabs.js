@@ -58,11 +58,6 @@ linetabs.prototype.init = function (div) {
       mt.setActive (mt.activeTab,false);
     });
 
-  /* set active and current, default is index 0, set 'active' class otherwise */
-  this.input_s.each ( function (input) {
-      if (input.hasClassName("active")) this.activeTab = this.currentTab = i;
-    });
-
   /* create slice object */
   this.slideObj    = this.ul.parentNode.appendChild(document.createElement("div"));
   this.slideObj.appendChild(document.createTextNode(String.fromCharCode(160)));
@@ -75,6 +70,13 @@ linetabs.prototype.init = function (div) {
   this.slideObj.style.width    = this.input_s[this.activeTab].offsetWidth + "px";
   this.aHeight                 = (this.ul.offsetTop + this.li_s[this.activeTab].offsetTop +
 				  this.input_s[this.activeTab].offsetTop);
+
+  my_object = this;
+  /* set active and current, default is index 0, set 'active' class otherwise */
+  this.input_s.each ( function (input, index) {
+      if (input.hasClassName("active")) my_object.activeTab = my_object.currentTab = index;
+  });
+
 
   this.initSlide(this.activeTab, true);
 
