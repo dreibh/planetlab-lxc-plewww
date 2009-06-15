@@ -77,9 +77,9 @@ function plc_my_site_links() {
 function plc_my_node_links () {
   $html = '';
   if (count (plc_my_site_ids()) == 1) {
-    $html .= leaf( href (l_nodes_site (plc_my_site_id()),"My Site Nodes"));
+    $html .= leaf( href (l_nodes_my_site() ,"My Site Nodes"));
   } else {
-    $html .= leaf( href (l_nodes_person (plc_my_person_id()),"All My Sites Nodes"));
+    $html .= leaf( href (l_nodes_all_my_site(),"All My Sites Nodes"));
   }
   return $html;
 }
@@ -196,7 +196,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       }
       $bullet_item .= ul_start();
       if (plc_is_admin()) 
-	$bullet_item .= leaf ( href(l_slices_site(plc_my_site_id()), 'My Site Slices'));
+	$bullet_item .= leaf ( href(l_slices_my_site(), 'My Site Slices'));
       if( plc_is_admin() || plc_is_pi() ) {
 	$bullet_item .= leaf(href(l_slice_add(),"Create Slice"));
       }

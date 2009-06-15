@@ -77,6 +77,8 @@ function l_node_t ($node_id,$text)	{ return href (l_node($node_id),$text); }
 function l_node_obj($node)		{ return href(l_node($node['node_id']),$node['hostname']); }
 function l_node_add ()			{ return "/db/nodes/node_add.php"; }
 function l_nodes_site ($site_id)	{ return "/db/nodes/index.php?site_id=$site_id"; }
+function l_nodes_my_site ()             { return l_nodes_site(plc_my_site_id()) . "&active_line_tab=My site nodes"; }
+function l_nodes_all_my_site ()         { return l_nodes_person(plc_my_person_id()) . "&active_line_tab=All My site nodes"; }
 function l_nodes_person ($person_id)	{ return "/db/nodes/index.php?person_id=$person_id"; }
 function l_nodes_slice ($slice_id)	{ return "/db/nodes/index.php?slice_id=$slice_id"; }
 
@@ -98,6 +100,8 @@ function l_slice ($slice_id)		{ return "/db/slices/index.php?id=$slice_id"; }
 function l_slice_t ($slice_id,$text)	{ return href (l_slice($slice_id),$text); }
 function l_slice_add ()			{ return "/db/slices/slice_add.php"; }
 function l_slices_site($site_id)	{ return "/db/slices/index.php?site_id=$site_id"; }
+function l_slices_my_site()     	{ return l_slices_site(plc_my_site_id()) . "&active_line_tab=My site slices"; }
+function l_slices_person($person_id)    { return "/db/slices/index.php?person_id=$person_id"; }
 function l_slices_local()		{ return "/db/slices/index.php?peerscope=local"; }
 // from an object
 function l_slice_obj ($slice)		{ return l_slice_t ($slice['slice_id'],$slice['name']); }
@@ -155,8 +159,10 @@ function tab_nodes_site($site_id){ return array ('label'=>'Site nodes', 'url'=>l
 						 'bubble'=>'Display nodes on that site'); }
 function tab_nodes_slice($slice_id){ return array ('label'=>'Slice nodes', 'url'=>l_nodes_slice($slice_id), 
 						 'bubble'=>'Display nodes for that slice'); }
-function tab_nodes_mysite ()	{ return array ('label'=>'My nodes', 'url'=>l_nodes_site(plc_my_site_id()), 
+function tab_nodes_mysite ()	{ return array ('label'=>'My site nodes', 'url'=>l_nodes_my_site(), 
 						'bubble'=>'Display nodes on my site'); }
+function tab_nodes_all_mysite (){ return array ('label'=>'All My site nodes', 'url'=>l_nodes_all_my_site(),
+						'bubble'=>'Display nodes on all my sites'); }
 function tab_node($node)	{ return array ('label'=>'Node '.$node['hostname'], 'url'=>l_node($node['node_id']),
 						'bubble'=>'Details for ' . $node['hostname']); }
 //////////
@@ -170,9 +176,9 @@ function tab_sites_local ()	{ return array ('label'=>'Local sites' , 'url'=>l_si
 //////////
 function tab_slices()		{ return array ('label'=>'All slices', 'url'=>l_slices(),
 						'bubble' => 'Display all slices'); }
-function tab_slices_mysite ()	{ return array ('label'=>'My site slices', 'url'=>l_slices_site(plc_my_site_id()), 
-						'bubble'=>'Display all slices on my site'); }
-function tab_slices_mine ()	{ return array ('label'=>'My site slices', 'url'=>l_slices_site(plc_my_site_id()), 
+function tab_slices_person()	{ return array ('label'=>'My slices', 'url'=>l_slices_person(plc_my_person_id()),
+						'bubble' => 'Display my all slices'); }
+function tab_slices_mysite ()	{ return array ('label'=>'My site slices', 'url'=>l_slices_my_site(), 
 						'bubble'=>'Display all slices on my site'); }
 function tab_slices_local ()	{ return array ('label'=>'Local slices', 'url'=>l_slices_local(), 
 						'bubble'=>'Display all slices local to this peer'); }

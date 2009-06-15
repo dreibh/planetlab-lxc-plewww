@@ -35,6 +35,13 @@ $person_id=intval($_GET['person_id']);
 // --- decoration
 $title="Slices";
 $tabs=array();
+
+if (plc_is_admin()) {
+    $tabs []= tab_slices();
+}
+if (plc_is_user()) {
+    $tabs []= tab_slices_person();
+}
 $tabs []= tab_slices_mysite();
 if (plc_is_admin()) $tabs []= tab_slices_local();
 
@@ -69,12 +76,13 @@ if ($site_id) {
 }
 
 if ($person_id) {
-  $persons=$api->GetPersons(array('person_id'=>$person_id,array('email','person_id','slice_ids')));
-  $person=$persons[0];
-  $title .= t_person($person);
-  $tabs .= tab_person($person);
-  $slice_filter['slice_id']=$person['slice_ids'];
- }
+    // fetch the person's slice_ids
+    $persons = $api->GetPersons(array('person_id'=>$person_id),array('person_id','email','slice_ids'));
+    $person=$persons[0];
+    $slice_ids['slice_id']=$person['slice_ids'];
+    $title .= t_person($person);
+    $slice_filter['slice_id']=$person['slice_ids'];
+}
 
 // go
 $slices=$api->GetSlices($slice_filter,$slice_columns);

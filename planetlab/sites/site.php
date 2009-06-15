@@ -112,6 +112,8 @@ drupal_set_title("Details for site " . $sitename);
   
 $tabs=array();
 
+$tabs []= tab_mysite();
+
 // available actions
 if ( $is_site_admin)
   $tabs['Expire slices'] = array('url'=>l_actions(),

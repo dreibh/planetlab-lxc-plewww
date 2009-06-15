@@ -28,8 +28,9 @@ $pattern=$_GET['pattern'];
 // --- decoration
 $title="Sites";
 $tabs=array();
-$tabs []= tab_mysite();
+$tabs []= tab_sites();
 $tabs []= tab_sites_local();
+$tabs []= tab_mysite();
 
 // -------------------- 
 $site_filter=array();

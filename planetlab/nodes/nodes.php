@@ -33,7 +33,12 @@ $person_id=intval($_GET['person_id']);
 // --- decoration
 $title="Nodes";
 $tabs=array();
-$tabs []= tab_nodes_mysite();
+$tabs []= tab_nodes();
+if (count (plc_my_site_ids()) == 1) {
+    $tabs []= tab_nodes_mysite();
+} else {
+    $tabs []= tab_nodes_all_mysite();
+}
 $tabs []= tab_nodes_local();
 
 // -------------------- 
