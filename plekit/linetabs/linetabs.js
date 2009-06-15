@@ -1,15 +1,15 @@
 /*
   $Id$
- 
+
   Animated linetabs by frequency decoder (http://www.frequency-decoder.com/)
- 
+
   Based on an idea by Rob L Glazebrook (http://www.rootarcana.com/test/smartmini/) itself
   derived from the original idea of Stephen Clark (http://www.sgclark.com/sandbox/minislide/)
- 
-  Rewritten by Thierry Parmentelat -- INRIA 
+
+  Rewritten by Thierry Parmentelat -- INRIA
   support http-POST
   support multiple instances
-  uses prototype.js  
+  uses prototype.js
 
 */
 
@@ -35,9 +35,9 @@ linetabs.prototype.init = function (div) {
   this.li_s    = this.ul.select('li');
   /* the array of active <input>'s - without any hidden one */
   this.input_s = this.ul.select('input.linetabs-submit');
-  
+
   /* attach event handlers */
-  this.li_s.each ( function (li) { 
+  this.li_s.each ( function (li) {
       li.observe ('mouseover', function(event) {
 	  var elem = event.element();
 	  /* make sure we're on the 'li' element */
@@ -49,46 +49,46 @@ linetabs.prototype.init = function (div) {
 	    if (elem.tagName && elem.tagName == "LI") pos++;
 	  }
 	  linetabs_namespace.the_linetabs(elem).initSlide(pos,true);
-	} )
-	} );
-  
+        } );
+   } );
+
   this.ul.observe('mouseout', function (event) {
       var mt = linetabs_namespace.the_linetabs(event.element());
       mt.initSlide(mt.currentTab,true);
       mt.setActive (mt.activeTab,false);
     });
-  
+
   /* set active and current, default is index 0, set 'active' class otherwise */
   this.input_s.each ( function (input) {
       if (input.hasClassName("active")) this.activeTab = this.currentTab = i;
     });
-  
+
   /* create slice object */
   this.slideObj    = this.ul.parentNode.appendChild(document.createElement("div"));
   this.slideObj.appendChild(document.createTextNode(String.fromCharCode(160)));
   this.slideObj.id = "linetabs-sliding";
-  
+
     /* position it */
   this.setSlidingTop();
-  this.slideObj.style.left     = (this.ul.offsetLeft + this.li_s[this.activeTab].offsetLeft + 
+  this.slideObj.style.left     = (this.ul.offsetLeft + this.li_s[this.activeTab].offsetLeft +
 				  this.input_s[this.activeTab].offsetLeft) + "px";
   this.slideObj.style.width    = this.input_s[this.activeTab].offsetWidth + "px";
-  this.aHeight                 = (this.ul.offsetTop + this.li_s[this.activeTab].offsetTop + 
+  this.aHeight                 = (this.ul.offsetTop + this.li_s[this.activeTab].offsetTop +
 				  this.input_s[this.activeTab].offsetTop);
-  
+
   this.initSlide(this.activeTab, true);
-    
+
 };
 
 linetabs.prototype.initSlide = function (pos, force) {
-  
+
   if(!force && pos == this.activeTab) return;
   this.setActive (this.activeTab,false);
   this.activeTab = pos;
   this.setActive (this.activeTab,true);
   this.initAnim();
 };
- 
+
 linetabs.prototype.setActive = function (pos,active) {
   var input=this.li_s[pos].select('input.linetabs-submit')[0];
   if (active)
@@ -96,34 +96,34 @@ linetabs.prototype.setActive = function (pos,active) {
   else
     input.removeClassName('active');
 };
-  
+
 linetabs.prototype.setSlidingTop = function () {
   var delta=0;
   /* up 5px for firefox */
   /*window.console.log('agent=' + navigator.userAgent);*/
-  if (navigator.userAgent.match(/Firefox/)) delta=-5; 
-  this.slideObj.style.top  = (this.ul.offsetTop + this.li_s[this.activeTab].offsetTop 
+  if (navigator.userAgent.match(/Firefox/)) delta=-5;
+  this.slideObj.style.top  = (this.ul.offsetTop + this.li_s[this.activeTab].offsetTop
 			      + this.input_s[this.activeTab].offsetTop + delta ) + "px";
 };
-  
+
 linetabs.prototype.initAnim = function() {
   /* search for the input with type != hidden */
   var input=this.li_s[this.activeTab].select('input.linetabs-submit')[0];
-  this.destX = parseInt(this.li_s[this.activeTab].offsetLeft + input.offsetLeft 
+  this.destX = parseInt(this.li_s[this.activeTab].offsetLeft + input.offsetLeft
 			+ this.ul.offsetLeft);
   this.destW = parseInt(input.offsetWidth);
   this.t = 0;
   this.b = this.slideObj.offsetLeft;
   this.c = this.destX - this.b;
-  
+
   this.bW = this.slideObj.offsetWidth;
   this.cW = this.destW - this.bW;
-  
+
   this.setSlidingTop();
 };
-  
+
 linetabs.prototype.slideIt = function() {
-  
+
   // Has the browser text size changed?
   var active_li = this.li_s[this.activeTab];
   var active_input = this.input_s[this.activeTab];
@@ -131,12 +131,12 @@ linetabs.prototype.slideIt = function() {
     this.initAnim();
     this.aHeight = this.ul.offsetTop + active_li.offsetTop + active_input.offsetTop;
   }
-  
-  
+
+
   if (this.t++ < this.d) {
     var x = this.animate(this.t,this.b,this.c,this.d);
     var w = this.animate(this.t,this.bW,this.cW,this.d);
-    
+
     this.slideObj.style.left = parseInt(x) + "px";
     this.slideObj.style.width = parseInt(w) + "px";
   } else {
@@ -144,7 +144,7 @@ linetabs.prototype.slideIt = function() {
     this.slideObj.style.width = this.destW +"px";
   }
 };
-  
+
 linetabs.prototype.animate = function(t,b,c,d) {
   if ((t/=d/2) < 1) return c/2*t*t + b;
   return -c/2 * ((--t)*(t-2) - 1) + b;
@@ -158,9 +158,9 @@ linetabs.prototype.submit = function (message) {
 
   /* get the form and trigger */
   this.li_s[submitTab].down('form').submit();
-  
+
 }
-  
+
 // globals
 var linetabs_namespace = {
  init: function () {
@@ -172,17 +172,17 @@ var linetabs_namespace = {
     linetabs_namespace.elem_div_linetabs = $$('div.linetabs');
 
     Event.observe('linetabs',
-                  'mouseover', 
+                  'mouseover',
                   function() {
                       linetabs_namespace.elem_div_linetabs = $$('div.linetabs');
                   });
 
-    linetabs_namespace.elem_div_linetabs.each (function (div) {   
+    linetabs_namespace.elem_div_linetabs.each (function (div) {
 	/* create instance and attach it to the <div> element */
 	div.linetabs = new linetabs ();
 	div.linetabs.init(div);
       } ) ;
-    
+
     var intervalMethod = function () {
         linetabs_namespace.elem_div_linetabs.each (function (div) {
                 linetabs_namespace.the_linetabs(div).slideIt();
@@ -190,16 +190,16 @@ var linetabs_namespace = {
     } ;
     linetabs_namespace.animInterval = setInterval(intervalMethod,10);
   },
- 
+
  cleanUp: function() {
     clearInterval(linetabs_namespace.animInterval);
     linetabs_namespace.animInterval = null;
     linetabs_namespace.elem_div_linetabs = null;
   },
- 
+
  resize: function (e) {
-    $$('div.linetabs').each ( function (div) { 
-	var mt = div.linetabs; 
+    $$('div.linetabs').each ( function (div) {
+	var mt = div.linetabs;
 	mt.initSlide(mt.activeTab,true);
       } );
   },
@@ -210,14 +210,14 @@ var linetabs_namespace = {
 
  // find the enclosing linetabs object
  the_linetabs: function (elem) {
-    if (elem.match('div.linetabs')) 
+    if (elem.match('div.linetabs'))
       return elem.linetabs;
-    else 
+    else
       return elem.up('div.linetabs').linetabs;
   }
- 
+
 };
- 
+
 Event.observe(window, 'load', linetabs_namespace.init);
 Event.observe(window, 'unload', linetabs_namespace.cleanUp);
 Event.observe(window, 'resize', linetabs_namespace.resize);
