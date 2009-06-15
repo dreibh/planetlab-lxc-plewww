@@ -57,6 +57,8 @@ $known_actions []= "delete-interfaces";
 //	expects:	interface_ids
 $known_actions []="add-interface";
 //	expects:	node_id & interface details
+$known_actions []="new-interface";
+//	expects:	node_id 
 $known_actions []="update-interface";
 //	expects:	interface_id & interface details
 
@@ -383,7 +385,9 @@ switch ($action) {
      drupal_set_error ("Could not delete all selected interfaces, only $counter were removed");
    plc_redirect(l_node($_POST['node_id']));
  }
-
+ case 'new-interface': {
+   plc_redirect(l_interface_add($_POST['node_id']));
+ }
  case 'add-interface': {
    $node_id=$_POST['node_id'];
    foreach ($interface_details as $field) {

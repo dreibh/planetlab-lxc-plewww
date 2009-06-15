@@ -464,9 +464,11 @@ if ( $local_peer ) {
     if ($privileges) {
       $table->tfoot_start();
       $table->row_start();
-      $add_button=new PlekitFormButton (l_interface_add($node_id),"add","Add Interface","GET");
       // we should have 6 cols, use 3 for the left (new) and the rest for the right (remove)
-      $table->cell($add_button->html(),array('columns'=> 3,'align'=>'left'));
+      //$add_button=new PlekitFormButton (l_interface_add($node_id),"add","Add Interface","GET");
+      //$table->cell($add_button->html(),array('columns'=> 3,'align'=>'left'));
+      $table->cell($form->submit_html("new-interface","Add Interface"), 
+      		array('columns'=> 3,'align'=>'left'));
       $table->cell($form->submit_html("delete-interfaces","Remove Interfaces"), 
 		   array('columns'=>$table->columns()-3,'align'=>'right'));
       $table->row_end();
