@@ -158,10 +158,10 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $bullet_item .=  l_person_t(plc_my_person_id(),"My Account");
       $bullet_item .= ul_start();
       if (plc_is_admin() || plc_is_pi()) 
-	$bullet_item .= leaf( href( l_persons_site(plc_my_site_id()), "My Users"));
+	$bullet_item .= leaf( href( l_persons_site(plc_my_site_id()), "My Site Accounts"));
       if (plc_is_admin()) {
-	$bullet_item .= leaf(href(l_persons_peer('local'),'Local users (looong)'));
-	$bullet_item .= leaf(href(l_persons(),'All users (looong)'));
+	$bullet_item .= leaf(href(l_persons_peer('local'),'Local Accounts (slow)'));
+	$bullet_item .= leaf(href(l_persons(),'All Accounts (slow)'));
       }
 	
       $bullet_item .= ul_end();

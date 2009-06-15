@@ -35,8 +35,10 @@ $title="Accounts";
 $tabs=array();
 $tabs []= tab_persons_mysite();
 
-if (plc_is_admin()) 
+if (plc_is_admin()) {
   $tabs []= tab_persons_local();
+  $tabs []= tab_persons();
+}
 // -------------------- 
 $person_filter=array();
 

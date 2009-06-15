@@ -110,8 +110,8 @@ function l_sliver ($node_id,$slice_id)	{ return "/db/nodes/slivers.php?node_id=$
 function l_sliver_t ($node_id,$slice_id,$text) { 
 					  return href (l_sliver($node_id,$slice_id),$text) ; }
 
-function l_persons ()			{ return "/db/persons/index.php"; }
-function l_persons_peer ($peer_id)	{ return "/db/persons/index.php?peerscope=$peer_id"; }
+function l_persons ()			{ return "/db/persons/index.php&active_line_tab=All Accounts"; }
+function l_persons_peer ($peer_id)	{ return "/db/persons/index.php?peerscope=$peer_id&active_line_tab=Local Accounts"; }
 function l_person ($person_id)		{ return "/db/persons/index.php?id=$person_id"; }
 function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text); }
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
@@ -185,11 +185,11 @@ function tab_slices_local ()	{ return array ('label'=>'Local slices', 'url'=>l_s
 function tab_slice($slice)	{ return array ('label'=>'Slice '.$slice['name'], 'url'=>l_slice($slice['slice_id']),
 						'bubble' => 'Details for ' . $slice['name']); }
 //////////
-function tab_persons()		{ return array ('label'=>'All accounts', 'url'=>l_persons(),
+function tab_persons()		{ return array ('label'=>'All Accounts', 'url'=>l_persons(),
 						'bubble'=>'Display users from all peers'); }
-function tab_persons_local()	{ return array ('label'=>'Local accounts', 'url'=>l_persons_peer('local'),
+function tab_persons_local()	{ return array ('label'=>'Local Accounts', 'url'=>l_persons_peer('local'),
 						'bubble'=>'Display all users local to this peer'); }
-function tab_persons_mysite()	{ return array ('label'=>'My accounts' , 'url'=>l_persons_site(plc_my_site_id()),
+function tab_persons_mysite()	{ return array ('label'=>'My site accounts' , 'url'=>l_persons_site(plc_my_site_id()),
 						'bubble'=>'Display accounts on site ' . plc_my_site_id()); }
 function tab_person($person)	{ return array ('label'=>'Account '.$person['email'], 'url'=>l_person($person['person_id']),
 						'bubble'=>'Details for ' . $person['email']); }
