@@ -55,6 +55,8 @@ function person_status ($person) {
   // check that the person has keys
   if ( count($person['key_ids']) == 0)
     $messages [] = "No Key";
+  if ( count($person['site_ids']) == 0)
+      $messages [] = "No Site";
   if ( ! $person['enabled'] ) 
     $messages[] = "Disabled";
   // for tech-only people: outline user if in a slice
