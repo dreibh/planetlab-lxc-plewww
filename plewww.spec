@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 18
+%define taglevel 19
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,12 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Jun 15 2009 Stephen Soltesz <soltesz@cs.princeton.edu> - PLEWWW-4.3-19
+- only add users that are enabled and not yet a member of the slice
+- fix to plc_peers
+- my sites, my nodes, my persons improvements for users with multiple sites
+- adds a script to minimize the java script files.
+
 * Sun Jun 07 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-18
 - planetlab module to show 'All My Sites Nodes' link rather than 'My Site Nodes' if several sites
 
