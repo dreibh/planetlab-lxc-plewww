@@ -76,7 +76,8 @@ function plekit_linetabs ($tabs, $id=NULL) {
     if ( ! $values) $values = array();
     if ($url_values) $values = array_merge($values,$url_values);
     if ( $values ) foreach ($values as $key=>$value) {
-	print "<input type='hidden' name='$key' value='$value' />";
+      if ($key != "active_line_tab")
+        print "<input type='hidden' name='$key' value='$value' />";
     }
     print "<input type='hidden' name='active_line_tab' value='$label' />";
     if ($label == $active_line_tab) $tracer = "class='linetabs-submit active'";
