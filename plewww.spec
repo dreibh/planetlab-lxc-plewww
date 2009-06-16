@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 19
+%define taglevel 20
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Tue Jun 16 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-20
+- fix add interface from the node page
+
 * Mon Jun 15 2009 Stephen Soltesz <soltesz@cs.princeton.edu> - PLEWWW-4.3-19
 - only add users that are enabled and not yet a member of the slice
 - fix to plc_peers
