@@ -61,6 +61,7 @@ th.sortable-sortEnglishLonghandDateFormat,
 th.sortable-sortScientificNotation,
 th.sortable-sortImage,
 th.sortable-sortFileSize,
+th.sortable-sortBandwidth,
 th.sortable-sortAlphaNumeric,
 th.sortable-sortEnglishDateTime {
     cursor:pointer;
