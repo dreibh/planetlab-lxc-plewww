@@ -48,7 +48,8 @@ if ( ! $node_id) {
  }
 
 $tabs=array();
-$tabs[] = array('label'=>'Back to node', 'url'=>l_node($node_id),
+$tabs[] = array('label'=>'Back to node', 'url'=>l_node($node_id), 
+		'values' => array('show_details'=>False,'show_interfaces'=>True),
 		'bubble'=>'Cancel pending changes');
 plekit_linetabs($tabs);
 

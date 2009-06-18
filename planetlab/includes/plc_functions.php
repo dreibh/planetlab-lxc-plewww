@@ -453,6 +453,14 @@ function interface_method_selectors ($api, $method, $primary) {
   return $selectors;
 }
 
+// displays bandwidth with kbps Mbps Gbps as needed
+function pretty_bandwidth ($bw) {
+  if ($bw < 1000)		return $bw;
+  if ($bw < 1000000)		return strval($bw/1000) . " kbps";
+  if ($bw < 1000000000)		return strval($bw/1000000) . " Mbps";
+  else				return strval($bw/1000000000) . " Gbps";
+}
+
 //////////////////// 
 function instantiation_label ($slice) {
   $instantiation_labels = array ('not-instantiated'=>'NOT',

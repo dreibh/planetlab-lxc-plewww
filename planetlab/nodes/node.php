@@ -416,44 +416,42 @@ if ( $local_peer ) {
     plc_warning_html("This node has no interface");
     echo "Please add an interface to make this a usable PLC node.</p>\n";
   } else {
+
+    // display a hostname column iff at least one interface has a hostname
+    $need_hostname=false;
+    if ($interfaces) foreach ($interfaces as $interface) if ($interface['hostname']) $need_hostname=true;
+
     $headers=array();
 
-    $headers["IP"]="IPAddress";
+    $sort_column=0;
+    if (plc_is_admin()) { $headers['I']='int'; $sort_column +=1;}
+    $headers["IP"]="sortIPAddress";
+    if ($need_hostname) $headers['hostname']='string';
     $headers["Method"]="string";
     $headers["Type"]="string";
     $headers["MAC"]="string";
-    $headers["bw limit"]="FileSize";
+    $headers["bw limit"]="sortBandwidth";
     // a single symbol, marking 'p' for primary and a delete button for non-primary
     if ( $privileges ) $headers[plc_delete_icon()]='string';
 
     $table_options=array('search_area'=>false,"pagesize_area"=>false,'notes_area'=>false);
-    $table=new PlekitTable("node_interfaces",$headers,2,$table_options);
+    $table=new PlekitTable("node_interfaces",$headers,$sort_column,$table_options);
     $table->start();
 	
     foreach ( $interfaces as $interface ) {
       $interface_id= $interface['interface_id'];
       $interface_ip= $interface['ip'];
-      $interface_broad= $interface['broadcast'];
-      $interface_primary= $interface['is_primary'];
-      $interface_network= $interface['network'];
-      $interface_dns1= $interface['dns1'];
-      $interface_dns2= $interface['dns2'];
-      $interface_hostname= $interface['hostname'];
-      $interface_netmaks= $interface['netmask'];
-      $interface_gatewary= $interface['gateway'];
-      $interface_mac= $interface['mac'];
-      $interface_bwlimit= $interface['bwlimit'];
-      $interface_type= $interface['type'];
-      $interface_method= $interface['method'];
 
       $table->row_start();
+      if (plc_is_admin()) $table->cell(l_interface_t($interface_id,$interface_id));
       $table->cell(l_interface_t($interface_id,$interface_ip));
-      $table->cell($interface_method);
-      $table->cell($interface_type);
-      $table->cell($interface_mac);
-      $table->cell($interface_bwlimit);
+      if ($need_hostname) $table->cell($interface['hostname']);
+      $table->cell($interface['method']);
+      $table->cell($interface['type']);
+      $table->cell($interface['mac']);
+      $table->cell(pretty_bandwidth($interface['bwlimit']));
       if ( $privileges ) {
-	if ($interface_primary) {
+	if ($interface['is_primary']) {
 	  $table->cell(plc_bubble("p","Cannot delete a primary interface"));
 	} else {
 	  $table->cell ($form->checkbox_html('interface_ids[]',$interface_id));

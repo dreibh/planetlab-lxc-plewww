@@ -354,3 +354,29 @@ function sortFileSizePrepareData(td, innerText) {
 
         return isNaN(innerText) ? "" : innerText * mult;
 };
+
+var sortBandwidth = fdTableSort.sortNumeric;
+
+function sortBandwidthPrepareData(td, innerText) {
+        var regExp = /(kbps|mbps|gbps)/i;
+
+        var type = innerText.search(regExp) != -1 ? innerText.match(regExp)[0] : "";
+
+        switch (type.toLowerCase()) {
+                case "kbps" :
+                        mult = 1000;
+                        break;
+                case "mb" :
+                        mult = 1000000;
+                        break;
+                case "gb" :
+                        mult = 1000000000;
+                        break;
+                default :
+                        mult = 1;
+        };
+
+        innerText = parseFloat(innerText.replace(/[^0-9\.\-]/g,''));
+
+        return isNaN(innerText) ? "" : innerText * mult;
+};
