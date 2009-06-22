@@ -542,16 +542,33 @@ switch ($action) {
    $slice_id = intval ($_POST['slice_id']); 	
    $person_ids = $_POST['person_ids'];
    
+   $slice_name = "";
+   $tmp_slices = $api->GetSlices($slice_id, array("name"));
+   if (count($tmp_slices) > 0) {
+       $tmp_slice = $tmp_slices[0];
+       $slice_name = $tmp_slice["name"];
+   }
+   $notify_subject = "Removed from slice: " . $slice_name;
+   $notify_body = sprintf("You have been removed from the slice %s.
+
+Our support team will be glad to answer any question that you might have.
+",$slice_name);
+   $notify_person_ids = array();
+   
    $success=true;
    $counter=0;
    foreach( $person_ids as $person_id ) {
      if ($api->DeletePersonFromSlice(intval($person_id),$slice_id) != 1) 
        $success=false;
-     else
+     else {
+         array_push($notify_person_ids, intval($person_id));
        $counter++;
+     }
    }
-   if ($success) 
+   if ($success) {
+     $api->NotifyPersons($notify_person_ids,$notify_subject,$notify_body);
      drupal_set_message ("Deleted $counter person(s)");
+   }
    else
      drupal_set_error ("Could not delete all selected persons, only $counter were removed");
    plc_redirect(l_slice($slice_id) . " &show_persons=true");
@@ -561,17 +578,37 @@ switch ($action) {
  case 'add-persons-in-slice': {
    $slice_id = intval ($_POST['slice_id']); 	
    $person_ids = $_POST['person_ids'];
+
+   $slice_name = "";
+   $tmp_slices = $api->GetSlices($slice_id, array("name"));
+   if (count($tmp_slices) > 0) {
+     $tmp_slice = $tmp_slices[0];
+     $slice_name = $tmp_slice["name"];
+   }
+   $notify_subject = "Added to slice: " . $slice_name;
+   $notify_body = sprintf("You have been added to the slice %s as a user.
+
+You can go to your slice page following the link below:
+https://%s:%d/db/slices/index.php?id=%d
+
+Our support team will be glad to answer any question that you might have.
+",$slice_name,PLC_WWW_HOST,PLC_WWW_SSL_PORT,$slice_id);
+   $notify_person_ids = array();
    
    $success=true;
    $counter=0;
    foreach ($person_ids as $person_id) {
      if ($api->AddPersonToSlice(intval($person_id),$slice_id) != 1) 
        $success=false;
-     else
+     else {
+       array_push($notify_person_ids, intval($person_id));
        $counter++;
+     }
    }
-   if ($success) 
+   if ($success) {
+     $api->NotifyPersons($notify_person_ids,$notify_subject,$notify_body);
      drupal_set_message ("Added $counter person(s)");
+   }
    else
      drupal_set_error ("Could not add all selected persons, only $counter were added");
    plc_redirect(l_slice($slice_id) . "&show_persons=true" );
