@@ -25,7 +25,7 @@ function timeDiff ($timestamp,$detailed=false,$n = 0) {
 # Go from decades backwards to seconds
   $i = sizeof($lengths) - 1;				# Size of the lengths / periods in case you change them
   $time = "";						# The string we will hold our times in
-  while($i >= $n) {
+  while($i > $n) {
 # if the difference is greater than the length we are checking... continue
     if ($diff > $lengths[$i-1]) {				
 # 65 / 60 = 1.	That means one minute.	130 / 60 = 2. Two minutes.. etc
