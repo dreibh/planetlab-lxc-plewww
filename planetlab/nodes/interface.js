@@ -104,6 +104,25 @@ function networkHelper () {
   $('broadcast').value=derived[1];
 }
 
+function macChecker(id, optional) {
+  var error= macCheckerSilent($(id).value);
+  if (error) {
+    Form.Element.focus($(id));
+    alert(error);
+  }
+}
+
+function macCheckerSilent(macAdd) {
+	var RegExPattern = /^[0-9a-fA-F:]+$/;
+ 
+	if (!(macAdd.match(RegExPattern)) || macAdd.length != 17) 
+	{
+		return "Invalid MAC Address";
+	} else {
+		return "";
+	}
+}
+
 /* check one */
 function subnetChecker (id, optional) {
   var error= subnetCheckerSilent([id,optional]);

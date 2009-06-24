@@ -111,9 +111,11 @@ $details->th_td("DNS 2",$interface['dns2'],"dns2",array('width'=>15,
 $details->space();
 $details->th_td("BW limit (bps)",$interface['bwlimit'],"bwlimit",array('width'=>11));
 $details->th_td("Hostname",$interface['hostname'],"hostname");
+$details->th_td("Mac address",$interface['mac'],"mac", array('onChange'=>'macChecker("mac", true)'));
+
 # xxx should the user be allowed to change this ?
-$mac=$interface['mac'];
-if ($mac) $details->th_td("MAC address",$mac);
+//$mac=$interface['mac'];
+//if ($mac) $details->th_td("MAC address",$mac);
 
 // the buttons
 $update_button = $form->submit_html ("update-interface","Update",
