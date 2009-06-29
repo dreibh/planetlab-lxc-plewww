@@ -222,6 +222,7 @@ $details->th_td("Description",$description,"description",
 		      'width'=>50,'height'=>5));
 $selectors=array(array('display'=>"PLC",'value'=>'plc-instantiated'),
 		 array('display'=>"Delegated",'value'=>'delegated'),
+		 array('display'=>"Controller",'value'=>'nm-controller'),
 		 array('display'=>"None",'value'=>'not-instantiated'));
 
 $instanciation_select = $form->select_html ("instantiation", $selectors);
