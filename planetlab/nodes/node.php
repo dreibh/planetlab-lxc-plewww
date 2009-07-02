@@ -274,10 +274,11 @@ if ( $local_peer  && $privileges) {
 		     array("value"=>"download-node-iso","display"=>"Download ISO image for $hostname"),
 		     array("value"=>"download-node-usb","display"=>"Download USB image for $hostname"),
 		     array("value"=>"download-node-usb-partition", "display"=>"Download partitioned, USB image for $hostname"),
-		     array("display"=>"-- Floppy + generic image --","disabled"=>true),
-		     array("value"=>"download-node-floppy","display"=>"Download Floppy file for $hostname"),
-		     array("value"=>"download-generic-iso","display"=>"Download generic ISO image (requires floppy)"),
-		     array("value"=>"download-generic-usb","display"=>"Download generic USB image (requires floppy)"));
+		     //		     array("display"=>"-- Floppy + generic image --","disabled"=>true),
+		     //		     array("value"=>"download-node-floppy","display"=>"Download Floppy file for $hostname"),
+		     //		     array("value"=>"download-generic-iso","display"=>"Download generic ISO image (requires floppy)"),
+		     //		     array("value"=>"download-generic-usb","display"=>"Download generic USB image (requires floppy)"),
+		      );
   $download_value .= $download_form->select_html("action",$selectors,
 						 array('label'=>"Download mode",'autosubmit'=>true));
   $download_value .= $download_form->end_html();
