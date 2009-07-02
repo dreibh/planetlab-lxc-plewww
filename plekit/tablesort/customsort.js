@@ -380,3 +380,33 @@ function sortBandwidthPrepareData(td, innerText) {
 
         return isNaN(innerText) ? "" : innerText * mult;
 };
+
+
+var sortLastContact = fdTableSort.sortNumeric;
+
+function sortLastContactPrepareData(td, innerText) {
+    var regExp = /(min|hrs|days|wks|mnths)/i;
+
+    var type = innerText.search(regExp) != -1 ? innerText.match(regExp)[0] : "";
+
+    switch (type.toLowerCase()) {
+    case "hrs" :
+        mult = 60;
+        break;
+    case "days" :
+        mult = 60*24;
+        break;
+    case "wks" :
+        mult = 60*24*7;
+        break;
+    case "mnths" :
+        mult = 60*24*30;
+        break;
+    default :
+        mult = 1;
+    };
+
+    innerText = parseFloat(innerText.replace(/[^0-9\.\-]/g,''));
+
+    return isNaN(innerText) ? "" : innerText * mult;
+};
