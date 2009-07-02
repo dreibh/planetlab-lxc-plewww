@@ -234,7 +234,7 @@ $details->end();
 
 print <<< EOF
 <div class='slice_add'>
-<p>There are three possible "instantiation" states for a slice.</p>
+<p>There are four possible "instantiation" states for a slice.</p>
 <ul>
 <li> <strong>PLC</strong> creates a slice with default settings. </li>
 <li><strong>Delegated</strong> creates a ticket to use on each node. </li>
