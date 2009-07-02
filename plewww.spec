@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 22
+%define taglevel 23
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,11 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Thu Jul 02 2009 Baris Metin <tmetin@sophia.inria.fr> - PLEWWW-4.3-23
+- exclude datepicler.js from jsmin
+- table sort function for Last Contact columns
+- drop options for generic boot images
+
 * Wed Jul 01 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-22
 - displays editable mac address for interfaces
 - properly sorts bandwidths
