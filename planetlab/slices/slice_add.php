@@ -238,6 +238,7 @@ print <<< EOF
 <ul>
 <li> <strong>PLC</strong> creates a slice with default settings. </li>
 <li><strong>Delegated</strong> creates a ticket to use on each node. </li>
+<li><strong>Controller</strong> creates a slice on all nodes to manipulate Delegated slices. </li>
 <li><strong>None</strong> allows you to reserve a slice name; you may instantiate the slice later.</li>
 </ul>
 </div>
