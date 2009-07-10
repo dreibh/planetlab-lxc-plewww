@@ -87,8 +87,10 @@ function generic_search ($type,$field,$tokens) {
   }
   foreach ($tokens as $token) {
     $filter=array($field=>token_pattern($token));
-    $results = 
-      array_merge ($results,$api->$methodname($filter));
+    $new_results = $api->$methodname($filter);
+    if (is_array($new_results)) {
+        $results = array_merge ($results, $new_results);
+    }
   }
   return $results;
 }
