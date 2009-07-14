@@ -258,7 +258,10 @@ EOF;
    $details->start();
 
    if( ! $interface ) {
+     print ("<center>");
      print (plc_warning("This node has no configured primary interface."));
+     print ("You can add one " . href(l_interface_add($node_id), "here "));
+     print ("</center>");
    } else {
      $details->tr(l_node_t($node_id,"Node details"),"center");
      $details->th_td("node_id",$node_id);
