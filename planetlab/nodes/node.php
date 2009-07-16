@@ -187,7 +187,7 @@ if ($display_pcus) {
   if (! $site_pcus) {
     $pcu_update_area = "This site has no PCU - " . href ( l_pcu_add(), "add one here");
   } else {
-    $pcu_add_link = href (l_pcu_add(),plc_add_icon());
+    $pcu_add_link = href (l_pcu_add(),plc_add_icon() . "Add new");
 
     // first option in pcus
     if ($pcu_ids) 
@@ -217,7 +217,7 @@ if ($display_pcus) {
     $pcu_attach_button = 
       $details->form()->submit_html('attach_pcu',"Attach PCU");
 
-    $pcu_update_area = $pcu_add_link . " " . $pcu_chooser . " " . $port_chooser . " " . $pcu_attach_button;
+    $pcu_update_area = $pcu_add_link . "<br>Or, select existing  " . $pcu_chooser . " " . $port_chooser . " " . $pcu_attach_button;
   }
 
   if ($pcu_string) 
