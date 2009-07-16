@@ -52,6 +52,7 @@ $form['email'] = array('title' => 'E-mail', 'required' => TRUE,
 $form['password'] = array('title' => 'Password', 'required' => TRUE,
 		       'maxlength' => 60, 'size' => 20);
 $form['site_ids'] = array('title' => 'Site', 'required' => TRUE);
+if (0)
 $form['roles'] = array('title' => 'Additional Roles', 'required' => FALSE);
 
 //////////////////// additional messages
@@ -64,6 +65,7 @@ $form['site_ids']['comment'] = <<< EOF
 Select the site where you belong 
 EOF;
 
+if (0)
 $form['roles']['comment'] = <<< EOF
 Do not select the <b>Principal Investigator</b> or <b>Technical
 Contact</b> roles unless you have spoken with the current PI of your
@@ -307,11 +309,13 @@ EOF;
     break;
 
   case 'roles':
+    if (0) { /* Not letting users select PI or Tech any more.  Its only lead to confusion and abuse. */
     print <<<EOF
         <td><select name="roles[]" multiple="multiple" id="edit-roles" class="form-select $class">
           $role_options
         </select></td>\n
 EOF;
+    }
     break;
 
   default:
