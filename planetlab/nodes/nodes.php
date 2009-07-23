@@ -184,7 +184,11 @@ foreach ($nodes as $node) {
   $peers->cell ($table,$peer_id);
   $table->cell (topdomain($hostname));
   $table->cell (l_site_t($site_id,$login_base));
-  $table->cell ($node['boot_state']);
+  if ($node['run_level']) {
+      $table->cell($node['run_level']);
+  } else {
+      $table->cell ($node['boot_state'] . '*');
+  }
   $table->cell (l_node_t($node_id,$hostname));
   $table->cell ($node_type);
   $table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
