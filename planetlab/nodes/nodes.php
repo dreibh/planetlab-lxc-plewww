@@ -61,7 +61,7 @@ function node_status ($node) {
 }
 
 // fetch nodes 
-$node_columns=array('hostname','node_type','site_id','node_id','boot_state','interface_ids','peer_id', 'arch','slice_ids');
+$node_columns=array('hostname','node_type','site_id','node_id','boot_state','run_level','interface_ids','peer_id', 'arch','slice_ids');
 // server-side filtering - set pattern in $_GET for filtering on hostname
 if ($pattern) {
   $node_filter['hostname']=$pattern;
@@ -205,6 +205,7 @@ $notes []= "R = region";
 $notes []= "A = arch";
 $notes []= "S = number of slivers";
 $notes []= "? = status";
+$notes []= "status* = node doesn't have an observed state, preferred state is displayed";
 $table->end(array('notes'=>$notes));
 $nifty->end();
 
