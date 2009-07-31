@@ -396,11 +396,20 @@ switch ($action) {
        $interface[$field]= intval( $interface[$field] );
      }
    }
-   $result=$api->AddInterface( intval( $node_id ), $interface );
-   if ($result >0 ) 
-     drupal_set_message ("Interface $result added into node $node_id");
-   else
+   $interface_id =$api->AddInterface( intval( $node_id ), $interface );
+   if ($interface_id >0 ) {
+     $api->begin();
+	 $api->AddInterfaceTag($interface_id,"alias",strval($interface_id));
+	 $api->AddInterfaceTag($interface_id,"ifname","eth0");
+     list($id1, $id2) = $api->commit();
+     if ( $id1 > 0 && $id2 > 0 ) {
+         drupal_set_message ("Interface $interface_id added into node $node_id");
+     } else {
+         drupal_set_error ("Could not add interface tags to interface $interface_id");
+     }
+   } else {
      drupal_set_error ("Could not create interface");
+   }
    plc_redirect (l_node($node_id));
  }
    
