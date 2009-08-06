@@ -418,7 +418,11 @@ switch ($action) {
    foreach ($interface_details as $field) {
      $interface[$field]= $_POST[$field];
      if( in_array( $field, array( 'bwlimit', 'node_id' ) ) ) {
-       $interface[$field]= intval( $interface[$field] );
+       if ( intval($interface[$field]) != 0 ) {
+           $interface[$field]= intval( $interface[$field]);
+       } elseif ($field=='bwlimit' ) {
+           $interface[$field] = NULL;
+       }
      }
    }
    $result=$api->UpdateInterface( intval( $interface_id ), $interface );
