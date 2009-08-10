@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 24
+%define taglevel 25
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,11 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Aug 10 2009 Stephen Soltesz <soltesz@cs.princeton.edu> - PLEWWW-4.3-25
+- Add default Interface tags to extra interfaces.
+- Add clearer 'Add New PCU' link on node page.
+- Disable user registration for tech and PI roles.
+
 * Thu Jul 02 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-24
 - new 'controller' instantiation state available in add slice page
 
