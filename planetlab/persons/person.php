@@ -299,7 +299,7 @@ if ($local_peer) {
     // get list of local sites that the person is not in
     function get_site_id ($site) { return $site['site_id'];}
     $person_site_ids=array_map("get_site_id",$sites);
-    $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids), $site_columns);
+    $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids, '-SORT'=>'name'), $site_columns);
     // xxx cannot use onchange=submit() - would need to somehow pass action name 
     function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
     $selectors = array_map ("site_selector",$relevant_sites);
