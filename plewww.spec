@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 25
+%define taglevel 26
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Sep 07 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-26
+- minor/cosmetic
+
 * Mon Aug 10 2009 Stephen Soltesz <soltesz@cs.princeton.edu> - PLEWWW-4.3-25
 - Add default Interface tags to extra interfaces.
 - Add clearer 'Add New PCU' link on node page.
