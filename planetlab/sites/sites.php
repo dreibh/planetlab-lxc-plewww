@@ -156,7 +156,7 @@ if ($sites) foreach ($sites as $site) {
 }
 $notes=array();
 if (plc_is_admin()) {
-  $notes []= "N = number of sites";
+  $notes []= "N = number of nodes";
   $notes []= "U = number of users";
   $notes []= "S = number of slices";
   $notes []= "I = site_id";
