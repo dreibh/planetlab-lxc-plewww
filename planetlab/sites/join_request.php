@@ -60,7 +60,7 @@ function render_join_request_review($api, $site_id) {
     $persons=array();
   } else {
     $person_ids = $site['person_ids'];
-    $persons = $api->GetPersons( $person_ids, array( "person_id", "role_ids", "first_name", "last_name", "email" , "phone") );
+    $persons = $api->GetPersons( $person_ids, array( "person_id", "role_ids", "first_name", "last_name", "title", "email" , "phone") );
   }
   $tech = Null;
   $pi = Null;
