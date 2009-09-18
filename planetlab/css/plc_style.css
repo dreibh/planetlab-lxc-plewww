@@ -26,11 +26,11 @@ body {
 }
 
 .plc-warning {
-    padding: 4px;
+    padding:	 4px;
     background:  #ffa223; 
 }
 .plc-error {
-    background: red;
+    background:  red;
     font-weight: bold;
 }
 
@@ -103,4 +103,22 @@ div#add_slice_in_site {
 }
 #add_slice_choose_site {
     margin:20px ;
+}
+
+/* registrations */
+div.site-register {
+    background-color: #c8c7de;
+    padding: 5px;
+    margin: 10px;
+}
+/* site registration */
+div.site-pending {
+    background-color: #eadbc8;
+    padding: 5px;
+    margin: 10px;
+}
+div.person-register {
+    background-color: #e3d1cb;
+    padding: 5px;
+    margin: 10px;
 }

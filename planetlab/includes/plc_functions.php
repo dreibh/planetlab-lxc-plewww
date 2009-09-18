@@ -345,11 +345,34 @@ function plc_itemize ($messages, $class="") {
 }
 
 //////////
+function truncate ($text,$numb,$etc = "...") {
+  if (strlen($text) > $numb) {
+    $text = substr($text, 0, $numb);
+    $text = $text.$etc;
+  }
+  return $text;
+}
+function html_div ($text,$class="") {
+  $html="<div";
+  if ($class) $html .= " class='$class'";
+  $html .= ">$text</div>";
+  return $html;
+}
+
 // should use the same channel as the php errors..
-function plc_error_html ($text)		{ return  "<div class='plc-error'> " . $text . "</div>"; }
+function plc_error_html ($text)		{ return  html_div ($text,'plc-error'); }
 function plc_error ($text)		{ print plc_error_html ("Error " . $text); }
 
-function plc_errors ($errors) {
+function errors_init() { return array();}
+function errors_record ($adm, $errors) {
+  if ($adm->error()) {
+    $tmp=$adm->error();
+    $errors []= $tmp;
+  }
+  return $errors;
+}
+
+function errors_display ($errors) {
   if ($errors) {
     print( "<div class='plc-error'>" );
     print( "<p>The following errors occured:</p>" );
@@ -370,20 +393,6 @@ function plc_debug ($message,$object) {
   print "<br>" . $message . "<pre>";
   print_r ($object);
   print "</pre>";
-}
-
-function truncate ($text,$numb,$etc = "...") {
-  if (strlen($text) > $numb) {
-    $text = substr($text, 0, $numb);
-    $text = $text.$etc;
-  }
-  return $text;
-}
-function html_div ($text,$class="") {
-  $html="<div";
-  if ($class) $html .= " class='$class'";
-  $html .= ">$text</div>";
-  return $html;
 }
 
 if (! function_exists ("drupal_set_error")) {

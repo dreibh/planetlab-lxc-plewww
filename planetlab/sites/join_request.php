@@ -11,12 +11,14 @@ require_once 'plc_login.php';
 require_once 'plc_session.php';
 global $plc, $api;
 
-// Common functions
-require_once 'plc_functions.php';
-
 // Print header
 require_once 'plc_drupal.php';
 include 'plc_header.php';
+
+// Common functions
+require_once 'plc_functions.php';
+require_once 'details.php';
+require_once 'nifty.php';
 
 include 'site_form.php';
 
@@ -83,41 +85,36 @@ function render_join_request_review($api, $site_id) {
 <input type="hidden" name="address_id" value="$address_id">
 <input type="hidden" name="tech_id" value="$tech_id">
 <input type="hidden" name="site_id" value="$site_id">
-
-<table border="0" width="100%" cellspacing="0" cellpadding="3">
 EOF;
 
   $site_form = build_site_form(FALSE);
   $input = array ('site' => $site, 'address'=> $address, 'pi' => $pi, 'tech' => $tech);
   
+  $nifty=new PlekitNifty ('pending','site-pending','medium');
+
+  $nifty->start();
+  $details = new PlekitDetails(TRUE);
+  $details->start();
+
   // display the buttons 
-  print <<< EOF
-    <tr>
-    <td colspan='2'>
+  $buttons_row =<<<EOF
     <table width="100%" border=0 cellspacing="0" cellpadding="5"> <tr> 
     <td align=center><input type="submit" name="submitted" value="Delete"></td>
     <td align=center><input type="submit" name="submitted" value="Update"></td>
     <td align=center><input type="submit" name="submitted" value="Approve"></td>
     </tr> </table>
-    </tr>
 EOF;
 
+  $details->tr($buttons_row,'center');
   // render the form - not supposed to be empty
-  form_render_table2 ($site_form, $input, TRUE);
+  form_render_details ($details,$site_form, $input, TRUE);
 
-  // display the buttons 
-  print <<< EOF
-    <tr>
-    <td colspan='2'>
-    <table width="100%" border=0 cellspacing="0" cellpadding="5"> <tr> 
-    <td align=center><input type="submit" name="submitted" value="Delete"></td>
-    <td align=center><input type="submit" name="submitted" value="Update"></td>
-    <td align=center><input type="submit" name="submitted" value="Approve"></td>
-    </tr> </table>
-    </tr>
-EOF;
+  // display the buttons again
+  $details->tr($buttons_row,'center');
 
-  print "</table></form>";
+  $details->end();
+  $nifty->end();
+
 }
 
 function notify_enabled_pi ($api, $pi_id, $pi, $site_id, $site) {

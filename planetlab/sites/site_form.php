@@ -180,16 +180,16 @@ function form_check_required ($form, $input) {
 // if $outline_missing is set, missing required fields are outlined
 // fields typed as 'password' are displayed differently
 // expected to be embedded in a table with 2 columns
-function form_render_table2 ($form, $input, $outline_missing) {
+function form_render_details ($details, $site_form, $input, $outline_missing) {
 
-  foreach ($form as $fullname => $item) {
+  foreach ($site_form as $fullname => $item) {
     
     list($objname,$field) = split(":",$fullname);
     
     // render the comment field
     if ( ! empty($item['comment'])) {
-      $comment=$item['comment'];
-      print "<tr><td colspan='2'> $comment </td></tr>";
+      $details->space();
+      $details->tr ($item['comment'] . ":");
     }
 
     // compute line attributes
@@ -201,10 +201,7 @@ function form_render_table2 ($form, $input, $outline_missing) {
     }
 
     // Label part
-    print "<tr>";
-    print <<<EOF
-      <td> <label class="$class" for="edit-$fullname">$title: $required</label> </td>\n
-EOF;
+    $left_part = "<label class='$class' for='edit-$fullname'>$title: $required</label>";
 
     // input part
     if ($item['type'] == 'boolean') {
@@ -221,25 +218,23 @@ EOF;
 	$checkedyes = "";
 	$checkedno = "checked='checked'";
       }
-      print <<< EOF
-<td>
+      $right_part = <<<EOF
 <input type='radio' id="check-$fullname" name="$fullname" value="yes" $checkedyes> Yes
 <input type='radio' id="check-$fullname" name="$fullname" value="no"  $checkedno> No
-</td>\n
 EOF;
     } else {
       $type = ($item['type'] == 'password') ? "password" : "text";
       $value = !empty($input[$objname][$field]) ? $input[$objname][$field] : "";
       $maxlength = $item['maxlength'];
       $size = $item['size'];
-      print <<<EOF
-<td><input type="$type" id="edit-$fullname" name="$fullname" value="$value" 
+      $right_part= <<<EOF
+<input type="$type" id="edit-$fullname" name="$fullname" value="$value" 
 size="$size" maxlength="$maxlength" 
-class="form-text $class" /> </td>\n
+class="form-text $class" /> 
 EOF;
     }
 
-    print "</tr>\n";
+    $details->th_td($left_part,$right_part);
   }
 }
 

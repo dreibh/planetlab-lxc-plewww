@@ -16,7 +16,9 @@ require_once 'plc_drupal.php';
 drupal_set_title('New Site Registration');
 include 'plc_header.php';
 
-include 'site_form.php';
+require_once 'site_form.php';
+require_once 'details.php';
+require_once 'nifty.php';
 
 $verbose = FALSE;
 
@@ -195,23 +197,32 @@ print <<<EOF
 
 <form action="$self" method="post">
 
-<table border="0" width="100%" cellspacing="0" cellpadding="3">
 EOF;
 
+$nifty=new PlekitNifty ('register','site-register','medium');
+$nifty->start();
+$details = new PlekitDetails(TRUE);
+$details -> start();
+
+$register_button='<input type="submit" name="op" value="Register"  class="form-submit" />';
+
 // Do not allow resubmits
 if (empty($site['site_id'])) {
-  print '<tr><td colspan=2 align=center><input type="submit" name="op" value="Register"  class="form-submit" /></td></tr>';
+  $details->tr($register_button,'center');
 }
 
-form_render_table2 ($site_form, $input, ! $empty_form);
+form_render_details ($details, $site_form, $input, ! $empty_form);
 
 // Do not allow resubmits
 if (empty($site['site_id'])) {
-  print '<tr><td colspan=2> &nbsp; </td></tr>';
-  print '<tr><td colspan=2 align=center><input type="submit" name="op" value="Register"  class="form-submit" /></td></tr>';
+  // some space
+  $details->space();
+  $details->tr($register_button,'center');
 }
 
-print "</table></form></div>";
+$details -> end();
+$nifty->end();
+print "</form></div>";
 
 include 'plc_footer.php';
 
