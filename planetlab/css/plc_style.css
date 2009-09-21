@@ -79,16 +79,6 @@ p.node_download {
     font-size: larger;
 }
 
-div.slice_add {
-    padding: 20px 40px;
-}
-div.slice_add p {
-    font-size: larger;
-*    text-align: center; */
-}
-div.slice_add * {
-    font-style: italic;
-}
 .bold {
     font-weight: bold;
 }
@@ -98,13 +88,8 @@ div.slice_add * {
 h3.node_download {
     text-align: center;
 }
-div#add_slice_in_site {
-    text-align:center;
-}
-#add_slice_choose_site {
-    margin:20px ;
-}
 
+/****************************************/
 /* registrations */
 div.site-register {
     background-color: #c8c7de;
@@ -121,4 +106,34 @@ div.person-register {
     background-color: #e3d1cb;
     padding: 5px;
     margin: 10px;
+}
+
+/****************************************/
+/* slice creation page */
+#create-slice-choose-site {
+    margin:20px ;
+}
+div#create-slice-in-site {
+    text-align:center;
+}
+div.create-slice-instantiations {
+    padding:  5px 0px 0px 0px;
+/*    font-size: larger; */
+    font-style: italic;
+}
+div#toggle-container-create-slice-details {
+    background-color: #e5dbb7;
+}
+div#toggle-area-create-slice-details {
+    padding: 20px 5px 5px 5px;
+}
+div#toggle-container-create-slice-persons {
+    background-color: #dfe6a1;
+}
+div#toggle-area-create-slice-persons {
+    padding: 20px 5px 5px 5px;
+}
+/* override details default */
+div#toggle-area-create-slice-details>table.plc_details {
+    margin:0 ;
 }

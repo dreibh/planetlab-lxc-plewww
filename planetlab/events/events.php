@@ -263,7 +263,7 @@ foreach ($events as $event) {
   // the message button
   $trunc_mess=htmlentities(truncate($event['message'],40),ENT_QUOTES);
   $message="<input type=button name='message' value='" . $trunc_mess ."' onclick='alert(\"" . $text . "\")'";
-  $details="<input type=button name='message' value='X' onclick='alert(\"" . $text . "\")'";
+  $details="<input type=button name='message' value='+' onclick='alert(\"" . $text . "\")'";
   //    $message=sprintf('<span title="%s">%s</span>',$message,$message);
   
   $message=truncate($event['message'],40);

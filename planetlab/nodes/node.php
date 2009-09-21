@@ -329,7 +329,6 @@ $form->start();
       $table->row_start();
       $peers->cell ($table,$slice['peer_id']);
       $table->cell (l_slice_t ($slice['slice_id'],$slice['name']));
-      # xxx l_sliver not implemented yet - what should we show exactly ?
       $table->cell (l_sliver_t ($node_id,$slice['slice_id'],'sliver tags'));
       $table->row_end();
     }

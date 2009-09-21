@@ -182,7 +182,8 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $bullet_item .= href(l_nodes(),"Nodes");
       $bullet_item .= ul_start();
       $bullet_item .= plc_my_node_links();
-      $bullet_item .= leaf( href (l_register_node(),"Register Node"));
+      if (plc_is_admin() || plc_is_pi() || plc_is_tech()) 
+	$bullet_item .= leaf( href (l_register_node(),"Register Node"));
       $bullet_item .= ul_end();
       $items [] = expanded($bullet_item);
 

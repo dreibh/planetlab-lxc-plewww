@@ -46,6 +46,8 @@ drupal_set_html_head('
 // (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
 
 function plekit_linetabs ($tabs, $id=NULL) {
+  // do not output anything if $tabs has no entry (unpleasant rendering)
+  if (empty ($tabs)) return;
   $active_line_tab=$_GET['active_line_tab'];
   // need id to pass to the onclick function attached to the input buttons
   $id="linetabs";

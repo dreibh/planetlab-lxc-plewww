@@ -155,20 +155,20 @@ $multiple_sites=false;
 $site_columns=array('name','login_base','site_id');
 if (plc_is_admin ()) {
   $multiple_sites=true;
-  $filter=NULL;
+  $filter=array('-SORT'=>'name');
  } else if (count (plc_my_site_ids()) > 1) {
   $multiple_sites=true;
-  $filter=plc_my_site_ids();
+  $filter=array('-SORT'=>'name','site_id'=>plc_my_site_ids());
  }
 
 if ($multiple_sites) {
-  print "<div id='add_slice_in_site'>";
+  print "<div id='create-slice-in-site'>";
   $other_sites=$api->GetSites($filter,$site_columns);
   $selectors=array();
   foreach ($other_sites as $other_site) {
     $selector=array('display'=>$other_site['name'],
 		    'value'=>$other_site['site_id']);
-    if ($other_site['site_id']==$other_site_id) $selector['selected']='selected';
+    if ($other_site['site_id']==$site_id) $selector['selected']='selected';
     $selectors []= $selector;
   }
 
@@ -176,13 +176,13 @@ if ($multiple_sites) {
   $site_form->start();
   print $site_form->label_html('site_id','Or choose some other site');
   print $site_form->select_html('site_id',$selectors,array('autosubmit'=>true,
-							   'id'=>'add_slice_choose_site'));
+							   'id'=>'create-slice-choose-site'));
   $site_form->end();
   print "</div>";
  }
 		  
 print <<< EOF
-<div class='slice_add'>
+<div class='create-slice-instantiations'>
 <p>You must provide a short description of the new slice 
 as well as a link to a project website before creating it. 
 <br/>
@@ -202,12 +202,15 @@ New software releases and available services are announced here as well.
 </div>
 EOF;
 
+$toggle = new PlekitToggle ('create-slice-details','Slice Details',
+			    array ('visible'=>get_arg('show_slice',true)));
 $details = new PlekitDetails(TRUE);
 
 $form_variables = array('site_id'=>plc_my_site_id());
 $form = $details -> form_start("/db/slices/slice_add.php",$form_variables);
 print $form->hidden_html("site_id",$site_id);
 
+$toggle->start();
 $details->start();
 
 $running=count($site['slice_ids']);
@@ -230,10 +233,8 @@ $details->th_td("Instanciation",$instanciation_select,"instantiation",
 		array('input_type'=>'select', 'value'=>$instantiation));
 
 
-$details->end();
-
-print <<< EOF
-<div class='slice_add'>
+$instantiation_text = <<< EOF
+<div class='create-slice-instantiations'>
 <p>There are four possible "instantiation" states for a slice.</p>
 <ul>
 <li> <strong>PLC</strong> creates a slice with default settings. </li>
@@ -244,9 +245,14 @@ print <<< EOF
 </div>
 EOF;
 
+$details->tr($instantiation_text);
+
+$details->end();
+$toggle->end();
+
 if ($persons) {
   $title = count($persons) . " people can be added in slice";
-  $toggle=new PlekitToggle ('persons',$title,
+  $toggle=new PlekitToggle ('create-slice-persons',$title,
 			  array('visible'=>get_arg('show_persons',true)));
   $toggle->start();
   
