@@ -112,11 +112,13 @@ if ($slice_id) {
 // go
 $persons=$api->GetPersons($person_filter,$person_columns);
 
-// build site_ids 
+// build site_ids - take all site_ids into account 
 $site_ids=array();
-if ($persons) foreach ($persons as $person) 
-		if ($person['site_ids'][0])
-		  $site_ids []= $person['site_ids'][0];
+if ($persons) foreach ($persons as $person) {
+  if ($person['site_ids']) foreach ($person['site_ids'] as $person_site_id) {
+      $site_ids []= $person_site_id;
+    }
+	      }
 
 // fetch related sites
 $site_columns=array('site_id','login_base');
@@ -147,7 +149,7 @@ $headers["Peer"]="string";
 $headers["First"]="string";
 $headers["Last"]="string";
 $headers["Email"]="string";
-$headers["Site" ]= "string";
+$headers["Site(s)" ]= "string";
 $headers["R"]="string";
 $headers["S" ]= "int";
 $headers["Status"]="string";
@@ -166,9 +168,7 @@ $peers=new Peers ($api);
 foreach ($persons as $person) {
     $person_id=$person['person_id'];
     $email=$person['email'];
-    $site_id=$person['site_ids'][0];
-    $site=$site_hash[$site_id];
-    $login_base = $site['login_base'];
+    $site_ids = $person['site_ids'];
     $roles = plc_vertical_table ($person['roles']);
     $peer_id=$person['peer_id'];
 
@@ -179,7 +179,13 @@ foreach ($persons as $person) {
     $table->cell (href(l_person($person_id),$person['first_name']));
     $table->cell (href(l_person($person_id),$person['last_name']));
     $table->cell(l_person_t($person_id,$email));
-    $table->cell(l_site_t($site_id,$login_base),array('only-if'=>!$peer_id));
+    $site_links = array();
+    foreach ($site_ids as $site_id) {
+      $site=$site_hash[$site_id];
+      $login_base = $site['login_base'];
+      $site_links []= l_site_t($site_id,$login_base);
+    }
+    $table->cell(plc_vertical_table($site_links),array('only-if'=>!$peer_id));
     $table->cell($roles,array('only-if'=>!$peer_id));
     $table->cell(count($person['slice_ids']));
     $table->cell(person_status($person));
