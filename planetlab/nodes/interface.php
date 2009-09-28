@@ -140,14 +140,14 @@ if ($mode == 'add') return;
 
 
 //////////////////////////////////////// tags
-$toggle=new PlekitToggle ('tags','Tags',
+$tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
+$toggle=new PlekitToggle ('tags',count_english($tags,'tags'),
 			  array('visible'=>get_arg('show_tags',false)));
 $toggle->start();
 
 $form = new PlekitForm (l_actions(),array('interface_id'=>$interface_id));
 $form->start();
 
-$tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
 function get_tagname ($tag) { return $tag['tagname'];}
 $tagnames = array_map ("get_tagname",$tags);
   
