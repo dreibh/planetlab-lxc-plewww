@@ -113,6 +113,8 @@ $peers=new Peers($api);
 
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
+
+$headers=array();
 if (plc_is_admin()) {
   $headers['I']='int';
 }

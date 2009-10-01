@@ -81,7 +81,7 @@ global $MAX_WEEKS;	$MAX_WEEKS= 8;		// weeks from today
 global $GRACE_DAYS;	$GRACE_DAYS=10;		// days for renewal promoted on top
 global $NOW;		$NOW=mktime();
 
-
+////////////////////////////////////////////////////////////
 // make the renew area on top and open if the expiration time is less than 10 days from now
 function renew_needed ($slice) {
   global $DAY, $NOW, $GRACE_DAYS;
@@ -173,7 +173,7 @@ EOF;
   $toggle->end();
 }
 
-////////// 
+////////////////////////////////////////////////////////////
 
 $am_in_slice = in_array(plc_my_person_id(),$person_ids);
 
