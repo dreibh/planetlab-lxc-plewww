@@ -167,7 +167,7 @@ class PlekitTable {
 <form class='pagesize' action='satisfy_xhtml_validator'><fieldset>
    <input class='pagesize_input' type='text' id="$pagesize_text_id" value='$this->pagesize'
       onkeyup='plekit_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);' 
-      size='3' maxlength='3' /> 
+      size='3' maxlength='4' /> 
   <label class='pagesize_label'> items/page </label>   
   <img class='reset' src="/planetlab/icons/clear.png" alt="reset visible size"
       onmousedown='plekit_pagesize_reset("$this->table_id","$pagesize_text_id",$this->pagesize_def);' />
