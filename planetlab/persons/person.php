@@ -318,7 +318,8 @@ if ($local_peer) {
 
   if (! $roles) plc_warning ("This user has no role !");
 
-  $can_manage_roles= ($local_peer && plc_is_admin());
+  $is_pi_of_the_site = ( plc_in_site($site_ids[0]) && plc_is_pi() );
+  $can_manage_roles= ( $local_peer && plc_is_admin() || $is_pi_of_the_site );
   $table_options=array("search_area"=>false,"notes_area"=>false);
 
   $headers=array("Role"=>"string");
@@ -352,7 +353,15 @@ if ($local_peer) {
     }
 
     $table->row_start();
-    $selectors=$form->role_selectors_excluding($api,$role_ids);
+    if ($is_pi_of_the_site) {
+      // pi's can only add/remove tech (40) and user (30) roles.
+        $role_ids_to_add = array_diff(array(30, 40), $role_ids);
+        if ($role_ids_to_add) {
+            $selectors=$form->role_selectors($api, $role_ids_to_add);
+        }
+    } else {
+      $selectors=$form->role_selectors_excluding($api,$role_ids);
+    }
     $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
     // add a role : the button
     $add_role_right_area=$form->submit_html("add-role-to-person","Add role");

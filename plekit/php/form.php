@@ -112,13 +112,15 @@ class PlekitForm {
       $encoded=htmlentities($options['label'],ENT_QUOTES);
       $html.="<option selected=selected value=''>$encoded</option>";
     }
-    foreach ($selectors as $selector) {
-      $display=htmlentities($selector['display'],ENT_QUOTES);
-      $value=$selector['value'];
-      $html .= "<option value='$value'";
-      if ($selector['selected']) $html .= " selected=selected";
-      if ($selector['disabled']) $html .= " disabled=disabled";
-      $html .= ">$display</option>\n";
+    if ($selectors) {
+      foreach ($selectors as $selector) {
+        $display=htmlentities($selector['display'],ENT_QUOTES);
+        $value=$selector['value'];
+        $html .= "<option value='$value'";
+        if ($selector['selected']) $html .= " selected=selected";
+        if ($selector['disabled']) $html .= " disabled=disabled";
+        $html .= ">$display</option>\n";
+      }
     }
     $html .= "</select>";
     return $html;
