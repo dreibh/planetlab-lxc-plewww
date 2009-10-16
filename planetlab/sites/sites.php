@@ -50,6 +50,9 @@ function site_status ($site) {
     // check that site is enabled
     if ( ! $site['enabled']) 
       $messages [] = "Not enabled";
+    global $PENDING_CONSORTIUM_ID;
+    if ( $site['ext_consortium_id'] == $PENDING_CONSORTIUM_ID )
+      $messages [] = "Pending registration";
   
     // check that site has at least a PI and a tech
     global $api;
@@ -95,8 +98,9 @@ if (! plc_is_admin()) {
   $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" );
   $site_filter = array_merge ($site_filter, array ("enabled" => TRUE));
  } else {
-  $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" , "is_public",
-			"enabled", "person_ids", "max_slices", "slice_ids", "node_ids");
+  $site_columns = array("site_id", "name", "abbreviated_name", "login_base" , "peer_id" , 
+			"is_public", "enabled", "ext_consortium_id",
+			"person_ids", "max_slices", "slice_ids", "node_ids");
  }
 
 if (plc_is_admin()) 

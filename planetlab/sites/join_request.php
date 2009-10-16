@@ -19,24 +19,46 @@ include 'plc_header.php';
 require_once 'plc_functions.php';
 require_once 'details.php';
 require_once 'nifty.php';
+require_once 'table.php';
+require_once 'nifty.php';
 
 include 'site_form.php';
 
 ////////////////////////////////////////
 function render_all_join_requests($api) {
-  $sites = $api->GetSites( array("enabled" => False, "peer_id" => NULL, "ext_consortium_id" => $PENDING_CONSORTIUM_ID));
-  if (!empty($sites)) {
-    print("<table width=100%>");
-    print("<tr><th>Site Name</th><th>site_id</th><th>Submitted</th></tr>");
-    foreach($sites as $site) {
-      printf("<tr><td><a href=/db/sites/join_request.php?review=t&site_id=%d> %s </a> </td>", $site['site_id'], $site['name']);
-      printf("<td><a href=/db/sites/join_request.php?review=t&site_id=%d> %d </a> </td>", $site['site_id'], $site['site_id']);
-      printf("<td> %s </td> </tr>", date("d F Y, G:i",$site['date_created']));
-    }
-    print("</table>");
-  } else {
+  global $PENDING_CONSORTIUM_ID;
+  $filter = array("peer_id" => NULL, "ext_consortium_id" => $PENDING_CONSORTIUM_ID);
+  $columns=array('site_id','name','enabled','date_created');
+  $sites = $api->GetSites( $filter, $columns);
+  if (empty($sites)) {
     print("<p> No open join requests </p>");
+    return;
   }
+  $headers = array();
+  $headers['id']='int';
+  $headers['Site Name']='string';
+  # trying the sortEnglishDateTime stuff - not too lucky so far
+  # http://www.frequency-decoder.com/demo/table-sort-revisited/custom-sort-functions/
+  $headers['submitted']='sortEnglishDateTime';
+  $headers['enabled']='string';
+  
+  $nifty=new PlekitNifty ('pending','sites-pending','medium');
+  $nifty->start();
+  $table=new PlekitTable ('pending',$headers,2,
+			  array('pagesize_area'=>FALSE,'pagesize'=>10000));
+  $table->start();
+  foreach($sites as $site) {
+    $site_id=$site['site_id'];
+    $link = $site['enabled'] ? l_site($site_id) : l_site_review_pending($site_id);
+    $table->row_start();
+    $table->cell(href($link,$site['site_id']));
+    $table->cell(href($link,$site['name']));
+    $table->cell(date("dS F Y",$site['date_created']) . " at " . date("G:i",$site['date_created']));
+    $table->cell( $site['enabled'] ? plc_warning_html('yes') : 'no');
+    $table->row_end();
+  }
+  $table->end();
+  $nifty->end();
 }
 
 function render_join_request_review($api, $site_id) {
@@ -52,11 +74,13 @@ function render_join_request_review($api, $site_id) {
   }
   $addresses = $api->GetAddresses ($site['address_ids']);
   if (empty ($addresses)) {
-      print("<p class='plc-warning'> No address found for site_id=$site_id</p> ");
-      return ;
+    drupal_set_message("Site $site_id has no address - never mind");
+    $address=array('line1'=>'');
+    $address_id=0;
+  } else {
+    $address = $addresses[0];
+    $address_id=$address['address_id'];
   }
-  $address = $addresses[0];
-  $address_id=$address['address_id'];
 # just in case there is no person attached yet
   if (empty ($site['person_ids'])) {
     $persons=array();
@@ -87,6 +111,7 @@ function render_join_request_review($api, $site_id) {
 <input type="hidden" name="site_id" value="$site_id">
 EOF;
 
+  // don't render the tech part if that was the same as the pi
   $site_form = build_site_form(FALSE);
   $input = array ('site' => $site, 'address'=> $address, 'pi' => $pi, 'tech' => $tech);
   
@@ -215,9 +240,9 @@ else if ($_POST['submitted'] )
     case 'Update': {
       $api->begin();
       $api->UpdateSite($site_id,$site);
-      $api->UpdateAddress($address_id,$address);
+      if ($address_id) $api->UpdateAddress($address_id,$address);
       $api->UpdatePerson($pi_id,$pi);
-      $api->UpdatePerson($tech_id,$tech);
+      if ($tech_id != $pi_id) $api->UpdatePerson($tech_id,$tech);
       $api->commit();
       $api_error=$api->error();
       if (!empty($api_error)) {
@@ -234,6 +259,7 @@ else if ($_POST['submitted'] )
       // the PI's email address, which makes the whole thing *a lot* simpler
       // enable the site, enable the PI, and VerifyPerson the thec if different from the PI
       $site['enabled'] = True;
+      global $APPROVED_CONSORTIUM_ID;
       $site['ext_consortium_id'] = $APPROVED_CONSORTIUM_ID;
       $api->UpdateSite ($site_id,$site);
       $api_error=$api->error();
@@ -241,10 +267,10 @@ else if ($_POST['submitted'] )
 	$error .= $api->error();
 	$messages [] = "Could not enable site";
       } else {
-	$messages[] = "Site " . $site['name'] . " enabled";
+	$messages[] = l_site_t ($site_id,"Site '" . $site['name'] . "' enabled");
       }
       
-      if (empty ($error)) {
+      if (empty ($error) && $address_id) {
 	// Update Address
 	$api->UpdateAddress($address_id,$address);
 	$api_error=$api->error();

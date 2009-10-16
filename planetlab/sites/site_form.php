@@ -9,38 +9,21 @@ function build_site_form ($register_mode) {
   $form = array();
   $form['site:name'] = array('title' => 'Site name', 'required' => TRUE,
 			     'maxlength' => 40, 'size' => 20,
-			     'comment' => '<strong>Site Information</strong>:');
+			     'comment' => '<strong>Site Information</strong>');
   $form['site:login_base'] = array('title' => 'Login base', 'required' => TRUE,
 				   'maxlength' => 16, 'size' => 10);
   $form['site:abbreviated_name'] = array('title' => 'Abbreviated name', 'required' => TRUE,
 					 'maxlength' => 20, 'size' => 12);
   $form['site:url'] = array('title' => 'URL', 'required' => TRUE,
 			    'maxlength' => 30, 'size' => 30);
-  $form['site:latitude'] = array('title' => 'Latitude', 'required' => FALSE,
+  $form['site:latitude'] = array('title' => 'Latitude', 'required' => TRUE,
 				 'maxlength' => 10, 'size' => 10, 'type' => 'double');
-  $form['site:longitude'] = array('title' => 'Longitude', 'required' => FALSE,
+  $form['site:longitude'] = array('title' => 'Longitude', 'required' => TRUE,
 				  'maxlength' => 10, 'size' => 10, 'type' => 'double');
-
-  $form['address:line1'] = array('title' => 'Address', 'required' => TRUE,
-				 'maxlength' => 40, 'size' => 30,
-				 'comment' => '<strong>Postal address</strong>:');
-  $form['address:line2'] = array('title' => 'Address (2)', 'required' => FALSE,
-				 'maxlength' => 40, 'size' => 30);
-  $form['address:line3'] = array('title' => 'Address (3)', 'required' => FALSE,
-				 'maxlength' => 40, 'size' => 30);
-  $form['address:city'] = array('title' => 'City', 'required' => TRUE,
-				'maxlength' => 20, 'size' => 20);
-  $form['address:postalcode'] = array('title' => 'Postal Code', 'required' => TRUE,
-				      'maxlength' => 10, 'size' => 10);
-# would have liked it *not* required but it is mandatory in the DB - sigh
-  $form['address:state'] = array('title' => 'State', 'required' => TRUE,
-				 'maxlength' => 20, 'size' => 20);
-  $form['address:country'] = array('title' => 'Country', 'required' => TRUE,
-				   'maxlength' => 20, 'size' => 20);
 
   $form['pi:first_name'] = array('title' => 'PI First Name', 'required' => TRUE,
 				 'maxlength' => 20, 'size' => 20,
-				 'comment' => '<strong>Principal Investigator Information</strong>:');
+				 'comment' => '<strong>Principal Investigator Information</strong>');
   $form['pi:last_name'] = array('title' => 'PI Last Name', 'required' => TRUE,
 				'maxlength' => 20, 'size' => 20);
   $form['pi:title'] = array('title' => 'PI Title', 'required' => FALSE,
@@ -73,7 +56,7 @@ EOF;
 
   $form['tech:first_name'] = array('title' => 'Tech First Name', 'required' => TRUE,
 				   'maxlength' => 20, 'size' => 20,
-				   'comment' => '<strong>Technical Contact Information</strong>:' . $fill_from_pi_button);
+				   'comment' => '<strong>Technical Contact Information</strong>' . $fill_from_pi_button);
   $form['tech:last_name'] = array('title' => 'Tech Last Name', 'required' => TRUE,
 				  'maxlength' => 20, 'size' => 20);
   $form['tech:title'] = array('title' => 'Tech Title', 'required' => FALSE,
@@ -87,6 +70,23 @@ EOF;
 				   'maxlength' => 20, 'size' => 20, 'type' => 'password');
     $form['tech:user-role'] = array('type' => 'boolean', 'title' => 'Need user role', 'default' => TRUE);
   }
+
+  $form['address:line1'] = array('title' => 'Address', 'required' => FALSE,
+				 'maxlength' => 40, 'size' => 30,
+				 'comment' => '<strong>Postal address</strong> (can be left blank)');
+  $form['address:line2'] = array('title' => 'Address (2)', 'required' => FALSE,
+				 'maxlength' => 40, 'size' => 30);
+  $form['address:line3'] = array('title' => 'Address (3)', 'required' => FALSE,
+				 'maxlength' => 40, 'size' => 30);
+  $form['address:city'] = array('title' => 'City', 'required' => FALSE,
+				'maxlength' => 20, 'size' => 20);
+  $form['address:postalcode'] = array('title' => 'Postal Code', 'required' => FALSE,
+				      'maxlength' => 10, 'size' => 10);
+# would have liked it *not* required but it is mandatory in the DB - sigh
+  $form['address:state'] = array('title' => 'State', 'required' => FALSE,
+				 'maxlength' => 20, 'size' => 20);
+  $form['address:country'] = array('title' => 'Country', 'required' => FALSE,
+				   'maxlength' => 20, 'size' => 20);
 
   return $form;
 }

@@ -5,6 +5,13 @@
 // will trash this eventually
   //require_once 'plc_functions_trash.php';
 
+# note: this needs to be consistent with the value in Monitor/monitor/wrapper/plc.py
+global $PENDING_CONSORTIUM_ID;
+$PENDING_CONSORTIUM_ID = 0;
+# this one does not matter that much, just picking one
+global $APPROVED_CONSORTIUM_ID;
+$APPROVED_CONSORTIUM_ID = 999999;
+
 // utility
 function my_is_int ($x) {
     return (is_numeric($x) ? intval($x) == $x : false);
@@ -149,6 +156,7 @@ function l_reset_password()		{ return "/db/persons/reset_password.php"; }
 function l_person_register()		{ return "/db/persons/register.php"; }
 function l_site_register()		{ return "/db/sites/register.php"; }
 function l_sites_pending()		{ return "/db/sites/join_request.php"; }
+function l_site_review_pending($site_id){ return "/db/sites/join_request.php?review=t&site_id=$site_id"; }
 
 
 //////////////////////////////////////////////////////////// nav tabs

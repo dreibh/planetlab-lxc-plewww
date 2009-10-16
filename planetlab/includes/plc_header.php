@@ -11,9 +11,6 @@
 
 require_once 'plc_drupal.php';
 
-$PENDING_CONSORTIUM_ID = 0;
-$APPROVED_CONSORTIUM_ID = 999999;
-
 if (!function_exists('drupal_page_header')) {
   $title = drupal_get_title();
   $head = drupal_get_html_head();

@@ -97,8 +97,13 @@ div.site-register {
     margin: 10px;
 }
 /* site registration */
-div.site-pending {
+div.site-pending, div.sites-pending {
     background-color: #eadbc8;
+    padding: 5px;
+    margin: 10px;
+}
+div.person-register {
+    background-color: #e3d1cb;
     padding: 5px;
     margin: 10px;
 }

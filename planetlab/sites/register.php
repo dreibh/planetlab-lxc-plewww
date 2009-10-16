@@ -34,6 +34,11 @@ $pi=$input['pi'];
 $tech=$input['tech'];
 $address=$input['address'];
 
+# allow address to be left out
+function non_empty_address ($address) {
+  return !empty($address['line1']);
+}
+
 if (! $empty_form ) {
   // Look for missing/blank entries
   $error = form_check_required ($site_form, $input);
@@ -62,10 +67,12 @@ if (! $empty_form ) {
     
     // creating the site
     $site['enabled']=FALSE;
+    global $PENDING_CONSORTIUM_ID;
+    $site['ext_consortium_id']=$PENDING_CONSORTIUM_ID;
     $site_id=$adm->AddSite($site);
     $api_error .= $adm->error();
     if (empty($api_error)) {
-      $verboses [] = "Site created as disabled";
+      $verboses [] = "Site created as disabled, with ext_consortium_id=".$PENDING_CONSORTIUM_ID;
     } else {
       $error .= $api_error;
     }
@@ -93,12 +100,14 @@ EOF;
     $messages [] = "Please send a message to " . PLC_MAIL_SUPPORT_ADDRESS . " if this request is not instructed within a few days.";
 
   // creating address
-    $adm->AddSiteAddress($site_id,$address);
-    $api_error = $adm->error();
-    if (empty($api_error)) {
-      $verboses [] = "Address created";
-    } else {
-      $error .= $api_error;
+    if (non_empty_address($address)) {
+      $adm->AddSiteAddress($site_id,$address);
+      $api_error = $adm->error();
+      if (empty($api_error)) {
+	$verboses [] = "Address created";
+      } else {
+	$error .= $api_error;
+      }
     }
 
     // creating PI

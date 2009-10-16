@@ -541,8 +541,6 @@ switch ($action) {
      drupal_set_error("Cannot renew slice that far in the future, max is $WEEKS weeks from now");
      plc_redirect(l_slice($slice_id));
    }
-   plc_debug('slice_id',$slice_id);
-   plc_debug('expires',$expires);
    if ($api->UpdateSlice ($slice_id, array('expires'=>$expires)) == 1)
      drupal_set_message("Slice renewed");
    else

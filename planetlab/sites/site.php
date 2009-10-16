@@ -48,6 +48,7 @@ $max_slivers= $site['max_slivers'];
 $max_slices= $site['max_slices'];
 
 $enabled = $site['enabled'];
+$ext_consortium_id = $site ['ext_consortium_id'];
 
 // get peer 
 $peer_id= $site['peer_id'];
@@ -150,14 +151,21 @@ plekit_linetabs($tabs);
 // show gray background on foreign objects : start a <div> with proper class
 $peers->block_start ($peer_id);
 
-if ( $local_peer && ( ! $enabled ) ) {
-    if ($site['ext_consortium_id'] == $PENDING_CONSORTIUM_ID) {
-        plc_warning ("This site is not enabled - Please visit " . 
-                     href (l_sites_pending(),"this page") . 
-                     " to review pending applications.");
-    } else {
-        plc_warning ("This site is disabled.");
-    }
+// sanity checks
+if ( $local_peer ) {
+  // pending site
+  global $PENDING_CONSORTIUM_ID;
+  if ( $ext_consortium_id == $PENDING_CONSORTIUM_ID) {
+    if ( ! $enabled ) 
+      plc_warning ("This site is under pending registration - Please visit " . 
+		   href (l_sites_pending(),"this page") . 
+		   " to review pending applications.");
+    else 
+      plc_warning ("This site is pending but is also enabled - something is wrong. You should fix the issue with plcsh");
+  } else {
+    if ( ! $enabled) 
+      plc_warning ("This site is disabled.");
+  }
 }
 
 $can_update=(plc_is_admin ()  && $local_peer) || ( plc_in_site($site_id) && plc_is_pi());
