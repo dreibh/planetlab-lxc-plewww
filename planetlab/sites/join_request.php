@@ -24,7 +24,7 @@ include 'site_form.php';
 
 ////////////////////////////////////////
 function render_all_join_requests($api) {
-  $sites = $api->GetSites( array("enabled" => False, "peer_id" => NULL));
+  $sites = $api->GetSites( array("enabled" => False, "peer_id" => NULL, "ext_consortium_id" => $PENDING_CONSORTIUM_ID));
   if (!empty($sites)) {
     print("<table width=100%>");
     print("<tr><th>Site Name</th><th>site_id</th><th>Submitted</th></tr>");
@@ -46,7 +46,7 @@ function render_join_request_review($api, $site_id) {
       return;
   }
   $site = $sites[0];
-  if ($site['enabled']) {
+  if ($site['enabled'] && $site['ext_consortium_id'] == $PENDING_CONSORTIUM_ID) {
     print("<p class='plc-warning'> This site is already enabled </p>");
     return;
   }
@@ -76,7 +76,7 @@ function render_join_request_review($api, $site_id) {
   }
   $pi_id = $pi['person_id'];
   $tech_id = $tech['person_id'];
-    
+
   print <<< EOF
 <p> Please review the join request below.</p>
     <p> <b> Warning:</b> the PI email address that was provided in this form will <b> not be checked</b> automatically. We expect that as part of the handshake with the site, the support team has had an opportunity to use this address so it can be considered safe. Please check it manually if this is not the case.</p>
@@ -234,6 +234,7 @@ else if ($_POST['submitted'] )
       // the PI's email address, which makes the whole thing *a lot* simpler
       // enable the site, enable the PI, and VerifyPerson the thec if different from the PI
       $site['enabled'] = True;
+      $site['ext_consortium_id'] = $APPROVED_CONSORTIUM_ID;
       $api->UpdateSite ($site_id,$site);
       $api_error=$api->error();
       if (!empty($api_error)) {

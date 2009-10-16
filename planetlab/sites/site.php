@@ -150,10 +150,15 @@ plekit_linetabs($tabs);
 // show gray background on foreign objects : start a <div> with proper class
 $peers->block_start ($peer_id);
 
-if ( $local_peer && ( ! $enabled ) )
-  plc_warning ("This site is not enabled - Please visit " . 
-	       href (l_sites_pending(),"this page") . 
-	       " to review pending applications.");
+if ( $local_peer && ( ! $enabled ) ) {
+    if ($site['ext_consortium_id'] == $PENDING_CONSORTIUM_ID) {
+        plc_warning ("This site is not enabled - Please visit " . 
+                     href (l_sites_pending(),"this page") . 
+                     " to review pending applications.");
+    } else {
+        plc_warning ("This site is disabled.");
+    }
+}
 
 $can_update=(plc_is_admin ()  && $local_peer) || ( plc_in_site($site_id) && plc_is_pi());
 
