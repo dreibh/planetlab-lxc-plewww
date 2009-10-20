@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 31
+%define taglevel 32
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Tue Oct 20 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-32
+- resetting tag as something went wrong when setting 31
+
 * Wed Oct 07 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-30
 - nicer look for slice creation, (public) sites
 - users show with all their sites in the persons page
