@@ -155,7 +155,7 @@ $peers->block_start ($peer_id);
 if ( $local_peer ) {
   // pending site
   global $PENDING_CONSORTIUM_ID;
-  if ( $ext_consortium_id == $PENDING_CONSORTIUM_ID) {
+  if ( $ext_consortium_id === $PENDING_CONSORTIUM_ID) {
     if ( ! $enabled ) 
       plc_warning ("This site is under pending registration - Please visit " . 
 		   href (l_sites_pending(),"this page") . 

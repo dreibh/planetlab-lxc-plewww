@@ -68,7 +68,7 @@ function render_join_request_review($api, $site_id) {
       return;
   }
   $site = $sites[0];
-  if ($site['enabled'] && $site['ext_consortium_id'] == $PENDING_CONSORTIUM_ID) {
+  if ($site['enabled'] && $site['ext_consortium_id'] === $PENDING_CONSORTIUM_ID) {
     print("<p class='plc-warning'> This site is already enabled </p>");
     return;
   }

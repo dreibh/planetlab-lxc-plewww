@@ -51,7 +51,7 @@ function site_status ($site) {
     if ( ! $site['enabled']) 
       $messages [] = "Not enabled";
     global $PENDING_CONSORTIUM_ID;
-    if ( $site['ext_consortium_id'] == $PENDING_CONSORTIUM_ID )
+    if ( $site['ext_consortium_id'] === $PENDING_CONSORTIUM_ID )
       $messages [] = "Pending registration";
   
     // check that site has at least a PI and a tech
