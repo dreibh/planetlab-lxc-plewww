@@ -241,6 +241,7 @@ else if ($_POST['submitted'] )
       $api->begin();
       $api->UpdateSite($site_id,$site);
       if ($address_id) $api->UpdateAddress($address_id,$address);
+      else if(!empty($address)) $api->AddSiteAddress($site_id,$address);
       $api->UpdatePerson($pi_id,$pi);
       if ($tech_id != $pi_id) $api->UpdatePerson($tech_id,$tech);
       $api->commit();
