@@ -9,10 +9,19 @@ div.my-slice-renewal {
 
 /* internal toggles */
 div#toggle-container-my-slice-persons-current,
-div#toggle-container-my-slice-persons-add,
-div#toggle-container-my-slice-nodes-current,
-div#toggle-container-my-slice-nodes-add {
-/*    background:#fcf7ff; */
-    background: #ccffc7; 
+div#toggle-container-my-slice-nodes-current {
+    background: #f0f0f0;
 }
 
+div#toggle-container-my-slice-persons-add,
+div#toggle-container-my-slice-nodes-add {
+    background: #f0e0e0;
+}
+
+/* qualify enough so that this wins over the even/odd row patterns in tables */
+tbody>tr>td.node-ok {
+    background: #a0f0e6;
+}
+tbody>tr>td.node-ko {
+    background: #ffa7a8;
+}

@@ -44,20 +44,24 @@ if ($pattern)
 $tag_types= $api->GetTagTypes($tag_type_filter, $tag_type_columns);
   
 $headers=array();
+$notes=array();
 // delete button
 $headers['Name']="string";
 $headers['Description']="string";
 $headers['Category']="string";
-$headers['Min role']="string";
-// xxx ref count would be helpful
-//if (plc_is_admin()) $headers['#']='int';
+$headers['MR']="string";
+$notes []= "MR: Min Role, needed to manage this tag";
+
+// xxx ref count would be helpful but seem too expensive to compute at this stage 
+// the individual tag page show those ref counts per type
+
 $headers["Id"]="int";
 if (plc_is_admin()) $headers[plc_delete_icon()]="none";
 
 $form=new PlekitForm(l_actions(),NULL);
 $form->start();
 
-$table = new PlekitTable("tags",$headers,0);
+$table = new PlekitTable("tags",$headers,0,array('notes'=>$notes));
 $table->start();
 
 $roles_hash=plc_role_global_hash($api);
@@ -102,7 +106,7 @@ if (plc_is_admin()) {
   $table->cell($form->textarea_html('description','',$description_width,2));
   $table->cell($form->text_html('category',''));
   $table->cell($role_input);
-  $table->cell($form->submit_html("add-tag-type","Add Type"),2);
+  $table->cell($form->submit_html("add-tag-type","Add"),2);
   $table->row_end();
  }
 

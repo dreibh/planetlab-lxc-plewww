@@ -96,12 +96,14 @@ function renew_area ($slice,$site,$visible) {
   global $DAY, $WEEK, $MAX_WEEKS, $GRACE_DAYS, $NOW;
  
   $current_exp=$slice['expires'];
+  $current_text = gmstrftime("%A %b-%d-%y %T %Z", $current_exp);
   $max_exp= $NOW + ($MAX_WEEKS * $WEEK); // seconds since epoch
+  $max_text = gmstrftime("%A %b-%d-%y %T %Z", $max_exp);
 
   // xxx some extra code needed to enable this area only if the slice description is OK:
   // description and url must be non void
   $toggle=
-    new PlekitToggle('renew',"Renew this slice",
+    new PlekitToggle('renew',"Expires $current_text - Renew this slice",
 		     array("bubble"=>
 			   "Enter this zone if you wish to renew your slice",
 			   'visible'=>$visible));
@@ -142,8 +144,9 @@ EOF;
 
     if ( empty( $selectors ) ) {
       print <<< EOF
-<div class='plc-warning renewal'>
-Slice cannot be renewed any further into the future, try again closer to expiration date.
+<div class='my-slice-renewal'>
+Slices annot be renewed more than $MAX_WEEKS weeks from now, i.e. not beyond $max_text. 
+For this reason, the current slice cannot be renewed any further into the future, try again closer to expiration date.
 </div>
 EOF;
      } else {
@@ -373,9 +376,47 @@ if ($privileges) {
 }
 $toggle->end();
 
-//////////////////// nodes
+//////////////////////////////////////////////////////////// Nodes
+// the nodes details to display here
+// (1) we search for the tag types for which 'category' matches 'node*/ui*'
+// all these tags will then be tentatively displayed in this area
+// (2) further information can also be optionally specified in the category:
+//     (.) we split the category with '/' and search for assignments of the form var=value
+//     (.) header can be set to supersede the column header (default is tagname)
+//     (.) rank can be used for ordering the columns (default is tagname)
+//     (.) type is passed to the javascript table, for sorting (default is 'string')
+
 // minimal list as a start
-$node_columns = array('hostname','node_id','arch','peer_id','slice_ids_whitelist');
+$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist','run_level','boot_state');
+// scan tag types to find relevant additional columns
+$nodeui_tag_types = $api->GetTagTypes(array('category'=>'node*/ui*'));
+// extract tagname
+$node_tag_columns = array_map(create_function('$tt','return $tt["tagname"];'),$nodeui_tag_types);
+// build an ordered list of chunks {'tagname','header','rank','description'}
+$more_tags = array();
+foreach ($nodeui_tag_types as $tag_type) {
+  $tagname=$tag_type['tagname'];
+  $chunk=array();
+  $chunk['tagname']=$tagname;
+  $chunk['header']=$tagname;
+  $chunk['rank']=$tagname;
+  $chunk['type']='string';
+  $chunk['description']=$tag_type['description'];
+  $category_tokens=split('/',$tag_type['category']);
+  foreach ($category_tokens as $token) {
+    $assign=split('=',$token);
+    if (count($assign)==2) 
+      $chunk[$assign[0]]=$assign[1];
+  }
+  $more_tags []= $chunk;
+}
+
+function sort_chunks ($ch1, $ch2) { return strcmp($ch1['rank'],$ch2['rank']); }
+usort ($more_tags, sort_chunks);
+
+//plc_debug('ordered additional tags',$more_tags);
+
+$node_columns=array_merge($node_fixed_columns,$node_tag_columns);
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
@@ -394,15 +435,22 @@ $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
 $toggle_nodes->start();
 
 $headers=array();
+$notes=array();
 $headers['peer']='string';
 $headers['hostname']='string';
-$headers['arch']='string';
+$headers['S']='string';
+$notes[]='S = last known status';
+foreach ($more_tags as $chunk) {
+  $header=$chunk['header'];
+  $headers[$header]=$chunk['type'];
+  if ($header != $chunk['tagname']) $notes []= $header . ' = ' . $chunk['description'];
+}
 if ($privileges) $headers[plc_delete_icon()]="none";
 
-$table_options = array('notes_area'=>false,
+$table_options = array('notes'=>$notes,
                        'search_width'=>15,
                        'pagesize'=>20);
-$table=new PlekitTable('nodes',$headers,'0',$table_options);
+$table=new PlekitTable('nodes',$headers,'1',$table_options);
 
 $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
@@ -411,7 +459,12 @@ if ($nodes) foreach ($nodes as $node) {
   $table->row_start();
   $peers->cell($table,$node['peer_id']);
   $table->cell(l_node_obj($node));
-  $table->cell($node['arch']);
+  $run_level=$node['run_level'];
+  if ( empty($run_level)) $run_level=$node['boot_state'];
+  $class=($run_level == 'boot') ? 'node-ok' : 'node-ko';
+  $table->cell($run_level,array('class'=>$class));
+  foreach ($more_tags as $chunk) $table->cell($node[$chunk['tagname']]);
+
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
   $table->row_end();
 }
@@ -443,7 +496,7 @@ if ($privileges) {
   $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
 				 "$count more nodes available",
-				 array('visible'=>get_arg('show_persons_add',false)));
+				 array('visible'=>get_arg('show_nodes_add',false)));
   $toggle_nodes->start();
 
   if ( ! $potential_nodes ) {
@@ -451,9 +504,16 @@ if ($privileges) {
     echo "<p class='not-relevant'>No node to add</p>";
   } else {
     $headers=array();
+    $notes=array();
     $headers['peer']='string';
     $headers['hostname']='string';
-    $headers['arch']='string';
+    $headers['S']='string';
+    $notes[]='S = last known status';
+    foreach ($more_tags as $chunk) {
+      $header=$chunk['header'];
+      $headers[$header]=$chunk['type'];
+      if ($header != $chunk['tagname']) $notes []= $header . ' = ' . $chunk['description'];
+    }
     $headers['+']="none";
     
     $table=new PlekitTable('add_nodes',$headers,'1', $table_options);
@@ -465,7 +525,11 @@ if ($privileges) {
 	$table->row_start();
 	$peers->cell($table,$node['peer_id']);
 	$table->cell(l_node_obj($node));
-	$table->cell($node['arch']);
+	$run_level=$node['run_level'];
+	if ( empty($run_level)) $run_level=$node['boot_state'];
+	$class=($run_level == 'boot') ? 'node-ok' : 'node-ko';
+	$table->cell($run_level,array('class'=>$class));
+	foreach ($more_tags as $chunk) $table->cell($node[$chunk['tagname']]);
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
       }

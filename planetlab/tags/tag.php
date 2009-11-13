@@ -47,13 +47,41 @@ $category=$tag_type['category'];
 $filter=array('tag_type_id'=>$tag_type_id);
 $node_tags=$api->GetNodeTags($filter);
 $interface_tags=$api->GetInterfaceTags($filter);
-$slice_tags=$api->GetSliceTags(array_merge($filter,array("node_id"=>array())));
-$sliver_tags=$api->GetSliceTags(array_merge($filter,array("~node_id"=>array())));
+// split slice tags into 3 families, whether this applies to the whole slice, or a nodegroup, or a node
+// using filters for this purpose does not work out very well, maybe a bug in the filter stuff
+// anyway this is more efficient, and we compute the related node(groups) in the same pass
+$slice_tags=$api->GetSliceTags(array_merge($filter));
+$count_slice=0;
+$count_nodegroup=0;
+$nodegroup_ids=array();
+$count_node=0;
+$node_ids=array();
+foreach ($slice_tags as $slice_tag) {
+  if ($slice_tag['node_id']) {
+    $node_ids []= $slice_tag['node_id'];
+    $count_node += 1;
+  } else if ($slice_tag['nodegroup_id']) {
+    $nodegroup_ids []= $slice_tag['nodegroup_id'];
+    $count_nodegroup += 1;
+  } else {
+    $count_slice += 1;
+  }
+}
+
+$nodes=$api->GetNodes($node_ids,array('hostname','node_id'));
+$node_hash=array();
+foreach ($nodes as $node) $node_hash[$node['node_id']]=$node;
+$nodegroups=$api->GetNodeGroups($nodegroup_ids,array('groupname','nodegroup_id'));
+$nodegroup_hash=array();
+foreach ($nodegroups as $nodegroup) $nodegroup_hash[$nodegroup['nodegroup_id']]=$nodegroup;
+
 
 drupal_set_title("Details for tag type $tagname");
 plekit_linetabs($tabs);
 
 // ----------
+$toggle = new PlekitToggle ('details','Details');
+$toggle->start();
 $can_update=plc_is_admin();
 $details=new PlekitDetails ($can_update);
 
@@ -61,8 +89,8 @@ $details->form_start(l_actions(),array("action"=>"update-tag-type",
 				       "tag_type_id"=>$tag_type_id));
 $details->start();
 $details->th_td("Name",$tagname,"tagname");
-$details->th_td("Category",$category,"category");
-$details->th_td("Description",$description,"description");
+$details->th_td("Category",$category,"category",array('width'=>30));
+$details->th_td("Description",$description,"description",array('width'=>40));
 
 if ($can_update) {
 // select the option corresponding with min_role_id
@@ -79,11 +107,13 @@ if ($can_update)
 $details->space();
 $details->th_td("Used in nodes",count($node_tags));
 $details->th_td("Used in interfaces",count($interface_tags));
-$details->th_td("Used in slices",count($slice_tags));
-$details->th_td("Used in slivers",count($sliver_tags));
+$details->th_td("Used in slices/node",$count_node);
+$details->th_td("Used in slices/nodegroup",$count_nodegroup);
+$details->th_td("Used in slices",$count_slice);
 
 $details->end();
 $details->form_end();
+$toggle->end();
 
 // common options for tables below
 $table_options=array('notes_area'=>false, 'pagesize_area'=>false, 'search_width'=>10);
@@ -119,23 +149,37 @@ if (count ($interface_tags)) {
   $toggle->end();
  }
 
-// grouping both kinds of slice tags 
-// xxx don't show hostnames yet
-$slice_tags = array_merge ($slice_tags,$sliver_tags);
 if (count ($slice_tags)) {
-  $toggle=new PlekitToggle('tag_slices',"Slice and sliver tags");
+  $toggle=new PlekitToggle('tag_slices',"Slice tags");
   $toggle->start();
-  $table=new PlekitTable ("tag_slices",array("Slice"=>"string","value"=>"string","Node id"=>"int"),0,$table_options);
+  $headers=array();
+  $headers["slice"]='string';
+  $headers["value"]='string';
+  $headers["node"]='string';
+  $headers["nodegroup"]='string';
+  $table=new PlekitTable ("tag_slices",$headers,0,$table_options);
   $table->start();
   foreach ($slice_tags as $slice_tag) {
     $table->row_start();
     $table->cell(href(l_slice($slice_tag['slice_id']),$slice_tag['name']));
     $table->cell($slice_tag['value']);
+
     $node_text="all";
-    // sliver tag
-    if ($slice_tag['node_id']) 
-      $node_text=l_node($slice_tag['node_id'],$slice_tag['node_id']);
+    if ($slice_tag['node_id']) {
+      $node_id=$slice_tag['node_id'];
+      $node=$node_hash[$node_id];
+      $node_text=l_node_obj($node);
+    }
     $table->cell($node_text);
+
+    $nodegroup_text="all";
+    if ($slice_tag['nodegroup_id']) {
+      $nodegroup_id=$slice_tag['nodegroup_id'];
+      $nodegroup=$nodegroup_hash[$nodegroup_id];
+      $nodegroup_text=l_nodegroup_obj($nodegroup);
+    }
+    $table->cell($nodegroup_text);
+
     $table->row_end();
   }
   $table->end();

@@ -52,13 +52,21 @@ $tabs []= tab_nodes_local();
 drupal_set_title("Details for node group " . $nodegroup['groupname']);
 plekit_linetabs($tabs);
 
-$details=new PlekitDetails(false);
+$toggle=new PlekitToggle('details','Details');
+$toggle->start();
+$details=new PlekitDetails(plc_is_admin());
 $details->start();
-$details->th_td ("Node group name",$nodegroup['groupname']);
+$details->form_start(l_actions(),array("action"=>"update-nodegroup", "nodegroup_id"=>$nodegroup_id));
+$details->th_td ("Node group name",$nodegroup['groupname'],'groupname');
+// can't change the target tag
 $details->th_td ("Based on tag",href(l_tag($nodegroup['tag_type_id']),$tagname));
-$details->th_td("Matching value",$nodegroup['value']);
+$details->th_td("Matching value",$nodegroup['value'],'value');
 $details->th_td("# nodes",count($nodegroup['node_ids']));
+$details->tr_submit("submit","Update Nodegroup");
+$details->form_end();
 $details->end();
+
+$toggle->end();
 
 // xxx : add & delete buttons would make sense here too
 $toggle=new PlekitToggle('nodes',"Nodes");

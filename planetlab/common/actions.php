@@ -108,6 +108,14 @@ $known_actions []= "delete-node-tags";
 $known_actions []= "delete-interface-tags";
 //	expects:	interface_id & interface_tag_ids
 
+//////////////////////////////////////// nodegroups
+$known_actions []= "update-nodegroup";
+//	expects nodegroup_id groupname value
+$known_actions []= "add-nodegroup";
+//	expects groupname, tag_type_id, value
+$known_actions []= 'delete-nodegroups';
+//	expects nodegroup_ids
+
 ////////////////////////////////////////////////////////////
 $interface_details= array ('method','type', 'ip', 'gateway', 'network', 
 			   'broadcast', 'netmask', 'dns1', 'dns2', 
@@ -717,6 +725,7 @@ Our support team will be glad to answer any question that you might have.
    else 
      drupal_set_error ("Could not update tag type $tag_type_id\n".$api->error());
    plc_redirect(l_tag($tag_type_id));
+   break;
  }
 
  case 'add-tag-type': {
@@ -740,6 +749,7 @@ Our support team will be glad to answer any question that you might have.
    else
      drupal_set_error ("Could not create tag type $tagname");
    plc_redirect( l_tags());
+   break;
  }
 
  case 'delete-tag-types': {
@@ -853,6 +863,68 @@ Our support team will be glad to answer any question that you might have.
      plc_redirect(l_interface($_POST['interface_id']));
  }
 
+//////////////////////////////////////// nodegroups
+ case 'update-nodegroup': {
+   $nodegroup_id = $_POST['nodegroup_id'];
+   $groupname = $_POST['groupname'];
+   $value = $_POST['value'];
+
+   $fields=array();
+   $fields['groupname']=$groupname;
+   $fields['value']=$value;
+   if ( $api->UpdateNodeGroup($nodegroup_id,$fields) == 1) 
+     drupal_set_message ('Nodegroup updated');
+   else 
+     drupal_set_error ("Could not update nodegroup $groupname");
+   
+   plc_redirect(l_nodegroup($nodegroup_id));
+
+ }
+
+ case 'add-nodegroup': {
+   $groupname=$_POST['groupname'];
+   if ( ! $groupname ) {
+     drupal_set_error ('Empty groupname');
+     plc_redirect (l_nodegroups());
+   }
+   $tag_type_id=intval($_POST['tag_type_id']);
+   if ( ! $tag_type_id ) {
+     drupal_set_error ('You must select a tag in the dropdown list');
+     plc_redirect (l_nodegroups());
+   }
+   $value=$_POST['value'];
+   if ( ! $value ) {
+     drupal_set_message ("Empty value.. let's see ..");
+   }
+   if ( $api->AddNodeGroup ($groupname,$tag_type_id,$value) > 0) 
+     drupal_set_message ("Nodegroup $groupname created");
+   else
+     drupal_set_error ("Could not create nodegroup $groupname");
+
+   plc_redirect (l_nodegroups());
+   break;
+ }
+
+ case 'delete-nodegroups': {
+   $nodegroup_ids=$_POST['nodegroup_ids'];
+   if ( ! $nodegroup_ids ) {
+     drupal_set_message("action=delete-nodegroups - No group selected");
+     plc_redirect(l_nodegroups());
+   }
+   $success=true;
+   $counter=0;
+   foreach ($nodegroup_ids as $nodegroup_id) 
+     if ($api->DeleteNodeGroup(intval($nodegroup_id)) != 1) 
+       $success=false;
+     else
+       $counter++;
+   if ($success) 
+     drupal_set_message ("Deleted $counter group(s)");
+   else
+     drupal_set_error ("Could not delete all selected groups, only $counter were removed");
+   plc_redirect (l_nodegroups());
+   break;
+ }
 
 ////////////////////////////////////////
 

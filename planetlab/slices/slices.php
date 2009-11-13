@@ -141,7 +141,7 @@ foreach ($slices as $slice) {
   $table->row_start();
   if (plc_is_admin()) $table->cell (l_slice_t($slice_id,$slice_id));
   $peers->cell($table,$peer_id);
-  $table->cell (l_slice_obj($slice));
+  $table->cell (href(l_slice_nodes($slice_id),$slice['name']));
   $table->cell ($users);
   $table->cell(href(l_persons_slice($slice_id),count($slice['person_ids'])));
   $table->cell (href(l_nodes_slice($slice_id),count($slice['node_ids'])));

@@ -105,6 +105,7 @@ function l_site_obj($site)		{ return href (l_site($site['site_id']),$site['name'
 function l_slices ()			{ return "/db/slices/index.php"; }
 function l_slices_peer ($peer_id)	{ return "/db/slices/index.php?peerscope=$peer_id"; }
 function l_slice ($slice_id)		{ return "/db/slices/index.php?id=$slice_id"; }
+function l_slice_nodes ($slice_id)	{ return "/db/slices/index.php?id=$slice_id&show_details=0&show_nodes=1&show_nodes_current=1&show_nodes_add=1"; }
 function l_slice_t ($slice_id,$text)	{ return href (l_slice($slice_id),$text); }
 function l_slice_add ()			{ return "/db/slices/slice_add.php"; }
 function l_slices_site($site_id)	{ return "/db/slices/index.php?site_id=$site_id"; }
@@ -134,6 +135,8 @@ function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
 function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroup.php?id=$nodegroup_id"; }
 function l_nodegroup_t ($nodegroup_id,$text) { 
 					  return href(l_nodegroup($nodegroup_id),$text); }
+function l_nodegroup_obj ($nodegroup) { 
+					  return href(l_nodegroup($nodegroup['nodegroup_id']),$nodegroup['groupname']); }
 
 function l_events ()			{ return "/db/events/index.php"; }
 function l_event ($type,$param,$id)	{ return "/db/events/index.php?type=$type&$param=$id"; }
@@ -360,12 +363,15 @@ function truncate ($text,$numb,$etc = "...") {
   }
   return $text;
 }
-function html_div ($text,$class="") {
-  $html="<div";
+// generates <(atom) class=(class)> (text) </(atom)>
+function html_atom ($atom,$text,$class="") {
+  $html="<$atom";
   if ($class) $html .= " class='$class'";
-  $html .= ">$text</div>";
+  $html .= ">$text</$atom>";
   return $html;
 }
+function html_div ($text,$class="") { return html_atom ('div',$text,$class); }
+function html_span ($text,$class="") { return html_atom ('span',$text,$class); }
 
 // should use the same channel as the php errors..
 function plc_error_html ($text)		{ return  html_div ($text,'plc-error'); }
@@ -391,10 +397,10 @@ function errors_display ($errors) {
   }
 }
 
-function plc_warning_html ($text)	{ return "<span class='plc-warning'>" . $text . "</span>";}
+function plc_warning_html ($text)	{ return html_span($text,'plc-warning'); }
 function plc_warning ($text)		{ print plc_warning_html("Warning " . $text); }
 
-function bold_html ($text)		{ return "<span class='bold'>$text</span>"; }
+function bold_html ($text)		{ return html_span($text,'bold'); }
 
 // shows a php variable verbatim with a heading message
 function plc_debug ($message,$object) {
