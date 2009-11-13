@@ -64,6 +64,8 @@ th.sortable-sortFileSize,
 th.sortable-sortBandwidth,
 th.sortable-sortLastContact,
 th.sortable-sortAlphaNumeric,
+th.sortable-sortAlphaNumericTop,
+th.sortable-sortAlphaNumericBottom,
 th.sortable-sortEnglishDateTime {
     cursor:pointer;
     background: #CAE8EA url(/plekit/icons/tablesort-header-sortable.jpg) no-repeat;

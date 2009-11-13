@@ -7,6 +7,7 @@ require_once 'prototype.php';
 drupal_set_html_head('
 <script type="text/javascript" src="/plekit/tablesort/tablesort.js"></script>
 <script type="text/javascript" src="/plekit/tablesort/customsort.js"></script>
+<script type="text/javascript" src="/plekit/tablesort/plc_customsort.js"></script>
 <script type="text/javascript" src="/plekit/tablesort/paginate.js"></script>
 <script type="text/javascript" src="/plekit/table/table.js"></script>
 <link href="/plekit/table/table.css" rel="stylesheet" type="text/css" />
