@@ -56,13 +56,13 @@ function _sortAlphaNumeric(a, b, non_numeric_first) {
 function sortAlphaNumericBottomPrepareData(tdNode, innerText) {
 	return _sortAlphaNumericPrepareData(tdNode, innerText);
 }
-function sortAlphaNumericBottom(a,b,) {
+function sortAlphaNumericBottom(a,b) {
 	return _sortAlphaNumeric (a,b,false);
 }
 function sortAlphaNumericTopPrepareData(tdNode, innerText) {
 	return _sortAlphaNumericPrepareData(tdNode, innerText);
 }
-function sortAlphaNumericTop(a,b,) {
+function sortAlphaNumericTop(a,b) {
 	return _sortAlphaNumeric (a,b,true);
 }
 
