@@ -2,9 +2,6 @@
 
 // $Id$
 
-// will trash this eventually
-  //require_once 'plc_functions_trash.php';
-
 # note: this needs to be consistent with the value in Monitor/monitor/wrapper/plc.py
 global $PENDING_CONSORTIUM_ID;
 $PENDING_CONSORTIUM_ID = 0;
@@ -215,7 +212,7 @@ function tab_nodegroups()	{ return array ('label'=>'Nodegroups', 'url'=>l_nodegr
 function tablook_event()	{ return array('image'=>'/planetlab/icons/event.png','height'=>18);}
 function tablook_comon()	{ return array('image'=>'/planetlab/icons/comon.png','height'=>18);}
 
-////////////////////
+
 
 //////////////////////////////////////////////////////////// validation functions
 function topdomain ($hostname) {

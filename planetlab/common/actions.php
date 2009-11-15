@@ -643,7 +643,7 @@ Our support team will be glad to answer any question that you might have.
      drupal_set_message ("Removed $count node(s)");
    else
      drupal_set_error ("Could not remove selected nodes");
-   plc_redirect(l_slice($slice_id) . " &show_nodes=true");
+   plc_redirect(l_slice_nodes($slice_id));
    break;
  }
 
@@ -655,7 +655,7 @@ Our support team will be glad to answer any question that you might have.
      drupal_set_message ("Added $count node(s)");
    else
      drupal_set_error ("Could not add all selected nodes");
-   plc_redirect(l_slice($slice_id) . "&show_nodes=true" );
+   plc_redirect(l_slice_nodes($slice_id));
    break;
  }
 

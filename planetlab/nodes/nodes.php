@@ -16,6 +16,7 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_peers.php';
+require_once 'plc_visibletags.php';
 require_once 'linetabs.php';
 require_once 'table.php';
 require_once 'nifty.php';
@@ -61,7 +62,12 @@ function node_status ($node) {
 }
 
 // fetch nodes 
-$node_columns=array('hostname','node_type','site_id','node_id','boot_state','run_level','interface_ids','peer_id', 'arch','slice_ids');
+$node_fixed_columns=array('hostname','node_type','site_id','node_id','boot_state','run_level',
+			  'interface_ids','peer_id', 'slice_ids');
+$visibletags = new VisibleTags ($api, 'node');
+$visiblecolumns = $visibletags->column_names();
+$node_columns=array_merge($node_fixed_columns,$visiblecolumns);
+
 // server-side filtering - set pattern in $_GET for filtering on hostname
 if ($pattern) {
   $node_filter['hostname']=$pattern;
@@ -150,17 +156,31 @@ if ( ! $nodes ) {
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
 $headers = array (); $offset=0;
-if (plc_is_admin()) { $headers["I"]="int"; $offset=1; }
-$headers["P"]="string";
-$headers["R"]="string";
+$notes=array();
+
+// fixed columns
+if (plc_is_admin()) { 
+  $short="I"; $long="node_id"; $type='int'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+  $offset=1; 
+ }
+$short="P"; $long="Peer"; $type='string'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+$short="D"; $long="toplevel domain name"; $type='string'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 $headers["Site"]="string";
 $headers["State"]="string";
+		$notes []= "state* = node doesn't have an observed state, preferred state is displayed";
 $headers["Hostname"]="string";
 $headers["Type"]="string";
-$headers["IP"]="sortIPAddress";
-$headers["A"]="string";
-$headers["S"]='int';
-$headers["?"]="string";
+$short="IP"; $long="IP Address"; $type='sortIPAddress'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+$short="SL"; $long="Number of slivers"; $type='int'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+
+$headers=array_merge($headers,$visibletags->headers());
+$notes=array_merge($notes,$visibletags->notes());
+$headers["?"]="string";		$notes []= "? = extra status info";
 
 # initial sort on hostnames
 $table=new PlekitTable ("nodes",$headers,4+$offset);
@@ -192,20 +212,13 @@ foreach ($nodes as $node) {
   $table->cell (l_node_t($node_id,$hostname));
   $table->cell ($node_type);
   $table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
-  $table->cell ($node['arch'],array('only-if'=> !$peer_id));
   $table->cell (count($node['slice_ids']));
+  foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
   $table->cell (node_status($node));
   $table->row_end();
   
 }
 
-$notes=array();
-if (plc_is_admin()) $notes []= "I = node_id";
-$notes []= "R = region";
-$notes []= "A = arch";
-$notes []= "S = number of slivers";
-$notes []= "? = status";
-$notes []= "status* = node doesn't have an observed state, preferred state is displayed";
 $table->end(array('notes'=>$notes));
 $nifty->end();
 

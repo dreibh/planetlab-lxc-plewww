@@ -16,6 +16,7 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_peers.php';
+require_once 'plc_visibletags.php';
 require_once 'linetabs.php';
 require_once 'table.php';
 require_once 'details.php';
@@ -51,9 +52,7 @@ $name= $slice['name'];
 $expires = date( "d/m/Y", $slice['expires'] );
 $site_id= $slice['site_id'];
 
-//$node_ids=$slice['node_ids'];
 $person_ids=$slice['person_ids'];
-//$slice_tag_ids= $slice['slice_tag_ids'];
 
 // get peers
 $peer_id= $slice['peer_id'];
@@ -65,13 +64,6 @@ $sites= $api->GetSites( array( $site_id ) );
 $site=$sites[0];
 $site_name= $site['name'];
 $max_slices = $site['max_slices'];
-// xxx PIs
-//$pis=$api->GetPersons(...)
-
-// get all persons info
-if (!empty($person_ids))
-  $persons=$api->GetPersons($person_ids,array('email','enabled'));
-
 
 //////////////////////////////////////// building blocks for the renew area
 // Constants
@@ -268,11 +260,16 @@ $toggle->end();
 
 //////////////////// persons
 $person_columns = array('email','person_id','first_name','last_name','roles');
-$persons=$api->GetPersons(array('person_id'=>$slice['person_ids']));
-// just propose to add everyone else, 
+// get persons in slice
+if (!empty($person_ids))
+  $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']),$person_columns);
+// just propose to add everyone else
+// xxx this is maybe too much for admins as it slows stuff down 
 // as regular persons can see only a fraction of the db anyway
 $potential_persons=
-  $api->GetPersons(array('~person_id'=>$slice['person_ids'],'peer_id'=>NULL,'enabled'=>true),
+  $api->GetPersons(array('~person_id'=>$slice['person_ids'],
+			 'peer_id'=>NULL,
+			 'enabled'=>true),
 		   $person_columns);
 $count=count($persons);
 
@@ -388,35 +385,10 @@ $toggle->end();
 
 // minimal list as a start
 $node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist','run_level','boot_state');
-// scan tag types to find relevant additional columns
-$nodeui_tag_types = $api->GetTagTypes(array('category'=>'node*/ui*'));
-// extract tagname
-$node_tag_columns = array_map(create_function('$tt','return $tt["tagname"];'),$nodeui_tag_types);
-// build an ordered list of chunks {'tagname','header','rank','description'}
-$more_tags = array();
-foreach ($nodeui_tag_types as $tag_type) {
-  $tagname=$tag_type['tagname'];
-  $chunk=array();
-  $chunk['tagname']=$tagname;
-  $chunk['header']=$tagname;
-  $chunk['rank']=$tagname;
-  $chunk['type']='string';
-  $chunk['description']=$tag_type['description'];
-  $category_tokens=split('/',$tag_type['category']);
-  foreach ($category_tokens as $token) {
-    $assign=split('=',$token);
-    if (count($assign)==2) 
-      $chunk[$assign[0]]=$assign[1];
-  }
-  $more_tags []= $chunk;
-}
-
-function sort_chunks ($ch1, $ch2) { return strcmp($ch1['rank'],$ch2['rank']); }
-usort ($more_tags, sort_chunks);
-
-//plc_debug('ordered additional tags',$more_tags);
-
-$node_columns=array_merge($node_fixed_columns,$node_tag_columns);
+// create a VisibleTags object : basically the list of tag columns to show
+$visibletags = new VisibleTags ($api, 'node');
+$visiblecolumns = $visibletags->column_names();
+$node_columns=array_merge($node_fixed_columns,$visiblecolumns);
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 $count=count($nodes);
@@ -438,13 +410,12 @@ $headers=array();
 $notes=array();
 $headers['peer']='string';
 $headers['hostname']='string';
-$headers['S']='string';
-$notes[]='S = last known status';
-foreach ($more_tags as $chunk) {
-  $header=$chunk['header'];
-  $headers[$header]=$chunk['type'];
-  if ($header != $chunk['tagname']) $notes []= $header . ' = ' . $chunk['description'];
-}
+$short="ST"; $long="Last known status"; $type='string'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+// the extra tags
+$headers=array_merge($headers,$visibletags->headers());
+$notes=array_merge($notes,$visibletags->notes());
+
 if ($privileges) $headers[plc_delete_icon()]="none";
 
 $table_options = array('notes'=>$notes,
@@ -463,7 +434,7 @@ if ($nodes) foreach ($nodes as $node) {
   if ( empty($run_level)) $run_level=$node['boot_state'];
   $class=($run_level == 'boot') ? 'node-ok' : 'node-ko';
   $table->cell($run_level,array('class'=>$class));
-  foreach ($more_tags as $chunk) $table->cell($node[$chunk['tagname']]);
+  foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
   $table->row_end();
@@ -509,11 +480,9 @@ if ($privileges) {
     $headers['hostname']='string';
     $headers['S']='string';
     $notes[]='S = last known status';
-    foreach ($more_tags as $chunk) {
-      $header=$chunk['header'];
-      $headers[$header]=$chunk['type'];
-      if ($header != $chunk['tagname']) $notes []= $header . ' = ' . $chunk['description'];
-    }
+    // the extra tags
+    $headers=array_merge($headers,$visibletags->headers());
+    $notes=array_merge($notes,$visibletags->notes());
     $headers['+']="none";
     
     $table=new PlekitTable('add_nodes',$headers,'1', $table_options);
@@ -529,7 +498,7 @@ if ($privileges) {
 	if ( empty($run_level)) $run_level=$node['boot_state'];
 	$class=($run_level == 'boot') ? 'node-ok' : 'node-ko';
 	$table->cell($run_level,array('class'=>$class));
-	foreach ($more_tags as $chunk) $table->cell($node[$chunk['tagname']]);
+	foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
       }

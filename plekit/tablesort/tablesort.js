@@ -213,8 +213,8 @@ fdTableSort = {
                                                         columnNumSortObj[i]["thNode"] = workArr[c][i];
                                                         columnNumSortObj["active"] = true;
                                                 };
-
-                                                thtext = fdTableSort.getInnerText(workArr[c][i], true);
+						th_elt = workArr[c][i];
+                                                thtext = fdTableSort.getInnerText(th_elt, true);
                                                 
                                                 for(var cn = workArr[c][i].childNodes.length; cn--;) {
                                                         // Skip image nodes and links created by the filter script.
@@ -230,7 +230,12 @@ fdTableSort = {
                                                 aclone = a.cloneNode(true);
                                                 //aclone.appendChild(document.createTextNode(thtext));
                                                 aclone.innerHTML = thtext;
-                                                aclone.title = "Sort on \u201c" + thtext.replace('<br />', '') + "\u201d";
+						//if the <th> has title set, use this as an alternate text for the 'sort on ...'
+						if (th_elt.title) {
+						  aclone.title = th_elt.title;
+						} else {
+						  aclone.title = "Sort on \u201c" + (th_elt.title ? th_elt.title : thtext.replace('<br />', '')) + "\u201d";
+						}
                                                 aclone.onclick = aclone.onkeydown = workArr[c][i].onclick = fdTableSort.initWrapper;
                                                 workArr[c][i].appendChild(aclone);
                                                 if(showArrow) workArr[c][i].appendChild(span.cloneNode(false));

@@ -15,7 +15,14 @@ drupal_set_html_head('
 
 ////////////////////////////////////////
 // table_id: <table>'s id tag - WARNING : do not use '-' in table ids as it's used for generating javascript code
-// headers: an associative array "label"=>"type" 
+// headers: an associative array; the values can take several forms
+//      simple/legacy form is "label"=>"type" 
+//      more advanced form is "label"=>options, it self a dict with the following known keys
+//         (*) 'type': the type for sorting; this is passed to the javascript layer for custom sorting
+//		default is to use 'text', custom sort functions can be specified with e.g. 'type'=>'sortAlphaNumericBottom'
+//		a special case is for type to be 'date-format' like e.g. 'type'=>'date-dmy'
+//		setting type to 'none' gives an non-sortable column
+//	   (*) 'title': if set, this is used in the "Sort on ``<title>''" bubble
 // sort_column: the column to sort on at load-time - set to negative number for no onload- sorting
 // options : an associative array to override options 
 //  - bullets1 : set to true if you want decorative bullets in column 1 (need white background)
@@ -131,7 +138,16 @@ class PlekitTable {
     if ($this->caption) 
       print "<caption> $this->caption </caption>";
     print "<tr>";
-    foreach ($this->headers as $label => $type) {
+    foreach ($this->headers as $label => $colspec) {
+      // which form is being used
+      if (is_array($colspec)) {
+	$type=$colspec['type'];
+	$title=ucfirst($colspec['title']);
+      } else {
+	// simple/legacy form
+	$type=$colspec;
+	$title=NULL;
+      }
       switch ($type) {
       case "none" : 
 	$class=""; break;
@@ -142,7 +158,8 @@ class PlekitTable {
       default:
 	$class="sortable-sort" . $type; break;
       }
-      printf ('<th class="%s plekit_table">%s</th>',$class,$label);
+      $title_part=$title ? "title=\"$title\"" : "";
+      print ("<th class=\"$class plekit_table\" $title_part>$label</th>\n");
     }
 
     print "</tr></thead><tbody>";
