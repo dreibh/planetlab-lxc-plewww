@@ -167,19 +167,23 @@ switch ($action) {
  case 'remove-roles-from-person' : {
    $role_ids=$_POST['role_ids'];
    if ( ! $role_ids) {
-     drupal_set_message("action=$action - No role selected");
-     return;
+     drupal_set_error("You have not selected role(s) to remove");
+   } else {
+     foreach( $role_ids as $role_id)  
+       if ( $api->DeleteRoleFromPerson( intval( $role_id ), intval( $person_id ) ) != 1 ) 
+	 drupal_set_error ("Could not remove role $role_id from person $person_id");
    }
-   foreach( $role_ids as $role_id)  {
-     $api->DeleteRoleFromPerson( intval( $role_id ), intval( $person_id ) );
-   }
-   plc_redirect (l_person($person_id));
+   plc_redirect (l_person_roles($person_id));
  }
      
  case 'add-role-to-person' : {
    $role_id=$_POST['role_id'];
-   $api->AddRoleToPerson( intval( $role_id ), intval( $person_id ) );
-   plc_redirect (l_person($person_id));
+   if ( ! $role_id) {
+     drupal_set_error ("You have not selected a role to add");
+   } else if ($api->AddRoleToPerson( intval( $role_id ), intval( $person_id ) ) != 1) {
+     drupal_set_error("Could not add role $role_id to person $person_id");
+   }
+   plc_redirect (l_person_roles($person_id));
  }
 
  case 'enable-person' : {

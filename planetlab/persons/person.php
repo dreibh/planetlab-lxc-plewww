@@ -141,10 +141,10 @@ $details->form_start(l_actions(),array("action"=>"update-person",
 $details->start();
 
 
-$details->th_td("Title",$title,"title",array('width'=>5));
+$details->th_td("Title",$title,"title",array('width'=>10));
 $details->th_td("First Name",$first_name,"first_name");
 $details->th_td("Last Name",$last_name,"last_name");
-$details->th_td(href("mailto:$email","Email"),$email,"email");
+$details->th_td(href("mailto:$email","Email"),$email,"email",array("width"=>30));
 $details->th_td("Phone",$phone,"phone");
 $details->th_td("URL",$url,"url",array('width'=>40));
 $details->th_td("Bio",$bio,"bio",array('input_type'=>'textarea','height'=>4));
@@ -313,13 +313,13 @@ if ($local_peer) {
  }
 //////////////////// roles
 if ($local_peer) {
-  $toggle=new PlekitToggle ('roles','Roles',array('visible'=>get_arg('show_roles',false)));
+  $toggle=new PlekitToggle ('roles',count_english($roles,"role"),array('visible'=>get_arg('show_roles',false)));
   $toggle->start();
 
   if (! $roles) plc_warning ("This user has no role !");
 
   $is_pi_of_the_site = ( plc_in_site($site_ids[0]) && plc_is_pi() );
-  $can_manage_roles= ( $local_peer && plc_is_admin() || $is_pi_of_the_site );
+  $can_manage_roles= ( ($local_peer && plc_is_admin()) || $is_pi_of_the_site );
   $table_options=array("search_area"=>false,"notes_area"=>false);
 
   $headers=array("Role"=>"string");
@@ -344,6 +344,8 @@ if ($local_peer) {
 
   // footers : the remove and add buttons
   if ($can_manage_roles) {
+
+    // remove
     $table->tfoot_start();
     if ($roles) {
       $table->row_start();
@@ -352,22 +354,26 @@ if ($local_peer) {
       $table->row_end();
     }
 
-    $table->row_start();
-    if ($is_pi_of_the_site) {
-      // pi's can only add/remove tech (40) and user (30) roles.
-        $role_ids_to_add = array_diff(array(30, 40), $role_ids);
-        if ($role_ids_to_add) {
-            $selectors=$form->role_selectors($api, $role_ids_to_add);
-        }
-    } else {
-      $selectors=$form->role_selectors_excluding($api,$role_ids);
+    // add
+    // compute the roles that can be added
+    if (plc_is_admin()) 
+      // all roles
+      $exclude_role_ids=array();
+    else
+      // all roles except admin and pi
+      $exclude_role_ids=array(10,20);
+    $possible_roles = roles_except($api->GetRoles(),$exclude_role_ids);
+    $roles_to_add = roles_except ($possible_roles,$role_ids);
+    if ( $roles_to_add ) {
+      $selectors=$form->role_selectors($roles_to_add);
+      $table->row_start();
+      $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
+      // add a role : the button
+      $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
+      $table->cell ($add_role_left_area . $add_role_right_area,
+		    array('hfill'=>true,'align'=>'right'));
+      $table->row_end();
     }
-    $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
-    // add a role : the button
-    $add_role_right_area=$form->submit_html("add-role-to-person","Add role");
-    $table->cell ($add_role_left_area . $add_role_right_area,
-		  array('hfill'=>true,'align'=>'right'));
-    $table->row_end();
   }
   $table->end();
   $toggle->end();

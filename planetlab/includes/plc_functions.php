@@ -119,6 +119,7 @@ function l_sliver_t ($node_id,$slice_id,$text) {
 function l_persons ()			{ return "/db/persons/index.php&active_line_tab=All Accounts"; }
 function l_persons_peer ($peer_id)	{ return "/db/persons/index.php?peerscope=$peer_id&active_line_tab=Local Accounts"; }
 function l_person ($person_id)		{ return "/db/persons/index.php?id=$person_id"; }
+function l_person_roles ($person_id)	{ return "/db/persons/index.php?id=$person_id&show_details=0&show_roles=1"; }
 function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text); }
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
 function l_persons_slice ($slice_id)	{ return "/db/persons/index.php?slice_id=$slice_id"; }
@@ -303,6 +304,19 @@ function plc_role_global_hash ($api) {
     $hash[$role['role_id']]=$role['name'];
   }
   return $hash;
+}
+
+// because GetRoles does not correctly support filters, it's really painful to do this
+function sort_roles ($r1, $r2) { return $r2['role_id'] - $r1['role_id']; }
+function roles_except ($roles, $exception_ids) {
+  $result=array();
+  if ($roles) foreach ($roles as $role) {
+      if ( ! in_array ($role['role_id'],$exception_ids) ) {
+	$result[]=$role;
+      }
+    }
+  usort($result,sort_roles);
+  return $result;
 }
 
 //////////////////////////////////////////////////////////// nodegroups
