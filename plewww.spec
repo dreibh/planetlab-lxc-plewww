@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 36
+%define taglevel 37
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,11 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Nov 16 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-37
+- consistency in the way nodes status is displayed in the node and slice areas
+- extra tags columns show up on the nodes page as well, tweaked in the process
+- roles management in person page fixed
+
 * Sun Nov 15 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-36
 - displaying node tags in the nodes page as well
 - table headers now can have a 'title' that shows up when hovering on the column header
