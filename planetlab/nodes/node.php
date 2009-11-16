@@ -241,7 +241,8 @@ $details->th_td("Last contact",$Node->lastContact());
 
 // boot area
 $details->space ();
-$details->th_td ("Observed Boot state",$run_level . ( $Node->stale() ? " -- stale value" : "" ));
+$stale_text =  $Node->stale() ? ("... (more than " . Node::stale_text() . " ago)") : "" ;
+$details->th_td ("Observed Boot state", $run_level . $stale_text);
 if ( ! ($local_peer && $privileges)) {
   // just display it
   $boot_value=$boot_state;

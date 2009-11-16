@@ -16,6 +16,7 @@ include 'plc_header.php';
 // Common functions
 require_once 'plc_functions.php';
 require_once 'plc_peers.php';
+require_once 'plc_objects.php';
 require_once 'plc_visibletags.php';
 require_once 'linetabs.php';
 require_once 'table.php';
@@ -384,7 +385,7 @@ $toggle->end();
 //     (.) type is passed to the javascript table, for sorting (default is 'string')
 
 // minimal list as a start
-$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist','run_level','boot_state');
+$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist','run_level','boot_state','last_contact');
 // create a VisibleTags object : basically the list of tag columns to show
 $visibletags = new VisibleTags ($api, 'node');
 $visiblecolumns = $visibletags->column_names();
@@ -410,7 +411,7 @@ $headers=array();
 $notes=array();
 $headers['peer']='string';
 $headers['hostname']='string';
-$short="ST"; $long="Last known status"; $type='string'; 
+$short="ST"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 // the extra tags
 $headers=array_merge($headers,$visibletags->headers());
@@ -427,13 +428,13 @@ $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
 $table->start();
 if ($nodes) foreach ($nodes as $node) {
+  $node_obj=new Node($node);
   $table->row_start();
   $peers->cell($table,$node['peer_id']);
   $table->cell(l_node_obj($node));
   $run_level=$node['run_level'];
-  if ( empty($run_level)) $run_level=$node['boot_state'];
-  $class=($run_level == 'boot') ? 'node-ok' : 'node-ko';
-  $table->cell($run_level,array('class'=>$class));
+  list($label,$class) = $node_obj->status_label_class();
+  $table->cell ($label,array('class'=>$class));
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
@@ -478,8 +479,8 @@ if ($privileges) {
     $notes=array();
     $headers['peer']='string';
     $headers['hostname']='string';
-    $headers['S']='string';
-    $notes[]='S = last known status';
+    $short="ST"; $long=Node::status_footnote(); $type='string'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
     // the extra tags
     $headers=array_merge($headers,$visibletags->headers());
     $notes=array_merge($notes,$visibletags->notes());
@@ -491,11 +492,12 @@ if ($privileges) {
     $form->start();
     $table->start();
     if ($potential_nodes) foreach ($potential_nodes as $node) {
+	$node_obj=new Node($node);
 	$table->row_start();
 	$peers->cell($table,$node['peer_id']);
 	$table->cell(l_node_obj($node));
-	$run_level=$node['run_level'];
-	if ( empty($run_level)) $run_level=$node['boot_state'];
+	list($label,$class) = $node_obj->status_label_class();
+	$table->cell ($label,array('class'=>$class));
 	$class=($run_level == 'boot') ? 'node-ok' : 'node-ko';
 	$table->cell($run_level,array('class'=>$class));
 	foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);

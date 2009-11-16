@@ -18,10 +18,3 @@ div#toggle-container-my-slice-nodes-add {
     background: #f0e0e0;
 }
 
-/* qualify enough so that this wins over the even/odd row patterns in tables */
-tbody>tr>td.node-ok {
-    background: #a0f0e6;
-}
-tbody>tr>td.node-ko {
-    background: #ffa7a8;
-}

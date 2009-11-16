@@ -15,6 +15,7 @@ include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'plc_objects.php';
 require_once 'plc_peers.php';
 require_once 'plc_visibletags.php';
 require_once 'linetabs.php';
@@ -49,20 +50,21 @@ $node_filter=array();
 // performs sanity check and summarize the result in a single column
 function node_status ($node) {
 
-  // do all this stuff on local nodes only
-  if ( $node['peer_id'] )
-    return "n/a";
-
   $messages=array();
-  // check that the node has interfaces
-  if (count($node['interface_ids']) == 0) {
-    $messages [] = "No interface";
+  if ($node['node_type'] != 'regular') 
+    $messages []= $node['node_type'];
+
+  // checks on local nodes only
+  if ( ( ! $node['peer_id']) ) {
+    // has it got interfaces 
+    if (count($node['interface_ids']) == 0) 
+      $messages []= "No interface";
   }
   return plc_vertical_table($messages,'plc-warning');
 }
 
 // fetch nodes 
-$node_fixed_columns=array('hostname','node_type','site_id','node_id','boot_state','run_level',
+$node_fixed_columns=array('hostname','node_type','site_id','node_id','boot_state','run_level','last_contact',
 			  'interface_ids','peer_id', 'slice_ids');
 $visibletags = new VisibleTags ($api, 'node');
 $visiblecolumns = $visibletags->column_names();
@@ -169,18 +171,18 @@ $short="P"; $long="Peer"; $type='string';
 $short="D"; $long="toplevel domain name"; $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 $headers["Site"]="string";
-$headers["State"]="string";
-		$notes []= "state* = node doesn't have an observed state, preferred state is displayed";
 $headers["Hostname"]="string";
-$headers["Type"]="string";
 $short="IP"; $long="IP Address"; $type='sortIPAddress'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+$short="ST"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 $short="SL"; $long="Number of slivers"; $type='int'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 
 $headers=array_merge($headers,$visibletags->headers());
 $notes=array_merge($notes,$visibletags->notes());
-$headers["?"]="string";		$notes []= "? = extra status info";
+$short="?"; $long="extra status info"; $type='string'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 
 # initial sort on hostnames
 $table=new PlekitTable ("nodes",$headers,4+$offset);
@@ -189,6 +191,7 @@ $table->start();
 $peers = new Peers ($api);
 // write rows
 foreach ($nodes as $node) {
+  $node_obj = new Node ($node);
   $hostname=$node['hostname'];
   $node_id=$node['node_id'];
   $site_id=$node['site_id'];
@@ -197,21 +200,16 @@ foreach ($nodes as $node) {
   $ip=$interface_hash[$node['node_id']]['ip'];
   $interface_id=$interface_hash[$node['node_id']]['interface_id'];
   $peer_id=$node['peer_id'];
-  $node_type = $node['node_type'];
   
   $table->row_start();
   if (plc_is_admin()) $table->cell(l_node_t($node_id,$node_id));
   $peers->cell ($table,$peer_id);
   $table->cell (topdomain($hostname));
   $table->cell (l_site_t($site_id,$login_base));
-  if ($node['run_level']) {
-      $table->cell($node['run_level']);
-  } else {
-      $table->cell ($node['boot_state'] . '*');
-  }
   $table->cell (l_node_t($node_id,$hostname));
-  $table->cell ($node_type);
   $table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
+  list($label,$class) = $node_obj->status_label_class();
+  $table->cell ($label,array('class'=>$class));
   $table->cell (count($node['slice_ids']));
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
   $table->cell (node_status($node));

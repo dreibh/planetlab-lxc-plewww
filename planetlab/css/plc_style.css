@@ -89,6 +89,13 @@ h3.node_download {
     text-align: center;
 }
 
+/* qualify enough so that this wins over the even/odd row patterns in tables */
+tbody>tr>td.node-ok {
+    background: #a0f0e6;
+}
+tbody>tr>td.node-ko {
+    background: #ffa7a8;
+}
 /****************************************/
 /* registrations */
 div.site-register {

@@ -211,6 +211,7 @@ class Node extends PlcObject {
     $this->node_id = $node['node_id'];
     $this->hostname = $node['hostname'];
     $this->boot_state = $node['boot_state'];
+    $this->run_level = $node['run_level'];
     $this->date_created = $node['date_created'];
     $this->last_updated = $node['last_updated'];
     $this->last_contact = $node['last_contact'];
@@ -271,15 +272,26 @@ class Node extends PlcObject {
   function lastContact() {
     return $this->timeaway($this->last_contact);
   }
-  function stale() {
-    $now = time();
-	$STALE_LENGTH = 60*60;	/* TODO: set by some policy */
-    if ( $this->last_contact + $STALE_LENGTH > $now ) {
-	    return False;
-	} else {
-	    return True;
-	}
+  // returns a tuple ( label, class) 
+  // $node needs at least 'run_level' 'boot_state' 
+  function status_label_class () {
+    $label= $this->run_level ? $this->run_level : ( $this->boot_state . '*' ) ;
+    if ($this->stale()) $label .= '...';
+    $class=($label=="boot") ? 'node-ok' : 'node-ko';
+    return array($label,$class);
   }
+
+  static function status_footnote () {
+    return "state; * if node doesn't have an observed state; ... if status is stale (" . Node::stale_text() . ")";
+  }
+
+  function stale() {
+    $STALE_LENGTH = 2*60*60;	/* TODO: set by some policy */
+    $now = time();
+    return ( $this->last_contact + $STALE_LENGTH < $now );
+  }
+  static function stale_text() { return "2 hours"; }
+
   function timeaway($val) {
     if ( $val != NULL ) {
       $ret = timeDiff(intval($val));
@@ -287,7 +299,6 @@ class Node extends PlcObject {
       $ret = "Never";
     }
     return $ret;
-    
   }
 }
 
