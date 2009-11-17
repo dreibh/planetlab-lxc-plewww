@@ -141,7 +141,7 @@ if ($mode == 'add') return;
 
 //////////////////////////////////////// tags
 $tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
-$toggle=new PlekitToggle ('tags',count_english($tags,'tags'),
+$toggle=new PlekitToggle ('tags',count_english($tags,'tag'),
 			  array('visible'=>get_arg('show_tags',false)));
 $toggle->start();
 

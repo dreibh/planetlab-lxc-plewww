@@ -272,25 +272,6 @@ class Node extends PlcObject {
   function lastContact() {
     return $this->timeaway($this->last_contact);
   }
-  // returns a tuple ( label, class) 
-  // $node needs at least 'run_level' 'boot_state' 
-  function status_label_class () {
-    $label= $this->run_level ? $this->run_level : ( $this->boot_state . '*' ) ;
-    if ($this->stale()) $label .= '...';
-    $class=($label=="boot") ? 'node-ok' : 'node-ko';
-    return array($label,$class);
-  }
-
-  static function status_footnote () {
-    return "state; * if node doesn't have an observed state; ... if status is stale (" . Node::stale_text() . ")";
-  }
-
-  function stale() {
-    $STALE_LENGTH = 2*60*60;	/* TODO: set by some policy */
-    $now = time();
-    return ( $this->last_contact + $STALE_LENGTH < $now );
-  }
-  static function stale_text() { return "2 hours"; }
 
   function timeaway($val) {
     if ( $val != NULL ) {
@@ -300,6 +281,36 @@ class Node extends PlcObject {
     }
     return $ret;
   }
+
+  // code needs to be accessible from outside an object too 
+  // b/c of the performance overhead of creating as many objects as nodes
+  static function status_label_class__ ($boot_state, $run_level, $last_contact, $peer_id) {
+    $label= $run_level ? $run_level : ( $boot_state . '*' ) ;
+    if (Node::stale_($last_contact,$peer_id)) $label .= '...';
+    $class=($label=="boot") ? 'node-ok' : 'node-ko';
+    return array($label,$class);
+  }
+  static function status_label_class_ ($node) {
+    return Node::status_label_class__ ($node['boot_state'],$node['run_level'],$node['last_contact'], $node['peer_id']);
+  }
+  function status_label_class () {
+    return Node::status_label_class__ ($this->boot_state,$this->run_level,$this->last_contact, $this->peer_id);
+  }
+  static function status_footnote () {
+    return "state; * if node doesn't have an observed state; ... if status is stale (" . Node::stale_text() . ")";
+  }
+  
+  // ditto
+  static function stale_ ($last_contact, $peer_id) {
+    // remote nodes don't have a last_contact
+    if ( $peer_id) return false;
+    $STALE_LENGTH = 2*60*60;	/* TODO: set by some policy */
+    $now = time();
+    return ( $last_contact + $STALE_LENGTH < $now );
+  }
+  function stale() { return Node::stale_ ($this->last_contact,$this->peer_id); }
+  static function stale_text() { return "2 hours"; }
+
 }
 
 class Slice {

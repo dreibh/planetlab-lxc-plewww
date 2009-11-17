@@ -185,13 +185,13 @@ $short="?"; $long="extra status info"; $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 
 # initial sort on hostnames
-$table=new PlekitTable ("nodes",$headers,4+$offset);
+$table=new PlekitTable ("nodes",$headers,3+$offset);
 $table->start();
 
 $peers = new Peers ($api);
 // write rows
 foreach ($nodes as $node) {
-  $node_obj = new Node ($node);
+  //$node_obj = new Node ($node);
   $hostname=$node['hostname'];
   $node_id=$node['node_id'];
   $site_id=$node['site_id'];
@@ -208,7 +208,7 @@ foreach ($nodes as $node) {
   $table->cell (l_site_t($site_id,$login_base));
   $table->cell (l_node_t($node_id,$hostname));
   $table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
-  list($label,$class) = $node_obj->status_label_class();
+  list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
   $table->cell (count($node['slice_ids']));
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);

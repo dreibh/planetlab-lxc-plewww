@@ -428,12 +428,11 @@ $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
 $table->start();
 if ($nodes) foreach ($nodes as $node) {
-  $node_obj=new Node($node);
   $table->row_start();
   $peers->cell($table,$node['peer_id']);
   $table->cell(l_node_obj($node));
   $run_level=$node['run_level'];
-  list($label,$class) = $node_obj->status_label_class();
+  list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 
@@ -492,14 +491,11 @@ if ($privileges) {
     $form->start();
     $table->start();
     if ($potential_nodes) foreach ($potential_nodes as $node) {
-	$node_obj=new Node($node);
 	$table->row_start();
 	$peers->cell($table,$node['peer_id']);
 	$table->cell(l_node_obj($node));
-	list($label,$class) = $node_obj->status_label_class();
+	list($label,$class) = Node::status_label_class_($node);
 	$table->cell ($label,array('class'=>$class));
-	$class=($run_level == 'boot') ? 'node-ok' : 'node-ko';
-	$table->cell($run_level,array('class'=>$class));
 	foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
