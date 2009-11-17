@@ -397,30 +397,30 @@ switch ($action) {
      drupal_set_error ("Could not delete all selected interfaces, only $counter were removed");
    plc_redirect(l_node($_POST['node_id']));
  }
+
  case 'new-interface': {
    plc_redirect(l_interface_add($_POST['node_id']));
  }
+
  case 'add-interface': {
-   $node_id=$_POST['node_id'];
+   $node_id=intval($_POST['node_id']);
    foreach ($interface_details as $field) {
      $interface[$field]= $_POST[$field];
+     // these must be integers
      if( in_array( $field, array( 'bwlimit', 'node_id' ) ) ) {
-       $interface[$field]= intval( $interface[$field] );
+       if ( empty ($interface[$field]) ) 
+	 unset ($interface[$field]);
+       else 
+	 $interface[$field]= intval( $interface[$field] );
      }
    }
-   $interface_id =$api->AddInterface( intval( $node_id ), $interface );
-   if ($interface_id >0 ) {
-     $api->begin();
-	 $api->AddInterfaceTag($interface_id,"alias",strval($interface_id));
-	 $api->AddInterfaceTag($interface_id,"ifname","eth0");
-     list($id1, $id2) = $api->commit();
-     if ( $id1 > 0 && $id2 > 0 ) {
-         drupal_set_message ("Interface $interface_id added into node $node_id");
-     } else {
-         drupal_set_error ("Could not add interface tags to interface $interface_id");
-     }
-   } else {
+   $interface_id =$api->AddInterface( $node_id , $interface );
+   if ($interface_id <= 0 ) {
      drupal_set_error ("Could not create interface");
+     drupal_set_error ($api->error());
+   } else {
+     $ip=$interface['ip'];
+     drupal_set_message ("Interface $ip added into node $node_id");
    }
    plc_redirect (l_node($node_id));
  }
