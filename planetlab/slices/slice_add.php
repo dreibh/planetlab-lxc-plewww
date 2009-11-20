@@ -172,7 +172,7 @@ if ($multiple_sites) {
     $selectors []= $selector;
   }
 
-  $site_form = new  PleKitForm (l_slice_add(),array(),'get');
+  $site_form = new  PleKitForm (l_slice_add(),array(),array('method'=>'get'));
   $site_form->start();
   print $site_form->label_html('site_id','Or choose some other site');
   print $site_form->select_html('site_id',$selectors,array('autosubmit'=>true,

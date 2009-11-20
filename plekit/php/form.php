@@ -12,9 +12,11 @@ class PlekitForm {
   // mandatory
   var $url;
   var $values; // a hash var=>value - default is empty array
-  var $method; // default is POST
+  var $method; // default is POST, can be changed with options
+  var $onSubmit; // can be set with options
+  var $onReset; // can be set with options
 
-  function PlekitForm ($full_url, $values, $method="POST") {
+  function PlekitForm ($full_url, $values, $options=NULL) {
     // so we can use the various l_* functions:
     // we parse the url to extract var-values pairs, 
     // and add them to the 'values' argument if any
@@ -29,12 +31,17 @@ class PlekitForm {
     $this->values=$values;
 
     // make strict xhtml happy
-    $this->method=strtolower($method);
+    $this->method="post";	if ($options['method']) $this->method=strtolower($options['method']);
+    $this->onSubmit=NULL;	if ($options['onSubmit']) $this->onSubmit=$options['onSubmit'];
+    $this->onReset=NULL;	if ($options['onReset']) $this->onReset=$options['onReset'];
   }
 
   function start () { print $this->start_html(); }
   function start_html () {
-    $html="<form method='$this->method' action='$this->url' enctype='multipart/form-data'>";
+    $html="<form method='$this->method' action='$this->url' enctype='multipart/form-data'";
+    if ($this->onSubmit) $html .= " onSubmit='$this->onSubmit'";
+    if ($this->onReset) $html .= " onReset='$this->onReset'";
+    $html .= ">";
     if ($this->values) 
       foreach ($this->values as $key=>$value) 
 	$html .= $this->hidden_html($key,$value);

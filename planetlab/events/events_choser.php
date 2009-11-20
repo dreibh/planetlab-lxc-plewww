@@ -43,7 +43,7 @@ $from_picker->today();
 $until_picker = new PlekitDatepicker ('until_date','Until (inclusive)',array('inline'=>true));
 $until_picker->today();
 
-$form=new PlekitForm(l_events(),array(),'GET');
+$form=new PlekitForm(l_events(),array(),array('method'=>'get'));
 $form->start();
 
 $details = new PlekitDetails (true);

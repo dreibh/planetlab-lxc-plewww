@@ -57,7 +57,8 @@ $fields=array( 'method', 'type', 'ip', 'gateway', 'network', 'broadcast', 'netma
 	       'dns1', 'dns2', 'hostname', 'mac', 'bwlimit', 'node_id' );
 
 //////////////////////////////
-$nodes= $api->GetNodes( array( intval($node_id) ), array( 'node_id', 'hostname', 'site_id' ) );
+$node_columns = array( 'node_id', 'hostname', 'site_id', 'interface_ids' );
+$nodes= $api->GetNodes( array( intval($node_id) ), $node_columns);
 $node= $nodes[0];
 $site_id=$node['site_id'];
 
@@ -71,7 +72,8 @@ drupal_set_html_head ('
 <script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
 ');
 
-$toggle = new PlekitToggle ('interface',"Details",
+$nifty_id = ($mode == 'add' ) ? 'add-interface' : 'interface';
+$toggle = new PlekitToggle ($nifty_id,"Details",
 			    array('bubble'=>'Display and modify details for that interface',
 				  'visible'=>get_arg('show_details',true)));
 $toggle->start();
@@ -81,12 +83,18 @@ $details=new PlekitDetails($can_update);
 // xxx hardwire network type for now
 $form_variables = array('node_id'=>$node_id,'type'=>"ipv4");
 if ($mode == "update") $form_variables['interface_id']=$interface_id;
-$form=$details->form_start(l_actions(),$form_variables);
+$form=$details->form_start(l_actions(),$form_variables,
+			   array('onSubmit'=>'return interfaceSubmit()'));
 
 $details->start();
 
+if ($mode == 'add') 
+  // would have preferred 'dhcp' as a default but could not figure how to trigger updateMethodFields on startup
+  $method_default = 'static';
+else
+  $method_default = $interface['method'];
 $method_select = $form->select_html ("method",
-				     interface_method_selectors($api,$interface['method'],false),
+				     interface_method_selectors($api,$method_default,false),
 				     array('id'=>'method','onChange'=>'updateMethodFields()'));
 $details->th_td("Method",$method_select,"method",array('input_type'=>'select','value'=>$interface['method']));
 
@@ -113,17 +121,21 @@ $details->th_td("BW limit (bps)",$interface['bwlimit'],"bwlimit",array('width'=>
 $details->th_td("Hostname",$interface['hostname'],"hostname");
 $details->th_td("Mac address",$interface['mac'],"mac", array('onChange'=>'macChecker("mac", true)'));
 
-# xxx should the user be allowed to change this ?
-//$mac=$interface['mac'];
-//if ($mac) $details->th_td("MAC address",$mac);
-
 // the buttons
-$update_button = $form->submit_html ("update-interface","Update",
-				     array('onSubmit'=>'interfaceSubmit()'));
+$update_button = $form->submit_html ("update-interface","Update");
 $add_button = $form->submit_html ("add-interface","Add as new",
 				  array('onSubmit'=>'interfaceSubmit()'));
 switch ($mode) {
  case 'add':
+   // primary interfaces can't be virtual
+   $is_primary = (count($node['interface_ids']) == 0);
+   if ( ! $is_primary) {
+     // default is to create virtual interfaces
+     $details->th_th($form->checkbox_html('is-virtual','yes',array('checked'=>'checked')),
+		     "Virtual Interface");
+     $details->th_td("Interface name","eth0",'ifname');
+     $details->th_td("alias (leave empty if unsure)","",'alias');
+   }
    $details->tr($add_button,"right");
    break;
  case 'update':
@@ -142,7 +154,7 @@ if ($mode == 'add') return;
 //////////////////////////////////////// tags
 $tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
 $toggle=new PlekitToggle ('tags',count_english($tags,'tag'),
-			  array('visible'=>get_arg('show_tags',false)));
+			  array('visible'=>get_arg('show_tags',true)));
 $toggle->start();
 
 $form = new PlekitForm (l_actions(),array('interface_id'=>$interface_id));

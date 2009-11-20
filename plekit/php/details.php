@@ -60,9 +60,9 @@ class PlekitDetails {
 
   // starts an inner form if the details are editable
   // accpets same args as PlekitForm
-  function form_start ($url,$values,$method="POST") { print $this->form_start_html($url,$values,$method); return $this->form; }
-  function form_start_html ($url,$values,$method="POST") {
-    $this->form = new PlekitForm ($url,$values,$method);
+  function form_start ($url,$values,$options=NULL) { print $this->form_start_html($url,$values,$options); return $this->form; }
+  function form_start_html ($url,$values,$options=NULL) {
+    $this->form = new PlekitForm ($url,$values,$options);
     return $this->form->start_html();
   }
 

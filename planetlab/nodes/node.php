@@ -349,7 +349,7 @@ if ( $local_peer ) {
   $tagnames = array_map ("get_tagname",$tags);
   $nodegroups_hash=plc_nodegroup_global_hash($api,$tagnames);
   
-  $toggle = new PlekitToggle ('tags',count_english_warning($tags,'tag'),
+  $toggle = new PlekitToggle ('tags',count_english($tags,'tag'),
 			      array('bubble'=>'Inspect and set tags on that node',
 				    'visible'=>get_arg('show_tags',false)));
   $toggle->start();
@@ -432,6 +432,8 @@ if ( $local_peer ) {
     $headers["Type"]="string";
     $headers["MAC"]="string";
     $headers["bw limit"]="sortBandwidth";
+    $headers["tags"]=array('type'=>'int',
+			   'title'=>"number of tags set on interface");
     // a single symbol, marking 'p' for primary and a delete button for non-primary
     if ( $privileges ) $headers[plc_delete_icon()]='string';
 
@@ -451,6 +453,8 @@ if ( $local_peer ) {
       $table->cell($interface['type']);
       $table->cell($interface['mac']);
       $table->cell(pretty_bandwidth($interface['bwlimit']));
+      $table->cell(href(l_interface_tags($interface_id),
+			count($interface['interface_tag_ids'])));
       if ( $privileges ) {
 	if ($interface['is_primary']) {
 	  $table->cell(plc_bubble("p","Cannot delete a primary interface"));

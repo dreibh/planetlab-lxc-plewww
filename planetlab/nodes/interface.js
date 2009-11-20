@@ -2,25 +2,8 @@
 
 /* using prototype.js */
 
-/* disable/enable input fields according to the selected method */
-function updateMethodFields() {
-  var method=$('method');
-  var index = method.selectedIndex;
-  var selectedText = method[index].text;
-
-  var is_static = selectedText == 'Static';
-  var is_tap = selectedText == 'TUN/TAP';
-
-  $('netmask').disabled= !is_static;
-  $('network').disabled= !is_static;
-  $('gateway').disabled= !is_static && !is_tap;
-  $('broadcast').disabled= !is_static;
-  $('dns1').disabled= !is_static;
-  $('dns2').disabled= !is_static;
-}
-
-/* updates broadcast & network from IP and netmask, as long as they are reasonably set */
-
+////////////////////
+// basic IP arithmetic
 /* a is assumed to be a 4-items array text.split('.') */
 function arr_to_int (as) {
   /*a=as.map(parseInt);*/
@@ -51,9 +34,9 @@ function mask (masklen) {
 
 // input is the user-typed text
 // return the number of bits in the mask (like 24 for a /24) or -1 if the mask is wrong
-function get_masklen (nm) {
-  var a = nm.split('.');
-  if ( 4 != a.length ) return -1;
+function get_masklen (netmask) {
+  var a = netmask.split('.');
+  if ( IPCheckerAtom (netmask,'netmask')) return -1;
   var n = arr_to_int (a);
   var bits = int_to_bits (n);
   var masklen=0;
@@ -62,7 +45,6 @@ function get_masklen (nm) {
   var n_mask = mask(masklen);
   return (n == n_mask) ? masklen : -1;
 }
-
 
 // returns network and broadcast from ip and masklen
 function get_derived (n,masklen) {
@@ -79,29 +61,52 @@ function same_subnet (ip1,ip2,masklen) {
   return (n1&mask(masklen)) == (n2 & mask(masklen));
 }
 
-function networkHelper () {
-  window.console.log('networkHelper');
+//////////////////// basic chackers
+function IPCheckerAtom (ip,id) {
+  if ( ! ip ) return "Empty field " + id;
+  ip_a = ip.split('.');
+  if ( ip_a.length != 4) return "Invalid IP (" + id + ") "+ ip;
+  for (var i=0; i<4; i++) if (ip_a[i]<0 || ip_a[i]>256) return "Invalid IP (" + id + ") "+ ip;
+  return "";
+}
+  
+function IPCheckerSilent (id) { return IPCheckerAtom ( $(id).value, id); }
+
+function netmaskCheckerSilent (id) {
+  var netmask=$(id).value;
+  var check_ip = IPCheckerAtom (netmask,'netmask');
+  if (check_ip) return check_ip;
+  var masklen = get_masklen (netmask);
+  if (masklen <= 0) return "Invalid netmask " + netmask;
+  return "";
+}
+
+// focus on the field to check, other ones checked already
+function subnetChecker(id, optional) {
+  var error= subnetCheckerSilent($(id).value);
+  if (error) {
+    Form.Element.focus($(id));
+    alert(error);
+  }
+}
+
+function subnetCheckerSilent (id, optional) {
+
+  var subnet=$(id).value;
+  // skip this field if optional
+  if (optional && (subnet=="")) return "";
+  var check_ip = IPCheckerAtom (subnet,id);
+  if (check_ip) return check_ip;
+
+  var masklen = get_masklen ($('netmask').value);
+  if (masklen < 0) return "Could not check " + id;
+
   var ip=$('ip').value;
-  var nm=$('netmask').value;
 
-  var ip_a = ip.split('.');
-  var nm_a = ip.split('.');
+  if ( ! same_subnet (ip,subnet,masklen) ) 
+    return id + ' ' + subnet + ' is not in the /' + masklen + ' subnet range';
   
-  /* don't trigger if the input does not make sense */
-  if (ip_a.length != 4) return; 
-  if (ip_a[3] == "") return;
-  if (nm_a.length != 4) return; 
-  if (nm_a[3] == "") return;
-  
-  /*check netmask*/
-  var masklen=get_masklen (nm);
-  if (masklen < 0) return;
-
-  var ip_n=arr_to_int(ip_a);
-  var derived = get_derived(ip_n,masklen);
-
-  $('network').value=derived[0];
-  $('broadcast').value=derived[1];
+  return "";
 }
 
 function macChecker(id, optional) {
@@ -113,53 +118,79 @@ function macChecker(id, optional) {
 }
 
 function macCheckerSilent(macAdd) {
-	var RegExPattern = /^[0-9a-fA-F:]+$/;
- 
-	if (!(macAdd.match(RegExPattern)) || macAdd.length != 17) 
-	{
-		return "Invalid MAC Address";
-	} else {
-		return "";
-	}
-}
-
-/* check one */
-function subnetChecker (id, optional) {
-  var error= subnetCheckerSilent([id,optional]);
-  if (error) {
-    Form.Element.focus($(id));
-    alert(error);
+  var RegExPattern = /^[0-9a-fA-F:]+$/;
+  
+  if (!(macAdd.match(RegExPattern)) || macAdd.length != 17) {
+    return "Invalid MAC Address";
+  } else {
+    return "";
   }
 }
 
-function subnetCheckerSilent (args) {
-  
-  id=args[0];
-  optional=args[1];
-
-  var ip2=$(id).value;
-  if (optional && (ip2=="")) return "";
-  if ( ip2.split(".").length != 4) return "Inconsistent value for " + id;
-
-  var masklen = get_masklen ($('netmask').value);
-  if (masklen < 0) return "Inconsistent netmask";
-
+////////////////////
+// updates broadcast & network from IP and netmask, as long as they are reasonably set 
+function networkHelper () {
   var ip=$('ip').value;
-  if ( ip.split(".").length != 4) return "Inconsistent IP";
+  var netmask=$('netmask').value;
 
-  if ( ! same_subnet (ip,ip2,masklen) ) 
-    return id + ' ' + ip2 + ' is not in the /' + masklen + ' subnet range';
+  /* don't trigger if the input does not make sense */
+  if (IPCheckerAtom (ip,'ip')) return;
+  if (IPCheckerAtom (netmask,'netmask')) return;
   
-  return "";
+  /*check netmask*/
+  var masklen=get_masklen (netmask);
+  if (masklen <= 0) return;
+
+  var ip_a = ip.split('.');
+  var ip_n=arr_to_int(ip_a);
+  var derived = get_derived(ip_n,masklen);
+
+  $('network').value=derived[0];
+  $('broadcast').value=derived[1];
 }
 
-function interfaceSubmit () {
-  alert ('submitting');
-  // get error strings, and remove the empty ones
-  // dns2 is optional
-  var errors=['gateway','dns1','dns2'].zip ([true,true,false],subnetCheckerSilent).reject( function (s) {return s.length==0;} );
-  if ( ! errors.length)
-    $('ip').up('form').submit();
-  else
-    alert(errors.join("\n"));
+// disable/enable input fields according to the selected method
+function updateMethodFields() {
+  var method=$('method');
+  var index = method.selectedIndex;
+  var selectedText = method[index].text;
+  var is_static = selectedText == 'Static';
+  var is_tap = selectedText == 'TUN/TAP';
+
+  $('netmask').disabled= !is_static;
+  $('network').disabled= !is_static;
+  $('gateway').disabled= !is_static && !is_tap;
+  $('broadcast').disabled= !is_static;
+  $('dns1').disabled= !is_static;
+  $('dns2').disabled= !is_static;
 }
+
+// check inputs and prevent submit in case s/t is wrong
+function interfaceSubmit () {
+
+  var method=$('method');
+  var index = method.selectedIndex;
+  var selectedText = method[index].text;
+  var is_static = selectedText == 'Static';
+  var is_tap = selectedText == 'TUN/TAP';
+
+  var errors="";
+  var counter=0;
+  var error;
+  error = IPCheckerSilent ('ip'); if (error) errors += error + "\n" ;
+  if ( ! $('netmask').disabled ) { error = netmaskCheckerSilent ('netmask'); if (error) errors += error + "\n" ; }
+  if ( ! $('network').disabled ) { error = IPCheckerSilent ('network'); if (error) errors += error + "\n" ; }
+  if ( ! $('gateway').disabled ) { error = subnetCheckerSilent ('gateway',false); if (error) errors += error + "\n" ; }
+  if ( ! $('broadcast').disabled ) { error = subnetCheckerSilent ('broadcast',false); if (error) errors += error + "\n" ; }
+  if ( ! $('dns1').disabled ) { error = subnetCheckerSilent ('dns1',false); if (error) errors += error + "\n" ; }
+  if ( ! $('dns2').disabled ) { error = subnetCheckerSilent ('dns2',true); if (error) errors += error + "\n" ; }
+
+  if ( ! errors.length) {
+    return true;
+  } else {
+    alert("-- Cannot create interface --\n" + errors);
+    return false;
+  }
+}
+
+

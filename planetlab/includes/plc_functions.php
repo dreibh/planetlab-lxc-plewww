@@ -78,6 +78,8 @@ function l_pcu ($pcu_id)		{ return "/db/sites/pcu.php?id=$pcu_id"; }
 function l_nodes ()			{ return "/db/nodes/index.php"; }
 function l_nodes_peer ($peer_id)	{ return "/db/nodes/index.php?peerscope=$peer_id"; }
 function l_node ($node_id)		{ return "/db/nodes/node.php?id=$node_id"; }
+function l_node_interfaces ($node_id)	{ return "/db/nodes/node.php?id=$node_id%show_details=0&show_interfaces=1"; }
+function l_node_tags ($node_id)		{ return "/db/nodes/node.php?id=$node_id%show_details=0&show_tags=1"; }
 function l_node_t ($node_id,$text)	{ return href (l_node($node_id),$text); }
 function l_node_obj($node)		{ return href(l_node($node['node_id']),$node['hostname']); }
 function l_node_add ()			{ return "/db/nodes/node_add.php"; }

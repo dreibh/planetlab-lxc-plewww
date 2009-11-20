@@ -421,8 +421,22 @@ switch ($action) {
    } else {
      $ip=$interface['ip'];
      drupal_set_message ("Interface $ip added into node $node_id");
+     if ($_POST['is-virtual']) {
+       $ifname=$_POST['ifname'];
+       if ($api->AddInterfaceTag($interface_id,"ifname",$ifname) <= 0) 
+	 drupal_set_error ("Could not set tag 'ifname'=$ifname");
+       else 
+	 drupal_set_message ("Set tag 'ifname'=$ifname");
+       $alias=$_POST['alias'];
+       // deafult to interface_id
+       if ( ! $alias ) $alias=strval($interface_id);
+       if ($api->AddInterfaceTag($interface_id,"alias",$alias) <= 0) 
+	 drupal_set_error ("Could not set tag 'alias'=$alias");
+       else 
+	 drupal_set_message ("Set tag 'alias'=$alias");
+     }
    }
-   plc_redirect (l_node($node_id));
+   plc_redirect (l_node_interfaces($node_id));
  }
    
  case 'update-interface': {
@@ -825,9 +839,9 @@ Our support team will be glad to answer any question that you might have.
    }
    
    if ($node_mode)
-     plc_redirect (l_node($node_id));
+     plc_redirect (l_node_tags($node_id));
    else
-     plc_redirect (l_interface($interface_id));
+     plc_redirect (l_interface_tags($interface_id));
  }
 
  case 'delete-node-tags' : 
@@ -862,9 +876,9 @@ Our support team will be glad to answer any question that you might have.
    else
      drupal_set_error ("Could not delete all selected tags, only $counter were removed");
    if ($node_mode)
-     plc_redirect(l_node($_POST['node_id']));
+     plc_redirect(l_node_tags($_POST['node_id']));
    else
-     plc_redirect(l_interface($_POST['interface_id']));
+     plc_redirect(l_interface_tags($_POST['interface_id']));
  }
 
 //////////////////////////////////////// nodegroups

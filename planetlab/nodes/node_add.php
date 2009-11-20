@@ -11,6 +11,7 @@ global $plc, $api;
 
 // Common functions
 require_once 'plc_functions.php';
+require_once 'toggle.php';
 require_once 'details.php';
 require_once 'form.php';
   
@@ -152,18 +153,28 @@ if( ! $model ) $model= "Custom";
 print <<< EOF
 <p class='node_add'>
 This page lets you declare a new machine in your site. 
-This must be done before the machine is turned on, as it will allow you to download a boot image when complete for this node.
 <br/>
-You must enter an IP address even if you use DHCP.
+This must be done before the machine is turned on, 
+as it will allow you to download a boot image when complete for this node.
+<br/>
+  It is now reserved to admins, as regular users are supposed to use the register wizard, that among other things enforces PCU deployment.
+<br/>
+An IP address is required even if you use DHCP.
 </p>
 EOF;
+
+$toggle = new PlekitToggle ('add-node',"Add Node",
+			    array('bubble'=>'Add a node - does not enforce PCU - for admins only !',
+				  'visible'=>get_arg('show_details',true)));
+$toggle->start();
 
 $details=new PlekitDetails($has_privileges);
 
 // xxx hardwire network type for now
 $form_variables = array('type'=>"ipv4");
 //$form=$details->form_start(l_actions(),$form_variables);
-$form=$details->form_start('/db/nodes/node_add.php',$form_variables);
+$form=$details->form_start('/db/nodes/node_add.php',$form_variables,
+			   array('onSubmit'=>'return interfaceSubmit()'));
 
 $details->start();
 
@@ -198,12 +209,12 @@ $details->space();
 $details->th_td("BW limit (bps)",$bwlimit,"bwlimit",array('width'=>11));
 
 // the buttons
-$add_button = $form->submit_html ("add-node","Add New Node",
-				  array('onSubmit'=>'interfaceSubmit()'));
+$add_button = $form->submit_html ("add-node","Add New Node");
 $details->tr($add_button,"right");
 
-$details->end();
 $form->end();
+$details->end();
+$toggle->end();
 
 // Print footer
 include 'plc_footer.php';
