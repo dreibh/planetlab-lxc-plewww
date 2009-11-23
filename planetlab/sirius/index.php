@@ -110,8 +110,8 @@ function authorizeSlice($sn) {
 	global $api;
   
   $slice_list= array();
-  $result= $api->GetSlices( $slice_list, array( "name" ) );
-  
+  $result= $api->GetSlices( Null, array( "name" ) );
+
   foreach ( $result AS $slice )
   {
   	if ( $slice["name"] == $sn )
