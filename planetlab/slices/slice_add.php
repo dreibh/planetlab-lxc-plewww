@@ -228,8 +228,8 @@ $selectors=array(array('display'=>"PLC",'value'=>'plc-instantiated'),
 		 array('display'=>"Controller",'value'=>'nm-controller'),
 		 array('display'=>"None",'value'=>'not-instantiated'));
 
-$instanciation_select = $form->select_html ("instantiation", $selectors);
-$details->th_td("Instanciation",$instanciation_select,"instantiation",
+$instantiation_select = $form->select_html ("instantiation", $selectors);
+$details->th_td("Instantiation",$instantiation_select,"instantiation",
 		array('input_type'=>'select', 'value'=>$instantiation));
 
 
