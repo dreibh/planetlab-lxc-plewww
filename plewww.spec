@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 38
+%define taglevel 39
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,12 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Thu Nov 26 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-39
+- new add-interface page : now has a checkbox for non-primary interfaces to chose between virtual or physical
+- this affects the settings of ifname and alias that were formerly set unconditionally
+- review the interface-checking javascript code
+- changed the interface to plekitform, method is now optional and part of an options hash
+
 * Tue Nov 17 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-38
 - can't use php objects for showing node status, this is too slow
 - fix interface add page
