@@ -455,7 +455,7 @@ switch ($action) {
    if ($result == 1 ) 
      drupal_set_message ("Interface $interface_id updated");
    else
-     drupal_set_error ("Could not update interface");
+     drupal_set_error ("Could not update interface: " . $api->error());
    plc_redirect (l_interface($interface_id));
  }
    
