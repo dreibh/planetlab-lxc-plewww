@@ -17,7 +17,7 @@ require_once 'form.php';
   
 // if not a admin, pi, or tech then redirect to node index
 // xxx does not take site into account
-$has_privileges=plc_is_admin() || plc_is_pi() || plc_is_tech();
+$has_privileges=plc_is_admin();
 if( ! $has_privileges) {
   drupal_set_error ("Insufficient provileges to add a node");
   header( "index.php" );
@@ -33,6 +33,7 @@ if ( $_POST['add-node'] )  {
 
   $errors= array();
 
+  $site_id = trim($_POST['site_id']);
   $hostname = trim($_POST['hostname']);
   $model= trim($_POST['model']);
   $ip = trim($_POST['ip']);
@@ -81,7 +82,6 @@ if ( $_POST['add-node'] )  {
   } else {
     // add new node and its interface
     $node_fields= array( "hostname"=>$hostname, "model"=>$model );
-    $site_id= plc_my_site_id();
     $node_id= $api->AddNode( intval( $site_id ), $node_fields );
 
     if ( empty($node_id) || ($node_id < 0) ) {
@@ -137,11 +137,7 @@ drupal_set_html_head ('
 <script type="text/javascript" src="/planetlab/nodes/interface.js"></script>
 ');
 
-$sites=$api->GetSites(array(plc_my_site_id()));
-$site=$sites[0];
-$sitename=$site['name'];
-		       
-drupal_set_title('Add a new node in site "' . $sitename . '"');
+drupal_set_title('Add a new node to site');
 
 // defaults
 $method = $_POST['method'];
@@ -152,12 +148,12 @@ if( ! $model ) $model= "Custom";
 
 print <<< EOF
 <p class='node_add'>
-This page lets you declare a new machine in your site. 
+This page lets you declare a new machine to a site.
 <br/>
 This must be done before the machine is turned on, 
 as it will allow you to download a boot image when complete for this node.
 <br/>
-  It is now reserved to admins, as regular users are supposed to use the register wizard, that among other things enforces PCU deployment.
+It is now reserved to admins, as regular users are supposed to use the register wizard, that among other things enforces PCU deployment.
 <br/>
 An IP address is required even if you use DHCP.
 </p>
@@ -177,6 +173,16 @@ $form=$details->form_start('/db/nodes/node_add.php',$form_variables,
 			   array('onSubmit'=>'return interfaceSubmit()'));
 
 $details->start();
+
+$site_columns=array( "site_id", "name", "login_base" );
+$local_sites= $api->GetSites( array("peer_id"=>NULL, '-SORT'=>'name'), $site_columns );
+function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
+$site_selector = array_map ("site_selector",$local_sites);
+$site_select = $form->select_html("site_id", $site_selector, array('id'=>'site_id'));
+$details->th_td("Site",
+                $site_select,
+                "site_id",
+                array('input_type'=>'select','value'=>$interface['site_id']));
 
 $details->th_td("Hostname",$hostname,"hostname");
 $details->th_td("Model",$model,"model");
