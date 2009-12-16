@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 39
+%define taglevel 40
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -124,6 +124,11 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Dec 16 2009 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - PLEWWW-4.3-40
+- * show error messages for update interface
+- * 'Add Node' is admin only
+- * add site selector for 'Add Node'
+
 * Thu Nov 26 2009 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-39
 - new add-interface page : now has a checkbox for non-primary interfaces to chose between virtual or physical
 - this affects the settings of ifname and alias that were formerly set unconditionally
