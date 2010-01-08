@@ -103,10 +103,12 @@ fi
 popd
 # hack the welcome page for MyPLC
 pushd /var/www/html/modules
-if [ ! -f node.module.drupal ] ; then
-    cp node.module node.module.drupal
-    [ -f /var/www/html/drupal-hacks/node.module ] && cp -f /var/www/html/drupal-hacks/node.module /var/www/html/modules/node.module
-fi
+for module in user node; do
+    # backup only once
+    [ -f ${module}.module.drupal ] || cp ${module}.module ${module}.module.drupal
+    # always update so a change in our file can make through
+    cp -f /var/www/html/drupal-hacks/${module}.module /var/www/html/modules/${module}.module
+done
 popd
 
 %clean
