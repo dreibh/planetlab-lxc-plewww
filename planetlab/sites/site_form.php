@@ -15,7 +15,7 @@ function build_site_form ($register_mode) {
   $form['site:abbreviated_name'] = array('title' => 'Abbreviated name', 'required' => TRUE,
 					 'maxlength' => 20, 'size' => 12);
   $form['site:url'] = array('title' => 'URL', 'required' => TRUE,
-			    'maxlength' => 30, 'size' => 30);
+			    'maxlength' => 128, 'size' => 30);
   $form['site:latitude'] = array('title' => 'Latitude', 'required' => TRUE,
 				 'maxlength' => 10, 'size' => 10, 'type' => 'double');
   $form['site:longitude'] = array('title' => 'Longitude', 'required' => TRUE,
