@@ -13,7 +13,7 @@ function build_site_form ($register_mode) {
   $form['site:login_base'] = array('title' => 'Login base', 'required' => TRUE,
 				   'maxlength' => 16, 'size' => 10);
   $form['site:abbreviated_name'] = array('title' => 'Abbreviated name', 'required' => TRUE,
-					 'maxlength' => 20, 'size' => 12);
+					 'maxlength' => 40, 'size' => 20);
   $form['site:url'] = array('title' => 'URL', 'required' => TRUE,
 			    'maxlength' => 128, 'size' => 30);
   $form['site:latitude'] = array('title' => 'Latitude', 'required' => TRUE,
