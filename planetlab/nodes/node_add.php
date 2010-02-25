@@ -18,7 +18,12 @@ require_once 'form.php';
 // if not a admin, pi, or tech then redirect to node index
 // xxx does not take site into account
 $has_privileges=plc_is_admin();
+$is_pi_or_tech=plc_is_pi() || plc_is_tech();
 if( ! $has_privileges) {
+  if ( $is_pi_or_tech) {
+    drupal_goto(l_register_node());
+    return 0;
+  }
   drupal_set_error ("Insufficient provileges to add a node");
   header( "index.php" );
   return 0;
