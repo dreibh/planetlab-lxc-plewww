@@ -182,8 +182,6 @@ function interfaceSubmit () {
   if ( ! $('network').disabled ) { error = IPCheckerSilent ('network'); if (error) errors += error + "\n" ; }
   if ( ! $('gateway').disabled ) { error = subnetCheckerSilent ('gateway',false); if (error) errors += error + "\n" ; }
   if ( ! $('broadcast').disabled ) { error = subnetCheckerSilent ('broadcast',false); if (error) errors += error + "\n" ; }
-  if ( ! $('dns1').disabled ) { error = subnetCheckerSilent ('dns1',false); if (error) errors += error + "\n" ; }
-  if ( ! $('dns2').disabled ) { error = subnetCheckerSilent ('dns2',true); if (error) errors += error + "\n" ; }
 
   if ( ! errors.length) {
     return true;
