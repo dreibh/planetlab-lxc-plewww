@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 41
+%define taglevel 42
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,12 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Tue Mar 16 2010 Talip Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - PLEWWW-4.3-42
+- * exclude DNS from subnet checking
+- * redirect pi's and techs to register wizard. only display 'Insuffieient privs' error to users'
+- * allow longer abbreviated names
+- * don't let empty strings kill the server (postgresql and apache)
+
 * Sat Jan 09 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-41
 - disable drupal user registration (hard: patching the user module)
 
