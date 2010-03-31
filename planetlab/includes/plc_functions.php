@@ -223,16 +223,19 @@ function topdomain ($hostname) {
   return $exploded[0];
 }
 
+// with php-5.3 on f12, ereg is marked deprecated, using PCRE instead
+// looks unused
 function is_valid_email_addr ($email) {
-  if (ereg("^.+@.+\\..+$", $email) ) {
+  if (preg_match("/^.+@.+\\..+$/", $email) ) {
     return true;
   } else {
     return false;
   }
 }
 
+// looks unused
 function is_valid_url ($url) {
-  if (ereg("^(http|https)://.+\..+$", strtolower($url) ) ) {
+  if (preg_match("/^(http|https):\/\/.+\..+$/", strtolower($url) ) ) {
     return true;
   } else {
     return false;
@@ -240,7 +243,7 @@ function is_valid_url ($url) {
 }
 
 function is_valid_ip ($ip) {
-  if (ereg("^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$", $ip ) ) {
+  if (preg_match("/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/", $ip ) ) {
       // it's at least in the right format, now check to see if
       // each part is equal to less than 255
       $parts= explode( '.', $ip );
