@@ -34,7 +34,7 @@ $pattern="";
 if (isset($_GET['pattern'])) { $pattern=$_GET['pattern']; }
 if (isset($_POST['pattern'])) { $pattern=$_POST['pattern']; }
 
-$tokens=split(" ",$pattern);
+$tokens=explode(" ",$pattern);
 function token_filter ($t) { $t = trim($t); if (empty($t)) return false; return true; }
 $tokens=array_filter($tokens, "token_filter");
 

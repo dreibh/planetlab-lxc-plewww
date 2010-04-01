@@ -14,7 +14,7 @@ require_once 'plc_functions.php';
 // http://summer.cs.princeton.edu/
 // "138.96.250.12"
 function plc_ip_to_int ($ip) {
-  $bytes=array_map("intval",split("[.]",$ip));
+  $bytes=array_map("intval",explode(".",$ip));
   $res=0;
   foreach (range(0,3) as $i) {
     $res=256*$res+$bytes[$i];

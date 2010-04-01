@@ -35,9 +35,9 @@ class VisibleTags {
       $column['type']='string';
       $column['description']=$tag_type['description'];
       // split category and parse any setting
-      $category_tokens=split('/',$tag_type['category']);
+      $category_tokens=explode('/',$tag_type['category']);
       foreach ($category_tokens as $token) {
-	$assign=split('=',$token);
+	$assign=explode('=',$token);
 	if (count($assign)==2) 
 	  $column[$assign[0]]=$assign[1];
       }

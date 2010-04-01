@@ -223,24 +223,24 @@ function topdomain ($hostname) {
   return $exploded[0];
 }
 
-// with php-5.3 on f12, ereg is marked deprecated, using PCRE instead
-// looks unused
-function is_valid_email_addr ($email) {
-  if (preg_match("/^.+@.+\\..+$/", $email) ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-// looks unused
-function is_valid_url ($url) {
-  if (preg_match("/^(http|https):\/\/.+\..+$/", strtolower($url) ) ) {
-    return true;
-  } else {
-    return false;
-  }
-}
+//// with php-5.3 on f12, ereg is marked deprecated, using PCRE instead
+//// looks unused
+// function is_valid_email_addr ($email) {
+//  if (preg_match("/^.+@.+\\..+$/", $email) ) {
+//    return true;
+//  } else {
+//    return false;
+//  }
+//}
+//
+//// looks unused
+//function is_valid_url ($url) {
+//  if (preg_match("/^(http|https):\/\/.+\..+$/", strtolower($url) ) ) {
+//    return true;
+//  } else {
+//    return false;
+//  }
+//}
 
 function is_valid_ip ($ip) {
   if (preg_match("/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/", $ip ) ) {

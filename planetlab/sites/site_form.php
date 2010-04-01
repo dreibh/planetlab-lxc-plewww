@@ -108,7 +108,7 @@ function parse_form ($form, $request, $input = NULL) {
 
   // fill with values form the form
   foreach ($form as $fullname => $item) {
-    list($objname,$field) = split(":",$fullname);
+    list($objname,$field) = explode(":",$fullname);
     $raw_input=$request[$fullname];
     if (!empty($raw_input)) {
       $empty_form = FALSE;
@@ -161,7 +161,7 @@ function parse_form ($form, $request, $input = NULL) {
 function form_check_required ($form, $input) {
   $missing = array();
   foreach ($form as $fullname => $item) {
-    list($objname,$field) = split(":",$fullname);
+    list($objname,$field) = explode(":",$fullname);
     if ($item['required'] && empty($input[$objname][$field])) {
       $missing[] = $item['title'];
     }
@@ -184,7 +184,7 @@ function form_render_details ($details, $site_form, $input, $outline_missing) {
 
   foreach ($site_form as $fullname => $item) {
     
-    list($objname,$field) = split(":",$fullname);
+    list($objname,$field) = explode(":",$fullname);
     
     // render the comment field
     if ( ! empty($item['comment'])) {

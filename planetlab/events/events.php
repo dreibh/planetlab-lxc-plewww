@@ -53,7 +53,7 @@ function parse_date ($user_date,$until_if_true=false,$DAY,$EPOCH) {
   
   } else {
     // user-provided string
-    list ($year,$month,$day) = split ('[/.-]',$user_date);
+    list ($year,$month,$day) = preg_split ('/[\/\.\-]/',$user_date);
     $date=sprintf("%s %s %s",$day,$month,$year);
     $time=strtotime($date);
     //if the flag is set, we add 23h59'59'', so the 'until' date is inclusive
@@ -88,7 +88,8 @@ function e_subject ($type,$id) {
   case 'Site': return l_site_t ($id,$mess);
   case 'Person': return l_person_t ($id,$mess);
   case 'Slice': return l_slice_t ($id,$mess);
-  case 'Role': case 'Key': case 'PCU': case 'Interface': case 'NodeGroup': case "Address":
+  case 'Interface': return l_interface_t ($id, $mess);
+  case 'Role': case 'Key': case 'PCU': case 'NodeGroup': case "Address":
     return "$mess";
   default: return "Unknown $type" . "-" . $id;
   }
@@ -197,7 +198,7 @@ if ($type == 'Event') {
   $title="Events [ $from_string - $until_string]";
   $title .= " type=$object_type";
   $title .= " id(s)=";
-  foreach ( split(",",$user_input) as $user_desc) {
+  foreach ( explode(",",$user_input) as $user_desc) {
 # numeric 
     if (my_is_int($user_desc)) {
       $obj_check = call_user_func(array($api,$method),array(intval($user_desc)),array($primary_key));

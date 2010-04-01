@@ -34,7 +34,7 @@ if (isset($_REQUEST['email'])) {
   // checks proper syntax
   $email = $_REQUEST['email'];  
   if (preg_match("/^[a-zA-Z0-9_\.-]+@[a-zA-Z0-9\.-]+$/", $email)) {
-    list($username, $domain) = split('@', $email);
+    list($username, $domain) = explode('@', $email);
     // prevent default domain from being appended
     $domain .= ".";
     // check if the domain has MX records, or is at least resolvable
