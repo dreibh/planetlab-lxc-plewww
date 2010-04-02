@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 42
+%define taglevel 43
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Fri Apr 02 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-43
+- removed all deprecated functions for PHP-5.3 on fedora 12
+
 * Tue Mar 16 2010 Talip Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - PLEWWW-4.3-42
 - * exclude DNS from subnet checking
 - * redirect pi's and techs to register wizard. only display 'Insuffieient privs' error to users'
