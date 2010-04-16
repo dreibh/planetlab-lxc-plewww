@@ -59,9 +59,11 @@ function deliver_and_unlink ($filename) {
   header ("Pragma: hack");
   header ("Cache-Control: public, must-revalidate");
 
-  // outputs the whole file contents
-  print (file_get_contents($filename));
-  
+  // turn off output buffering
+  ob_end_flush();
+  // outputs the whole file contents without copying it to memory
+  readfile($filename);
+ 
   // unlink the file
   if (! unlink ($filename) ) {
     // cannot unlink, but how can we notify this ?
