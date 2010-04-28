@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 43
+%define taglevel 44
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Apr 28 2010 S.Çağlar Onur <caglar@cs.princeton.edu> - PLEWWW-4.3-44
+- Use readfile() function to reduce the memory footprint
+
 * Fri Apr 02 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - PLEWWW-4.3-43
 - removed all deprecated functions for PHP-5.3 on fedora 12
 
