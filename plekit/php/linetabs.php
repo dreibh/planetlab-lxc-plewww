@@ -95,10 +95,10 @@ function plekit_linetabs ($tabs, $id=NULL) {
     } else {
       $type="type='button' value='$label'";
     }
-    $bubble=$todo['bubble'];
+    $bubble=htmlspecialchars($todo['bubble'], ENT_QUOTES);
     print "<span title='$bubble'>";
     $message="";
-    if ($todo['confirm']) $message=$todo['confirm'] . " ?";
+    if ($todo['confirm']) $message=htmlspecialchars($todo['confirm'], ENT_QUOTES) . " ?";
     print "<input $tracer $type onclick='linetabs_namespace.submit(\"$id\",\"$message\")' />";
     print "</span>";
     print "</fieldset></form></li>\n";
