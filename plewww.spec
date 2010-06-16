@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 45
+%define taglevel 46
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Jun 16 2010 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - plewww-4.3-46
+- just tagging plewww again to test module-tag on git
+
 * Tue Jun 15 2010 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - PLEWWW-4.3-45
 - encode strings properly in forms.
 
