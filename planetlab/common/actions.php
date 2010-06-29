@@ -701,19 +701,45 @@ Our support team will be glad to answer any question that you might have.
    $value = $_POST['value'];
    $node_id = intval($_POST['node_id']);
    $nodegroup_id = intval($_POST['nodegroup_id']);
-  
+
    $result = null;
-   if ($node_id) {
-     $result = $api->AddSliceTag($slice_id, $tag_type_id, $value, $node_id);
-   } elseif ($nodegroup_id) {
-     $result = $api->AddSliceTag($slice_id, $tag_type_id, $value, null, $nodegroup_id);
+
+   $tag_types=$api->GetTagTypes(array($tag_type_id));
+   if (count ($tag_types) != 1) {
+       drupal_set_error ("Could not locate tag_type_id $tag_type_id </br> Tag not set.");
    } else {
-     $result = $api->AddSliceTag($slice_id, $tag_type_id, $value);
+       if ($node_id) {
+           $tags = $api->GetSliceTags(array('slice_id'=>$slice_id, 'tag_type_id'=> $tag_type_id, 'node_id' => $node_id));
+       } elseif ($nodegroup_id) {
+           $tags = $api->GetSliceTags(array('slice_id'=>$slice_id, 'tag_type_id'=> $tag_type_id, 'nodegroup_id' => $nodegroup_id));
+       } else {
+           $tags = $api->GetSliceTags(array('slice_id'=>$slice_id, 'tag_type_id'=> $tag_type_id, 'node_id' => NULL, 'nodegroup_id' => NULL));
+       }
+ 
+       if ( count ($tags) == 1) {
+           $tag=$tags[0];
+           $tag_id=$tag['slice_tag_id'];
+           $result=$api->UpdateSliceTag($tag_id,$value);
+           if ($result)
+              drupal_set_message ("Updated slice tag.");
+           else 
+              drupal_set_error("Could not update slice tag");
+       } else {
+         if ($node_id) {
+             $result = $api->AddSliceTag($slice_id, $tag_type_id, $value, $node_id);
+         } elseif ($nodegroup_id) {
+             $result = $api->AddSliceTag($slice_id, $tag_type_id, $value, null, $nodegroup_id);
+         } else {
+             $result = $api->AddSliceTag($slice_id, $tag_type_id, $value);
+         }
+
+         if ($result)
+             drupal_set_message ("Added slice tag.");
+         else 
+             drupal_set_error("Could not add slice tag");
+      }
    }
-   if ($result)
-     drupal_set_message ("Added slice tag.");
-   else 
-       drupal_set_error("Could not add slice tag");
+
    if ($_POST['sliver_action'])
        plc_redirect(l_sliver($node_id,$slice_id));
    else
