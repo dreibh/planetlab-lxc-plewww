@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 46
+%define taglevel 47
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Tue Jul 06 2010 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - plewww-4.3-47
+- show nodegroups form to add new groups
+
 * Wed Jun 16 2010 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - plewww-4.3-46
 - just tagging plewww again to test module-tag on git
 
