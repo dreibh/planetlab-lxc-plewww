@@ -1,0 +1,4 @@
+july 2010 - there is now a more recent version out, numbered 1.6.1
+however a quick attempt with the slice page showed errors on the console
+that were not happening with 1.6.0.3
+no time to address this now, so I'm staying with 1.6.0.3 for now

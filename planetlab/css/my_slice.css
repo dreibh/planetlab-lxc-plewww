@@ -18,3 +18,8 @@ div#toggle-container-my-slice-nodes-add {
     background: #f0e0e0;
 }
 
+/* the container for the scheduler area */
+div#leases_area {
+    padding: 50px;
+    background: #b000b0;
+}
