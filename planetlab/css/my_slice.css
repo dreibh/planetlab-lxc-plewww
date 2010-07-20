@@ -23,3 +23,8 @@ div#leases_area {
     padding: 50px;
     background: #b000b0;
 }
+
+/* don't display the scheduler data table */
+table#leases_data {
+    display: none;
+}

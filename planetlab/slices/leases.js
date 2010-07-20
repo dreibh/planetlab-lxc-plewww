@@ -1,7 +1,10 @@
 /* need to put some place else in CSS ? */
 
-var x_nodename = 100;
+var x_txt = {"font": 'Fontin-Sans, Arial', stroke: "none", fill: "#008"},
+var y_txt = {"font": 'Fontin-Sans, Arial', stroke: "none", fill: "#800"},
+var x_nodename = 200;
 var x_grain = 20;
+var x_sep=10;
 var y_header = 10
 var y_node = 15;
 var y_sep = 5
@@ -15,48 +18,61 @@ var leases_namespace = {
         axisx = [],
         axisy = [],
         table = $$("table#leases_data")[0];
-	table.getElementsBySelector("tbody>tr>td").each(function (x) {
-            data.push(getInnerText(x));
+	// the nodenames
+	table.getElementsBySelector("tbody>tr>th").each(function (cell) {
+            axisy.push(getInnerText(cell));
 	});
-	table.getElementsBySelector("tbody>tr>th").each(function (x) {
-            axisy.push(getInnerText(x));
+	// the timeslot labels
+	table.getElementsBySelector("thead>tr>th").each(function (cell) {
+            axisx.push(getInnerText(cell));
 	});
-	table.getElementsBySelector("thead>tr>th").each(function (x) {
-            axisx.push(getInnerText(x));
+	// leases - expect colspan to describe length in grains
+	table.getElementsBySelector("tbody>tr>td").each(function (cell) {
+            data.push(new Array (getInnerText(cell),cell.colSpan));
 	});
-
-	var slicename = getInnerText(table.getElementsBySelector("thead>tr>td")[0]);
+	// slicename : the upper-left cell
+	var this_slicename = getInnerText(table.getElementsBySelector("thead>tr>td")[0]);
 	table.hide();
 	var nb_nodes = axisy.length, nb_grains = axisx.length;
 	var total_width = x_nodename + nb_grains*x_grain;
 	var total_height = y_header + nb_nodes*(y_node+y_sep);
 	paper = Raphael("leases_area", total_width, total_height,10);
-//	alert ('nodes=' + nb_nodes + ' grains=' + nb_grains + ' data items=' + data.length + ' slicename=' + slicename);
+//	alert ('nodes=' + nb_nodes + ' grains=' + nb_grains + ' data items=' + data.length + ' slicename=' + this_slicename);
 
 //        color = table.css("color");
+
+//	var top=y_sep;
 	var top=0;
+        var left=x_nodename;
+        axisx.each (function (timeslot) {
+	    var label=paper.text(left,top+y_header/2,timeslot).attr(y_txt).attr("font-size",y_header);
+	    left+=x_grain;
+	});
+        top += y_header+y_sep;
+	    
 	var data_index=0;
 	axisy.each(function (node) {
 	    left=0;
-	    var label = paper.text(x_nodename/2,top+y_node/2,axisy[node]);
-	    label.attr ("font-size",y_node);
+	    var label = paper.text(x_nodename,top+y_node/2,node).attr(x_txt).attr ({"font-size":y_node,
+										    "text-anchor":"end"});
 	
 	    left += x_nodename;
 	    var grain=0;
 	    while (grain < nb_grains) {
-		var rect=paper.rect (left,top,x_grain,y_node,radius);
+		slicename=data[data_index][0];
+		duration=data[data_index][1];
+		var rect=paper.rect (left,top,x_grain*duration,y_node,radius);
 		var color;
-		if (data[data_index] != "") {
-		    if (data[data_index] == slicename) color="#0f0";
+		if (slicename != "") {
+		    if (slicename == this_slicename) color="#0f0";
 		    else color="#f00";
-//		alert('based on data value [' + data[data_index] + '] - got color ' + color);
 		    rect.attr("fill",color);
 		}
-		left += x_grain;
-		grain += 1;
+		grain += duration;
+		left += x_grain*duration;
 		data_index +=1;
 	    }
-	    top += y_node;
+	    top += y_node + y_sep;
 	});
     }
 
