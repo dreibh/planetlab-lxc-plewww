@@ -20,8 +20,8 @@ div#toggle-container-my-slice-nodes-add {
 
 /* the container for the scheduler area */
 div#leases_area {
-    padding: 50px;
-    background: #b000b0;
+    padding: 25px;
+    background: #bbd3e2;
 }
 
 /* don't display the scheduler data table */

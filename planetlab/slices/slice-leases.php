@@ -394,9 +394,11 @@ $visiblecolumns = $visibletags->column_names();
 $node_columns=array_merge($node_fixed_columns,$visiblecolumns);
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
-$reservable_nodes=$api->GetNodes(array('node_type'=>'reservable'),
-				 $node_columns);
+// reservable nodes: display only the ones in the slice to avoid confusion - also avoid an extra API call
+$reservable_nodes=array();
+foreach ($nodes as $node) { if ($node['node_type']=='reservable') $reservable_nodes[]=$node; }
 
+////////////////////
 $count=count($nodes);
 $toggle=new PlekitToggle ('my-slice-nodes',"$count Nodes",
 			  array('bubble'=>
@@ -404,7 +406,7 @@ $toggle=new PlekitToggle ('my-slice-nodes',"$count Nodes",
 				'visible'=>get_arg('show_nodes',false)));
 $toggle->start();
 
-if (0) { // tmp for speed
+/*if (0) { // tmp for speed */
 //////////////////// nodes currently in
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
 			       "$count node(s) currently in $name",
@@ -515,13 +517,13 @@ if ($privileges) {
   }
   $toggle_nodes->end();
 }
- } // end tmp if (0) 
+/* } // end tmp if (0)  */
 
 //////////////////// reservable nodes area
 $count=count($reservable_nodes);
 if ($count && $privileges) {
   // having reservable nodes in white lists looks a bit off scope for now...
-  $toggle_nodes=new PlekitToggle('my-slice-reserve-nodes',
+  $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
 				 "$count reservable node(s)",
 				 array('visible'=>get_arg('show_nodes_resa',false)));
   $toggle_nodes->start();
@@ -552,7 +554,7 @@ if ($count && $privileges) {
   # pass the slicename as the [0,0] coordinate as thead>tr>td
   echo "<thead><tr><td>" . $slice['name'] . "</td>";
   for ($i=0; $i<$steps; $i++) 
-    echo "<th>$i</th>";
+    echo "<th>" . strftime("%H:%M",$start+$i*$grain). "</th>";
   echo "</tr></thead><tbody>";
   // todo - sort on hostnames
   foreach ($reservable_nodes as $node) {

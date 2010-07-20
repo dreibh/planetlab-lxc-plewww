@@ -1,14 +1,19 @@
 /* need to put some place else in CSS ? */
 
+var color_otherslice="#f08080";
+var color_thisslice="#a5e0af";
+var color_free="#fff";
+var color_rules="#888";
+
 var x_txt = {"font": 'Fontin-Sans, Arial', stroke: "none", fill: "#008"},
 var y_txt = {"font": 'Fontin-Sans, Arial', stroke: "none", fill: "#800"},
 var x_nodename = 200;
 var x_grain = 20;
 var x_sep=10;
-var y_header = 10
+var y_header = 12
 var y_node = 15;
-var y_sep = 5
-var radius=5;
+var y_sep = 10
+var radius= 6;
 
 var leases_namespace = {
 
@@ -35,39 +40,53 @@ var leases_namespace = {
 	table.hide();
 	var nb_nodes = axisy.length, nb_grains = axisx.length;
 	var total_width = x_nodename + nb_grains*x_grain;
-	var total_height = y_header + nb_nodes*(y_node+y_sep);
+	var total_height = 2*y_header + nb_nodes*(y_node+y_sep);
 	paper = Raphael("leases_area", total_width, total_height,10);
-//	alert ('nodes=' + nb_nodes + ' grains=' + nb_grains + ' data items=' + data.length + ' slicename=' + this_slicename);
-
 //        color = table.css("color");
 
-//	var top=y_sep;
 	var top=0;
         var left=x_nodename;
+
+	// the time slots legend
+	var col=0;
         axisx.each (function (timeslot) {
-	    var label=paper.text(left,top+y_header/2,timeslot).attr(y_txt).attr("font-size",y_header);
+	    var y = top+y_header;
+	    if (col%2 == 0) y += y_header;
+	    col +=1;
+	    var label=paper.text(left,y,timeslot).attr(y_txt).attr({"font-size":y_header,
+								    "text-anchor":"middle"});
+	    var path_spec="M"+left+" "+(y+y_header/2)+"L"+left+" "+total_height;
+	    var rule=paper.path(path_spec).attr({'stroke':1,"fill":color_rules});
 	    left+=x_grain;
 	});
-        top += y_header+y_sep;
+
+        top += 2*y_header+y_sep;
 	    
 	var data_index=0;
 	axisy.each(function (node) {
 	    left=0;
-	    var label = paper.text(x_nodename,top+y_node/2,node).attr(x_txt).attr ({"font-size":y_node,
-										    "text-anchor":"end"});
+	    var label = paper.text(x_nodename-x_sep,top+y_node/2,node).attr(x_txt).attr ({"font-size":y_node,
+											"text-anchor":"end",
+										        "baseline":"bottom"});
 	
 	    left += x_nodename;
 	    var grain=0;
 	    while (grain < nb_grains) {
 		slicename=data[data_index][0];
 		duration=data[data_index][1];
-		var rect=paper.rect (left,top,x_grain*duration,y_node,radius);
+		var lease=paper.rect (left,top,x_grain*duration,y_node,radius);
 		var color;
-		if (slicename != "") {
-		    if (slicename == this_slicename) color="#0f0";
-		    else color="#f00";
-		    rect.attr("fill",color);
+		if (slicename == "") color=color_free;
+		else if (slicename == this_slicename) color=color_thisslice;
+		else {
+		    color=color_otherslice;
+		    /* attempt to display the name of the slice that owns that lease - not working too well */
+		    var label = paper.text (left+(x_grain*duration)/2,top+y_node/2,slicename).attr("display","none");
+		    label.hide();
+		    lease[0].onmouseover = function () { label.show(); }
+		    lease[0].onmouseout = function () { label.hide(); }
 		}
+		lease.attr("fill",color);
 		grain += duration;
 		left += x_grain*duration;
 		data_index +=1;
