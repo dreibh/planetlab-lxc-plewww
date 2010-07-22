@@ -30,6 +30,8 @@ var leases_namespace = {
         axisx = [],
         axisy = [],
         table = $$("table#leases_data")[0];
+	// no reservable nodes - no data
+	if ( ! table) return;
 	// the nodenames
 	table.getElementsBySelector("tbody>tr>th").each(function (cell) {
             axisy.push(getInnerText(cell));

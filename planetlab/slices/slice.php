@@ -23,10 +23,12 @@ require_once 'table.php';
 require_once 'details.php';
 require_once 'toggle.php';
 require_once 'form.php';
+require_once 'raphael.php';
 
 // keep css separate for now
 drupal_set_html_head('
 <link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
+<script src="/planetlab/slices/leases.js" type="text/javascript" charset="utf-8"></script>
 ');
 
 // -------------------- admins potentially need to get full list of users
@@ -385,25 +387,28 @@ $toggle->end();
 //     (.) type is passed to the javascript table, for sorting (default is 'string')
 
 // minimal list as a start
-$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist','run_level','boot_state','last_contact');
+$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist','run_level','boot_state','last_contact','node_type');
 // create a VisibleTags object : basically the list of tag columns to show
 $visibletags = new VisibleTags ($api, 'node');
 $visiblecolumns = $visibletags->column_names();
 $node_columns=array_merge($node_fixed_columns,$visiblecolumns);
 $nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
-$count=count($nodes);
+// reservable nodes: display only the ones in the slice to avoid confusion - also avoid an extra API call
+$reservable_nodes=array();
+foreach ($nodes as $node) { if ($node['node_type']=='reservable') $reservable_nodes[]=$node; }
 
+////////////////////
+$count=count($nodes);
 $toggle=new PlekitToggle ('my-slice-nodes',"$count Nodes",
 			  array('bubble'=>
 				'Manage nodes attached to this slice',
 				'visible'=>get_arg('show_nodes',false)));
 $toggle->start();
 
-////////// nodes currently in
-$count=count($nodes);
+//////////////////// nodes currently in
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
-			       "$count nodes currently in $name",
+			       count_english($nodes,"node") . " currently in $name",
 			       array('visible'=>get_arg('show_nodes_current',!$privileges)));
 $toggle_nodes->start();
 
@@ -413,7 +418,9 @@ $headers['peer']='string';
 $headers['hostname']='string';
 $short="ST"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-// the extra tags
+$short="R"; $long="reservable nodes"; $type='string';
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+// the extra tags, configured for the UI
 $headers=array_merge($headers,$visibletags->headers());
 $notes=array_merge($notes,$visibletags->notes());
 
@@ -434,6 +441,7 @@ if ($nodes) foreach ($nodes as $node) {
   $run_level=$node['run_level'];
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
+  $table->cell( ($node['node_type']=='reservable')?"-R-":"" );
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
@@ -453,7 +461,7 @@ if ($privileges) {
 $table->end();
 $toggle_nodes->end();
 
-////////// nodes to add
+//////////////////// nodes to add
 if ($privileges) {
   $new_potential_nodes = array();
   if ($potential_nodes) foreach ($potential_nodes as $node) {
@@ -466,21 +474,20 @@ if ($privileges) {
 
   $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
-				 "$count more nodes available",
+				 count_english($potential_nodes,"more node") . " available",
 				 array('visible'=>get_arg('show_nodes_add',false)));
   $toggle_nodes->start();
 
-  if ( ! $potential_nodes ) {
-    // xxx improve style
-    echo "<p class='not-relevant'>No node to add</p>";
-  } else {
+  if ( $potential_nodes ) {
     $headers=array();
     $notes=array();
     $headers['peer']='string';
     $headers['hostname']='string';
     $short="ST"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-    // the extra tags
+    $short="R"; $long="reservable nodes"; $type='string';
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+    // the extra tags, configured for the UI
     $headers=array_merge($headers,$visibletags->headers());
     $notes=array_merge($notes,$visibletags->notes());
     $headers['+']="none";
@@ -496,6 +503,7 @@ if ($privileges) {
 	$table->cell(l_node_obj($node));
 	list($label,$class) = Node::status_label_class_($node);
 	$table->cell ($label,array('class'=>$class));
+	$table->cell( ($node['node_type']=='reservable')?"-R-":"" );
 	foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
@@ -511,6 +519,74 @@ if ($privileges) {
   }
   $toggle_nodes->end();
 }
+
+//////////////////// reservable nodes area
+$count=count($reservable_nodes);
+if ($count && $privileges) {
+  // having reservable nodes in white lists looks a bit off scope for now...
+  $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
+				 count_english($reservable_nodes,"reservable node") . " in slice",
+				 array('visible'=>get_arg('show_nodes_resa',false)));
+  $toggle_nodes->start();
+  $grain=$api->GetLeaseGranularity();
+  // xxx should be configurable
+  $now=time(); 
+  // xxx ditto, for now, show the next 48 hours, or 96 grains, which ever is smaller
+  $duration=min(24*3600,24*$grain);
+  $steps=$duration/$grain;
+  $start=intval($now/$grain)*$grain;
+  $end=$now+$duration;
+  $lease_columns=array('name','t_from','t_until','hostname','name');
+  $leases=$api->GetLeases(array(']t_until'=>$now,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
+  // hash nodes -> leases
+  $host_hash=array();
+  foreach ($leases as $lease) {
+    $hostname=$lease['hostname'];
+    if ( ! $host_hash[$hostname] ) {
+	$host_hash[$hostname]=array();
+    }
+    // resync within the table
+    $lease['nfrom']=($lease['t_from']-$start)/$grain;
+    $lease['nuntil']=($lease['t_until']-$start)/$grain;
+    $host_hash[$hostname] []= $lease;
+  }
+  # leases_data is the name used by leases.js to locate this table
+  echo "<table id='leases_data'>";
+  # pass the slicename as the [0,0] coordinate as thead>tr>td
+  echo "<thead><tr><td>" . $slice['name'] . "</td>";
+  for ($i=0; $i<$steps; $i++) 
+    // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
+    echo "<th>" . ($start+$i*$grain) . "&" . strftime("%H:%M",$start+$i*$grain). "</th>";
+  echo "</tr></thead><tbody>";
+  // todo - sort on hostnames
+  foreach ($reservable_nodes as $node) {
+    echo "<tr><th scope='row'>". $node['hostname'] . "</th>";
+    $hostname=$node['hostname'];
+    $leases=$host_hash[$hostname];
+    $counter=0;
+    while ($counter<$steps) {
+      if ($leases && ($leases[0]['nfrom']<=$counter)) {
+	$lease=array_shift($leases);
+	/* nicer display, merge two consecutive leases for the same slice */
+	while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
+	  $lease['nuntil']=$leases[0]['nuntil'];
+	  array_shift($leases);
+	}
+	$duration=$lease['nuntil']-$counter;
+	echo "<td colspan='$duration'>" . $lease['name'] . "</td>";
+	$counter=$lease['nuntil']; 
+      } else {
+	echo "<td></td>";
+	$counter+=1;
+      }
+    }
+    echo "</tr>";
+  }
+
+  echo "</tbody></table>";
+  echo "<div id='leases_area'></div>";
+  $toggle_nodes->end();
+ }
 $toggle->end();
 
 //////////////////////////////////////////////////////////// Tags
