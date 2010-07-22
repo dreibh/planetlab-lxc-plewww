@@ -53,7 +53,6 @@ plekit_linetabs($tabs);
 
 if ( ! $nodegroups ) {
   drupal_set_message ('No node group found');
-  return;
  }
   
 $headers=array();

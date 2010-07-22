@@ -73,7 +73,7 @@ EOF;
 
   $form['address:line1'] = array('title' => 'Address', 'required' => FALSE,
 				 'maxlength' => 40, 'size' => 30,
-				 'comment' => '<strong>Postal address</strong> (can be left blank)');
+				 'comment' => '<strong>Postal address</strong>');
   $form['address:line2'] = array('title' => 'Address (2)', 'required' => FALSE,
 				 'maxlength' => 40, 'size' => 30);
   $form['address:line3'] = array('title' => 'Address (3)', 'required' => FALSE,
