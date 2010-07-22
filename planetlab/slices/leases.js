@@ -1,19 +1,26 @@
 /* need to put some place else in CSS ? */
 
-var color_otherslice="#f08080";
-var color_thisslice="#a5e0af";
-var color_free="#fff";
-var color_rules="#888";
+/* decorations / headers */
 
-var x_txt = {"font": 'Fontin-Sans, Arial', stroke: "none", fill: "#008"},
-var y_txt = {"font": 'Fontin-Sans, Arial', stroke: "none", fill: "#800"},
+var txt_nodename = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
+var txt_timeslot = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
+var color_rules="#888";
 var x_nodename = 200;
-var x_grain = 20;
 var x_sep=10;
 var y_header = 12
+var y_sep = 20
+
+/* lease dimensions and colors */
+var x_grain = 24;
 var y_node = 15;
-var y_sep = 10
 var radius= 6;
+var color_otherslice="#f08080";
+var color_thisslice="#a5e0af";
+var color_free="#f0fcd4";
+
+/* other slices name */
+var txt_slice = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#444",
+		 "font-size": 15 };
 
 var leases_namespace = {
 
@@ -29,7 +36,8 @@ var leases_namespace = {
 	});
 	// the timeslot labels
 	table.getElementsBySelector("thead>tr>th").each(function (cell) {
-            axisx.push(getInnerText(cell));
+	    /* [0]: timestamp -- [1]: displayable*/
+            axisx.push(getInnerText(cell).split("&"));
 	});
 	// leases - expect colspan to describe length in grains
 	table.getElementsBySelector("tbody>tr>td").each(function (cell) {
@@ -41,7 +49,8 @@ var leases_namespace = {
 	var nb_nodes = axisy.length, nb_grains = axisx.length;
 	var total_width = x_nodename + nb_grains*x_grain;
 	var total_height = 2*y_header + nb_nodes*(y_node+y_sep);
-	paper = Raphael("leases_area", total_width, total_height,10);
+	// no radius supported
+	paper = Raphael("leases_area", total_width, total_height);
 //        color = table.css("color");
 
 	var top=0;
@@ -49,12 +58,13 @@ var leases_namespace = {
 
 	// the time slots legend
 	var col=0;
-        axisx.each (function (timeslot) {
+        axisx.each (function (timeslot_spec) {
+	    timeslot=timeslot_spec[1];
 	    var y = top+y_header;
 	    if (col%2 == 0) y += y_header;
 	    col +=1;
-	    var label=paper.text(left,y,timeslot).attr(y_txt).attr({"font-size":y_header,
-								    "text-anchor":"middle"});
+	    var timelabel=paper.text(left,y,timeslot).attr(txt_timeslot)
+		               .attr({"font-size":y_header, "text-anchor":"middle"});
 	    var path_spec="M"+left+" "+(y+y_header/2)+"L"+left+" "+total_height;
 	    var rule=paper.path(path_spec).attr({'stroke':1,"fill":color_rules});
 	    left+=x_grain;
@@ -65,9 +75,8 @@ var leases_namespace = {
 	var data_index=0;
 	axisy.each(function (node) {
 	    left=0;
-	    var label = paper.text(x_nodename-x_sep,top+y_node/2,node).attr(x_txt).attr ({"font-size":y_node,
-											"text-anchor":"end",
-										        "baseline":"bottom"});
+	    var nodelabel = paper.text(x_nodename-x_sep,top+y_node/2,node).attr(txt_nodename)
+		                .attr ({"font-size":y_node, "text-anchor":"end","baseline":"bottom"});
 	
 	    left += x_nodename;
 	    var grain=0;
@@ -76,18 +85,27 @@ var leases_namespace = {
 		duration=data[data_index][1];
 		var lease=paper.rect (left,top,x_grain*duration,y_node,radius);
 		var color;
-		if (slicename == "") color=color_free;
-		else if (slicename == this_slicename) color=color_thisslice;
-		else {
+		if (slicename == "") {
+		    color=color_free;
+		    lease.click ( function (e) { window.console.log ('free ' + lease.from_time + '--' + lease.until_time); } );
+		} else if (slicename == this_slicename) {
+		    color=color_thisslice;
+		    lease.click ( function (e) { window.console.log ('mine ' + lease.from_time + '--' + lease.until_time); } );
+		} else {
 		    color=color_otherslice;
-		    /* attempt to display the name of the slice that owns that lease - not working too well */
-		    var label = paper.text (left+(x_grain*duration)/2,top+y_node/2,slicename).attr("display","none");
-		    label.hide();
-		    lease[0].onmouseover = function () { label.show(); }
-		    lease[0].onmouseout = function () { label.hide(); }
+		    /* to display the name of the slice that owns that lease */
+		    var slicelabel = paper.text (left+(x_grain*duration)/2,top+y_node/2,slicename) 
+			                   .attr(txt_slice);
+		    /* hide it right away */
+		    slicelabel.hide();
+		    lease.label=slicelabel;
+		    lease.hover ( function (e) { this.label.toFront(); this.label.show(); },
+				  function (e) { this.label.hide(); } ); 
 		}
 		lease.attr("fill",color);
+		lease.from_time = axisx[grain%nb_grains][0];
 		grain += duration;
+		lease.until_time = axisx[grain%nb_grains][0];
 		left += x_grain*duration;
 		data_index +=1;
 	    }

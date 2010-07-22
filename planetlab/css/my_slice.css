@@ -19,9 +19,12 @@ div#toggle-container-my-slice-nodes-add {
 }
 
 /* the container for the scheduler area */
+div#toggle-container-my-slice-nodes-reserve {
+    background: #d0e0f0;
+}
+
 div#leases_area {
     padding: 25px;
-    background: #bbd3e2;
 }
 
 /* don't display the scheduler data table */

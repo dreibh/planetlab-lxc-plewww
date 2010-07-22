@@ -409,7 +409,7 @@ $toggle->start();
 /*if (0) { // tmp for speed */
 //////////////////// nodes currently in
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
-			       "$count node(s) currently in $name",
+			       count_english($nodes,"node") . " currently in $name",
 			       array('visible'=>get_arg('show_nodes_current',!$privileges)));
 $toggle_nodes->start();
 
@@ -419,7 +419,9 @@ $headers['peer']='string';
 $headers['hostname']='string';
 $short="ST"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-// the extra tags
+$short="R"; $long="reservable nodes"; $type='string';
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+// the extra tags, configured for the UI
 $headers=array_merge($headers,$visibletags->headers());
 $notes=array_merge($notes,$visibletags->notes());
 
@@ -440,6 +442,7 @@ if ($nodes) foreach ($nodes as $node) {
   $run_level=$node['run_level'];
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
+  $table->cell( ($node['node_type']=='reservable')?"R":"" );
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
@@ -472,14 +475,11 @@ if ($privileges) {
 
   $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
-				 "$count more node(s) available",
+				 count_english($potential_nodes,"more node") . " available",
 				 array('visible'=>get_arg('show_nodes_add',false)));
   $toggle_nodes->start();
 
-  if ( ! $potential_nodes ) {
-    // xxx improve style
-    echo "<p class='not-relevant'>No node to add</p>";
-  } else {
+  if ( $potential_nodes ) {
     $headers=array();
     $notes=array();
     $headers['peer']='string';
@@ -524,7 +524,7 @@ $count=count($reservable_nodes);
 if ($count && $privileges) {
   // having reservable nodes in white lists looks a bit off scope for now...
   $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
-				 "$count reservable node(s)",
+				 count_english($reservable_nodes,"reservable node") . " in slice",
 				 array('visible'=>get_arg('show_nodes_resa',false)));
   $toggle_nodes->start();
   $grain=$api->GetLeaseGranularity();
@@ -554,7 +554,8 @@ if ($count && $privileges) {
   # pass the slicename as the [0,0] coordinate as thead>tr>td
   echo "<thead><tr><td>" . $slice['name'] . "</td>";
   for ($i=0; $i<$steps; $i++) 
-    echo "<th>" . strftime("%H:%M",$start+$i*$grain). "</th>";
+    // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
+    echo "<th>" . ($start+$i*$grain) . "&" . strftime("%H:%M",$start+$i*$grain). "</th>";
   echo "</tr></thead><tbody>";
   // todo - sort on hostnames
   foreach ($reservable_nodes as $node) {
