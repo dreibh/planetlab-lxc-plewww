@@ -559,6 +559,8 @@ if ($count && $privileges) {
     echo "<th>" . ($start+$i*$grain) . "&" . strftime("%H:%M",$start+$i*$grain). "</th>";
   echo "</tr></thead><tbody>";
   // todo - sort on hostnames
+  function sort_hostname ($a,$b) { return ($a['hostname']<$b['hostname'])?-1:1;}
+  usort($reservable_nodes,sort_hostname);
   foreach ($reservable_nodes as $node) {
     echo "<tr><th scope='row'>". $node['hostname'] . "</th>";
     $hostname=$node['hostname'];
@@ -583,8 +585,13 @@ if ($count && $privileges) {
     echo "</tr>";
   }
 
-  echo "</tbody></table>";
+  echo "</tbody></table>\n";
   echo "<div id='leases_area'></div>";
+  echo "<div id='leases_control'>";
+  echo "<button id='leases_submit' type='button'>Submit</button>";
+  echo "<button id='leases_clear' type='button'>Clear</button>";
+  echo "</div>";
+      
   $toggle_nodes->end();
  }
 $toggle->end();
