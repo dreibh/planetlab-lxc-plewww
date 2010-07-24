@@ -5,23 +5,28 @@
 
 var txt_nodename = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
 var txt_timeslot = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
-var color_rules="#888";
+var attr_rules={'fill':"#888", 'stroke-dasharray':'- ', 'stroke-width':0.5};
 var x_nodename = 200;
 var x_sep=10;
 var y_header = 12
 var y_sep = 20
 
 /* lease dimensions and colors */
+var anim_delay=500;
 var x_grain = 24;
 var y_node = 15;
 var radius= 6;
 /* lease was originally free and is still free */
-var color_lease_free_free="#def";
+var attr_lease_free_free={'fill':"#def", 'stroke-width':0.5, 'stroke-dasharray':''};
 /* lease was originally free and is now set for our usage */
-var color_lease_free_mine="#0f0";
-var color_lease_mine_mine="#beb";
-var color_lease_mine_free="#fff";
-var color_lease_other="#f88";
+var attr_lease_free_mine={'fill':"green", 'stroke-width':1, 'stroke-dasharray':'-..'};
+/* was mine and is still mine */
+var attr_lease_mine_mine={'fill':"#beb", 'stroke-width':0.5, 'stroke-dasharray':''};
+/* was mine and is about to be released */
+var attr_lease_mine_free={'fill':"white", 'stroke-width':1, 'stroke-dasharray':'-..'};
+// refrained from using gradient color, was not animated properly
+// var color_lease_mine_free="0-#fff-#def:50-#fff";
+var attr_lease_other={'fill':"#f88"};
 
 /* other slices name */
 var txt_slice = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#444",
@@ -64,7 +69,7 @@ function Scheduler (slicename, axisx, axisy, data) {
 	    var timelabel=paper.text(left,y,timeslot).attr(txt_timeslot)
 		.attr({"font-size":y_header, "text-anchor":"middle"});
 	    var path_spec="M"+left+" "+(y+y_header/2)+"L"+left+" "+this.total_height;
-	    var rule=paper.path(path_spec).attr({'stroke':1,"fill":color_rules});
+	    var rule=paper.path(path_spec).attr(attr_rules);
 	    left+=x_grain;
 	}
 
@@ -143,7 +148,7 @@ var lease_methods = {
     init_free: function (lease, unclick) {
 	lease.current="free";
 	// set color
-	lease.attr("fill", (lease.initial=="free") ? color_lease_free_free : color_lease_mine_free);
+	lease.animate((lease.initial=="free") ? attr_lease_free_free : attr_lease_mine_free,anim_delay);
 	// keep track of the current status
 	// record action
 	lease.click (lease_methods.click_free);
@@ -165,7 +170,7 @@ var lease_methods = {
 
     init_mine: function (lease, unclick) {
 	lease.current="mine";
-	lease.attr("fill", (lease.initial=="mine") ? color_lease_mine_mine : color_lease_free_mine);
+	lease.animate((lease.initial=="mine") ? attr_lease_mine_mine : attr_lease_free_mine,anim_delay);
 	lease.click (lease_methods.click_mine);
 	if (unclick) lease.unclick(unclick);
     },
@@ -182,7 +187,7 @@ var lease_methods = {
 
 
     init_other: function (lease, slicename) {
-	lease.attr ("fill", color_lease_other);
+	lease.animate (attr_lease_other,anim_delay);
 	/* a text obj to display the name of the slice that owns that lease */
 	var slicelabel = paper.text (lease.attr("x")+lease.attr("width")/2,
 				     lease.attr("y")+lease.attr("height")/2,slicename).attr(txt_slice);
