@@ -7,7 +7,7 @@ div.my-slice-renewal {
     margin: 30px;
 }
 
-/* internal toggles */
+/* toggles for the nodes sections */
 div#toggle-container-my-slice-persons-current,
 div#toggle-container-my-slice-nodes-current {
     background: #f0f0f0;
@@ -18,16 +18,26 @@ div#toggle-container-my-slice-nodes-add {
     background: #f0e0e0;
 }
 
-/* the container for the scheduler area */
+/* the scheduler area */
 div#toggle-container-my-slice-nodes-reserve {
     background: #def;
 }
 
+/* where the graphics go */
 div#leases_area {
-    padding: 25px;
+  padding: 10px 25px;
 }
 
-/* don't display the scheduler data table */
+/* don't display the scheduler data table - not quite sure this works */
 table#leases_data {
     display: none;
 }
+
+/* the various controls for the scheduler */
+/* upper section, with selection mode */
+#leases_modes { padding: 10px; text-align: center; color: #333; }
+
+#leases_buttons { padding: 10px; }
+#leases_clear { position: relative; left: 30%;}
+#leases_submit { position: relative; left: 60%; }
+        

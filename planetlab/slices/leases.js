@@ -138,6 +138,24 @@ function Scheduler (slicename, axisx, axisy, data) {
 	    }
 	}
     }
+
+    /* initialize mode buttons */
+    this.init_mode = function (default_mode, node_button, timeslot_button) {
+	this.node_button=node_button;
+	this.timeslot_button=timeslot_button;
+	var scheduler=this;
+	/* xxx set callbacks on buttons */
+	node_button.onclick = function () { scheduler.set_mode('node'); }
+	timeslot_button.onclick = function () { scheduler.set_mode('timeslot'); }
+	this.set_mode(default_mode);
+    }
+
+    /* expecting mode to be either 'node' or 'timeslot' */
+    this.set_mode = function (mode) {
+	this.mode=mode;
+	var active_button = (mode=='node') ? this.node_button : this.timeslot_button;
+	active_button.checked='checked';
+    }
 	
 
 } // Scheduler
@@ -158,12 +176,14 @@ var lease_methods = {
     // find out all the currently free leases that overlap this one
     click_free: function (event) {
 	var scheduler = this.scheduler;
-	for (var i=0, len=scheduler.leases.length; i<len; ++i) {
-	    scan=scheduler.leases[i];
-	    // overlap ?
-	    if (scan.from_time<=this.from_time && scan.until_time>=this.until_time) {
-		if (scan.current == "free") lease_methods.init_mine(scan,lease_methods.click_free);
-		// the other ones just remain as they are
+	if (scheduler.mode=='node') {
+	    lease_methods.init_mine(this,lease_methods.click_free);
+	} else {
+	    for (var i=0, len=scheduler.leases.length; i<len; ++i) {
+		scan=scheduler.leases[i];
+		// overlap ?
+		if (scan.from_time<=this.from_time && scan.until_time>=this.until_time) 
+		    if (scan.current == "free") lease_methods.init_mine(scan,lease_methods.click_free);
 	    }
 	}
     },
@@ -176,13 +196,21 @@ var lease_methods = {
     },
 
     click_mine: function (event) {
+	var scheduler = this.scheduler;
 	// this lease was originally free but is now marked for booking
 	// we free just this lease
-	if (this.initial=="free") 
+	if (scheduler.mode=='node') {
 	    lease_methods.init_free(this, lease_methods.click_mine);
-	// this lease if ours, same for now
-	else
-	    lease_methods.init_free(this, lease_methods.click_mine);
+	} else {
+	    for (var i=0, len=scheduler.leases.length; i<len; ++i) {
+		scan=scheduler.leases[i];
+		// overlap ?
+		if (scan.from_time<=this.from_time && scan.until_time>=this.until_time) {
+		    if (scan.current == "mine") lease_methods.init_free(scan,lease_methods.click_mine);
+		}
+		// the other ones just remain as they are
+	    }
+	}
     },
 
 
@@ -229,6 +257,10 @@ function init_scheduler () {
     submit.onclick = function () { scheduler.submit(); }
     var clear=$$("button#leases_clear")[0];
     clear.onclick = function () { scheduler.clear(); }
+
+    var node_button=$$("input#leases_mode_node")[0];
+    var timeslot_button=$$("input#leases_mode_timeslot")[0];
+    scheduler.init_mode ('timeslot',node_button,timeslot_button);
 
 }
 

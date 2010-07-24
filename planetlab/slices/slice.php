@@ -584,14 +584,25 @@ if ($count && $privileges) {
     }
     echo "</tr>";
   }
-
   echo "</tbody></table>\n";
-  echo "<div id='leases_area'></div>";
-  echo "<div id='leases_control'>";
-  echo "<button id='leases_submit' type='button'>Submit</button>";
-  echo "<button id='leases_clear' type='button'>Clear</button>";
-  echo "</div>";
-      
+
+  // the general layout for the scheduler
+  echo <<< EOF
+<div id='leases_modes'><form>
+  <span id='leases_selection_mode'> Selection mode:
+  <input id='leases_mode_node'     type='radio' name='mode' value="node" />Node
+  <input id='leases_mode_timeslot' type='radio' name='mode' value="timeslot" checked />Timeslot
+  </span>
+</form></div>
+
+<div id='leases_area'></div>
+
+<div id='leases_buttons'>
+  <button id='leases_clear' type='submit'>Clear</button>
+  <button id='leases_submit' type='submit'>Submit</button>
+</div>
+EOF;
+
   $toggle_nodes->end();
  }
 $toggle->end();
