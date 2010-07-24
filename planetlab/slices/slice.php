@@ -569,11 +569,12 @@ if ($count && $privileges) {
     while ($counter<$steps) {
       if ($leases && ($leases[0]['nfrom']<=$counter)) {
 	$lease=array_shift($leases);
-	/* nicer display, merge two consecutive leases for the same slice */
-	while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
+	/* nicer display, merge two consecutive leases for the same slice 
+	 -*- tmp -*- avoid doing that for now, as it might makes things confusing */
+	/* while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
 	  $lease['nuntil']=$leases[0]['nuntil'];
 	  array_shift($leases);
-	}
+	  }*/
 	$duration=$lease['nuntil']-$counter;
 	echo "<td colspan='$duration'>" . $lease['name'] . "</td>";
 	$counter=$lease['nuntil']; 

@@ -119,12 +119,21 @@ function Scheduler (slicename, axisx, axisy, data) {
 	for (var i=0, len=this.leases.length; i<len; ++i) {
 	    var lease=this.leases[i];
 	    if (lease.current != lease.initial) {
+		var from_time=lease.from_time;
+		var until_time=lease.until_time;
+		/* scan the leases just after this one and merge if appropriate */
+		var j=i+1;
+		while (j<len && lease_methods.compare (lease, until_time, this.leases[j])) {
+		    window.console.log('merged index='+j);
+		    until_time=this.leases[j].until_time;
+		    ++j; ++i;
+		}
 		var method=(lease.current=='free') ? 'DeleteLeases' : 'AddLeases';
 		window.console.log(method + "(" + 
 				   "[" + lease.nodename + "]," + 
 				   this.slicename + "," +
-				   lease.from_time + "," +
-				   lease.until_time + ')');
+				   from_time + "," +
+				   until_time + ')');
 	    }
 	}
     }
@@ -158,11 +167,19 @@ function Scheduler (slicename, axisx, axisy, data) {
     }
 	
 
-} // Scheduler
+} // end Scheduler
 
 //////////////////////////////////////// couldn't find how to inhererit from the raphael objects...
 var lease_methods = {
     
+    /* in the process of merging leases before posting to the API */
+    compare: function (lease, until_time, next_lease) {
+	return (next_lease['nodename'] == lease['nodename'] &&
+		next_lease['from_time'] == until_time &&
+		next_lease['initial'] == lease['initial'] &&
+		next_lease['current'] == lease['current']);
+    },
+
     init_free: function (lease, unclick) {
 	lease.current="free";
 	// set color
