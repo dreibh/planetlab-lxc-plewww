@@ -570,7 +570,7 @@ if ($count && $privileges) {
       if ($leases && ($leases[0]['nfrom']<=$counter)) {
 	$lease=array_shift($leases);
 	/* nicer display, merge two consecutive leases for the same slice 
-	 -*- tmp -*- avoid doing that for now, as it might makes things confusing */
+	   avoid doing that for now, as it might makes things confusing */
 	/* while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
 	  $lease['nuntil']=$leases[0]['nuntil'];
 	  array_shift($leases);
@@ -589,13 +589,6 @@ if ($count && $privileges) {
 
   // the general layout for the scheduler
   echo <<< EOF
-<div id='leases_modes'><form>
-  <span id='leases_selection_mode'> Selection mode:
-  <input id='leases_mode_node'     type='radio' name='mode' value="node" />Node
-  <input id='leases_mode_timeslot' type='radio' name='mode' value="timeslot" checked />Timeslot
-  </span>
-</form></div>
-
 <div id='leases_area'></div>
 
 <div id='leases_buttons'>

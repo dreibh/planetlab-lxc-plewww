@@ -1,21 +1,32 @@
 /* need to put some place else in CSS ? */
 
+// space for the nodenames
+var x_nodelabel = 200;
+// right space after the nodename - removed from the above
+var x_sep=20;
+// height for the (two) rows of timelabels
+var y_header = 12;
+// space between nodes
+var y_sep = 10;
 
-/* decorations / headers */
-
-var txt_nodename = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
-var txt_timeslot = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
-var attr_rules={'fill':"#888", 'stroke-dasharray':'- ', 'stroke-width':0.5};
-var x_nodename = 200;
-var x_sep=10;
-var y_header = 12
-var y_sep = 20
-
-/* lease dimensions and colors */
-var anim_delay=500;
+// 1-grain leases attributes
 var x_grain = 24;
 var y_node = 15;
 var radius= 6;
+
+var anim_delay=500;
+
+/* decorations / headers */
+
+// vertical rules
+var attr_rules={'fill':"#888", 'stroke-dasharray':'- ', 'stroke-width':0.5};
+var txt_timelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
+var txt_allnodes = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#404"};
+var txt_nodelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
+
+var attr_timebutton = {'fill': '#888','stroke-width':2};
+
+/* lease dimensions and colors */
 /* lease was originally free and is still free */
 var attr_lease_free_free={'fill':"#def", 'stroke-width':0.5, 'stroke-dasharray':''};
 /* lease was originally free and is now set for our usage */
@@ -36,6 +47,7 @@ var txt_slice = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif'
 // the scheduler object
 function Scheduler (slicename, axisx, axisy, data) {
 
+    // the data only contain slice names, we need this to find our own leases (mine)
     this.slicename=slicename;
     this.axisx=axisx;
     this.axisy=axisy;
@@ -50,46 +62,77 @@ function Scheduler (slicename, axisx, axisy, data) {
     // how many time slots 
     this.nb_grains = function () { return axisx.length;}
 
-    this.init = function (id) {
-	this.total_width = x_nodename + this.nb_grains()*x_grain; 
-	this.total_height = 2*y_header + this.axisy.length*(y_node+y_sep); 
-	paper = Raphael (id, this.total_width, this.total_height);
+    this.init = function (canvas_id) {
+	this.total_width = x_nodelabel + this.nb_grains()*x_grain; 
+	this.total_height =   2*y_header /* the timelabels */
+			    + 2*y_sep    /* extra space */
+                	    + y_node	 /* all-nodes & timebuttons row */ 
+         		    + (this.axisy.length)*(y_node+y_sep);  /* the regular nodes and preceding space */
+	paper = Raphael (canvas_id, this.total_width+x_sep, this.total_height);
 
-	// create the time slots legend
+	// maintain the list of nodelabels for the 'all nodes' button
+	this.nodelabels=[];
+
+	////////// create the time slots legend
 	var top=0;
-	var left=x_nodename;
+	var left=x_nodelabel;
 
 	var col=0;
 	for (var i=0, len=axisx.length; i < len; ++i) {
 	    // pick the printable part
-	    timeslot=axisx[i][1];
+	    timelabel=axisx[i][1];
 	    var y = top+y_header;
 	    if (col%2 == 0) y += y_header;
 	    col +=1;
-	    var timelabel=paper.text(left,y,timeslot).attr(txt_timeslot)
+	    // display time label
+	    var timelabel=paper.text(left,y,timelabel).attr(txt_timelabel)
 		.attr({"font-size":y_header, "text-anchor":"middle"});
+	    // draw vertical line
 	    var path_spec="M"+left+" "+(y+y_header/2)+"L"+left+" "+this.total_height;
 	    var rule=paper.path(path_spec).attr(attr_rules);
 	    left+=x_grain;
 	}
 
-	// move to the lines below: 
-	top += 2*y_header+y_sep;
-    
+	this.granularity=axisx[1][0]-axisx[0][0];
+
+	////////// the row with the timeslot buttons
+	// move two lines down
+	top += 2*y_header+2*y_sep;
+	left=x_nodelabel;
+	// all nodes buttons
+	var allnodes = paper.text (x_nodelabel-x_sep,top+y_node/2,"All nodes").attr(txt_allnodes)
+		.attr ({"font-size":y_node, "text-anchor":"end","baseline":"bottom"});
+	allnodes.scheduler=this;
+	allnodes.click(allnodes_methods.click);
+	// timeslot buttons
+	for (var i=0, len=axisx.length; i < len; ++i) {
+	    var timebutton = paper.rect(left,top,x_grain,y_node,radius).attr(attr_timebutton);
+	    timebutton.from_time=axisx[i][0];
+	    timebutton.scheduler=this;
+	    timebutton.click(timebutton_methods.click);
+	    left+=x_grain;
+	}
+	
+	//////// the body of the scheduler: nodes
+	top += y_node+y_sep;
 	var data_index=0;
 	for (var i=0, len=axisy.length; i<len; ++i) {
-	    node=axisy[i];
+	    nodename=axisy[i];
 	    left=0;
-	    var nodelabel = paper.text(x_nodename-x_sep,top+y_node/2,node).attr(txt_nodename)
+	    var nodelabel = paper.text(x_nodelabel-x_sep,top+y_node/2,nodename).attr(txt_nodelabel)
 		.attr ({"font-size":y_node, "text-anchor":"end","baseline":"bottom"});
+	    nodelabel_methods.selected(nodelabel,1);
+	    nodelabel.click(nodelabel_methods.click);
+	    this.nodelabels.push(nodelabel);
 	    
-	    left += x_nodename;
+	    left += x_nodelabel;
 	    var grain=0;
 	    while (grain < this.nb_grains()) {
 		slicename=data[data_index][0];
 		duration=data[data_index][1];
 		var lease=paper.rect (left,top,x_grain*duration,y_node,radius);
-		lease.nodename=node;
+		lease.nodename=nodename;
+		lease.nodelabel=nodelabel;
 		if (slicename == "") {
 		    lease.initial="free";
 		    lease_methods.init_free(lease);
@@ -148,28 +191,83 @@ function Scheduler (slicename, axisx, axisy, data) {
 	}
     }
 
-    /* initialize mode buttons */
-    this.init_mode = function (default_mode, node_button, timeslot_button) {
-	this.node_button=node_button;
-	this.timeslot_button=timeslot_button;
-	var scheduler=this;
-	/* xxx set callbacks on buttons */
-	node_button.onclick = function () { scheduler.set_mode('node'); }
-	timeslot_button.onclick = function () { scheduler.set_mode('timeslot'); }
-	this.set_mode(default_mode);
-    }
-
-    /* expecting mode to be either 'node' or 'timeslot' */
-    this.set_mode = function (mode) {
-	this.mode=mode;
-	var active_button = (mode=='node') ? this.node_button : this.timeslot_button;
-	active_button.checked='checked';
-    }
-	
-
 } // end Scheduler
 
 //////////////////////////////////////// couldn't find how to inhererit from the raphael objects...
+
+//////////////////// the 'all nodes' button
+var allnodes_methods = {
+    click: function (event) {
+	var scheduler=this.scheduler;
+	/* decide what to do */
+	var unselected=0;
+	for (var i=0, len=scheduler.nodelabels.length; i<len; ++i) 
+	    if (! scheduler.nodelabels[i].selected) unselected++;
+	/* if at least one is not selected : select all */
+	var new_state = (unselected >0) ? 1 : 0;
+	for (var i=0, len=scheduler.nodelabels.length; i<len; ++i) 
+	    nodelabel_methods.selected(scheduler.nodelabels[i],new_state);
+    }
+}
+
+//////////////////// the buttons for managing the whole timeslot
+var timebutton_methods = {
+
+    /* clicking */
+    click: function (event) {
+	var scheduler = this.scheduler;
+	var from_time = this.from_time;
+	var until_time = from_time + scheduler.granularity;
+	/* scan leases on selected nodes, store in two arrays */
+	var relevant_free=[], relevant_mine=[];
+	for (var i=0,len=scheduler.leases.length; i<len; ++i) {
+	    var scan=scheduler.leases[i];
+	    if ( ! scan.nodelabel.selected) continue;
+	    // overlap ?
+	    if (scan.from_time<=from_time && scan.until_time>=until_time) {
+		if (scan.current == "free")       relevant_free.push(scan);
+		else if (scan.current == "mine")  relevant_mine.push(scan);
+	    }
+	}
+//	window.console.log("Found " + relevant_free.length + " free and " + relevant_mine.length + " mine");
+	/* decide what to do, whether book or release */
+	if (relevant_mine.length==0 && relevant_free.length==0) {
+	    alert ("Nothing to do in this timeslot on the selected nodes");
+	    return;
+	}
+	// if at least one is free, let's book
+	if (relevant_free.length > 0) {
+	    for (var i=0, len=relevant_free.length; i<len; ++i) {
+		var lease=relevant_free[i];
+		lease_methods.init_mine(lease,lease_methods.click_free);
+	    }
+	// otherwise we unselect
+	} else {
+	    for (var i=0, len=relevant_mine.length; i<len; ++i) {
+		var lease=relevant_mine[i];
+		lease_methods.init_free(lease,lease_methods.click_mine);
+	    }
+	}
+    }
+}
+
+//////////////////// the nodelabel buttons
+var nodelabel_methods = {
+    
+    // set selected mode and render visually
+    selected: function (nodelabel, flag) {
+	nodelabel.selected=flag;
+	nodelabel.attr({'font-weight': (flag ? 'bold' : 'normal')});
+    },
+
+    // toggle selected
+    click: function (event) {
+	nodelabel_methods.selected( this, ! this.selected );
+    }
+}
+
+
+//////////////////// the lease buttons
 var lease_methods = {
     
     /* in the process of merging leases before posting to the API */
@@ -193,16 +291,7 @@ var lease_methods = {
     // find out all the currently free leases that overlap this one
     click_free: function (event) {
 	var scheduler = this.scheduler;
-	if (scheduler.mode=='node') {
-	    lease_methods.init_mine(this,lease_methods.click_free);
-	} else {
-	    for (var i=0, len=scheduler.leases.length; i<len; ++i) {
-		scan=scheduler.leases[i];
-		// overlap ?
-		if (scan.from_time<=this.from_time && scan.until_time>=this.until_time) 
-		    if (scan.current == "free") lease_methods.init_mine(scan,lease_methods.click_free);
-	    }
-	}
+	lease_methods.init_mine(this,lease_methods.click_free);
     },
 
     init_mine: function (lease, unclick) {
@@ -216,30 +305,20 @@ var lease_methods = {
 	var scheduler = this.scheduler;
 	// this lease was originally free but is now marked for booking
 	// we free just this lease
-	if (scheduler.mode=='node') {
-	    lease_methods.init_free(this, lease_methods.click_mine);
-	} else {
-	    for (var i=0, len=scheduler.leases.length; i<len; ++i) {
-		scan=scheduler.leases[i];
-		// overlap ?
-		if (scan.from_time<=this.from_time && scan.until_time>=this.until_time) {
-		    if (scan.current == "mine") lease_methods.init_free(scan,lease_methods.click_mine);
-		}
-		// the other ones just remain as they are
-	    }
-	}
+	lease_methods.init_free(this, lease_methods.click_mine);
     },
 
 
     init_other: function (lease, slicename) {
 	lease.animate (attr_lease_other,anim_delay);
 	/* a text obj to display the name of the slice that owns that lease */
-	var slicelabel = paper.text (lease.attr("x")+lease.attr("width")/2,
-				     lease.attr("y")+lease.attr("height")/2,slicename).attr(txt_slice);
+	var otherslicelabel = paper.text (lease.attr("x")+lease.attr("width")/2,
+					  // xxx
+					  lease.attr("y")+lease.attr("height")/2,slicename).attr(txt_slice);
 	/* hide it right away */
-	slicelabel.hide();
+	otherslicelabel.hide();
 	/* record it */
-	lease.label=slicelabel;
+	lease.label=otherslicelabel;
 	lease.hover ( function (e) { this.label.toFront(); this.label.show(); },
 		      function (e) { this.label.hide(); } ); 
     },
@@ -251,7 +330,7 @@ function init_scheduler () {
     var table = $$("table#leases_data")[0];
     // no reservable nodes - no data
     if ( ! table) return;
-    // the nodenames
+    // the nodelabels
     table.getElementsBySelector("tbody>tr>th").each(function (cell) {
         axisy.push(getInnerText(cell));
     });
@@ -274,10 +353,6 @@ function init_scheduler () {
     submit.onclick = function () { scheduler.submit(); }
     var clear=$$("button#leases_clear")[0];
     clear.onclick = function () { scheduler.clear(); }
-
-    var node_button=$$("input#leases_mode_node")[0];
-    var timeslot_button=$$("input#leases_mode_timeslot")[0];
-    scheduler.init_mode ('timeslot',node_button,timeslot_button);
 
 }
 
