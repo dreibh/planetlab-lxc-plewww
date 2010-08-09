@@ -24,9 +24,11 @@ var txt_timelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-se
 var txt_allnodes = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#404"};
 var txt_nodelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
 
-var attr_timebutton = {'fill': '#888','stroke-width':2};
+var attr_timebutton = {'fill':'#bbf', 'stroke': '#338','stroke-width':2, 
+		       'stroke-linecap':'round', 'stroke-linejoin':'miter', 'stroke-miterlimit':3};
 
 /* lease dimensions and colors */
+/* refrain from using gradient color, seems to not be animated properly */
 /* lease was originally free and is still free */
 var attr_lease_free_free={'fill':"#def", 'stroke-width':0.5, 'stroke-dasharray':''};
 /* lease was originally free and is now set for our usage */
@@ -35,8 +37,6 @@ var attr_lease_free_mine={'fill':"green", 'stroke-width':1, 'stroke-dasharray':'
 var attr_lease_mine_mine={'fill':"#beb", 'stroke-width':0.5, 'stroke-dasharray':''};
 /* was mine and is about to be released */
 var attr_lease_mine_free={'fill':"white", 'stroke-width':1, 'stroke-dasharray':'-..'};
-// refrained from using gradient color, was not animated properly
-// var color_lease_mine_free="0-#fff-#def:50-#fff";
 var attr_lease_other={'fill':"#f88"};
 
 /* other slices name */
@@ -106,14 +106,18 @@ function Scheduler (slicename, axisx, axisy, data) {
 	allnodes.click(allnodes_methods.click);
 	// timeslot buttons
 	for (var i=0, len=axisx.length; i < len; ++i) {
-	    var timebutton = paper.rect(left,top,x_grain,y_node,radius).attr(attr_timebutton);
+	    var pathspec="M"+left+","+top;
+	    pathspec+="L"+(left+x_grain)+","+top;
+	    pathspec+="L"+(left+x_grain/2)+","+(top+y_node);
+	    pathspec+="L"+left+","+top;
+	    var timebutton=paper.path(pathspec).attr(attr_timebutton);
 	    timebutton.from_time=axisx[i][0];
 	    timebutton.scheduler=this;
 	    timebutton.click(timebutton_methods.click);
 	    left+=x_grain;
 	}
 	
-	//////// the body of the scheduler: nodes
+	//////// the body of the scheduler : loop on nodes
 	top += y_node+y_sep;
 	var data_index=0;
 	for (var i=0, len=axisy.length; i<len; ++i) {
