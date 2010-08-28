@@ -51,7 +51,7 @@ $node_filter=array();
 function node_status ($node) {
 
   $messages=array();
-  if ($node['node_type'] != 'regular') 
+  if ($node['node_type'] != 'regular' && $node['node_type'] != 'reservable' ) 
     $messages []= $node['node_type'];
 
   // checks on local nodes only
