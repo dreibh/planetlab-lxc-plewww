@@ -1,7 +1,7 @@
 /* need to put some place else in CSS ? */
 
 // space for the nodenames
-var x_nodelabel = 200;
+var x_nodelabel = 120;
 // right space after the nodename - removed from the above
 var x_sep=20;
 // height for the (two) rows of timelabels
@@ -26,6 +26,8 @@ var txt_nodelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-se
 
 var attr_timebutton = {'fill':'#bbf', 'stroke': '#338','stroke-width':2, 
 		       'stroke-linecap':'round', 'stroke-linejoin':'miter', 'stroke-miterlimit':3};
+// keep consistent with sizes above - need for something nicer
+var timebutton_path = "M1,0L23,0L12,13L1,0";
 
 /* lease dimensions and colors */
 /* refrain from using gradient color, seems to not be animated properly */
@@ -40,14 +42,15 @@ var attr_lease_mine_free={'fill':"white", 'stroke-width':1, 'stroke-dasharray':'
 var attr_lease_other={'fill':"#f88"};
 
 /* other slices name */
-var txt_slice = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#444",
-		 "font-size": 15 };
+var txt_otherslice = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#444",
+		      "font-size": 12 };
 
 ////////////////////////////////////////////////////////////
 // the scheduler object
-function Scheduler (slicename, axisx, axisy, data) {
+function Scheduler (sliceid, slicename, axisx, axisy, data) {
 
-    // the data only contain slice names, we need this to find our own leases (mine)
+    // the data contains slice names, and lease_id, we need this to find our own leases (mine)
+    this.sliceid=sliceid;
     this.slicename=slicename;
     this.axisx=axisx;
     this.axisy=axisy;
@@ -106,11 +109,7 @@ function Scheduler (slicename, axisx, axisy, data) {
 	allnodes.click(allnodes_methods.click);
 	// timeslot buttons
 	for (var i=0, len=axisx.length; i < len; ++i) {
-	    var pathspec="M"+left+","+top;
-	    pathspec+="L"+(left+x_grain)+","+top;
-	    pathspec+="L"+(left+x_grain/2)+","+(top+y_node);
-	    pathspec+="L"+left+","+top;
-	    var timebutton=paper.path(pathspec).attr(attr_timebutton);
+	    var timebutton=paper.path(timebutton_path).attr({'translation':left+','+top}).attr(attr_timebutton);
 	    timebutton.from_time=axisx[i][0];
 	    timebutton.scheduler=this;
 	    timebutton.click(timebutton_methods.click);
@@ -132,9 +131,11 @@ function Scheduler (slicename, axisx, axisy, data) {
 	    left += x_nodelabel;
 	    var grain=0;
 	    while (grain < this.nb_grains()) {
-		slicename=data[data_index][0];
-		duration=data[data_index][1];
+		lease_id=data[data_index][0];
+		slicename=data[data_index][1];
+		duration=data[data_index][2];
 		var lease=paper.rect (left,top,x_grain*duration,y_node,radius);
+		lease.lease_id=lease_id;
 		lease.nodename=nodename;
 		lease.nodelabel=nodelabel;
 		if (slicename == "") {
@@ -163,6 +164,8 @@ function Scheduler (slicename, axisx, axisy, data) {
     }
 
     this.submit = function () {
+	document.body.style.cursor = "wait";
+	var actions=new Array();
 	for (var i=0, len=this.leases.length; i<len; ++i) {
 	    var lease=this.leases[i];
 	    if (lease.current != lease.initial) {
@@ -175,14 +178,40 @@ function Scheduler (slicename, axisx, axisy, data) {
 		    until_time=this.leases[j].until_time;
 		    ++j; ++i;
 		}
-		var method=(lease.current=='free') ? 'DeleteLeases' : 'AddLeases';
-		window.console.log(method + "(" + 
-				   "[" + lease.nodename + "]," + 
-				   this.slicename + "," +
-				   from_time + "," +
-				   until_time + ')');
+		if (lease.current!='free') { // lease to add
+		    actions.push(new Array('add-leases',
+					   new Array(lease.nodename),
+					   this.slicename,
+					   from_time,
+					   until_time));
+		} else { // lease to delete
+		    actions.push(new Array ('delete-leases',
+					    lease.lease_id));
+		}
 	    }
 	}
+	sliceid=this.sliceid;
+	// once we're done with the side-effect performed in actions.php, we need to refresh this view
+	redirect = function (sliceid) {
+	    window.location = '/db/slices/slice.php?id=' + sliceid + '&show_details=0&show_nodes=1&show_nodes_resa=1';
+	}
+	// Ajax.Request comes with prototype
+	var ajax=new Ajax.Request('/planetlab/common/actions.php', 
+				  {method:'post',
+				   parameters:{'action':'manage-leases',
+					       'actions':actions.toJSON()},
+				   onSuccess: function(transport) {
+				       var response = transport.responseText || "no response text";
+				       document.body.style.cursor = "default";
+				       alert("Success (sliceid=" + sliceid + ")\n\n" + response);
+				       redirect(sliceid);
+				   },
+				   onFailure: function(){ 
+				       document.body.style.cursor = "default";
+				       alert('Something went wrong...') 
+				       redirect(sliceid);
+				   },
+				  });
     }
 
     this.clear = function () {
@@ -318,7 +347,7 @@ var lease_methods = {
 	/* a text obj to display the name of the slice that owns that lease */
 	var otherslicelabel = paper.text (lease.attr("x")+lease.attr("width")/2,
 					  // xxx
-					  lease.attr("y")+lease.attr("height")/2,slicename).attr(txt_slice);
+					  lease.attr("y")+lease.attr("height")/2,slicename).attr(txt_otherslice);
 	/* hide it right away */
 	otherslicelabel.hide();
 	/* record it */
@@ -344,11 +373,24 @@ function init_scheduler () {
         axisx.push(getInnerText(cell).split("&"));
     });
     // leases - expect colspan to describe length in grains
+    // the text contents is expected to be lease_id & slicename
     table.getElementsBySelector("tbody>tr>td").each(function (cell) {
-        data.push(new Array (getInnerText(cell),cell.colSpan));
+	var cell_data;
+	slice_attributes=getInnerText(cell).split('&');
+	// booked leases come with lease id and slice name
+	if (slice_attributes.length == 2) {
+	    // leases is booked : slice_id, slice_name, duration in grains
+	    cell_data=new Array (slice_attributes[0], slice_attributes[1], cell.colSpan);
+	} else {
+	    cell_data = new Array ('','',cell.colSpan);
+	}
+        data.push(cell_data);
     });
-    // slicename : the upper-left cell
-    var scheduler = new Scheduler (getInnerText(table.getElementsBySelector("thead>tr>td")[0]), axisx, axisy, data);
+    // sliceid & slicename : the upper-left cell
+    var slice_attributes = getInnerText(table.getElementsBySelector("thead>tr>td")[0]).split('&');
+    var sliceid=slice_attributes[0];
+    var slicename=slice_attributes[1];
+    var scheduler = new Scheduler (sliceid,slicename, axisx, axisy, data);
     table.hide();
     // leases_area is a <div> created by slice.php as a placeholder
     scheduler.init ("leases_area");

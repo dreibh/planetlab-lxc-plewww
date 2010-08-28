@@ -387,7 +387,8 @@ $toggle->end();
 //     (.) type is passed to the javascript table, for sorting (default is 'string')
 
 // minimal list as a start
-$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist','run_level','boot_state','last_contact','node_type');
+$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist',
+			    'run_level','boot_state','last_contact','node_type');
 // create a VisibleTags object : basically the list of tag columns to show
 $visibletags = new VisibleTags ($api, 'node');
 $visiblecolumns = $visibletags->column_names();
@@ -398,9 +399,14 @@ $potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_colu
 $reservable_nodes=array();
 foreach ($nodes as $node) { if ($node['node_type']=='reservable') $reservable_nodes[]=$node; }
 
+$reservable_mark="-R-";
+$reservable_legend="reservable nodes are marked with " . $reservable_mark;
+
 ////////////////////
-$count=count($nodes);
-$toggle=new PlekitToggle ('my-slice-nodes',"$count Nodes",
+// outline the number of reservable nodes
+$nodes_message=count_english($nodes,"node");
+if (count($reservable_nodes)) $nodes_message .= " (" . count($reservable_nodes) . " reservable)";
+$toggle=new PlekitToggle ('my-slice-nodes',$nodes_message,
 			  array('bubble'=>
 				'Manage nodes attached to this slice',
 				'visible'=>get_arg('show_nodes',false)));
@@ -418,7 +424,7 @@ $headers['peer']='string';
 $headers['hostname']='string';
 $short="ST"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-$short="R"; $long="reservable nodes"; $type='string';
+$short="R"; $long=$reservable_legend; $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 // the extra tags, configured for the UI
 $headers=array_merge($headers,$visibletags->headers());
@@ -441,7 +447,7 @@ if ($nodes) foreach ($nodes as $node) {
   $run_level=$node['run_level'];
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
-  $table->cell( ($node['node_type']=='reservable')?"-R-":"" );
+  $table->cell( ($node['node_type']=='reservable')?$reservable_mark:"" );
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
@@ -485,7 +491,7 @@ if ($privileges) {
     $headers['hostname']='string';
     $short="ST"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-    $short="R"; $long="reservable nodes"; $type='string';
+    $short="R"; $long=$reservable_legend; $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
     // the extra tags, configured for the UI
     $headers=array_merge($headers,$visibletags->headers());
@@ -503,7 +509,7 @@ if ($privileges) {
 	$table->cell(l_node_obj($node));
 	list($label,$class) = Node::status_label_class_($node);
 	$table->cell ($label,array('class'=>$class));
-	$table->cell( ($node['node_type']=='reservable')?"-R-":"" );
+	$table->cell( ($node['node_type']=='reservable')?$reservable_mark:"" );
 	foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
@@ -536,7 +542,7 @@ if ($count && $privileges) {
   $steps=$duration/$grain;
   $start=intval($now/$grain)*$grain;
   $end=$now+$duration;
-  $lease_columns=array('name','t_from','t_until','hostname','name');
+  $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
   $leases=$api->GetLeases(array(']t_until'=>$now,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
   // hash nodes -> leases
   $host_hash=array();
@@ -553,7 +559,7 @@ if ($count && $privileges) {
   # leases_data is the name used by leases.js to locate this table
   echo "<table id='leases_data'>";
   # pass the slicename as the [0,0] coordinate as thead>tr>td
-  echo "<thead><tr><td>" . $slice['name'] . "</td>";
+  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . "</td>";
   for ($i=0; $i<$steps; $i++) 
     // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
     echo "<th>" . ($start+$i*$grain) . "&" . strftime("%H:%M",$start+$i*$grain). "</th>";
@@ -576,7 +582,7 @@ if ($count && $privileges) {
 	  array_shift($leases);
 	  }*/
 	$duration=$lease['nuntil']-$counter;
-	echo "<td colspan='$duration'>" . $lease['name'] . "</td>";
+	echo "<td colspan='$duration'>" . $lease['lease_id'] . '&' . $lease['name'] . "</td>";
 	$counter=$lease['nuntil']; 
       } else {
 	echo "<td></td>";

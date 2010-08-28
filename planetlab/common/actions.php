@@ -116,6 +116,12 @@ $known_actions []= "add-nodegroup";
 $known_actions []= 'delete-nodegroups';
 //	expects nodegroup_ids
 
+//////////////////////////////////////// leases
+$known_actions []= "manage-leases";
+//	expects as 'actions' a list of 'action' of the form
+//      either [ 'add-leases', [nodenames], slicename, t_from, t_until ]
+//      or     [ 'delete-leases', lease_id ]
+
 ////////////////////////////////////////////////////////////
 $interface_details= array ('method','type', 'ip', 'gateway', 'network', 
 			   'broadcast', 'netmask', 'dns1', 'dns2', 
@@ -941,6 +947,41 @@ Our support team will be glad to answer any question that you might have.
    else
      drupal_set_error ("Could not delete all selected groups, only $counter were removed");
    plc_redirect (l_nodegroups());
+   break;
+ }
+
+//////////////////////////////////////// leases
+ case 'manage-leases': {
+   $actions=json_decode($_POST['actions']);
+   foreach ($actions as $action) {
+     $todo=$action[0];
+     switch ($todo) {
+     case 'add-leases': {
+       plc_debug('(add) action',$action);
+       break;
+     }
+     case 'delete-leases': {
+       plc_debug('(delete) action',$action);
+       break;
+     }
+     default: {
+       plc_debug('wrong entry',$action);
+     }
+     }
+   }
+   
+   /*
+   plc_debug('POST',$_POST);
+   $slicename=$_POST['slicename'];
+   $nodenames=$_POST['nodenames'];
+   $t_from=intval($_POST['t_from']);
+   $t_until=intval($_POST['t_until']);
+   foreach ($nodenames as $nodename) plc_debug('nodename',$nodename);
+   $json=json_decode($_POST['nodenames_json']);
+   plc_debug('json_decode',$json);
+   $api->AddLeases();
+   */
+
    break;
  }
 
