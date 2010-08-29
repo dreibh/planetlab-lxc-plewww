@@ -953,34 +953,45 @@ Our support team will be glad to answer any question that you might have.
 //////////////////////////////////////// leases
  case 'manage-leases': {
    $actions=json_decode($_POST['actions']);
+   $add_requested=0;
+   $add_done=0;
+   $del_requested=0;
+   $del_done=0;
+   $errors=array();
    foreach ($actions as $action) {
-     $todo=$action[0];
-     switch ($todo) {
-     case 'add-leases': {
-       plc_debug('(add) action',$action);
-       break;
-     }
-     case 'delete-leases': {
-       plc_debug('(delete) action',$action);
-       break;
-     }
-     default: {
-       plc_debug('wrong entry',$action);
-     }
+     if ($action[0] == 'add-leases') {
+       $nodenames=$action[1];
+       $add_requested += count($nodenames);
+       $slicename=$action[2];
+       $t_from=intval($action[3]);
+       $t_until=intval($action[4]);
+       $hash = $api->AddLeases($nodenames,$slicename,$t_from,$t_until);
+       // update number of added leases
+       $ids=$hash['new_ids'];
+       $add_done += count($ids);
+       // update global errors array
+       foreach ($api_errors=$hash['errors'] as $error) $errors[]=$error;
+     } else if ($action[0]=='delete-leases') {
+       $lease_id=intval($action[1]);
+       $del_requested += 1;
+       if ($api->DeleteLeases(array($lease_id)) == 1) {
+	 $del_done += 1;
+       } else {
+	 $errors []= "Could not delete lease " . $lease_id;
+       }
+     } else {
+       $errors []= "in actions.php, manage-leases, wrong action ". $action[0];
      }
    }
    
-   /*
-   plc_debug('POST',$_POST);
-   $slicename=$_POST['slicename'];
-   $nodenames=$_POST['nodenames'];
-   $t_from=intval($_POST['t_from']);
-   $t_until=intval($_POST['t_until']);
-   foreach ($nodenames as $nodename) plc_debug('nodename',$nodename);
-   $json=json_decode($_POST['nodenames_json']);
-   plc_debug('json_decode',$json);
-   $api->AddLeases();
-   */
+   if (count($errors)==0) {
+     echo("All leases updated (" . $add_done . " added and " . $del_done . " deleted)");
+   } else {
+     foreach ($errors as $error) echo($error. "\n");
+     echo("Leases updated only partially (" . 
+	  $add_done . "/" . $add_requested . " added and " . 
+	  $del_done . "/" . $del_requested . " deleted)");
+   }     
 
    break;
  }

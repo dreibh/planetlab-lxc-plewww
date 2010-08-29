@@ -1,7 +1,7 @@
 /* need to put some place else in CSS ? */
 
 // space for the nodenames
-var x_nodelabel = 120;
+var x_nodelabel = 200;
 // right space after the nodename - removed from the above
 var x_sep=20;
 // height for the (two) rows of timelabels
@@ -174,7 +174,7 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 		/* scan the leases just after this one and merge if appropriate */
 		var j=i+1;
 		while (j<len && lease_methods.compare (lease, until_time, this.leases[j])) {
-		    window.console.log('merged index='+j);
+//		    window.console.log('merged index='+j);
 		    until_time=this.leases[j].until_time;
 		    ++j; ++i;
 		}
@@ -203,12 +203,13 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 				   onSuccess: function(transport) {
 				       var response = transport.responseText || "no response text";
 				       document.body.style.cursor = "default";
-				       alert("Success (sliceid=" + sliceid + ")\n\n" + response);
+				       alert("Server answered:\n\n" + response + "\n\nPress OK to refresh page");
 				       redirect(sliceid);
 				   },
 				   onFailure: function(){ 
 				       document.body.style.cursor = "default";
-				       alert('Something went wrong...') 
+				       alert("Could not reach server, sorry...\n\nPress OK to refresh page");
+				       // not too sure what to do here ...
 				       redirect(sliceid);
 				   },
 				  });
