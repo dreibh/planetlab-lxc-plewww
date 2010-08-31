@@ -186,13 +186,13 @@ print <<< EOF
 <p>You must provide a short description of the new slice 
 as well as a link to a project website before creating it. 
 <br/>
-Do <strong>not</strong> provide bogus information; if a complaint 
+Do <span class='bold'>not</span> provide bogus information; if a complaint 
 is lodged against your slice and your PlanetLab Operations Center
 is unable to determine what the normal behavior of your slice is, 
 your slice may be deleted to resolve the complaint.
 </p>
-<p><strong>NOTE</strong>: 
-All PlanetLab users are <strong>strongly</strong> encouraged to join the PlanetLab 
+<p><span class='bold'>NOTE</span>: All PlanetLab users are <span class='bold'>strongly</span>
+ encouraged to join the PlanetLab 
 <a href='https://lists.planet-lab.org/mailman/listinfo/users'>Users</a> 
 mailing list. Most questions about running software on PlanetLab can be answered by 
 posting to this list. 
@@ -237,10 +237,10 @@ $instantiation_text = <<< EOF
 <div class='create-slice-instantiations'>
 <p>There are four possible "instantiation" states for a slice.</p>
 <ul>
-<li> <strong>PLC</strong> creates a slice with default settings. </li>
-<li><strong>Delegated</strong> creates a ticket to use on each node. </li>
-<li><strong>Controller</strong> creates a slice on all nodes to manipulate Delegated slices. </li>
-<li><strong>None</strong> allows you to reserve a slice name; you may instantiate the slice later.</li>
+<li> <span class='bold'>PLC</span> creates a slice with default settings. </li>
+<li><span class='bold'>Delegated</span> creates a ticket to use on each node. </li>
+<li><span class='bold'>Controller</span> creates a slice on all nodes to manipulate Delegated slices. </li>
+<li><span class='bold'>None</span> allows you to reserve a slice name; you may instantiate the slice later.</li>
 </ul>
 </div>
 EOF;

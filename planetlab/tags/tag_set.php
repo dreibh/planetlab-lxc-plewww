@@ -55,7 +55,7 @@ return;
   }
   echo "</select>\n";
   
-  echo "<p><strong>Value: </strong><input type=text name='value'>\n";
+  echo "<p><span class='bold'>Value: </span><input type=text name='value'>\n";
   
   echo "<p><input type=submit name='add_tag' value='Add Tag'>\n";
   echo "<input type=hidden name='slice_id' value='$slice_id'>\n";
@@ -79,7 +79,7 @@ else {
   echo "<h2>Edit ". $slice_info[0]['name'] ." tag: ". $tag_type[0]['tagname'] ."</h2>\n";
   
   echo $slice_tag[0]['description'] ."<br />\n";
-  echo "<strong>Value:</strong> <input type=text name=value value='". $slice_tag[0]['value'] ."'><br /><br />\n";
+  echo "<span class='bold'>Value:</span> <input type=text name=value value='". $slice_tag[0]['value'] ."'><br /><br />\n";
   
   echo "<input type=submit value='Edit Tag' name='edit_tag'>\n";
   echo "<input type=hidden name='slice_id' value='". $slice_tag[0]['slice_id'] ."'>\n";

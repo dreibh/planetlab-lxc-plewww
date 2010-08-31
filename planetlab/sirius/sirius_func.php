@@ -303,7 +303,7 @@ function findNextQueue($units, $timesOccupied) {
 	// green background will mean slot is open, and red will mean the slot is used
 	// 
   echo "<table cellspacing=\"2\" cellpadding=\"1\" border=\"0\" width=550>\n";
-  echo "<tr><td colspan=\"3\"><strong>24 hour Queue:</strong> Choose the GMT time slot you desire (<font color=\"#339933\">green</font> slots are open, <font color=\"#CC3333\">red</font> are taken) <p></td></tr>\n";
+  echo "<tr><td colspan=\"3\"><span class='bold'>24 hour Queue:</span> Choose the GMT time slot you desire (<font color=\"#339933\">green</font> slots are open, <font color=\"#CC3333\">red</font> are taken) <p></td></tr>\n";
   echo "<tr><td width=\"47%\" align=\"right\"><table cellspacing=1 cellpadding=1 border=0 width=130>\n";
 
   // here's what this does below: it goes through each hour, and sees if the slot is occupied

@@ -57,7 +57,7 @@ include 'plc_header.php';
 <?
 if( count($errors) > 0 )
 {
-  print( "<p><strong>The following errors occured:</strong>" );
+  print( "<p><span class='bold'>The following errors occured:</span>" );
   print( "<font color='red' size='-1'><ul>\n" );
   foreach( $errors as $err )
     {
