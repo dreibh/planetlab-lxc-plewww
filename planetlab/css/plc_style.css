@@ -28,18 +28,20 @@ body {
 
 /* -------------------- inputs in forms */
 /* don't mess with other types of input, e.g. buttons might get affected */
-input[type="text"], textarea
-{
-    border: solid 1px #85b1de;
+input[type="text"], textarea {
+    border: solid 1px #444;
     background-image: url( '/planetlab/icons/form_input_bg.png' );
     background-repeat: repeat-x;
     background-position: top;
 }
 
-/*
-xxx todo - - tweak the layout of disabled fields
-st like [disabled="disabled'] 
-*/
+/* make disabled fields more obvious */
+input[type="text"][disabled], textarea[disabled] {
+    border: solid 1px #f8f8f8;
+    background-image: url( '/planetlab/icons/form_input_disabled.png' );
+    background-repeat: repeat-x;
+    background-position: top;
+}
 
 /* -------------------- errors & warnings */
 .plc-warning {
