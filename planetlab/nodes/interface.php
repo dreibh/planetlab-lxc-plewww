@@ -15,6 +15,7 @@ require_once 'linetabs.php';
 require_once 'details.php';
 require_once 'table.php';
 require_once 'toggle.php';
+require_once 'prototype.php';
 
 require_once 'plc_drupal.php';
 include 'plc_header.php';
@@ -89,8 +90,7 @@ $form=$details->form_start(l_actions(),$form_variables,
 $details->start();
 
 if ($mode == 'add') 
-  // would have preferred 'dhcp' as a default but could not figure how to trigger updateMethodFields on startup
-  $method_default = 'static';
+  $method_default = 'dhcp';
 else
   $method_default = $interface['method'];
 $method_select = $form->select_html ("method",
@@ -131,8 +131,10 @@ switch ($mode) {
    $is_primary = (count($node['interface_ids']) == 0);
    if ( ! $is_primary) {
      // default is to create virtual interfaces
-     $details->th_th($form->checkbox_html('is-virtual','yes',array('checked'=>'checked')),
-		     "Virtual Interface");
+     $details->th_th("Virtual Interface",
+		     $form->checkbox_html('is-virtual','yes',array('id'=>'virtual', 
+								   'checked'=>'checked',
+								   'onChange'=>'updateVirtualArea()')));
      $details->th_td("Interface name","eth0",'ifname');
      $details->th_td("alias (leave empty if unsure)","",'alias');
    }

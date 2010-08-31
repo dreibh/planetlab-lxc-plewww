@@ -191,4 +191,11 @@ function interfaceSubmit () {
   }
 }
 
+function updateVirtualArea () {
+    var is_virtual=$('virtual').checked;
+    $('ifname').disabled = ! is_virtual;  
+    $('alias').disabled = ! is_virtual;
+}
 
+Event.observe(window, 'load', updateMethodFields);
+Event.observe(window, 'load', updateVirtualArea);
