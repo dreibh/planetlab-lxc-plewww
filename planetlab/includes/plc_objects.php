@@ -207,6 +207,7 @@ class Node extends PlcObject {
   function Node($node) {
     global $plc, $api, $adm;
     $this->data = $node;
+    $this->node_type = $node['node_type'];
     $this->model = $node['model'];
     $this->node_id = $node['node_id'];
     $this->hostname = $node['hostname'];
@@ -230,6 +231,7 @@ class Node extends PlcObject {
 	    $this->dns1 = $nnet['dns1'];
 	    $this->dns2 = $nnet['dns2'];
 	    $this->method = $nnet['method'];
+	    $this->interface_id = $nnet['interface_id'];
 	  }
       }
   }
