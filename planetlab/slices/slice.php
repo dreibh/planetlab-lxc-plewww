@@ -40,8 +40,10 @@ $slice_id=intval($_GET['id']);
 if ( ! $slice_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////
-// Get all columns as we focus on only one entry
-$slices= $api->GetSlices( array($slice_id));
+// have to name columns b/c we need the non-native 'omf_control' column
+$slice_columns=array('slice_id','name','peer_id','site_id','person_ids','node_ids',
+		     'url','description','instantiation','omf_control');
+$slices= $api->GetSlices( array($slice_id), $slice_columns);
 
 if (empty($slices)) {
   drupal_set_message ("Slice " . $slice_id . " not found");
@@ -147,10 +149,15 @@ EOF;
      } else {
       print <<< EOF
 <div class='my-slice-renewal'>
-<p>You must provide a short description as well as a link to a project website before renewing it.
-Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against your slice 
-and PlanetLab Operations is unable to determine what the normal behavior of your slice is, 
-your slice may be deleted to resolve the complaint.</p>
+<p>You <span class='bold'>must</span> provide a short description, 
+as well as a link to a project website, before renewing it.
+
+<br/> Please make sure to provide reasonable details on <span class='bold'>
+the kind of traffic</span>, and <span class='bold'>copyrights</span> if relevant. 
+Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against 
+your slice  and your PlanetLab Operations Center is unable to determine what the normal behavior 
+of your slice is, your slice may be deleted to resolve the complaint.</p>
+
 <p><span class='bold'>NOTE:</span> 
 Slices cannot be renewed beyond another $max_renewal_weeks week(s) ($max_renewal_date).
 </p>
@@ -253,6 +260,7 @@ $details->th_td('URL',$slice['url'],'url',array('width'=>50));
 $details->tr_submit("submit","Update Slice");
 $details->th_td('Expires',$expires);
 $details->th_td('Instantiation',$slice['instantiation']);
+$details->th_td("OMF-friendly", ($slice['omf_control'] ? 'Yes' : 'No') . " [to change: see 'omf_control' in the tags section below]");
 $details->th_td('Site',l_site_obj($site));
 // xxx show the PIs here
 //$details->th_td('PIs',...);

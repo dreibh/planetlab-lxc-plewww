@@ -89,6 +89,14 @@ if ( $_POST['add-slice'] ) {
 
     if ($slice_id > 0) {
       drupal_set_message ("Slice $slice_id created");
+      if (isset($_POST['omf-control'])) {
+	if ($api->SetSliceOmfControl($slice_id,'yes') != 'yes') {
+	  drupal_set_error("Could not set the 'omf_control' tag on newly created slice...");
+	} else {
+	  drupal_set_message("Successfully set the 'omf_control' tag on slice");
+	}
+      }
+
       if ($person_ids) {
         // Add people
 	$success=true;
@@ -183,14 +191,15 @@ if ($multiple_sites) {
 		  
 print <<< EOF
 <div class='create-slice-instantiations'>
-<p>You must provide a short description of the new slice 
-as well as a link to a project website before creating it. 
-<br/>
-Do <span class='bold'>not</span> provide bogus information; if a complaint 
-is lodged against your slice and your PlanetLab Operations Center
-is unable to determine what the normal behavior of your slice is, 
-your slice may be deleted to resolve the complaint.
-</p>
+<p>You <span class='bold'>must</span> provide a short description, 
+as well as a link to a project website, before creating it.
+
+<br/> Please make sure to provide reasonable details on <span class='bold'>
+the kind of traffic</span>, and <span class='bold'>copyrights</span> if relevant. 
+Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against 
+your slice  and your PlanetLab Operations Center is unable to determine what the normal behavior 
+of your slice is, your slice may be deleted to resolve the complaint.</p>
+
 <p><span class='bold'>NOTE</span>: All PlanetLab users are <span class='bold'>strongly</span>
  encouraged to join the PlanetLab 
 <a href='https://lists.planet-lab.org/mailman/listinfo/users'>Users</a> 
@@ -232,6 +241,14 @@ $instantiation_select = $form->select_html ("instantiation", $selectors);
 $details->th_td("Instantiation",$instantiation_select,"instantiation",
 		array('input_type'=>'select', 'value'=>$instantiation));
 
+// display the current settings if any (like, we've screwed up the first time)
+if (isset($_POST['omf-control'])) {
+  $omf_options=array('checked'=>'checked');
+} else {
+  $omf_options=array();
+}
+$details->th_td("OMF friendly",
+		$form->checkbox_html('omf-control','yes',$omf_options));
 
 $instantiation_text = <<< EOF
 <div class='create-slice-instantiations'>
@@ -242,6 +259,10 @@ $instantiation_text = <<< EOF
 <li><span class='bold'>Controller</span> creates a slice on all nodes to manipulate Delegated slices. </li>
 <li><span class='bold'>None</span> allows you to reserve a slice name; you may instantiate the slice later.</li>
 </ul>
+<p>PLC instantiated slices can be defined as <span class='bold'>OMF friendly</span>, 
+in which case slivers come with the OMF <span class='bold'>Resource Controller</span> pre-installed and pre-configured. 
+Such slivers can then be easily managed through a centralized tool, the OMF Experiment Controller.
+</p>
 </div>
 EOF;
 
