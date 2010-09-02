@@ -262,6 +262,10 @@ $instantiation_text = <<< EOF
 <p>PLC instantiated slices can be defined as <span class='bold'>OMF friendly</span>, 
 in which case slivers come with the OMF <span class='bold'>Resource Controller</span> pre-installed and pre-configured. 
 Such slivers can then be easily managed through a centralized tool, the OMF Experiment Controller.
+Using these <a href="http://omf.mytestbed.net">OMF tools</a>, a user can describe, instrument, 
+and automatically execute their experiments across many slivers.
+Please refer to <a href="http://mytestbed.net/wiki/omf/OMF_User_Guide">the OMF User Guide</a> 
+to learn more on how to use this feature.
 </p>
 </div>
 EOF;
