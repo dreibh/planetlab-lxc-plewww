@@ -41,7 +41,7 @@ if ( ! $slice_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////
 // have to name columns b/c we need the non-native 'omf_control' column
-$slice_columns=array('slice_id','name','peer_id','site_id','person_ids','node_ids',
+$slice_columns=array('slice_id','name','peer_id','site_id','person_ids','node_ids','expires',
 		     'url','description','instantiation','omf_control');
 $slices= $api->GetSlices( array($slice_id), $slice_columns);
 
@@ -545,8 +545,9 @@ if ($count && $privileges) {
   $grain=$api->GetLeaseGranularity();
   // xxx should be configurable
   $now=time(); 
-  // xxx ditto, for now, show the next 48 hours, or 96 grains, which ever is smaller
-  $duration=min(24*3600,24*$grain);
+  // xxx ditto, 
+  // for now, show the next 72 hours, or 72 grains, which ever is smaller
+  $duration=min(72*3600,72*$grain);
   $steps=$duration/$grain;
   $start=intval($now/$grain)*$grain;
   $end=$now+$duration;
