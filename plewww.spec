@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 47
+%define taglevel 48
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,12 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Sep 01 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-48
+- reservation section now effective
+- can set omf_control at slice-creation time
+- can set node as reservable at node-creation time
+- nicer text input fields + various tweaks
+
 * Tue Jul 06 2010 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - plewww-4.3-47
 - show nodegroups form to add new groups
 
