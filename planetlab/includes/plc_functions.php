@@ -371,14 +371,18 @@ function plc_itemize ($messages, $class="") {
   return $formatted;
 }
 
-//////////
+////////// just return a truncated text
 function truncate ($text,$numb,$etc = "...") {
-  if (strlen($text) > $numb) {
-    $text = substr($text, 0, $numb);
-    $text = $text.$etc;
-  }
-  return $text;
+  if (strlen($text) <= $numb)	return $text;
+  return substr($text, 0, $numb).$etc;
 }
+// ditto but in case the text is too lare, returns a <span> with its 'title' set to the full value
+function truncate_and_popup ($text,$numb,$etc = "...") {
+  if (strlen($text) <= $numb)	return $text;
+  $display=substr($text, 0, $numb).$etc;
+  return sprintf("<span title='%s'>%s</span>",$text,$display);
+}
+  
 // generates <(atom) class=(class)> (text) </(atom)>
 function html_atom ($atom,$text,$class="") {
   $html="<$atom";
@@ -420,9 +424,33 @@ function bold_html ($text)		{ return html_span($text,'bold'); }
 
 // shows a php variable verbatim with a heading message
 function plc_debug ($message,$object) {
-  print "<br>" . $message . "<pre>";
+  print "<br />" . $message . "<pre>";
   print_r ($object);
   print "</pre>";
+}
+
+$plc_prof_start=0.;
+$plc_prof_time=0.;
+$plc_prof_counter=0;
+function plc_debug_prof_start () {
+  global $plc_prof_counter, $plc_prof_start, $plc_prof_time;
+  $plc_prof_counter=0;
+  plc_debug(strftime("[0] %T (start)") ,"heating up");
+  $plc_prof_time=microtime(true);
+  $plc_prof_start=$plc_prof_time;
+}
+function plc_debug_prof ($message,$object) {
+  global $plc_prof_counter, $plc_prof_start, $plc_prof_time;
+  $plc_prof_counter+=1;
+  $now=microtime(true);
+  $timelabel=strftime("%T");
+  $prof_message=sprintf("[%d] %s (%2.3f s -- %2.3f s) ",$plc_prof_counter,$timelabel,
+			($now-$plc_prof_time),($now-$plc_prof_start));
+  plc_debug($prof_message.$message,$object);
+  $plc_prof_time=$now;
+}
+function plc_debug_prof_end () {
+  plc_debug_prof ("end","cooling down");
 }
 
 if (! function_exists ("drupal_set_error")) {
@@ -532,4 +560,10 @@ function count_english_warning ($objs, $name) {
   if (count ($objs) == 0) $x=plc_warning_html($x . ' !!');
   return $x;
 }
+
+//////////////////// outlining reservable nodes
+$reservable_mark="-R-";
+$reservable_legend="reservable nodes are marked with " . $reservable_mark;
+
+
 ?>
