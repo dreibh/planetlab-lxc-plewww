@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 48
+%define taglevel 49
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,17 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Fri Sep 03 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-49
+- bugfix in slice page, had wrong (null) expiration date
+- upgraded to raphael-1.5.2, don't minimize this lib
+- nicer layout for password fields as well
+- long tag values in the slice page (ssh keys..) get truncated, plain value show on hovering
+- marginally optimized slice page (2 GetNodes call down)
+- minimal profiling cap., and usable in the slice page with _GET[profiling]=1
+- _GET[resa_slots] to set number of slots, _GET[resa_offset] to book in the future (in hours)
+- reservations can cope with a bit more slots - will need scrolling someday
+- omf text has hyperlinks to the tools
+
 * Wed Sep 01 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-48
 - reservation section now effective
 - can set omf_control at slice-creation time
