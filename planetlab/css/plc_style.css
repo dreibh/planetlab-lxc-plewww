@@ -27,10 +27,20 @@ body {
 }
 
 /* -------------------- inputs in forms */
+/* note: this is used by the register wizard as well
+   in case where importing all this file this would some day conflict
+   it might make sense to split this file into plc_style (general) and plc_views (specifics) */
 /* don't mess with other types of input, e.g. buttons might get affected */
 input[type="text"], textarea {
     border: solid 1px #444;
     background-image: url( '/planetlab/icons/form_input_bg.png' );
+    background-repeat: repeat-x;
+    background-position: top;
+}
+
+input[type="password"], textarea {
+    border: solid 1px #444;
+    background-image: url( '/planetlab/icons/form_input_password.png' );
     background-repeat: repeat-x;
     background-position: top;
 }
