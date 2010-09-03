@@ -543,16 +543,20 @@ if ($count && $privileges) {
 				 array('visible'=>get_arg('show_nodes_resa',false)));
   $toggle_nodes->start();
   $grain=$api->GetLeaseGranularity();
+  // where to start from, expressed as an offset in hours from now
+  $resa_offset=$_GET['resa_offset'];
+  if ( ! $resa_offset ) $resa_offset=0;
+  $rough_start=time()+$resa_offset*3600;
   // xxx should be configurable
-  $now=time(); 
-  // xxx ditto, 
+  $resa_slots=$_GET['resa_slots'];
+  if ( ! $resa_slots ) $resa_slots = 36;
   // for now, show the next 72 hours, or 72 grains, which ever is smaller
-  $duration=min(72*3600,72*$grain);
+  $duration=$resa_slots*$grain;
   $steps=$duration/$grain;
-  $start=intval($now/$grain)*$grain;
-  $end=$now+$duration;
+  $start=intval($rough_start/$grain)*$grain;
+  $end=$rough_start+$duration;
   $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
-  $leases=$api->GetLeases(array(']t_until'=>$now,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
+  $leases=$api->GetLeases(array(']t_until'=>$rough_start,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
   // hash nodes -> leases
   $host_hash=array();
   foreach ($leases as $lease) {
@@ -567,11 +571,17 @@ if ($count && $privileges) {
   }
   # leases_data is the name used by leases.js to locate this table
   echo "<table id='leases_data'>";
-  # pass the slicename as the [0,0] coordinate as thead>tr>td
+  # pass (slice_id,slicename) as the [0,0] coordinate as thead>tr>td
   echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . "</td>";
-  for ($i=0; $i<$steps; $i++) 
+  # the timeslot headers read (timestamp,label)
+  $day_names=array('Su','M','Tu','W','Th','F','Sa');
+  for ($i=0; $i<$steps; $i++) {
+    $timestamp=($start+$i*$grain);
+    $day=$day_names[intval(strftime("%w",$timestamp))];
+    $label=$day . strftime(" %H:%M",$timestamp);
     // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
-    echo "<th>" . ($start+$i*$grain) . "&" . strftime("%H:%M",$start+$i*$grain). "</th>";
+    echo "<th>" . implode("&",array($timestamp,$label)) . "</th>";
+  }
   echo "</tr></thead><tbody>";
   // todo - sort on hostnames
   function sort_hostname ($a,$b) { return ($a['hostname']<$b['hostname'])?-1:1;}

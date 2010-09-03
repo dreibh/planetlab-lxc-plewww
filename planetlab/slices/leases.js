@@ -10,7 +10,7 @@ var y_header = 12;
 var y_sep = 10;
 
 // 1-grain leases attributes
-var x_grain = 24;
+var x_grain = 20;
 var y_node = 15;
 var radius= 6;
 
@@ -20,14 +20,16 @@ var anim_delay=500;
 
 // vertical rules
 var attr_rules={'fill':"#888", 'stroke-dasharray':'- ', 'stroke-width':0.5};
-var txt_timelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
+// set font-size separately in here rather than depend on the height
+var txt_timelabel = {"font": 'Times, "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', 
+		     stroke: "none", fill: "#008", 'font-size': 9};
 var txt_allnodes = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#404"};
 var txt_nodelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
 
 var attr_timebutton = {'fill':'#bbf', 'stroke': '#338','stroke-width':2, 
 		       'stroke-linecap':'round', 'stroke-linejoin':'miter', 'stroke-miterlimit':3};
 // keep consistent with sizes above - need for something nicer
-var timebutton_path = "M1,0L23,0L12,13L1,0";
+var timebutton_path = "M1,0L19,0L10,8L1,0";
 
 /* lease dimensions and colors */
 /* refrain from using gradient color, seems to not be animated properly */
@@ -89,7 +91,7 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 	    col +=1;
 	    // display time label
 	    var timelabel=paper.text(left,y,timelabel).attr(txt_timelabel)
-		.attr({"font-size":y_header, "text-anchor":"middle"});
+		.attr({"text-anchor":"middle"});
 	    // draw vertical line
 	    var path_spec="M"+left+" "+(y+y_header/2)+"L"+left+" "+this.total_height;
 	    var rule=paper.path(path_spec).attr(attr_rules);
