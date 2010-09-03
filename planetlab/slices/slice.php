@@ -34,6 +34,11 @@ drupal_set_html_head('
 // -------------------- admins potentially need to get full list of users
 ini_set('memory_limit','32M');
 
+$profiling=false;
+if ($_GET['profiling']) $profiling=true;
+
+if ($profiling)  plc_debug_prof_start();
+
 // -------------------- 
 // recognized URL arguments
 $slice_id=intval($_GET['id']);
@@ -52,6 +57,7 @@ if (empty($slices)) {
 
 $slice=$slices[0];
 
+if ($profiling) plc_debug_prof('2: slice',count($slices));
 // pull all node info to vars
 $name= $slice['name'];
 $expires = date( "d/m/Y", $slice['expires'] );
@@ -64,12 +70,15 @@ $peer_id= $slice['peer_id'];
 $peers=new Peers ($api);
 $local_peer = ! $peer_id;
 
+if ($profiling) plc_debug_prof('3: peers',count($peers));
+
 // gets site info
 $sites= $api->GetSites( array( $site_id ) );
 $site=$sites[0];
 $site_name= $site['name'];
 $max_slices = $site['max_slices'];
 
+if ($profiling) plc_debug_prof('4: sites',count($sites));
 //////////////////////////////////////// building blocks for the renew area
 // Constants
 global $DAY;		$DAY = 24*60*60;
@@ -193,7 +202,7 @@ $tags_privileges = $privileges || plc_is_admin();
 
 $tabs=array();
 $tabs [] = tab_nodes_slice($slice_id);
-$tabs [] = tab_site($site_id);
+$tabs [] = tab_site($site);
 
 // are these the right privileges for deletion ?
 if ($privileges) {
@@ -284,6 +293,7 @@ $potential_persons=
 		   $person_columns);
 $count=count($persons);
 
+if ($profiling) plc_debug_prof('4: persons',count($persons));
 $toggle=
   new PlekitToggle ('my-slice-persons',"$count Users",
 		    array('bubble'=>
@@ -401,18 +411,26 @@ $node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist'
 $visibletags = new VisibleTags ($api, 'node');
 $visiblecolumns = $visibletags->column_names();
 $node_columns=array_merge($node_fixed_columns,$visiblecolumns);
-$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
-$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
-// reservable nodes: display only the ones in the slice to avoid confusion - also avoid an extra API call
+
+// optimizing calls to GetNodes
+$all_nodes=$api->GetNodes(NULL,$node_columns);
+//$slice_nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
+//$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
+$slice_nodes=array();
+$potential_nodes=array();
 $reservable_nodes=array();
-foreach ($nodes as $node) { if ($node['node_type']=='reservable') $reservable_nodes[]=$node; }
-
-$reservable_mark="-R-";
-$reservable_legend="reservable nodes are marked with " . $reservable_mark;
-
+foreach ($all_nodes as $node) {
+  if (in_array($node['node_id'],$slice['node_ids'])) {
+    $slice_nodes[]=$node;
+    if ($node['node_type']=='reservable') $reservable_nodes[]=$node;
+  } else {
+    $potential_nodes[]=$node;
+  }
+}
+if ($profiling) plc_debug_prof('5: nodes',count($slice_nodes));
 ////////////////////
 // outline the number of reservable nodes
-$nodes_message=count_english($nodes,"node");
+$nodes_message=count_english($slice_nodes,"node");
 if (count($reservable_nodes)) $nodes_message .= " (" . count($reservable_nodes) . " reservable)";
 $toggle=new PlekitToggle ('my-slice-nodes',$nodes_message,
 			  array('bubble'=>
@@ -422,7 +440,7 @@ $toggle->start();
 
 //////////////////// nodes currently in
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
-			       count_english($nodes,"node") . " currently in $name",
+			       count_english($slice_nodes,"node") . " currently in $name",
 			       array('visible'=>get_arg('show_nodes_current',!$privileges)));
 $toggle_nodes->start();
 
@@ -448,7 +466,7 @@ $table=new PlekitTable('nodes',$headers,'1',$table_options);
 $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
 $table->start();
-if ($nodes) foreach ($nodes as $node) {
+if ($slice_nodes) foreach ($slice_nodes as $node) {
   $table->row_start();
   $peers->cell($table,$node['peer_id']);
   $table->cell(l_node_obj($node));
@@ -543,6 +561,7 @@ if ($count && $privileges) {
 				 array('visible'=>get_arg('show_nodes_resa',false)));
   $toggle_nodes->start();
   $grain=$api->GetLeaseGranularity();
+  if ($profiling) plc_debug_prof('6 granul',$grain);
   // where to start from, expressed as an offset in hours from now
   $resa_offset=$_GET['resa_offset'];
   if ( ! $resa_offset ) $resa_offset=0;
@@ -557,6 +576,7 @@ if ($count && $privileges) {
   $end=$rough_start+$duration;
   $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
   $leases=$api->GetLeases(array(']t_until'=>$rough_start,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
+  if ($profiling) plc_debug_prof('7 leases',count($leases));
   // hash nodes -> leases
   $host_hash=array();
   foreach ($leases as $lease) {
@@ -626,9 +646,12 @@ EOF;
  }
 $toggle->end();
 
+// very wide values get abbreviated
+$tag_value_threshold=24;
 //////////////////////////////////////////////////////////// Tags
 //if ( $local_peer ) {
   $tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
+  if ($profiling) plc_debug_prof('8 slice tags',count($tags));
   function get_tagname ($tag) { return $tag['tagname'];}
   $tagnames = array_map ("get_tagname",$tags);
   
@@ -654,23 +677,26 @@ $toggle->end();
     foreach ($tags as $tag) {
       $node_name = "ALL";
       if ($tag['node_id']) {
-        $nodes = $api->GetNodes(array('node_id'=>$tag['node_id']));
-        if($nodes) {
-          $node = $nodes[0];
+        $tag_nodes = $api->GetNodes(array('node_id'=>$tag['node_id']));
+	if ($profiling) plc_debug_prof('9 node for slice tag',count($tag_nodes));
+        if($tag_nodes) {
+          $node = $tag_nodes[0];
           $node_name = $node['hostname'];
         }
       }
       $nodegroup_name="n/a";
       if ($tag['nodegroup_id']) { 
-        $nodegroup=$api->GetNodeGroups(array('nodegroup_id'=>$tag['nodegroup_id']));
+        $nodegroups=$api->GetNodeGroups(array('nodegroup_id'=>$tag['nodegroup_id']));
+	if ($profiling) plc_debug_prof('10 nodegroup for slice tag',$nodegroup);
         if ($nodegroup) {
-          $nodegroup = $nodegroup[0];
+          $nodegroup = $nodegroups[0];
           $nodegroup_name = $nodegroup['groupname'];
         }
       }
       $table->row_start();
       $table->cell(l_tag_obj($tag));
-      $table->cell($tag['value']);
+      // very wide values get abbreviated
+      $table->cell(truncate_and_popup($tag['value'],$tag_value_threshold));
       $table->cell($node_name);
       $table->cell($nodegroup_name);
       if ($tags_privileges) $table->cell ($form->checkbox_html('slice_tag_ids[]',$tag['slice_tag_id']));
@@ -689,18 +715,19 @@ $toggle->end();
       return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']);
     }
     $all_tags= $api->GetTagTypes( array ("category"=>"slice*","-SORT"=>"+tagname"), array("tagname","tag_type_id"));
+    if ($profiling) plc_debug_prof('11 tagtypes',count($all_tags));
     $selector_tag=array_map("tag_selector",$all_tags);
     
     function node_selector($node) { 
       return array("display"=>$node["hostname"],"value"=>$node['node_id']);
     }
-    $all_nodes = $api->GetNodes( array ("node_id" => $slice['node_ids']), array("hostname","node_id"));
-    $selector_node=array_map("node_selector",$all_nodes);
+    $selector_node=array_map("node_selector",$slice_nodes);
     
     function nodegroup_selector($ng) {
       return array("display"=>$ng["groupname"],"value"=>$ng['nodegroup_id']);
     }
     $all_nodegroups = $api->GetNodeGroups( array("groupname"=>"*"), array("groupname","nodegroup_id"));
+    if ($profiling) plc_debug_prof('13 nodegroups',count($all_nodegroups));
     $selector_nodegroup=array_map("nodegroup_selector",$all_nodegroups);
     
     $table->cell($form->select_html("tag_type_id",$selector_tag,array('label'=>"Choose Tag")));
@@ -723,6 +750,8 @@ if ($local_peer ) {
  }
 
 $peers->block_end($peer_id);
+
+if ($profiling) plc_debug_prof_end();
 
 // Print footer
 include 'plc_footer.php';
