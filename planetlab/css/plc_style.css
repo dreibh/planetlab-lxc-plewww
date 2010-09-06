@@ -38,7 +38,7 @@ input[type="text"], textarea {
     background-position: top;
 }
 
-input[type="password"], textarea {
+input[type="password"] {
     border: solid 1px #444;
     background-image: url( '/planetlab/icons/form_input_password.png' );
     background-repeat: repeat-x;
