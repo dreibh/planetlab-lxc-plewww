@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 49
+%define taglevel 50
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Sep 06 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-50
+- cosmetic, rendering of textareas was like password fields
+
 * Fri Sep 03 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-49
 - bugfix in slice page, had wrong (null) expiration date
 - upgraded to raphael-1.5.2, don't minimize this lib
