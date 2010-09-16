@@ -562,8 +562,8 @@ function count_english_warning ($objs, $name) {
 }
 
 //////////////////// outlining reservable nodes
-$reservable_mark="-R-";
-$reservable_legend="reservable nodes are marked with " . $reservable_mark;
+function reservable_mark () { return "-R-";}
+function reservable_legend () { return "reservable nodes are marked with " . reservable_mark (); }
 
 
 ?>

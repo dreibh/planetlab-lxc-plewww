@@ -25,6 +25,7 @@ require_once 'toggle.php';
 require_once 'form.php';
 require_once 'raphael.php';
 
+plc_debug('legend',reservable_legend());
 // keep css separate for now
 drupal_set_html_head('
 <link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
@@ -448,9 +449,9 @@ $headers=array();
 $notes=array();
 $headers['peer']='string';
 $headers['hostname']='string';
-$short="ST"; $long=Node::status_footnote(); $type='string'; 
+$short="-S-"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-$short="R"; $long=$reservable_legend; $type='string';
+$short=reservable_mark(); $long=reservable_legend(); $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 // the extra tags, configured for the UI
 $headers=array_merge($headers,$visibletags->headers());
@@ -473,7 +474,7 @@ if ($slice_nodes) foreach ($slice_nodes as $node) {
   $run_level=$node['run_level'];
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
-  $table->cell( ($node['node_type']=='reservable')?$reservable_mark:"" );
+  $table->cell( ($node['node_type']=='reservable')?reservable_mark():"" );
   foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
@@ -515,9 +516,9 @@ if ($privileges) {
     $notes=array();
     $headers['peer']='string';
     $headers['hostname']='string';
-    $short="ST"; $long=Node::status_footnote(); $type='string'; 
+    $short="-S-"; $long=Node::status_footnote(); $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-    $short="R"; $long=$reservable_legend; $type='string';
+	$short=reservable_mark(); $long=reservable_legend(); $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
     // the extra tags, configured for the UI
     $headers=array_merge($headers,$visibletags->headers());
@@ -535,7 +536,7 @@ if ($privileges) {
 	$table->cell(l_node_obj($node));
 	list($label,$class) = Node::status_label_class_($node);
 	$table->cell ($label,array('class'=>$class));
-	$table->cell( ($node['node_type']=='reservable')?$reservable_mark:"" );
+	$table->cell( ($node['node_type']=='reservable')?reservable_mark():"" );
 	foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
