@@ -17,6 +17,7 @@ var radius= 6;
 var anim_delay=500;
 
 /* decorations / headers */
+/* note: looks like the 'font' attr is not effective... */
 
 // vertical rules
 var attr_rules={'fill':"#888", 'stroke-dasharray':'- ', 'stroke-width':0.5};

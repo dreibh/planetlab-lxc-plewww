@@ -25,7 +25,6 @@ require_once 'toggle.php';
 require_once 'form.php';
 require_once 'raphael.php';
 
-plc_debug('legend',reservable_legend());
 // keep css separate for now
 drupal_set_html_head('
 <link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
@@ -439,6 +438,116 @@ $toggle=new PlekitToggle ('my-slice-nodes',$nodes_message,
 				'visible'=>get_arg('show_nodes',false)));
 $toggle->start();
 
+////////// show a notice to people having attached a reservable node
+if (count($reservable_nodes) && $privileges) {
+  $mark=reservable_mark();
+  print <<<EOF
+<p class='note_reservable'>
+You have attached one or more <span class='bold'>reservable nodes</span> to your slice. 
+Reservable nodes show up with the '$mark' mark. 
+Your slice will be available <span class='bold'>only during timeslots
+where you have obtained leases</span>. 
+You can manage your leases in the tab below.
+<br>
+Please note that as of August 2010 this feature is experimental. 
+Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
+</p>
+EOF;
+}  
+
+//////////////////// reservable nodes area
+$count=count($reservable_nodes);
+if ($count && $privileges) {
+  // having reservable nodes in white lists looks a bit off scope for now...
+  $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
+				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
+				 array('visible'=>get_arg('show_nodes_resa',false)));
+  $toggle_nodes->start();
+  $grain=$api->GetLeaseGranularity();
+  if ($profiling) plc_debug_prof('6 granul',$grain);
+  // where to start from, expressed as an offset in hours from now
+  $resa_offset=$_GET['resa_offset'];
+  if ( ! $resa_offset ) $resa_offset=0;
+  $rough_start=time()+$resa_offset*3600;
+  // xxx should be configurable
+  $resa_slots=$_GET['resa_slots'];
+  if ( ! $resa_slots ) $resa_slots = 36;
+  // for now, show the next 72 hours, or 72 grains, which ever is smaller
+  $duration=$resa_slots*$grain;
+  $steps=$duration/$grain;
+  $start=intval($rough_start/$grain)*$grain;
+  $end=$rough_start+$duration;
+  $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
+  $leases=$api->GetLeases(array(']t_until'=>$rough_start,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
+  if ($profiling) plc_debug_prof('7 leases',count($leases));
+  // hash nodes -> leases
+  $host_hash=array();
+  foreach ($leases as $lease) {
+    $hostname=$lease['hostname'];
+    if ( ! $host_hash[$hostname] ) {
+	$host_hash[$hostname]=array();
+    }
+    // resync within the table
+    $lease['nfrom']=($lease['t_from']-$start)/$grain;
+    $lease['nuntil']=($lease['t_until']-$start)/$grain;
+    $host_hash[$hostname] []= $lease;
+  }
+  # leases_data is the name used by leases.js to locate this table
+  echo "<table id='leases_data'>";
+  # pass (slice_id,slicename) as the [0,0] coordinate as thead>tr>td
+  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . "</td>";
+  # the timeslot headers read (timestamp,label)
+  $day_names=array('Su','M','Tu','W','Th','F','Sa');
+  for ($i=0; $i<$steps; $i++) {
+    $timestamp=($start+$i*$grain);
+    $day=$day_names[intval(strftime("%w",$timestamp))];
+    $label=$day . strftime(" %H:%M",$timestamp);
+    // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
+    echo "<th>" . implode("&",array($timestamp,$label)) . "</th>";
+  }
+  echo "</tr></thead><tbody>";
+  // todo - sort on hostnames
+  function sort_hostname ($a,$b) { return ($a['hostname']<$b['hostname'])?-1:1;}
+  usort($reservable_nodes,sort_hostname);
+  foreach ($reservable_nodes as $node) {
+    echo "<tr><th scope='row'>". $node['hostname'] . "</th>";
+    $hostname=$node['hostname'];
+    $leases=$host_hash[$hostname];
+    $counter=0;
+    while ($counter<$steps) {
+      if ($leases && ($leases[0]['nfrom']<=$counter)) {
+	$lease=array_shift($leases);
+	/* nicer display, merge two consecutive leases for the same slice 
+	   avoid doing that for now, as it might makes things confusing */
+	/* while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
+	  $lease['nuntil']=$leases[0]['nuntil'];
+	  array_shift($leases);
+	  }*/
+	$duration=$lease['nuntil']-$counter;
+	echo "<td colspan='$duration'>" . $lease['lease_id'] . '&' . $lease['name'] . "</td>";
+	$counter=$lease['nuntil']; 
+      } else {
+	echo "<td></td>";
+	$counter+=1;
+      }
+    }
+    echo "</tr>";
+  }
+  echo "</tbody></table>\n";
+
+  // the general layout for the scheduler
+  echo <<< EOF
+<div id='leases_area'></div>
+
+<div id='leases_buttons'>
+  <button id='leases_clear' type='submit'>Clear</button>
+  <button id='leases_submit' type='submit'>Submit</button>
+</div>
+EOF;
+
+  $toggle_nodes->end();
+ }
+
 //////////////////// nodes currently in
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
 			       count_english($slice_nodes,"node") . " currently in $name",
@@ -553,98 +662,6 @@ if ($privileges) {
   $toggle_nodes->end();
 }
 
-//////////////////// reservable nodes area
-$count=count($reservable_nodes);
-if ($count && $privileges) {
-  // having reservable nodes in white lists looks a bit off scope for now...
-  $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
-				 count_english($reservable_nodes,"reservable node") . " in slice",
-				 array('visible'=>get_arg('show_nodes_resa',false)));
-  $toggle_nodes->start();
-  $grain=$api->GetLeaseGranularity();
-  if ($profiling) plc_debug_prof('6 granul',$grain);
-  // where to start from, expressed as an offset in hours from now
-  $resa_offset=$_GET['resa_offset'];
-  if ( ! $resa_offset ) $resa_offset=0;
-  $rough_start=time()+$resa_offset*3600;
-  // xxx should be configurable
-  $resa_slots=$_GET['resa_slots'];
-  if ( ! $resa_slots ) $resa_slots = 36;
-  // for now, show the next 72 hours, or 72 grains, which ever is smaller
-  $duration=$resa_slots*$grain;
-  $steps=$duration/$grain;
-  $start=intval($rough_start/$grain)*$grain;
-  $end=$rough_start+$duration;
-  $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
-  $leases=$api->GetLeases(array(']t_until'=>$rough_start,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
-  if ($profiling) plc_debug_prof('7 leases',count($leases));
-  // hash nodes -> leases
-  $host_hash=array();
-  foreach ($leases as $lease) {
-    $hostname=$lease['hostname'];
-    if ( ! $host_hash[$hostname] ) {
-	$host_hash[$hostname]=array();
-    }
-    // resync within the table
-    $lease['nfrom']=($lease['t_from']-$start)/$grain;
-    $lease['nuntil']=($lease['t_until']-$start)/$grain;
-    $host_hash[$hostname] []= $lease;
-  }
-  # leases_data is the name used by leases.js to locate this table
-  echo "<table id='leases_data'>";
-  # pass (slice_id,slicename) as the [0,0] coordinate as thead>tr>td
-  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . "</td>";
-  # the timeslot headers read (timestamp,label)
-  $day_names=array('Su','M','Tu','W','Th','F','Sa');
-  for ($i=0; $i<$steps; $i++) {
-    $timestamp=($start+$i*$grain);
-    $day=$day_names[intval(strftime("%w",$timestamp))];
-    $label=$day . strftime(" %H:%M",$timestamp);
-    // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
-    echo "<th>" . implode("&",array($timestamp,$label)) . "</th>";
-  }
-  echo "</tr></thead><tbody>";
-  // todo - sort on hostnames
-  function sort_hostname ($a,$b) { return ($a['hostname']<$b['hostname'])?-1:1;}
-  usort($reservable_nodes,sort_hostname);
-  foreach ($reservable_nodes as $node) {
-    echo "<tr><th scope='row'>". $node['hostname'] . "</th>";
-    $hostname=$node['hostname'];
-    $leases=$host_hash[$hostname];
-    $counter=0;
-    while ($counter<$steps) {
-      if ($leases && ($leases[0]['nfrom']<=$counter)) {
-	$lease=array_shift($leases);
-	/* nicer display, merge two consecutive leases for the same slice 
-	   avoid doing that for now, as it might makes things confusing */
-	/* while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
-	  $lease['nuntil']=$leases[0]['nuntil'];
-	  array_shift($leases);
-	  }*/
-	$duration=$lease['nuntil']-$counter;
-	echo "<td colspan='$duration'>" . $lease['lease_id'] . '&' . $lease['name'] . "</td>";
-	$counter=$lease['nuntil']; 
-      } else {
-	echo "<td></td>";
-	$counter+=1;
-      }
-    }
-    echo "</tr>";
-  }
-  echo "</tbody></table>\n";
-
-  // the general layout for the scheduler
-  echo <<< EOF
-<div id='leases_area'></div>
-
-<div id='leases_buttons'>
-  <button id='leases_clear' type='submit'>Clear</button>
-  <button id='leases_submit' type='submit'>Submit</button>
-</div>
-EOF;
-
-  $toggle_nodes->end();
- }
 $toggle->end();
 
 // very wide values get abbreviated

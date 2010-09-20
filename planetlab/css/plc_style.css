@@ -101,7 +101,6 @@ p.node_add {
     text-align: center;
 /*    font-size: smaller; */
 }
-
 p.node_download {
     font-style: italic;
     padding: 20px 40px;
@@ -178,4 +177,10 @@ div#toggle-area-create-slice-details>table.plc_details {
 div#toggle-container-add-node,
 div#toggle-container-add-interface {
     background-color: #e0d0ff;
+}
+p.note_reservable {
+    font-style: italic;
+    padding: 20px 40px;
+    text-align: center;
+    font-size: larger; 
 }
