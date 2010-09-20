@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 50
+%define taglevel 51
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,10 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Sep 20 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-51
+- show message about leases - leases tab first in nodes section
+- fix how reservable nodes show up
+
 * Mon Sep 06 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-50
 - cosmetic, rendering of textareas was like password fields
 
