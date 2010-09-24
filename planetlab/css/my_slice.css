@@ -40,4 +40,35 @@ table#leases_data {
 #leases_buttons { padding: 0px 10px 10px 10px; }
 #leases_clear { position: relative; left: 30%;}
 #leases_submit { position: relative; left: 60%; }
-        
+       
+
+/*panos: some additional styles for the column configuration */
+
+div#toggle-container-my-slice-nodes-configuration {
+    background: #f8f8f8;
+}
+
+div.out{background-color:white; color:black}
+div.in{background-color:#CAE8EA; color:#4f6b72}
+div.selected{background-color:gray; color:black}
+div.invisible{display:none}
+
+.myslice {
+        font: 11px Arial, Helvetica, sans-serif;
+        color: gray;
+}
+
+.myslice .title {
+	font: 11px;
+	font-weight: bold;
+}
+
+.myslice .desc {
+	font: 11px;
+	font-style: italic;
+}
+
+.myslice .subtitle{
+        color: #bb9c61;
+}
+
