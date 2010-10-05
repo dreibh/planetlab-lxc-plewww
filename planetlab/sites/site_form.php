@@ -9,7 +9,7 @@ function build_site_form ($register_mode) {
   $form = array();
   $form['site:name'] = array('title' => 'Site name', 'required' => TRUE,
 			     'maxlength' => 40, 'size' => 20,
-			     'comment' => '<span class='bold'>Site Information</span>');
+			     'comment' => '<span class="bold">Site Information</span>');
   $form['site:login_base'] = array('title' => 'Login base', 'required' => TRUE,
 				   'maxlength' => 16, 'size' => 10);
   $form['site:abbreviated_name'] = array('title' => 'Abbreviated name', 'required' => TRUE,
@@ -23,7 +23,7 @@ function build_site_form ($register_mode) {
 
   $form['pi:first_name'] = array('title' => 'PI First Name', 'required' => TRUE,
 				 'maxlength' => 20, 'size' => 20,
-				 'comment' => '<span class='bold'>Principal Investigator Information</span>');
+				 'comment' => '<span class="bold">Principal Investigator Information</span>');
   $form['pi:last_name'] = array('title' => 'PI Last Name', 'required' => TRUE,
 				'maxlength' => 20, 'size' => 20);
   $form['pi:title'] = array('title' => 'PI Title', 'required' => FALSE,
@@ -56,7 +56,7 @@ EOF;
 
   $form['tech:first_name'] = array('title' => 'Tech First Name', 'required' => TRUE,
 				   'maxlength' => 20, 'size' => 20,
-				   'comment' => '<span class='bold'>Technical Contact Information</span>' . $fill_from_pi_button);
+				   'comment' => '<span class="bold">Technical Contact Information</span>' . $fill_from_pi_button);
   $form['tech:last_name'] = array('title' => 'Tech Last Name', 'required' => TRUE,
 				  'maxlength' => 20, 'size' => 20);
   $form['tech:title'] = array('title' => 'Tech Title', 'required' => FALSE,
@@ -73,7 +73,7 @@ EOF;
 
   $form['address:line1'] = array('title' => 'Address', 'required' => FALSE,
 				 'maxlength' => 40, 'size' => 30,
-				 'comment' => '<span class='bold'>Postal address</span>');
+				 'comment' => '<span class="bold">Postal address</span>');
   $form['address:line2'] = array('title' => 'Address (2)', 'required' => FALSE,
 				 'maxlength' => 40, 'size' => 30);
   $form['address:line3'] = array('title' => 'Address (3)', 'required' => FALSE,
