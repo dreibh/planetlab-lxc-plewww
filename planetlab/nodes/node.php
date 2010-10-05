@@ -152,6 +152,7 @@ $details->tr_submit("submit","Update Node");
 $details->form_end();
 if ($privileges) $details->space();
 
+$display_reboot_button = FALSE;
 ////////////////////
 // PCU stuff - not too sure why, but GetPCUs is not exposed to the 'user' role
 $display_pcus = ( $local_peer && (plc_is_admin() || plc_is_pi() || plc_is_tech()));
@@ -174,9 +175,15 @@ if ($display_pcus) {
     $port=$ports[0];
     $pcu_columns = array('hostname');
     $pcu=search_pcu($site_pcus,$pcu_id);
-    if ( ! $pcu ) 
+    if ( ! $pcu ) {
       $pcu_string = plc_error_html("Cannot find PCU " . $pcu_id);
-    // else : regular case - don't set pcu_string
+    } else {
+      // else : regular case - don't set pcu_string
+      // NOTE: temporarily only offer the reboot_button for DC7x00, DRAC, and HPiLO PCU models
+      if ( $pcu['model'] == "IntelAMT" || $pcu['model'] == "DRAC" || $pcu['model'] == "HPiLO" ){
+        $display_reboot_button = TRUE;
+      }
+    }
   } else 
     $pcu_string = plc_warning_html("More than one PCU attached ? ");
 
@@ -227,8 +234,17 @@ if ($display_pcus) {
     
   $details->th_td("PCU",$pcu_value_area);
   $details->form_end();
-  $details->space();
  }
+
+//////////////////// Reboot Node
+if ( $display_reboot_button ) 
+{
+    $details->form_start(l_actions(),array("action"=>"reboot-node-with-pcu", "node_id"=>$node_id, "hostname"=>$hostname));
+    $details->tr_submit("submit", "Reboot Node");
+    $details->form_end();
+    //if ($privileges) $details->space();
+}
+$details->space();
 
 //////////////////// type & version
 $details->th_td("Type",$node_type);

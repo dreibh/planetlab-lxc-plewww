@@ -51,6 +51,8 @@ $known_actions []= "update-node";
 //	expects:	node_id, hostname, model
 $known_actions []= "attach-pcu";
 //	expects:	node_id, pcu_id, port (pcu_id <0 means detach)
+$known_actions []= "reboot-node-with-pcu";
+//	expects:	node_id
 
 //////////////////////////////////////// interfaces
 $known_actions []= "delete-interfaces";	
@@ -378,6 +380,22 @@ switch ($action) {
    }
    
    plc_redirect(l_node($node_id));
+   break;
+ }
+
+ case 'reboot-node-with-pcu': {
+   $node_id=intval($_POST['node_id']);
+   $hostname= $_POST['hostname'];
+
+   $ret = $api->RebootNodeWithPCU( $node_id );
+   $error= $api->error();
+
+   if( empty( $error ) ) {
+     drupal_set_message("Reboot node $hostname: $ret");
+     plc_redirect(l_node($node_id));
+   } else {
+     drupal_set_error($error);
+   }
    break;
  }
    
