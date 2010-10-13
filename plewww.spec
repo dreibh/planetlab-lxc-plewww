@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 51
+%define taglevel 52
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,11 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Oct 13 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-52
+- new action reboot-node-with-pcu & reboot button on node page (not sure about the status of that though)
+- my_slice with adjustable set of columns in slices/slice2.php
+- fix for the 'site registration' page
+
 * Mon Sep 20 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-51
 - show message about leases - leases tab first in nodes section
 - fix how reservable nodes show up
