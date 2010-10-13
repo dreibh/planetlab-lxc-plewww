@@ -239,10 +239,31 @@ if ($display_pcus) {
 //////////////////// Reboot Node
 if ( $display_reboot_button ) 
 {
+    if ( ! empty($_SESSION['messages']) ) {
+        $msg = $_SESSION['messages']['status'][0];
+    } else {
+        $msg = "";
+    }
+    $body="Hello,
+
+This message is a template from the 'Report a problem' link on the node details page.
+
+I've experienced a problem rebooting $hostname with the pcu_id $pcu_id; 
+
+    http://".PLC_WWW_HOST."/db/sites/pcu.php?id=$pcu_id
+    http://".PLC_WWW_HOST."/db/nodes/node.php?id=$node_id\n\n";
+
+    if ( $msg != "" ) {
+        $body .= "The last time I tried, it returned:\n    $msg\n\n";
+    }
+    $body .= "And, this what I've tried, which leads me to believe that there is a bug on your side:";
+
+    $url=rawurlencode($body);
+    $email = "<font style='font-size: smaller'>><a href=\"mailto:".PLC_MAIL_SUPPORT_ADDRESS."?Subject=Reporting a problem rebooting $hostname&Body=$url\">Report a problem</a></font>";
+
     $details->form_start(l_actions(),array("action"=>"reboot-node-with-pcu", "node_id"=>$node_id, "hostname"=>$hostname));
-    $details->tr_submit("submit", "Reboot Node");
+    print $details->tr_html($email . $details->form->submit_html("submit","Reboot Node"), "right");
     $details->form_end();
-    //if ($privileges) $details->space();
 }
 $details->space();
 
