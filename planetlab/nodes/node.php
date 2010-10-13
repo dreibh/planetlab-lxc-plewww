@@ -256,7 +256,7 @@ I've experienced a problem rebooting $hostname with the pcu_id $pcu_id;
     if ( $msg != "" ) {
         $body .= "The last time I tried, it returned:\n    $msg\n\n";
     }
-    $body .= "And, this what I've tried, which leads me to believe that there is a bug on your side:";
+    $body .= "And, this is what I've tried, which leads me to believe that there is a bug on your side:";
 
     $url=rawurlencode($body);
     $email = "<font style='font-size: smaller'>><a href=\"mailto:".PLC_MAIL_SUPPORT_ADDRESS."?Subject=Reporting a problem rebooting $hostname&Body=$url\">Report a problem</a></font>";
