@@ -1,9 +1,259 @@
 
-/* $Id: table.js 13009 2009-04-10 10:49:28Z baris $ */
+/* $Id: column.js Panos $ */
 
 var filtered_color = "grey";
 var normal_color = "black";
 
+//Descriptions overriding the default ones set in Accessors_site.py and configuration 
+
+var sourceComon = '<a target="source_window" href="http://comon.cs.princeton.edu/">CoMon</a>';
+var sourceTophat = '<b><a target="source_window" href="http://www.top-hat.info/">TopHat</a></b>';
+var sourceTophatAPI = '<b><a target="source_window" href="http://www.top-hat.info/API/">TopHat API</a></b>';
+var sourceMySlice = '<b><a target="source_window" href="http://myslice.info/">MySlice</a></b>';
+var sourceCymru = '<b><a target="source_window" href="http://www.team-cymru.org/">Team Cymru</a></b>';
+var sourceMyPLC = '<b><a target="source_window" href="https://www.planet-lab.eu/db/doc/PLCAPI.php">MyPLC API</a></b>';
+var sourceManiacs = '<b><a target="source_window" href="http://www.ece.gatech.edu/research/labs/MANIACS/as_taxonomy/">MANIACS</a></b>';
+var sourceMaxmind = '<b><a target="source_window" href="http://www.maxmind.com/app/geolitecity">MaxMind</a></b>';
+var sourceMonitor = '<b><a target="source_window" href="http://monitor.planet-lab.org/">Monitor</a></b>';
+var selectReferenceNode ='Select reference node: <select id="reference_node" onChange="updateDefaultConf(this.value)"><option value=planetlab-europe-07.ipv6.lip6.fr>planetlab-europe-07.ipv6.lip6.fr</option></select>';
+var addButton = '<input id="addButton" type="button" value="Add" onclick=addColumnAjax(document.getElementById("list1").value)></input>';
+var deleteButton = '<input id="deleteButton" type="button" value="Delete" onclick=deleteColumn(window.document.getElementById("list1").value)></input>';
+
+var descHOSTNAME = "test";
+
+var titleA = 'Architecture name';
+var detailA = '<i>The node architecture.</i>';
+var sourceA = '<b>Source:</b> '+sourceMyPLC;
+var valuesA = 'Values: <b>x86_64</b>, <b>i386</b>';
+var descA = '<span class="myslice title">'+titleA+'</span><p>'+detailA+'<p>'+valuesA+'<p>'+sourceA;
+
+var titlef = 'Operating system';
+var detailf = '<i>Fedora or CentOS distribution to use for node or slivers.</i>';
+var sourcef = '<b>Source:</b> '+sourceMyPLC;
+var descf = '<span class="myslice title">'+titlef+'</span><p>'+detailf+'<p>'+sourcef;
+
+var titleAU = 'Authority';
+var detailAU = '<i>The authority of the global PlanetLab federation that the site of the node belongs to.</i>';
+var valuesAU = 'Values: <b>PLC</b> (PlanetLab Central), <b>PLE</b> (PlanetLab Europe)';
+var sourceAU = '<b>Source:</b> '+sourceMyPLC;
+var descAU = '<span class="myslice title">'+titleAU+'</span><p>'+detailAU+'<p>'+valuesAU+'<p>'+sourceAU;
+
+var titleAS = 'Autonomous system ID';
+var sourceAS = 'Source: '+sourceCymru+' (via '+sourceTophat+')';
+var valuesAS = 'Unit: <b>Integer between 0 and 65535</b>';
+var descAS = '<span class="myslice title">'+titleAS+'</span><p>'+valuesAS+'<p>' + sourceAS;
+
+var titleAST = 'Autonomous system type';
+var sourceAST = 'Source: '+sourceManiacs;
+var valuesAST = 'Values: <b>t1</b> (tier-1), <b>t2</b> (tier-2), <b>edu</b> (university), <b>comp</b> (company), <b>nic</b> (network information centre -- old name for a domain name registry operator), <b>ix</b> (IXP), <b>n/a</b>';
+var descAST = '<span class="myslice title">'+titleAST+'</span><p>'+valuesAST+'<p>'+sourceAST;
+
+var titleASN = 'Autonomous system name';
+var sourceASN = 'Source: '+sourceTophat;
+var descASN = '<span class="myslice title">'+titleASN+'</span><p>'+sourceASN;
+
+var selectPeriodBU = 'Select period: <select id="selectperiodBU" onChange=updatePeriod("BU",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var titleBU = 'Bandwidth utilization ';
+var sourceBU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
+var valuesBU ='Unit: <b>Kbps</b>';
+var detailBU = '<i>The average transmited bandwidh over the selected period. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>'
+var descBU = '<span class="myslice title">'+titleBU+'</span><p>'+detailBU+'<p>'+selectPeriodBU+'<p>'+valuesBU+'<p>'+sourceBU; 
+
+var titleBW= 'Bandwidth limit';
+var sourceBW = 'Source: '+sourceComon;
+var valuesBW = 'Unit: <b>Kbps</b>';
+var detailBW = '<i>The bandwidth limit is a cap on the total outbound bandwidth usage of a node. It is set by the site administrator (PI). For more details see <a targe="source_window" href="http://www.planet-lab.org/doc/BandwidthLimits">Bandwidth Limits (planet-lab.org)</a></i>.';
+var descBW = '<span class="myslice title">'+titleBW+'</span><p>'+detailBW+'<p>'+valuesBW+'<p>'+sourceBW;
+
+var titleCC = 'Number of CPU cores';
+var sourceCC = 'Source: '+sourceComon;
+var valuesCC = 'Current PlanetLab hardware requirements: 4 cores min. <br><i>(Older nodes may have fewer cores)</i>.';
+var descCC = '<span class="myslice title">'+titleCC+'</span><p>'+valuesCC+'<p>'+sourceCC;
+
+var titleCN = 'Number of CPUs';
+var sourceCN = 'Source: '+sourceComon;
+var valuesCN = 'Current PlanetLab hardware requirements: <b>1 (if quad core) or 2 (if dual core)</b>';
+var descCN = '<span class="myslice title">'+titleCN+'</span><p>'+valuesCN+'<p>'+sourceCN;
+
+var titleCR = 'CPU clock rate';
+var sourceCR = 'Source: '+sourceComon;
+var valuesCR = 'Unit: <b>GHz</b><p>Current PlanetLab hardware requirements: <b>2.4 GHz</b>';
+var descCR = '<span class="myslice title">'+titleCR+'</span><p>'+valuesCR+'<p>'+sourceCR;
+
+var selectPeriodCF = 'Select period: <select id="selectperiodCF" onChange=updatePeriod("CF",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var titleCF = 'Free CPU';
+var sourceCF = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
+var valuesCF = 'Unit: <b>%</b>';
+var detailCF = '<i> The average CPU percentage that gets allocated to a test slice named burb that is periodically run by CoMon.</i>';
+var descCF = '<span class="myslice title">'+titleCF+'</span><p>'+detailCF+'<p>'+selectPeriodCF+'<p>'+valuesCF+'<p>'+sourceCF; 
+
+var titleDS = 'Disk size';
+var sourceDS = 'Source: '+sourceComon;
+var valuesDS = 'Unit: <b>GB</b><p>Current PlanetLab hardware requirements: <b>500 GB</b>';
+var descDS = '<span class="myslice title">'+titleDS+'</span><p>'+valuesDS+'<p>'+sourceDS;
+
+var titleDU = 'Current disk utilization';
+var sourceDU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
+var valuesDU = 'Unit: <b>GB</b>';
+var detailDU = '<i> The amount of disk space currently consumed (checked daily).</i>';
+var descDU = '<span class="myslice title">'+titleDU+'</span><p>'+detailDU+'<p>'+valuesDU+'<p>'+sourceDU;
+
+var titleHC = 'Hop count (pairwise)';
+var sourceHC = 'Source: '+sourceTophat;
+var detailHC = '<i>TopHat conducts traceroutes every five minutes in a full mesh between all PlanetLab nodes. The hop count is the length of the traceroute from the node to the reference node, based upon the most recently reported traceroute</i>.';
+var descHC = '<span class="myslice title">'+titleHC+'</span><p>'+detailHC+'<p>'+selectReferenceNode+'<p>'+sourceHC;
+
+var titleIP = 'IP address';
+var sourceIP = 'Source: '+sourceTophat;
+var descIP = '<span class="myslice title">'+titleIP+'</span><p>'+sourceIP;
+
+var selectPeriodL = 'Select period: <select id="selectperiodL" onChange=updatePeriod("L",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var titleL= 'Load ';
+var sourceL = 'Source: '+sourceComon;
+var valuesL = 'Unit: <b>5-minute load</b>';
+var detailL = '<i>The average 5-minute load (as reported by the Unix uptime command) over the selected period.</i>';
+//var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+selectPeriodL+'<p>'+valuesL+'<p>'+sourceL; 
+var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+valuesL+'<p>'+sourceL; 
+
+var titleLON= 'Longitude';
+var sourceLON = 'Source: '+sourceTophat;
+var descLON = '<span class="myslice title">'+titleLON+'</span><p>'+sourceLON;
+
+var titleLAT= 'Latitude';
+var sourceLAT = 'Source: '+sourceTophat;
+var descLAT = '<span class="myslice title">'+titleLAT+'</span><p>'+sourceLAT;
+
+var titleLCN= 'Location (Country)';
+var sourceLCN = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
+var detailLCN = '<i>Based on the latitude and longitude information.</i>';
+var descLCN = '<span class="myslice title">'+titleLCN+'</span><p>'+detailLCN+'<p>'+sourceLCN;
+
+var titleLCT= 'Location (Continent)';
+var sourceLCT = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
+var detailLCT = '<i>Based on the latitude and longitude information.</i>';
+var descLCT = '<span class="myslice title">'+titleLCT+'</span><p>'+detailLCT+'<p>'+sourceLCT;
+
+var titleLCY= 'Location (City)';
+var sourceLCY = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
+var detailLCY = '<i>Based on the latitude and longitude information.</i>';
+var descLCY = '<span class="myslice title">'+titleLCY+'</span><p>'+detailLCY+'<p>'+sourceLCY;
+
+var titleLPR= 'Location precision radius';
+var sourceLPR = 'Source: '+sourceTophat;
+var valuesLPR = 'Unit: <b>float</b>';
+var detailLPR = '<i>The radius of the circle corresponding to the error in precision of the geolocalization estimate.</i>';
+var descLPR = '<span class="myslice title">'+titleLPR+'</span><p>'+detailLPR+'<p>'+valuesLPR+'<p>'+sourceLPR;
+
+var titleLRN= 'Location (Region)';
+var sourceLRN = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
+var detailLRN = '<i>Based on the latitude and longitude information.</i>';
+var descLRN = '<span class="myslice title">'+titleLRN+'</span><p>'+detailLRN+'<p>'+sourceLRN;
+
+var titleMS= 'Memory size';
+var sourceMS = 'Source: '+sourceComon;
+var valuesMS = 'Unit: <b>GB</b><p>Current PlanetLab hardware requirements: <b>4 GB</b>.';
+var descMS = '<span class="myslice title">'+titleMS+'</span><p>'+valuesMS+'<p>'+sourceMS;
+
+var selectPeriodMU = 'Select period: <select id="selectperiodMU" onChange=updatePeriod("MU",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var titleMU = 'Memory utilization';
+var sourceMU = 'Source: '+sourceComon;
+var valuesMU = '<p>Unit: <b>%</b>';
+var detailMU = '<i>The average active memory utilization as reported by CoMon.</i>';
+var descMU = '<span class="myslice title">'+titleMU+'</span><p>'+detailMU+'<p>'+selectPeriodMU+'<p>'+valuesMU+'<p>'+sourceMU; 
+
+var titleNEC= 'Network information (ETOMIC)';
+var sourceNEC = 'Source: '+sourceTophat;
+var valuesNEC = 'Values: <b>yes/no</b>';
+var detailNEC = '<i>The existence of a colocated ETOMIC box. When an ETOMIC box is present, you have the possibility to conduct high-precision measurements through the '+sourceTophatAPI+'.</i>';
+var descNEC = '<span class="myslice title">'+titleNEC+'</span><p>'+detailNEC+'<p>'+valuesNEC+'<p>'+sourceNEC;
+
+var titleNSN= 'Network information (SONoMA)';
+var sourceNSN = 'Source: '+sourceTophat;
+var valuesNSN = 'Values: <b>yes/no</b>';
+var detailNSN = '<i>The existence of a SONoMA agent. When an SONoMA is present, you have the possibility to have access to high-precision measurements through the '+sourceTophatAPI+'.</i>';
+var descNSN = '<span class="myslice title">'+titleNSN+'</span><p>'+detailNSN+'<p>'+valuesNSN+'<p>'+sourceNSN;
+
+var titleNTH= 'Network information (TopHat)';
+var sourceNTH = 'Source: '+sourceTophat;
+var valuesNTH = 'Values: <b>yes/no</b>';
+var detailNTH = '<i>The existence of a colocated TDMI (TopHat Dedicated Measurement Infrastructure) agent. When a TDMI agent is present, you have access to a wide variety of network topology measurements through the '+sourceTophatAPI+'.</i>';
+var descNTH = '<span class="myslice title">'+titleNTH+'</span><p>'+detailNTH+'<p>'+valuesNTH+'<p>'+sourceNTH;
+
+var titleNDS= 'Network information (DIMES)';
+var sourceNDS = 'Source: '+sourceTophat;
+var valuesNDS = 'Values: <b>yes/no</b>';
+var detailNDS = '<i>The existence of a colocated DIMES agent. When a DIMES agent is present, you have access to DIMES measurements through the '+sourceTophatAPI+'.</i>';
+var descNDS = '<span class="myslice title">'+titleNDS+'</span><p>'+detailNDS+'<p>'+valuesNDS+'<p>'+sourceNDS;
+
+var titleNSF= 'Network information (spoof)';
+var sourceNSF = 'Source: '+sourceTophat;
+var valuesNSF = '<p>Values: <b>yes/no</b>';
+var detailNSF = '<i> Whether the node can send packets successfully (or not) with a spoofed IP source address.</i>';
+var descNSF = '<span class="myslice title">'+titleNSF+'</span><p>'+detailNSF+'<p>'+valuesNSF+'<p>'+sourceNSF;
+
+var titleNSR= 'Network information (source route)';
+var sourceNSR = 'Source: '+sourceTophat;
+var valuesNSR = '<p>Values: <b>yes/no</b>';
+var detailNSR = '<i> Whether the node can send packets packets using the IP source route option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option003.htm">here</a>for more info.</i>';
+var descNSR = '<span class="myslice title">'+titleNSR+'</span><p>'+detailNSR+'<p>'+valuesNSR+'<p>'+sourceNSR;
+
+var titleNTP= 'Network information (timestamp)';
+var sourceNTP = 'Source: '+sourceTophat;
+var valuesNTP = '<p>Values: <b>yes/no</b>';
+var detailNTP = '<i> Whether the node can send packets packets using the IP timestamp option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option004.htm">here</a>for more info.</i>';
+var descNTP = '<span class="myslice title">'+titleNTP+'</span><p>'+detailNTP+'<p>'+valuesNTP+'<p>'+sourceNTP;
+
+var titleNRR= 'Network information (record route)';
+var sourceNRR = 'Source: '+sourceTophat;
+var valuesNRR = '<p>Values: <b>yes/no</b>';
+var detailNRR = '<i> Whether the node can send packets packets using the IP record route option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option007.htm">here</a>for more info.</i>';
+var descNRR = '<span class="myslice title">'+titleNRR+'</span><p>'+detailNRR+'<p>'+valuesNRR+'<p>'+sourceNRR;
+
+var titleOS = 'Operating system';
+var sourceOS = 'Source: '+sourceMyPLC;
+var valuesOS = 'Values: <b>Fedora, Cent/OS, other, n/a</b>';
+var descOS = '<span class="myslice title">'+titleOS+'</span><p>'+valuesOS+'<p>'+sourceOS;
+
+var selectPeriodR = 'Select period: <select id="selectperiodR" onChange=updatePeriod("R",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var titleR = 'Reliability';
+var sourceR = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
+var detailR = '<i>CoMon queries nodes every 5 minutes, for 255 queries per day. The average reliability is the percentage of queries over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
+var valuesR = 'Unit: <b>%</b>';
+var descR = '<span class="myslice title">'+titleR+'</span><p>'+detailR+'<p>'+selectPeriodR+'<p>'+valuesR+'<p>'+sourceR; 
+//var descR = '<span class="myslice title">'+titleR+'</span><p>'+detailR+'<p>'+valuesR+'<p>'+sourceR; 
+
+var titleRES = 'Reservation capabilities';
+var sourceRES = 'Source: '+sourceMyPLC;
+//var valuesRES = 'Values: <b>yes/no</b>';
+var valuesRES = 'Values: <b>-R-</b> (if yes)';
+var detailRES = '<i> Whether the node can be reserved for a certain duration.<br>Your slivers will be available <span class=bold>only during timeslots where you have obtained leases (see tab above)</span></i>.  <p>Please note that as of August 2010 this feature is experimental.  Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>';
+var descRES = '<span class="myslice title">'+titleRES+'</span><p>'+detailRES+'<p>'+valuesRES+'<p>'+sourceRES;
+
+var selectPeriodS = 'Select period: <select id="selectperiodS" onChange=updatePeriod("S",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var titleS = 'Active slices';
+var sourceS = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
+var valuesS = 'Unit: <b>%</b>';
+var detailS = '<i>Average number of active slices over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
+var descS = '<span class="myslice title">'+titleS+'</span><p>'+detailS+'<p>'+selectPeriodS+'<p>'+valuesS+'<p>'+sourceS; 
+
+var titleSN = 'Site name';
+var sourceSN = 'Source: '+sourceMyPLC;
+var descSN = '<span class="myslice title">'+titleSN+'</span><p>'+sourceSN;
+
+var selectPeriodSSH = 'Select period: <select id="selectperiodSSH" onChange=updatePeriod("SSH",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var titleSSH = 'Average SSH response delay';
+var valuesSSH = 'Unit: <b>%</b>';
+var detailSSH = '<i>The average response delay of the node to SSH logins over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
+var sourceSSH ='Source: '+sourceComon+' (via '+sourceMySlice+')';
+var descSSH = '<span class="myslice title">'+titleSSH+'</span><p>'+detailSSH+'<p>'+selectPeriodSSH+'<p>'+valuesSSH+'<p>'+sourceSSH; 
+
+var titleST = 'Status';
+var sourceST = 'Source: '+sourceMonitor;
+var valuesST = 'Values: <b>online</b> (up and running), <b>good</b> (up and running recently), <b>offline</b> (unreachable today), <b>down</b> (node unreachable for more than one day), <b>failboot</b> (reachable, but only by administrators for debugging purposes).';
+var descST = '<span class="myslice title">'+titleST+'</span><p>'+valuesST+'<p>'+sourceST;
+
+
+//Categorization of columns in different types, useful for filtering 
 
 function inTypeA(header_name) {
 	var typeA = ['ST','SN','RES','OS','NRR','NTP','NSR','NSF','NDS','NTH','NEC','LRN','LCY','LPR','LCN','LAT','LON','IP','ASN','AST'];
@@ -25,253 +275,126 @@ function inTypeD(header_name) {
 	return typeD.indexOf(header_name);
 }
 
+
+//Debugging
 function debugfilter(s) {
 	document.getElementById('debug').innerHTML+=s;
 }
 
-function scrollList(tableid) {
 
-debugfilter("here");
-
-if (event.keyCode == 40)
-	debugfilter("down");
-else if (event.keyCode == 38)
-	debugfilter("up");
-
-}
+//Called when a column is selected. It displays the detailed description
+//on the right panel
 
 function highlightOption(divid) {
 
-//debugfilter("highlighting option "+divid);
+	//debugfilter("highlighting option "+divid);
 
-for (var kk in column_headers) {
+	var columns = document.getElementsByName('columnlist');
+	for(var j = 0; j < columns.length; j++)
+		columns[j].className = 'out'; 
 
-if (document.getElementById(kk))
-	document.getElementById(kk).className = 'out'; 
+	document.getElementById(divid).className = 'selected';
+
+	showDescription(divid);
+
+//panos: to IMPROVE 
+	if (document.getElementById('selectperiod'+divid))
+		document.getElementById('selectperiod'+divid).value = document.getElementById('period'+divid).value;
+
 }
 
-document.getElementById(divid).className = 'selected';
 
-showDescription(divid);
-
-}
-
+//Displays the detailed column description 
 
 function showDescription(h) {
 
 	//debugfilter("showing description "+h);
 
+//Checks if the detailed description div exists 
 	if (document.getElementById('selectdescr'))
 	{
+		//Checks if there is a detailed description defined
 		if (window['desc'+h])
 			document.getElementById('selectdescr').innerHTML = ""+window['desc'+h];
-		else if (column_table[h] && column_table[h]['description'])
-			document.getElementById('selectdescr').innerHTML = column_table[h]['description'];
+		//else if (document.getElementById('fdesc'+h))
+			//document.getElementById('selectdescr').innerHTML = document.getElementById('fdesc'+h).value;
 		else 
-			document.getElementById('selectdescr').innerHTML = "No description provided";
+			document.getElementById('selectdescr').innerHTML = "No detailed description provided";
 	}
 }
 
 
+//Overrides the titles of the columns as they are shown in the column selection panel.
+//If no overriding variable exists the tag's description is used
 function overrideTitles() {
 
-	//debugfilter("<p>overriding...");
+	var columns = document.getElementsByName('columnlist');
 
-	for (var kk in column_headers) {
-
-	//debugfilter("here "+kk);
-
-	if (document.getElementById(kk) && window['title'+kk])
-		document.getElementById('htitle'+kk).innerHTML = window['title'+kk];
+	for(var j = 0; j < columns.length; j++)
+	{
+		var kk = columns[j].id;
+		if (window['title'+kk])
+			document.getElementById('htitle'+kk).innerHTML = window['title'+kk];
 	}
-
 }
 
+//When the checkbox is clicked. Adds/removes column respectively
 function changeCheckStatus(column) {
 
+	if (document.getElementById('selectdescr'))
+		showDescription(document.getElementById(column).value);
 
-if (document.getElementById('selectdescr'))
-{
-showDescription(document.getElementById(column).value);
-
-if (document.getElementById(column).checked)
-	addColumn(document.getElementById(column).value);
-else
-	deleteColumn(document.getElementById(column).value);
+	if (document.getElementById(column).checked)
+		addColumn(document.getElementById(column).value, true);
+	else
+		deleteColumn(document.getElementById(column).value);
 }
 
-}
+//This function is used when the alternative "quick" selection list is used
+function changeSelectStatus(column) {
 
-function updatePeriod(h) {
-	deleteColumn2(h, h+'w');
-	deleteColumn2(h, h+'m');
-	deleteColumn2(h, h+'y');
-	addColumn(h);
-}
+	var optionClass = "";
+	var selected_index = document.getElementById('quicklist').selectedIndex;
 
-function filterByType(selectedtype) {
-
-var notselectedyet = true;
-
-for (var kk in column_headers) {
-
-	if (document.getElementById(kk))
+	if (document.getElementById('quicklist'))
 	{
-        	if (window['type'+kk] == selectedtype)
-        	{
-                	document.getElementById(kk).className = 'in';
-                	if (notselectedyet)
-                        	highlightOption(kk);
-                	notselectedyet = false;
-        	}
-        	else
-                	document.getElementById(kk).className = 'out';
+
+		optionClass = document.getElementById('quicklist').options[selected_index].className;
+
+		if (optionClass == "in")
+		{
+			deleteColumn(document.getElementById('quicklist').value);
+			document.getElementById('quicklist').options[selected_index].className = "out";
+		}
+		else
+		{
+			addColumn(document.getElementById('quicklist').value, true);
+			document.getElementById('quicklist').options[selected_index].className = "in";
+		}
 	}
 }
-}
 
+//When the period of an already selected column is changed
+function updatePeriod(h, new_period) {
+
+	var old_period = document.getElementById('period'+h).value;
+	document.getElementById('period'+h).value=new_period;
+
+	//debugfilter(h+''+old_period+'-'+h+''+new_period);
+	if (document.getElementById('check'+h).checked)
+	{
+		deleteColumnCells(h+''+old_period);
+		addColumnCells(h+''+new_period);
+		addColumnAjax(h, h+''+new_period);
+
+		replaceColumnConfiguration(h+''+old_period,h+''+new_period);
+	}
+}
 
 /*
  
 RESET/SAVE CONFIGURATION
 */
-
-
-function resetColumns() {
-
-	for (var kk in column_table) {
-
-	if (column_table[kk]['visible'] == true && column_table[kk]['fetch'] == false)
-		deleteColumn(kk);
-	else if (column_table[kk]['visible'] == false && column_table[kk]['fetch'] == true)
-		addColumn(kk);
-	}
-
-}
-
-function resetCols(which_conf) {
-
-	var target_configuration = "|"+document.getElementById(which_conf).value+"|";
-	
-	//debugfilter("<p>Target configuration =  "+target_configuration);
-
-	for (var kk in column_table) {
-		//debugfilter("in "+kk+" ");
-
-		if (target_configuration.indexOf("|"+kk+"|")>=0)
-		{
-			if (document.getElementById('check'+kk))
-			if (document.getElementById('check'+kk).checked == false)
-			{
-				debugfilter("<p>Adding "+kk);
-				addColumn(kk);
-			}
-		}
-		else
-		{
-			if (document.getElementById('check'+kk))
-			if (document.getElementById('check'+kk).checked == true)
-			{
-				debugfilter("<p>Deleting "+kk);
-				deleteColumn(kk);
-			}
-		}
-	}
-}
-
-function saveConfiguration(which_conf)
-{
-	var slice_id = document.getElementById('slice_id').value;
-
-	var target_configuration = document.getElementById(which_conf).value;
-
-	debugfilter("saving configuration "+target_configuration);
-	updateColumnConfiguration(slice_id, target_configuration);
-}
-
-function updateColumnConfiguration(slice_id, value)
-{
-
-        if (window.XMLHttpRequest)
-          {// code for IE7+, Firefox, Chrome, Opera, Safari
-          xmlhttp=new XMLHttpRequest();
-          }
-        else
-          {// code for IE6, IE5
-          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-          }
-        xmlhttp.onreadystatechange=function()
-          {
-          if (xmlhttp.readyState==4) // && xmlhttp.status==200)
-            {
-                //value=xmlhttp.responseText;
-                //debugfilter(value);
-		if (document.getElementById('column_configuration'))
-		document.getElementById('column_configuration').value=value;
-            }
-          }
-        xmlhttp.open("GET","/plekit/php/updateConf.php?value="+value+"&slice_id="+slice_id+"&tagName=Configuration",true);
-
-        xmlhttp.send();
-}
-
-
-
-function resetConfiguration(which_conf)
-{
-	var slice_id = document.getElementById('slice_id').value;
-	var target_configuration = document.getElementById(which_conf).value;
-
-	debugfilter("reseting configuration "+target_configuration);
-
-        if (window.XMLHttpRequest)
-          {// code for IE7+, Firefox, Chrome, Opera, Safari
-          xmlhttp=new XMLHttpRequest();
-          }
-        else
-          {// code for IE6, IE5
-          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-          }
-        xmlhttp.onreadystatechange=function()
-          {
-          if (xmlhttp.readyState==4) // && xmlhttp.status==200)
-            {
-                //value=xmlhttp.responseText;
-                //debugfilter(value);
-                window.location.reload(true);
-            }
-          }
-        xmlhttp.open("GET","/plekit/php/updateConf.php?value="+target_configuration+"&slice_id="+slice_id+"&tagName=Configuration",true);
-
-        xmlhttp.send();
-}
-
-function addColumnToConfiguration(column) {
-
-
-	var old_configuration = document.getElementById('column_configuration').value;
-	var slice_id = document.getElementById('slice_id').value;
-
-	var new_configuration = "";
-
-	if (old_configuration != "")
-		new_configuration = old_configuration += "|"+column;
-	else
-		new_configuration = column;
-
-	//debugfilter("new configuration = "+new_configuration);
-
-	updateColumnConfiguration(slice_id, new_configuration);
-}
-
-
-
-/*
- 
-ADD/REMOVE COLUMNS
-
-*/
-
 
 function getHTTPObject()
 {
@@ -289,7 +412,187 @@ function getHTTPObject()
 }
 
 
-function load_html(column, url) {
+function closeShowReservable()
+{
+	var slice_id = document.getElementById('slice_id').value;
+	var person_id = document.getElementById('person_id').value;
+	var tag_id = document.getElementById('show_tag_id').value;
+        document.getElementById('note_reservable_div').style.display = "none";
+
+        var url = "/plekit/php/updateConfiguration.php?value="+slice_id+";reservable:no&slice_id="+slice_id+"&person_id="+person_id+"&tag_id="+tag_id;
+
+	var req = getHTTPObject();
+	req.open('GET', url, true);
+	req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	req.onreadystatechange =
+        function() {
+                if (req.readyState == 4)
+                { debugfilter(req.responseText); }
+        }
+	req.send(null);
+
+}
+
+
+function updateColumnConfiguration(slice_id, value, reload)
+{
+	var person_id = document.getElementById('person_id').value;
+	var tag_id = document.getElementById('conf_tag_id').value;
+	var full_column_configuration = document.getElementById('full_column_configuration').value;
+
+	//debugfilter("<br>OLD = "+full_column_configuration);
+	//debugfilter("<br>value = "+value);
+	
+	var old_columns = full_column_configuration.split(";");
+	var new_columns = new Array();
+
+	for (var column_index = 0; column_index < old_columns.length ; column_index++) {
+		new_columns.push(old_columns[column_index]);
+		if (old_columns[column_index] != slice_id)
+			new_columns.push(old_columns[++column_index]);
+		else
+		{
+			column_index++;
+			new_columns.push(value);
+		}
+	}
+
+	var new_configuration = new_columns.join(";");
+	//debugfilter("<br>NEW = "+new_configuration);
+
+        if (window.XMLHttpRequest)
+          {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+          }
+        else
+          {// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          }
+        xmlhttp.onreadystatechange=function()
+          {
+          if (xmlhttp.readyState==4) // && xmlhttp.status==200)
+            {
+                //value=xmlhttp.responseText;
+                //debugfilter(value+"-----"+new_configuration);
+		document.getElementById('column_configuration').value=value;
+		document.getElementById('full_column_configuration').value=new_configuration;
+
+		if (reload)
+			window.location.reload(true);
+            }
+          }
+
+        xmlhttp.open("GET","/plekit/php/updateConfiguration.php?value="+new_configuration+"&slice_id="+slice_id+"&person_id="+person_id+"&tag_id="+tag_id,true);
+        //xmlhttp.open("GET","/plekit/php/updateConf.php?value="+value+"&slice_id="+slice_id+"&person_id="+person_id+"&tagName=Columnconf",true);
+
+        xmlhttp.send();
+}
+
+function logSortingAction(slice_id, value)
+{
+
+	if (value.indexOf("column-1")!=-1)
+		return;
+
+	var req = getHTTPObject();
+        var url = "/plekit/php/logSorting.php?value="+value+"&slice_id="+slice_id;
+
+	req.open('GET', url, true);
+	req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	req.onreadystatechange =
+        function() {
+                if (req.readyState == 4)
+                { debugfilter(req.responseText); }
+        }
+	req.send(null);
+}
+
+function sortCompleteCallback(tableid) {
+
+	var slice_id = document.getElementById('slice_id').value;
+
+	var ths = document.getElementById(tableid).getElementsByTagName("th");
+	for(var i = 0, th; th = ths[i]; i++) {
+	if (th.className.indexOf("Sort") != -1)
+	{
+		var column = th.className.substr(th.className.indexOf("column"),th.className.indexOf("column")+1);
+		var sortdirection = th.className.substr(th.className.indexOf("Sort")-8,th.className.indexOf("Sort"));
+		logSortingAction(slice_id, tableid+"|"+column+"|"+sortdirection);
+	}
+	}
+}
+
+
+function addColumnToConfiguration(column) {
+
+	var old_configuration = document.getElementById('column_configuration').value;
+	var slice_id = document.getElementById('slice_id').value;
+
+	var new_configuration = "";
+
+	if (old_configuration != "")
+		new_configuration = old_configuration += "|"+column;
+	else
+		new_configuration = column;
+
+	//debugfilter("new configuration = "+new_configuration);
+
+	updateColumnConfiguration(slice_id, new_configuration, false);
+}
+
+
+function deleteColumnFromConfiguration(column) {
+
+	var old_configuration = document.getElementById('column_configuration').value;
+	var slice_id = document.getElementById('slice_id').value;
+
+	var old_columns = old_configuration.split("|");
+	var new_columns = new Array();
+
+	for (var column_index = 0; column_index < old_columns.length ; column_index++) {
+		var conf = old_columns[column_index].split(':');
+		if (conf[0] != column)
+			new_columns.push(old_columns[column_index]);
+	}
+
+	var new_configuration = new_columns.join("|");
+	updateColumnConfiguration(slice_id, new_configuration, false);
+
+}
+
+function replaceColumnConfiguration(column_old, column_new) {
+
+	var old_configuration = document.getElementById('column_configuration').value;
+	var slice_id = document.getElementById('slice_id').value;
+
+	var old_columns = old_configuration.split("|");
+	var new_columns = new Array();
+
+	for (var column_index = 0; column_index < old_columns.length ; column_index++) {
+		var conf = old_columns[column_index].split(':');
+		if (conf[0] != column_old)
+			new_columns.push(old_columns[column_index]);
+		else
+			new_columns.push(column_new);
+	}
+
+	var new_configuration = new_columns.join("|");
+	
+	updateColumnConfiguration(slice_id, new_configuration);
+}
+
+/*
+ 
+ADD/REMOVE COLUMNS
+
+*/
+
+
+
+
+function load_data(column, header, url) {
+
+	//debugfilter("<br>loading "+url);
 	var req = getHTTPObject();
 	var res;
 	req.open('GET', url, true);
@@ -297,15 +600,15 @@ function load_html(column, url) {
 	req.onreadystatechange =
         function() {
                 if (req.readyState == 4)
-                { updateColumnData(column, req.responseText); }
+                { updateColumnData(column, header, req.responseText); }
         }
 	req.send(null);
 }
 
-function updateColumnData(column,data) {
 
+function updateColumnData(column, header, data) {
 
-var headers = column.split("|");
+var headers = header.split("|");
 var data_table = data.split("|"); 
 
 //debugfilter("<p>headers[0] = "+headers[0]);
@@ -345,12 +648,19 @@ var data_table = data.split("|");
     var tr=rows[row_index];
 
     for (var column_index=0; column_index < tr.cells.length; column_index++) {
-		//debugfilter("<p>node id = "+tr.cells[0].innerHTML);
+		//debugfilter("<p>node id = "+tr.cells[0].innerHTML+" - "+tr.cells[column_index].getAttribute('name'));
+		if (tr.cells[column_index].getAttribute('name'))
+		{
 		var found_index = headers.indexOf(tr.cells[column_index].getAttribute('name'));
 		if (found_index != -1)
+			//debugfilter(tr.cells[0].innerHTML+"-"+found_index);
 			tr.cells[column_index].innerHTML = data_array1[tr.cells[0].innerHTML][found_index];
+		}
     }
   }
+
+  fdTableSort.init(table_id1);
+  tablePaginater.init(table_id1);
 
 //potential nodes
 if (data_table[node_index] == '---potential---')	
@@ -386,35 +696,36 @@ if (data_table[node_index] == '---potential---')
     var tr=rows2[row_index];
 
     for (var column_index=0; column_index < tr.cells.length; column_index++) {
+		if (tr.cells[column_index].getAttribute('name'))
+		{
 		var found_index = headers.indexOf(tr.cells[column_index].getAttribute('name'));
 		if (found_index != -1)
 			tr.cells[column_index].innerHTML = data_array2[tr.cells[0].innerHTML][found_index];
+		}
     }
   }
 
+  //fdTableSort.removeTableCache(table_id2);
+  fdTableSort.init(table_id2);
+  tablePaginater.init(table_id2);
+
 }
 
-  document.getElementById('loadingDiv').innerHTML = ""
+document.getElementById('loading'+column).innerHTML = "";
+
 }
 
 
-
-
-
-function addColumnCells(column,header) {
-
-	//debugfilter("adding cells now: "+column+":"+header);
-	column_table[header]['visible']=true;
+function addColumnCells(header) {
 
 	var cells = document.getElementsByName(header);
-
 
 	//debugfilter("got cells -"+cells+"- for "+header);
 	for(var j = 0; j < cells.length; j++) 
 		cells[j].style.display = "table-cell";
 }
 
-function addColumnSamples(column) {
+function addSampleCells(column) {
 
 	var cellsheader = document.getElementsByName("confheader"+column);
 	for(var j = 0; j < cellsheader.length; j++) 
@@ -422,69 +733,179 @@ function addColumnSamples(column) {
 
 }
 
-function addColumnAjax(column) {
+function addColumnAjax(column, header) {
 
-	var selectedperiod="";
-
-	if (document.getElementById('selectperiod'+column))
-        	selectedperiod = document.getElementById('selectperiod'+column).value;
-
-	var header = column+""+selectedperiod;
-
-	addColumnCells(column, header);
-
-	var t = column_table[header]['tagname'];
+	//var t = document.getElementById('check'+column).name;
+	var t = document.getElementById('tagname'+header).value;
 	var slice_id = document.getElementById('slice_id').value;
-	document.getElementById('loadingDiv').innerHTML = "<img src=/plekit/icons/ajax-loader.gif>LOADING ...";
-	var url = "/plekit/php/updateColumn.php?slice_id="+slice_id+"&tagName="+t;
-	load_html(header, url);
 
-	addColumnToConfiguration(header);
+        var selectedperiod = document.getElementById('period'+column).value;
+
+	var fetched = document.getElementById('fetched'+column).value;
+	var to_load = false;
+
+	//debugfilter("<br>adding "+column+","+header+','+fetched+','+t);
+
+	if (fetched.indexOf("false")!=-1)
+	{
+		to_load = true;
+		document.getElementById('fetched'+column).value = ','+selectedperiod+',true';
+	}
+	else if (fetched.indexOf(','+selectedperiod+',')==-1)
+	{
+			to_load = true;
+			document.getElementById('fetched'+column).value = ','+selectedperiod+''+fetched;
+	}
+
+	if (to_load)
+	{
+		document.getElementById('loading'+column).innerHTML = "<img width=10 src=/plekit/icons/ajax-loader.gif>";
+		var url = "/plekit/php/updateColumn.php?slice_id="+slice_id+"&tagName="+t;
+		load_data(column, header, url);
+	}
 }
 
 
-function addColumn2(column) {
 
-	var selectedperiod="";
-
-	if (document.getElementById('selectperiod'+column))
-        	selectedperiod = document.getElementById('selectperiod'+column).value;
-
-	var header = column+""+selectedperiod;
-
-	addColumnCells(column,header);
-
-	addColumnToConfiguration(column);
-
-	checkDataToFetch();
-}
-
-function addColumn(column) {
+function addColumn(column, fetch) {
 
 	var selectedperiod="";
 	var header=column;
-
-	//debugfilter("adding column "+column+" and header "+header);
 
 	if (inTypeC(column)!=-1)
 	{
 		column = column.substring(0,column.length-1);
 	}
-	else if (document.getElementById('selectperiod'+column))
-	{
-        	selectedperiod = document.getElementById('selectperiod'+column).value;
-		header = column+""+selectedperiod;
-	}
 
-	//debugfilter("adding "+column+","+header);
+        selectedperiod = document.getElementById('period'+column).value;
+	header = column+""+selectedperiod;
 
-	addColumnCells(column, header);
+	//debugfilter("adding column "+column+" and header "+header);
+
+	addColumnCells(header);
+
+	if (fetch)
+		addColumnAjax(column, header);
 
 	addColumnToConfiguration(header);
-
-	column_table[header]['visible'] = true;
 	
-	checkDataToFetch();
+}
+
+
+function deleteColumnCells(header) {
+
+	var cells = document.getElementsByName(header);
+	for(var j = 0; j < cells.length; j++) 
+		cells[j].style.display = "none";
+
+}
+
+
+
+function deleteColumn(column) {
+
+	var selectedperiod="";
+	var header=column;
+
+        selectedperiod = document.getElementById('period'+column).value;
+	header = column+""+selectedperiod;
+
+	//debugfilter("deleting "+column+","+header);
+
+	deleteColumnCells(header);
+
+	deleteColumnFromConfiguration(header);
+
+	//document.getElementById('check'+column).checked = false;
+}
+
+
+/* 
+ 
+EXTRA
+
+//to be used for scrolling the column list with down/up arrows 
+
+function scrollList(tableid) {
+
+debugfilter("here");
+
+if (event.keyCode == 40)
+	debugfilter("down");
+else if (event.keyCode == 38)
+	debugfilter("up");
+
+}
+
+function resetColumns() {
+
+	for (var kk in column_table) {
+
+	if (column_table[kk]['visible'] == true && column_table[kk]['fetch'] == false)
+		deleteColumn(kk);
+	else if (column_table[kk]['visible'] == false && column_table[kk]['fetch'] == true)
+		addColumn(kk, true);
+	}
+
+}
+
+function resetCols(which_conf) {
+
+	var target_configuration = "|"+document.getElementById(which_conf).value+"|";
+	
+	//debugfilter("<p>Target configuration =  "+target_configuration);
+
+	for (var kk in column_table) {
+		//debugfilter("in "+kk+" ");
+
+		if (target_configuration.indexOf("|"+kk+"|")>=0)
+		{
+			if (document.getElementById('check'+kk))
+			if (document.getElementById('check'+kk).checked == false)
+			{
+				debugfilter("<p>Adding "+kk);
+				addColumn(kk, true);
+			}
+		}
+		else
+		{
+			if (document.getElementById('check'+kk))
+			if (document.getElementById('check'+kk).checked == true)
+			{
+				debugfilter("<p>Deleting "+kk);
+				deleteColumn(kk);
+			}
+		}
+	}
+}
+
+function filterByType(selectedtype) {
+
+var notselectedyet = true;
+
+for (var kk in column_headers) {
+
+	if (document.getElementById(kk))
+	{
+        	if (window['type'+kk] == selectedtype)
+        	{
+                	document.getElementById(kk).className = 'in';
+                	if (notselectedyet)
+                        	highlightOption(kk);
+                	notselectedyet = false;
+        	}
+        	else
+                	document.getElementById(kk).className = 'out';
+	}
+}
+}
+
+
+function deleteColumnSample() {
+	var cellsheader = document.getElementsByName("confheader"+column);
+	for(var j = 0; j < cellsheader.length; j++) 
+		cellsheader[j].style.display = "none";
+
 }
 
 function checkDataToFetch() {
@@ -538,84 +959,8 @@ if (column_table[kk]['visible'] == true && column_table[kk]['fetch'] == false)
 	var slice_id = document.getElementById('slice_id').value;
 	document.getElementById('loadingDiv').innerHTML = "&nbsp;&nbsp;&nbsp;<img src=/plekit/icons/ajax-loader.gif>&nbsp;Loading data. Please wait ...";
 	var url = "/plekit/php/updateColumn.php?slice_id="+slice_id+"&tagName="+tagnames;
-	load_html(headers, url);
+	load_data(headers, url);
 }
-
-function deleteColumnCells(column, header) {
-
-	column_table[header]['visible']=false;
-
-	var cells = document.getElementsByName(header);
-	for(var j = 0; j < cells.length; j++) 
-		cells[j].style.display = "none";
-
-}
-
-function deleteColumnSample() {
-	var cellsheader = document.getElementsByName("confheader"+column);
-	for(var j = 0; j < cellsheader.length; j++) 
-		cellsheader[j].style.display = "none";
-
-}
-
-function deleteColumnFromConfiguration(column) {
-
-
-	var old_configuration = document.getElementById('column_configuration').value;
-	var slice_id = document.getElementById('slice_id').value;
-
-	var old_columns = old_configuration.split("|");
-	var new_columns = new Array();
-
-	for (var column_index = 0; column_index < old_columns.length ; column_index++) {
-		var conf = old_columns[column_index].split(':');
-		if (conf[0] != column)
-			new_columns.push(old_columns[column_index]);
-	}
-
-	var new_configuration = new_columns.join("|");
-	updateColumnConfiguration(slice_id, new_configuration);
-
-	checkDataToFetch();
-}
-
-function deleteColumn2(column, header) {
-
-	deleteColumnCells(column,header);
-
-	deleteColumnFromConfiguration(column);
-
-	column_table[header]['visible'] = false;
-	document.getElementById('check'+column).checked = false;
-}
-
-function deleteColumn(column) {
-
-	var selectedperiod="";
-	var header=column;
-
-	if (inTypeC(column)!=-1)
-	{
-		column = column.substring(0,column.length-1);
-	}
-	else if (document.getElementById('selectperiod'+column))
-	{
-        	selectedperiod = document.getElementById('selectperiod'+column).value;
-		header = column+""+selectedperiod;
-	}
-
-	//debugfilter("deleting "+column+","+header);
-
-	deleteColumnCells(column,header);
-
-	deleteColumnFromConfiguration(header);
-
-	column_table[header]['visible'] = false;
-
-	//document.getElementById('check'+column).checked = false;
-}
-
-
 
 
 /*

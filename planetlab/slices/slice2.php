@@ -23,15 +23,22 @@ require_once 'table2.php';
 require_once 'details.php';
 require_once 'toggle.php';
 require_once 'form.php';
+require_once 'raphael.php';
 require_once 'columns.php';
 
 // keep css separate for now
 drupal_set_html_head('
 <link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
+<script src="/planetlab/slices/leases.js" type="text/javascript" charset="utf-8"></script>
 ');
 
 // -------------------- admins potentially need to get full list of users
 ini_set('memory_limit','32M');
+
+$profiling=false;
+if ($_GET['profiling']) $profiling=true;
+
+if ($profiling)  plc_debug_prof_start();
 
 // -------------------- 
 // recognized URL arguments
@@ -39,8 +46,10 @@ $slice_id=intval($_GET['id']);
 if ( ! $slice_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////
-// Get all columns as we focus on only one entry
-$slices= $api->GetSlices( array($slice_id));
+// have to name columns b/c we need the non-native 'omf_control' column
+$slice_columns=array('slice_id','name','peer_id','site_id','person_ids','node_ids','expires',
+		     'url','description','instantiation','omf_control');
+$slices= $api->GetSlices( array($slice_id), $slice_columns);
 
 if (empty($slices)) {
   drupal_set_message ("Slice " . $slice_id . " not found");
@@ -49,6 +58,7 @@ if (empty($slices)) {
 
 $slice=$slices[0];
 
+if ($profiling) plc_debug_prof('2: slice',count($slices));
 // pull all node info to vars
 $name= $slice['name'];
 $expires = date( "d/m/Y", $slice['expires'] );
@@ -61,12 +71,15 @@ $peer_id= $slice['peer_id'];
 $peers=new Peers ($api);
 $local_peer = ! $peer_id;
 
+if ($profiling) plc_debug_prof('3: peers',count($peers));
+
 // gets site info
 $sites= $api->GetSites( array( $site_id ) );
 $site=$sites[0];
 $site_name= $site['name'];
 $max_slices = $site['max_slices'];
 
+if ($profiling) plc_debug_prof('4: sites',count($sites));
 //////////////////////////////////////// building blocks for the renew area
 // Constants
 global $DAY;		$DAY = 24*60*60;
@@ -146,10 +159,15 @@ EOF;
      } else {
       print <<< EOF
 <div class='my-slice-renewal'>
-<p>You must provide a short description as well as a link to a project website before renewing it.
-Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against your slice 
-and PlanetLab Operations is unable to determine what the normal behavior of your slice is, 
-your slice may be deleted to resolve the complaint.</p>
+<p>You <span class='bold'>must</span> provide a short description, 
+as well as a link to a project website, before renewing it.
+
+<br/> Please make sure to provide reasonable details on <span class='bold'>
+the kind of traffic</span>, and <span class='bold'>copyrights</span> if relevant. 
+Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against 
+your slice  and your PlanetLab Operations Center is unable to determine what the normal behavior 
+of your slice is, your slice may be deleted to resolve the complaint.</p>
+
 <p><span class='bold'>NOTE:</span> 
 Slices cannot be renewed beyond another $max_renewal_weeks week(s) ($max_renewal_date).
 </p>
@@ -185,7 +203,7 @@ $tags_privileges = $privileges || plc_is_admin();
 
 $tabs=array();
 $tabs [] = tab_nodes_slice($slice_id);
-$tabs [] = tab_site($site_id);
+$tabs [] = tab_site($site);
 
 // are these the right privileges for deletion ?
 if ($privileges) {
@@ -252,6 +270,7 @@ $details->th_td('URL',$slice['url'],'url',array('width'=>50));
 $details->tr_submit("submit","Update Slice");
 $details->th_td('Expires',$expires);
 $details->th_td('Instantiation',$slice['instantiation']);
+$details->th_td("OMF-friendly", ($slice['omf_control'] ? 'Yes' : 'No') . " [to change: see 'omf_control' in the tags section below]");
 $details->th_td('Site',l_site_obj($site));
 // xxx show the PIs here
 //$details->th_td('PIs',...);
@@ -275,8 +294,9 @@ $potential_persons=
 		   $person_columns);
 $count=count($persons);
 
+if ($profiling) plc_debug_prof('4: persons',count($persons));
 $toggle=
-  new PlekitToggle ('my-slice-persons',"$count users",
+  new PlekitToggle ('my-slice-persons',"$count Users",
 		    array('bubble'=>
 			  'Manage accounts attached to this slice',
 			  'visible'=>get_arg('show_persons',false)));
@@ -298,7 +318,7 @@ $headers['first']='string';
 $headers['last']='string';
 $headers['R']='string';
 if ($privileges) $headers[plc_delete_icon()]="none";
-$table=new PlekitTable2('persons',$headers,'0', NULL,
+$table=new PlekitTable('persons',$headers,'0',
 		       array('notes_area'=>false));
 $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
@@ -349,7 +369,7 @@ if ($privileges) {
     // show search for admins only as other people won't get that many names to add
     if ( ! plc_is_admin() ) $options['search_area']=false;
     
-    $table=new PlekitTable2('add_persons',$headers,'0',NULL,$options);
+    $table=new PlekitTable('add_persons',$headers,'0',$options);
     $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
     $form->start();
     $table->start();
@@ -386,15 +406,20 @@ $toggle->end();
 //     (.) type is passed to the javascript table, for sorting (default is 'string')
 
 // minimal list as a start
-//$node_fixed_columns = array('hostname','node_id','slice_ids_whitelist','boot_state','last_contact');
+$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist',
+			    'run_level','boot_state','last_contact','node_type');
 // create a VisibleTags object : basically the list of tag columns to show
-//$visibletags = new VisibleTags ($api, 'node');
-//$visiblecolumns = $visibletags->column_names();
-//$node_columns=array_merge($node_fixed_columns,$visiblecolumns);
+$visibletags = new VisibleTags ($api, 'node');
+$visiblecolumns = $visibletags->column_names();
+$node_columns=array_merge($node_fixed_columns,$visiblecolumns);
+
+// optimizing calls to GetNodes
+//$all_nodes=$api->GetNodes(NULL,$node_columns);
+//$slice_nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
+//$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
 
 
-
-/* TEST PlekitColumns */
+//NEW CODE FOR ENABLING COLUMN CONFIGURATION
 
 //prepare fix and configurable columns
 
@@ -402,133 +427,321 @@ $fix_columns = array();
 $fix_columns[]=array('tagname'=>'hostname', 'header'=>'hostname', 'type'=>'string', 'title'=>'The name of the node');
 $fix_columns[]=array('tagname'=>'peer_id', 'header'=>'AU', 'type'=>'string', 'title'=>'Authority');
 $fix_columns[]=array('tagname'=>'run_level', 'header'=>'ST', 'type'=>'string', 'title'=>'Status');
+$fix_columns[]=array('tagname'=>'node_type', 'header'=>'RES', 'type'=>'string', 'title'=>'Reservable');
 
+// columns that correspond to the visible tags for nodes (*node/ui*)
 $visibletags = new VisibleTags ($api, 'node');
 $visibletags->columns();
 $tag_columns = $visibletags->headers();
 
+// extra columns that are not tags (for the moment not sorted correctly)
+
 $extra_columns = array();
-$extra_columns[]=array('tagname'=>'site_id', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'description'=>'Site name');
+//$extra_columns[]=array('tagname'=>'site_id', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'description'=>'Site name');
 
-//$configurable_columns = array_merge($tag_columns, $extra_columns);
-//usort ($configurable_columns, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
-
+//get user's column configuration
 
 $first_time_configuration = 'false';
-$default_configuration = "hostname:f|ST:f|AU:f|Rw|AST";
+$default_configuration = "hostname:f|ST:f|AU:f|RES:f";
 $column_configuration = "";
+$slice_column_configuration = "";
 
-$DescTags=$api->GetSliceTags (array('slice_id'=>$slice['slice_id']));
-for ($i=0; $i<count($DescTags); $i++ ) {
-        if ($DescTags [$i]['tagname']=='Configuration'){
-		$column_configuration = $DescTags [$i]['value'];
-                break;
-        }
+$show_configuration = "reservable:yes";
+$slice_show_configuration = "";
+$show_reservable_message = "";
+
+$PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
+//print_r($PersonTags);
+foreach ($PersonTags as $ptag) {
+	if ($ptag['tagname'] == 'columnconf')
+	{
+                $column_configuration = $ptag['value'];
+		$conf_tag_id = $ptag['person_tag_id'];
+	}
+	if ($ptag['tagname'] == 'showconf')
+	{
+                $show_configuration = $ptag['value'];
+		$show_tag_id = $ptag['person_tag_id'];
+	}
 }
 
+//print("<br>person column configuration = ".$column_configuration);
+
+$sliceconf_exists = false;
 if ($column_configuration == "")
 {
-	$first_time_configuration = 'true';
-	$column_configuration = $default_configuration;
+	$column_configuration = $slice_id.";";
+	$sliceconf_exists = true;
+}
+else {
+	$slice_conf = explode(";",$column_configuration);
+	for ($i=0; $i<count($slice_conf); $i++ ) {
+        	if ($slice_conf[$i] == $slice_id)
+        	{
+                	$i++;
+        		$slice_column_configuration = $slice_conf[$i];
+			$sliceconf_exists = true;
+                	break;
+        	}
+		else
+		{
+                	$i++;
+        		$slice_column_configuration = $slice_conf[$i];
+		}
+	}        
 }
 
-//print("<p>GOT CONFIGURATION: ".$column_configuration);
+if ($sliceconf_exists == false)
+	$column_configuration = $column_configuration.";".$slice_id.";";
 
-//$test_configuration = "hostname:f|AU:f|ST:f|Rw|AST";
-//print("<p>Parsing configuration ".$test_configuration);
+//print("<br>slice configuration = ".$slice_column_configuration);
 
+//instantiate the column configuration class, which prepares the headers array
 
-$ConfigureColumns =new PlekitColumns($column_configuration, $fix_columns, $tag_columns, $extra_columns);
+if ($slice_column_configuration == "")
+	$full_configuration = $default_configuration;
+else
+	$full_configuration = $default_configuration."|".$slice_column_configuration;
 
-$node_requested_data = $ConfigureColumns->node_tags();
-$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_requested_data);
-$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_requested_data);
+$ConfigureColumns =new PlekitColumns($full_configuration, $fix_columns, $tag_columns, $extra_columns);
 
-//$nodes = array();
-//$potential_nodes = array();
+$node_columns = $ConfigureColumns->node_tags();
+//print_r($node_columns);
+$all_nodes=$api->GetNodes(NULL,$node_columns);
 
-//print("<p>RESULTS for ".print_r(array('~node_id'=>$slice['node_ids'])));
-//print_r($nodes);
+//print("<br>person show configuration = ".$show_configuration);
 
-$count=count($nodes);
+$show_conf = explode(";",$show_configuration);
+for ($i=0; $i<count($show_conf); $i++ ) {
+                $i++;
+                $slice_show_configuration = $show_conf[$i];
+}        
+$reservable_value = explode(":", $slice_show_configuration);
+	if ($reservable_value[0]=="reservable" && $reservable_value[1] == "no")
+		$show_reservable_message = "display:none";
 
-$toggle=new PlekitToggle ('my-slice-nodes',"$count nodes",
+//print("<br>slice show configuration = ".$slice_show_configuration);
+
+$slice_nodes=array();
+$potential_nodes=array();
+$reservable_nodes=array();
+foreach ($all_nodes as $node) {
+  if (in_array($node['node_id'],$slice['node_ids'])) {
+    $slice_nodes[]=$node;
+    if ($node['node_type']=='reservable') $reservable_nodes[]=$node;
+  } else {
+    $potential_nodes[]=$node;
+  }
+}
+if ($profiling) plc_debug_prof('5: nodes',count($slice_nodes));
+////////////////////
+// outline the number of reservable nodes
+$nodes_message=count_english($slice_nodes,"node");
+if (count($reservable_nodes)) $nodes_message .= " (" . count($reservable_nodes) . " reservable)";
+$toggle=new PlekitToggle ('my-slice-nodes',$nodes_message,
 			  array('bubble'=>
 				'Manage nodes attached to this slice',
 				'visible'=>get_arg('show_nodes',false)));
 $toggle->start();
 
+////////// show a notice to people having attached a reservable node
+if (count($reservable_nodes) && $privileges) {
+  $mark=reservable_mark();
+  print <<<EOF
+<div id='note_reservable_div' style="align:center; border : solid 2px red; padding:4px; width:800px; $show_reservable_message">
+<table align=center><tr><td valign=top>
+You have attached one or more <span class='bold'>reservable nodes</span> to your slice. 
+Reservable nodes show up with the '$mark' mark. 
+Your slivers will be available <span class='bold'>only during timeslots
+where you have obtained leases</span>. 
+You can manage your leases in the tab below.
+<br>
+Please note that as of August 2010 this feature is experimental. 
+Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
+</td><td valign=top><span onClick=closeShowReservable()><img class='reset' src="/planetlab/icons/clear.png" alt="hide message"></span>
+</td></tr></table>
+</div>
+EOF;
+}  
+
+//////////////////// reservable nodes area
+$count=count($reservable_nodes);
+if ($count && $privileges) {
+  // having reservable nodes in white lists looks a bit off scope for now...
+  $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
+				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
+				 array('visible'=>get_arg('show_nodes_resa',false)));
+  $toggle_nodes->start();
+  $grain=$api->GetLeaseGranularity();
+  if ($profiling) plc_debug_prof('6 granul',$grain);
+  // where to start from, expressed as an offset in hours from now
+  $resa_offset=$_GET['resa_offset'];
+  if ( ! $resa_offset ) $resa_offset=0;
+  $rough_start=time()+$resa_offset*3600;
+  // xxx should be configurable
+  $resa_slots=$_GET['resa_slots'];
+  if ( ! $resa_slots ) $resa_slots = 36;
+  // for now, show the next 72 hours, or 72 grains, which ever is smaller
+  $duration=$resa_slots*$grain;
+  $steps=$duration/$grain;
+  $start=intval($rough_start/$grain)*$grain;
+  $end=$rough_start+$duration;
+  $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
+  $leases=$api->GetLeases(array(']t_until'=>$rough_start,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
+  if ($profiling) plc_debug_prof('7 leases',count($leases));
+  // hash nodes -> leases
+  $host_hash=array();
+  foreach ($leases as $lease) {
+    $hostname=$lease['hostname'];
+    if ( ! $host_hash[$hostname] ) {
+	$host_hash[$hostname]=array();
+    }
+    // resync within the table
+    $lease['nfrom']=($lease['t_from']-$start)/$grain;
+    $lease['nuntil']=($lease['t_until']-$start)/$grain;
+    $host_hash[$hostname] []= $lease;
+  }
+  # leases_data is the name used by leases.js to locate this table
+  echo "<table id='leases_data'>";
+  # pass (slice_id,slicename) as the [0,0] coordinate as thead>tr>td
+  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . "</td>";
+  # the timeslot headers read (timestamp,label)
+  $day_names=array('Su','M','Tu','W','Th','F','Sa');
+  for ($i=0; $i<$steps; $i++) {
+    $timestamp=($start+$i*$grain);
+    $day=$day_names[intval(strftime("%w",$timestamp))];
+    $label=$day . strftime(" %H:%M",$timestamp);
+    // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
+    echo "<th>" . implode("&",array($timestamp,$label)) . "</th>";
+  }
+  echo "</tr></thead><tbody>";
+  // todo - sort on hostnames
+  function sort_hostname ($a,$b) { return ($a['hostname']<$b['hostname'])?-1:1;}
+  usort($reservable_nodes,sort_hostname);
+  foreach ($reservable_nodes as $node) {
+    echo "<tr><th scope='row'>". $node['hostname'] . "</th>";
+    $hostname=$node['hostname'];
+    $leases=$host_hash[$hostname];
+    $counter=0;
+    while ($counter<$steps) {
+      if ($leases && ($leases[0]['nfrom']<=$counter)) {
+	$lease=array_shift($leases);
+	/* nicer display, merge two consecutive leases for the same slice 
+	   avoid doing that for now, as it might makes things confusing */
+	/* while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
+	  $lease['nuntil']=$leases[0]['nuntil'];
+	  array_shift($leases);
+	  }*/
+	$duration=$lease['nuntil']-$counter;
+	echo "<td colspan='$duration'>" . $lease['lease_id'] . '&' . $lease['name'] . "</td>";
+	$counter=$lease['nuntil']; 
+      } else {
+	echo "<td></td>";
+	$counter+=1;
+      }
+    }
+    echo "</tr>";
+  }
+  echo "</tbody></table>\n";
+
+  // the general layout for the scheduler
+  echo <<< EOF
+<div id='leases_area'></div>
+
+<div id='leases_buttons'>
+  <button id='leases_clear' type='submit'>Clear</button>
+  <button id='leases_submit' type='submit'>Submit</button>
+</div>
+EOF;
+
+  $toggle_nodes->end();
+ }
+
+
+//////////////////// node configuration panel
 
 $toggle_nodes=new PlekitToggle('my-slice-nodes-configuration',
-			       "Node table column configuration",
-			       array('visible'=>'1'));
-
+                               "Node table layout",
+                               array('visible'=>'1'));
 $toggle_nodes->start();
 
-
 //usort ($table_headers, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
-
-//print("<p>HEADERS TO SHOW<p>");
-//print_r($headersToShow);
-
 //print("<p>TABLE HEADERS<p>");
 //print_r($table_headers);
 
 print("<div id='debug'></div>");
 print("<input type='hidden' id='slice_id' value='".$slice['slice_id']."' />");
-print("<input type='hidden' size='80' id='column_configuration' value='".$column_configuration."' />");
-print("<input type='hidden' id='previousConf' value='".$column_configuration."'></input>");
+print("<input type='hidden' id='person_id' value='".$plc->person['person_id']."' />");
+print("<input type='hidden' id='conf_tag_id' value='".$conf_tag_id."' />");
+print("<input type='hidden' id='show_tag_id' value='".$show_tag_id."' />");
+print("<input type='hidden' id='column_configuration' value='".$slice_column_configuration."' />");
+print("<br><input type='hidden' size=80 id='full_column_configuration' value='".$column_configuration."' />");
+print("<input type='hidden' id='previousConf' value='".$slice_column_configuration."'></input>");
 print("<input type='hidden' id='defaultConf' value='".$default_configuration."'></input>");
-//print("<input type='button' id='testFunctions' onclick=\"highlightOption('AU')\" value='test'></input>");
-
-$ConfigureColumns->javascript_vars();
 
 $ConfigureColumns->configuration_panel_html(true);
 
-print("<div align='center' id='loadingDiv'></div>");
+$ConfigureColumns->javascript_init();
 
 $toggle_nodes->end();
 
 
-////////// nodes currently in
 
-$count=count($nodes);
-
+//////////////////// nodes currently in
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
-			       "$count nodes currently in $name",
+			       count_english($slice_nodes,"node") . " currently in $name",
 			       array('visible'=>get_arg('show_nodes_current',!$privileges)));
-
 $toggle_nodes->start();
+
+$headers=array();
+$notes=array();
+//$notes=array_merge($notes,$visibletags->notes());
+$notes [] = "For information about the different columns please see the <b>node table layout</b> tab above";
+
+/*
+$headers['peer']='string';
+$headers['hostname']='string';
+$short="-S-"; $long=Node::status_footnote(); $type='string'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+$short=reservable_mark(); $long=reservable_legend(); $type='string';
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+// the extra tags, configured for the UI
+$headers=array_merge($headers,$visibletags->headers());
+
+if ($privileges) $headers[plc_delete_icon()]="none";
+*/
 
 $edit_header = array();
 if ($privileges) $edit_header[plc_delete_icon()]="none";
+$headers = array_merge($ConfigureColumns->get_headers(),$edit_header);
 
-$table_options = array('search_width'=>15,
-                       'pagesize'=>20);
-//$table=new PlekitTable2('nodes',$headers,'1',$table_options);
-//$table=new PlekitTable2('nodes_pairwise',array_merge($ConfigureColumns->plekit_columns_get_headers(),$edit_header),NULL,$headersToShow, $table_option);
-//$headersToShow = $ConfigureColumns->plekit_columns_visible();
+//print("<p>HEADERS<p>");
+//print_r($headers);
 
-$table=new PlekitTable2('nodes',array_merge($ConfigureColumns->get_headers(),$edit_header),NULL,NULL, $table_option); 
+$table_options = array('notes'=>$notes,
+                       'search_width'=>15,
+                       'pagesize'=>20,
+			'configurable'=>true);
+
+$table=new PlekitTable('nodes',$headers,NULL,$table_options);
 
 $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
 $table->start();
-if ($nodes) foreach ($nodes as $node) {
+if ($slice_nodes) foreach ($slice_nodes as $node) {
   $table->row_start();
 
-  $table->cell($node['node_id'], array('display'=>'none'));
-  $table->cell(l_node_obj($node));
+$table->cell($node['node_id'], array('display'=>'none'));
 
+  $table->cell(l_node_obj($node));
   $peers->cell($table,$node['peer_id']);
   $run_level=$node['run_level'];
   list($label,$class) = Node::status_label_class_($node);
-  $table->cell ($label,array('name'=>'ST', 'class'=>$class, 'display'=>'table-cell'));
+  $table->cell ($label,array('class'=>$class));
+  $table->cell( ($node['node_type']=='reservable')?reservable_mark():"" );
 
- 
-$ConfigureColumns->cells($table, $node);
-
-
+ //foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+ $ConfigureColumns->cells($table, $node);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
   $table->row_end();
@@ -547,7 +760,7 @@ if ($privileges) {
 $table->end();
 $toggle_nodes->end();
 
-////////// nodes to add
+//////////////////// nodes to add
 if ($privileges) {
   $new_potential_nodes = array();
   if ($potential_nodes) foreach ($potential_nodes as $node) {
@@ -560,37 +773,52 @@ if ($privileges) {
 
   $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
-				 "$count more nodes available",
+				 count_english($potential_nodes,"more node") . " available",
 				 array('visible'=>get_arg('show_nodes_add',false)));
   $toggle_nodes->start();
 
-  if ( ! $potential_nodes ) {
-    // xxx improve style
-    echo "<p class='not-relevant'>No node to add</p>";
-  } else {
+  if ( $potential_nodes ) {
+    $headers=array();
+    $notes=array();
 
-    $edit_header = array();
-    if ($privileges) $edit_header['+']="none";
+
+/*
+    $headers['peer']='string';
+    $headers['hostname']='string';
+    $short="-S-"; $long=Node::status_footnote(); $type='string'; 
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+	$short=reservable_mark(); $long=reservable_legend(); $type='string';
+	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+    // the extra tags, configured for the UI
+    $headers=array_merge($headers,$visibletags->headers());
+    $headers['+']="none";
+*/
+
+    $add_header = array();
+    $add_header['+']="none";
+    $headers = array_merge($ConfigureColumns->get_headers(),$add_header);
+
+    //$notes=array_merge($notes,$visibletags->notes());
+    $notes [] = "For information about the different columns please see the <b>node table layout</b> tab above";
     
-    //$table=new PlekitTable2('add_nodes',$headers,'1', $table_options);
-    $table=new PlekitTable2('add_nodes',array_merge($ConfigureColumns->get_headers(), $edit_header),NULL,$headersToShow, $table_options);
+    $table=new PlekitTable('add_nodes',$headers,NULL, $table_options);
     $form=new PlekitForm(l_actions(),
 			 array('slice_id'=>$slice['slice_id']));
     $form->start();
     $table->start();
-
     if ($potential_nodes) foreach ($potential_nodes as $node) {
 	$table->row_start();
 
-  $table->cell($node['node_id'], array('display'=>'none'));
-  $table->cell(l_node_obj($node));
+$table->cell($node['node_id'], array('display'=>'none'));
 
-  $peers->cell($table,$node['peer_id']);
-  $run_level=$node['run_level'];
-  list($label,$class) = Node::status_label_class_($node);
-  $table->cell ($label,array('name'=>'ST', 'class'=>$class, 'display'=>'table-cell'));
+	$table->cell(l_node_obj($node));
+	$peers->cell($table,$node['peer_id']);
+	list($label,$class) = Node::status_label_class_($node);
+	$table->cell ($label,array('class'=>$class));
+	$table->cell( ($node['node_type']=='reservable')?reservable_mark():"" );
 
-$ConfigureColumns->cells($table, $node);
+	//foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+  	$ConfigureColumns->cells($table, $node);
 
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
@@ -606,11 +834,15 @@ $ConfigureColumns->cells($table, $node);
   }
   $toggle_nodes->end();
 }
+
 $toggle->end();
 
+// very wide values get abbreviated
+$tag_value_threshold=24;
 //////////////////////////////////////////////////////////// Tags
 //if ( $local_peer ) {
   $tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
+  if ($profiling) plc_debug_prof('8 slice tags',count($tags));
   function get_tagname ($tag) { return $tag['tagname'];}
   $tagnames = array_map ("get_tagname",$tags);
   
@@ -627,7 +859,7 @@ $toggle->end();
   if ($tags_privileges) $headers[plc_delete_icon()]="none";
   
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
-  $table=new PlekitTable2("slice_tags",$headers,'0',NULL,$table_options);
+  $table=new PlekitTable("slice_tags",$headers,'0',$table_options);
   $form=new PlekitForm(l_actions(),
                        array('slice_id'=>$slice['slice_id']));
   $form->start();
@@ -636,23 +868,26 @@ $toggle->end();
     foreach ($tags as $tag) {
       $node_name = "ALL";
       if ($tag['node_id']) {
-        $nodes = $api->GetNodes(array('node_id'=>$tag['node_id']));
-        if($nodes) {
-          $node = $nodes[0];
+        $tag_nodes = $api->GetNodes(array('node_id'=>$tag['node_id']));
+	if ($profiling) plc_debug_prof('9 node for slice tag',count($tag_nodes));
+        if($tag_nodes) {
+          $node = $tag_nodes[0];
           $node_name = $node['hostname'];
         }
       }
       $nodegroup_name="n/a";
       if ($tag['nodegroup_id']) { 
-        $nodegroup=$api->GetNodeGroups(array('nodegroup_id'=>$tag['nodegroup_id']));
+        $nodegroups=$api->GetNodeGroups(array('nodegroup_id'=>$tag['nodegroup_id']));
+	if ($profiling) plc_debug_prof('10 nodegroup for slice tag',$nodegroup);
         if ($nodegroup) {
-          $nodegroup = $nodegroup[0];
+          $nodegroup = $nodegroups[0];
           $nodegroup_name = $nodegroup['groupname'];
         }
       }
       $table->row_start();
       $table->cell(l_tag_obj($tag));
-      $table->cell($tag['value']);
+      // very wide values get abbreviated
+      $table->cell(truncate_and_popup($tag['value'],$tag_value_threshold));
       $table->cell($node_name);
       $table->cell($nodegroup_name);
       if ($tags_privileges) $table->cell ($form->checkbox_html('slice_tag_ids[]',$tag['slice_tag_id']));
@@ -671,18 +906,19 @@ $toggle->end();
       return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']);
     }
     $all_tags= $api->GetTagTypes( array ("category"=>"slice*","-SORT"=>"+tagname"), array("tagname","tag_type_id"));
+    if ($profiling) plc_debug_prof('11 tagtypes',count($all_tags));
     $selector_tag=array_map("tag_selector",$all_tags);
     
     function node_selector($node) { 
       return array("display"=>$node["hostname"],"value"=>$node['node_id']);
     }
-    $all_nodes = $api->GetNodes( array ("node_id" => $slice['node_ids']), array("hostname","node_id"));
-    $selector_node=array_map("node_selector",$all_nodes);
+    $selector_node=array_map("node_selector",$slice_nodes);
     
     function nodegroup_selector($ng) {
       return array("display"=>$ng["groupname"],"value"=>$ng['nodegroup_id']);
     }
     $all_nodegroups = $api->GetNodeGroups( array("groupname"=>"*"), array("groupname","nodegroup_id"));
+    if ($profiling) plc_debug_prof('13 nodegroups',count($all_nodegroups));
     $selector_nodegroup=array_map("nodegroup_selector",$all_nodegroups);
     
     $table->cell($form->select_html("tag_type_id",$selector_tag,array('label'=>"Choose Tag")));
@@ -706,257 +942,9 @@ if ($local_peer ) {
 
 $peers->block_end($peer_id);
 
+if ($profiling) plc_debug_prof_end();
+
 // Print footer
 include 'plc_footer.php';
 
 ?>
-
-
-<script type="text/javascript">
-
-var sourceComon = '<a target="source_window" href="http://comon.cs.princeton.edu/">CoMoN</a>';
-var sourceTophat = '<b><a target="source_window" href="http://www.top-hat.info/">TopHat</a></b>';
-var sourceTophatAPI = '<b><a target="source_window" href="http://www.top-hat.info/API/">TopHat API</a></b>';
-var sourceMySlice = '<b><a target="source_window" href="http://myslice.info/">MySlice</a></b>';
-var sourceCymru = '<b><a target="source_window" href="http://www.team-cymru.org/">Team Cymru</a></b>';
-var sourceMyPLC = '<b><a target="source_window" href="http://www.planet-lab.eu/PLCAPI/">MyPLC API</a></b>';
-var sourceManiacs = '<b><a target="source_window" href="http://www.ece.gatech.edu/research/labs/MANIACS/as_taxonomy/">MANIACS</a></b>';
-var sourceMonitor = '<b><a target="source_window" href="http://monitor.planet-lab.org/">Monitor</a></b>';
-var selectReferenceNode ='Select reference node: <select id="reference_node" onChange="updateDefaultConf(this.value)"><option value=planetlab-europe-07.ipv6.lip6.fr>planetlab-europe-07.ipv6.lip6.fr</option></select>';
-var addButton = '<input id="addButton" type="button" value="Add" onclick=addColumnAjax(document.getElementById("list1").value)></input>';
-var deleteButton = '<input id="deleteButton" type="button" value="Delete" onclick=deleteColumn(window.document.getElementById("list1").value)></input>';
-
-var titleAU = 'Authority';
-var detailAU = '<i>The authority of the global PlanetLab federation that the site of the node belongs to.</i>';
-var valuesAU = 'Values: <b>PLC</b> (PlanetLab Central), <b>PLE</b> (PlanetLab Europe)';
-var sourceAU = '<b>Source:</b> '+sourceMyPLC;
-var descAU = '<span class="myslice title">'+titleAU+'</span><p>'+detailAU+'<p>'+valuesAU+'<p>'+sourceAU;
-
-var descHOSTNAME = "test";
-
-
-var titleAS = 'Autonomous system ID';
-var sourceAS = 'Source: '+sourceCymru+' (via '+sourceTophat+')';
-var valuesAS = 'Unit: <b>Integer between 0 and 65535</b>';
-var descAS = '<span class="myslice title">'+titleAS+'</span><p>'+valuesAS+'<p>' + sourceAS;
-
-var titleAST = 'Autonomous system type';
-var sourceAST = 'Source: '+sourceManiacs;
-var valuesAST = 'Values: <b>t1</b> (tier-1), <b>t2</b> (tier-2), <b>edu</b> (university), <b>comp</b> (company), <b>nic</b> (network information center), <b>ix</b> (IXP), <b>n/a</b>';
-var descAST = '<span class="myslice title">'+titleAST+'</span><p>'+valuesAST+'<p>'+sourceAST;
-
-var titleASN = 'Autonomous system name';
-var sourceASN = 'Source: '+sourceTophat;
-var descASN = '<span class="myslice title">'+titleASN+'</span><p>'+sourceASN;
-
-var selectPeriodBU = 'Select period: <select id="selectperiodBU" onChange=updatePeriod("BU")><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
-var titleBU = 'Bandwidth utilization ';
-var sourceBU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesBU ='Unit: <b>Kbps</b>';
-var detailBU = '<i>The average Transmited bandwidh (Tx) over the selected period. The period is the most recent for which data is available, with CoMoN data being collected by MySlice daily.</i>'
-var descBU = '<span class="myslice title">'+titleBU+'</span><p>'+detailBU+'<p>'+selectPeriodBU+'<p>'+valuesBU+'<p>'+sourceBU; 
-
-var titleBW= 'Bandwidth limit';
-var sourceBW = 'Source: '+sourceComon;
-var valuesBW = 'Unit: <b>Kbps</b>';
-var detailBW = '<i>The bandwidth limit is a cap on the total outbound bandwidth usage of a node. It is set by the site administrator (PI). For more details see <a href="http://www.planet-lab.org/doc/BandwidthLimits">Bandwidth Limits (planet-lab.org)</a></i>';
-var descBW = '<span class="myslice title">'+titleBW+'</span><p>'+detailBW+'<p>'+valuesBW+'<p>'+sourceBW;
-
-var titleCC = 'Number of CPU cores';
-var sourceCC = 'Source: '+sourceComon;
-var valuesCC = 'Current PlanetLab hardware requirements: 4 cores min. <br><i>(Older nodes may have fewer cores)</i>';
-var descCC = '<span class="myslice title">'+titleCC+'</span><p>'+valuesCC+'<p>'+sourceCC;
-
-var titleCN = 'Number of CPUs';
-var sourceCN = 'Source: '+sourceComon;
-var valuesCN = 'Current PlanetLab hardware requirements: <b>1 (if quad core) or 2 (if dual core)</b>';
-var descCN = '<span class="myslice title">'+titleCN+'</span><p>'+valuesCN+'<p>'+sourceCN;
-
-var titleCR = 'CPU clock rate';
-var sourceCR = 'Source: '+sourceComon;
-var valuesCR = 'Unit: <b>GHz</b><p>Current PlanetLab hardware requirements: <b>2.4 GHz</b>';
-var descCR = '<span class="myslice title">'+titleCR+'</span><p>'+valuesCR+'<p>'+sourceCR;
-
-var selectPeriodCF = 'Select period: <select id="selectperiodCF" onChange=updatePeriod("CF")><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
-var titleCF = 'Free CPU';
-var sourceCF = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesCF = 'Unit: <b>%</b>';
-var detailCF = '<i> The average CPU percentage that could be allocated by a test slice (burb) run periodically by CoMoN </i>';
-var descCF = '<span class="myslice title">'+titleCF+'</span><p>'+detailCF+'<p>'+selectPeriodCF+'<p>'+valuesCF+'<p>'+sourceCF; 
-
-var titleDS = 'Disk size';
-var sourceDS = 'Source: '+sourceComon;
-var valuesDS = 'Unit: <b>GB</b><p>Current PlanetLab hardware requirements: <b>500GB</b>';
-var descDS = '<span class="myslice title">'+titleDS+'</span><p>'+valuesDS+'<p>'+sourceDS;
-
-var titleDU = 'Current disk utilization';
-var sourceDU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesDU = 'Unit: <b>GB</b>';
-var detailDU = '<i> The amount of disk space currently consumed (checked daily) </i>';
-var descDU = '<span class="myslice title">'+titleDU+'</span><p>'+detailDU+'<p>'+valuesDU+'<p>'+sourceDU;
-
-var titleHC = 'Hop count from a reference node';
-var sourceHC = 'Source: '+sourceTophat;
-var detailHC = '<i>TopHat conducts traceroutes every five minutes in a full mesh between all PlanetLab nodes. The hop count is the length of the traceroute from the node to the reference node, based upon the most recently reported traceroute</i>.';
-var descHC = '<span class="myslice title">'+titleHC+'</span><p>'+detailHC+'<p>'+selectReferenceNode+'<p>'+sourceHC;
-
-var titleIP = 'IP address';
-var sourceIP = 'Source: '+sourceTophat;
-var descIP = '<span class="myslice title">'+titleIP+'</span><p>'+sourceIP;
-
-var selectPeriodL = 'Select period: <select id="selectperiodL" onChange=updatePeriod("L")><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
-var titleL= 'Load ';
-var sourceL = 'Source: '+sourceComon;
-var valuesL = 'Unit: <b>float</b>';
-var detailL = '<i>The average 5-minute Unix load (as reported by the uptime command) over the selected period</i>';
-var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+selectPeriodL+'<p>'+valuesL+'<p>'+sourceL; 
-
-var titleLON= 'Longitude';
-var sourceLON = 'Source: '+sourceTophat;
-var descLON = '<span class="myslice title">'+titleLON+'</span><p>'+sourceLON;
-
-var titleLAT= 'Latitude';
-var sourceLAT = 'Source: '+sourceTophat;
-var descLAT = '<span class="myslice title">'+titleLAT+'</span><p>'+sourceLAT;
-
-var titleLCN= 'Location (Country)';
-var sourceLCN = 'Source: '+sourceTophat;
-var detailLCN = '<i>Based on the latitude, longitude information</i>';
-var descLCN = '<span class="myslice title">'+titleLCN+'</span><p>'+detailLCN+'<p>'+sourceLCN;
-
-var titleLCT= 'Location (Continent)';
-var sourceLCT = 'Source: '+sourceTophat;
-var detailLCT = '<i>Based on the latitude, longitude information</i>';
-var descLCT = '<span class="myslice title">'+titleLCT+'</span><p>'+detailLCT+'<p>'+sourceLCT;
-
-var titleLCY= 'Location (City)';
-var sourceLCY = 'Source: '+sourceTophat;
-var detailLCY = '<i>Based on the latitude, longitude information</i>';
-var descLCY = '<span class="myslice title">'+titleLCY+'</span><p>'+detailLCY+'<p>'+sourceLCY;
-
-var titleLPR= 'Location precision radius';
-var sourceLPR = 'Source: '+sourceTophat;
-var valuesLPR = 'Unit: <b>float</b>';
-var detailLPR = '<i>The radius of the circle corresponding to the error in precision of the geolocalization</i>';
-var descLPR = '<span class="myslice title">'+titleLPR+'</span><p>'+detailLPR+'<p>'+valuesLPR+'<p>'+sourceLPR;
-
-var titleLRN= 'Location (Region)';
-var sourceLRN = 'Source: '+sourceTophat;
-var detailLRN = '<i>Based on the latitude, longitude information</i>';
-var descLRN = '<span class="myslice title">'+titleLRN+'</span><p>'+detailLRN+'<p>'+sourceLRN;
-
-var titleMS= 'Memory size';
-var sourceMS = 'Source: '+sourceComon;
-var valuesMS = 'Unit: <b>GB</b><p>Current PlanetLab hardware requirements: <b>4GB</b>';
-var descMS = '<span class="myslice title">'+titleMS+'</span><p>'+valuesMS+'<p>'+sourceMS;
-
-var selectPeriodMU = 'Select period: <select id="selectperiodMU" onChange=updatePeriod("MU")><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
-var titleMU = 'Memory utilization';
-var sourceMU = 'Source: '+sourceComon;
-var valuesMU = '<p>Unit: <b>%</b>';
-var detailMU = '<i>The average active memory utilization as reported by CoMoN</i>';
-var descMU = '<span class="myslice title">'+titleMU+'</span><p>'+detailMU+'<p>'+selectPeriodMU+'<p>'+valuesMU+'<p>'+sourceMU; 
-
-var titleNEC= 'Network information (ETOMIC)';
-var sourceNEC = 'Source: '+sourceTophat;
-var valuesNEC = 'Values: <b>yes/no</b>';
-var detailNEC = '<i>The existence of a colocated ETOMIC box. When an ETOMIC box is present you have the possibility to conduct high-precision measurements through the '+sourceTophatAPI+'</i>';
-var descNEC = '<span class="myslice title">'+titleNEC+'</span><p>'+detailNEC+'<p>'+valuesNEC+'<p>'+sourceNEC;
-
-var titleNTH= 'Network information (TopHat)';
-var sourceNTH = 'Source: '+sourceTophat;
-var valuesNTH = 'Values: <b>yes/no</b>';
-var detailNTH = '<i>The existence of a colocated TopHat agent. When a TopHat agent is present you have the possibility to conduct high-precision measurements through the '+sourceTophatAPI+'</i>';
-var descNTH = '<span class="myslice title">'+titleNTH+'</span><p>'+detailNTH+'<p>'+valuesNTH+'<p>'+sourceNTH;
-
-var titleNDS= 'Network information (DIMES)';
-var sourceNDS = 'Source: '+sourceTophat;
-var valuesNDS = 'Values: <b>yes/no</b>';
-var detailNDS = '<i>The existence of a colocated DIMES agent. When a DIMES agent is present you have the possibility to conduct high-precision measurements through the '+sourceTophatAPI+'</i>';
-var descNDS = '<span class="myslice title">'+titleNDS+'</span><p>'+detailNDS+'<p>'+valuesNDS+'<p>'+sourceNDS;
-
-var titleNSF= 'Network information (spoof)';
-var sourceNSF = 'Source: '+sourceTophat;
-var valuesNSF = '<p>Values: <b>yes/no</b>';
-var detailNSF = '<i> Whether the node can send packets packets using the IP spoof option</i>';
-var descNSF = '<span class="myslice title">'+titleNSF+'</span><p>'+detailNSF+'<p>'+valuesNSF+'<p>'+sourceNSF;
-
-var titleNSR= 'Network information (source route)';
-var sourceNSR = 'Source: '+sourceTophat;
-var valuesNSR = '<p>Values: <b>yes/no</b>';
-var detailNSR = '<i> Whether the node can send packets packets using the IP source route option</i>';
-var descNSR = '<span class="myslice title">'+titleNSR+'</span><p>'+detailNSR+'<p>'+valuesNSR+'<p>'+sourceNSR;
-
-var titleNTP= 'Network information (timestamp)';
-var sourceNTP = 'Source: '+sourceTophat;
-var valuesNTP = '<p>Values: <b>yes/no</b>';
-var detailNTP = '<i> Whether the node can send packets packets using the IP timestamp option</i>';
-var descNTP = '<span class="myslice title">'+titleNTP+'</span><p>'+detailNTP+'<p>'+valuesNTP+'<p>'+sourceNTP;
-
-var titleNRR= 'Network information (record route)';
-var sourceNRR = 'Source: '+sourceTophat;
-var valuesNRR = '<p>Values: <b>yes/no</b>';
-var detailNRR = '<i> Whether the node can send packets packets using the IP record route option</i>';
-var descNRR = '<span class="myslice title">'+titleNRR+'</span><p>'+detailNRR+'<p>'+valuesNRR+'<p>'+sourceNRR;
-
-var titleOS = 'Operating system';
-var sourceOS = 'Source: '+sourceMyPLC;
-var valuesOS = 'Values: <b>Fedora, Cent/OS, other, n/a</b>';
-var descOS = '<span class="myslice title">'+titleOS+'</span><p>'+valuesOS+'<p>'+sourceOS;
-
-var selectPeriodR = 'Select period: <select id="selectperiodR" onChange=updatePeriod("R")><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
-var titleR = 'Reliability';
-var sourceR = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var detailR = '<i>CoMoN queries nodes every 5 minutes, for 255 queries per day. The average reliability is the percentage of queries over the selected period for which CoMoN reports a value. The period is the most recent for which data is available, with CoMoN data being collected by MySlice daily</i>';
-var valuesR = 'Unit: <b>%</b>';
-var descR = '<span class="myslice title">'+titleR+'</span><p>'+detailR+'<p>'+selectPeriodR+'<p>'+valuesR+'<p>'+sourceR; 
-
-var titleRES = 'Reservation capabilities';
-var sourceRES = 'Source: '+sourceMyPLC;
-var valuesRES = 'Values: <b>yes/no</b>';
-var detailRES = '<i> Whether the node can be reserved for a certain duration</i>';
-var descRES = '<span class="myslice title">'+titleRES+'</span><p>'+detailRES+'<p>'+valuesRES+'<p>'+sourceRES;
-
-var selectPeriodS = 'Select period: <select id="selectperiodS" onChange=updatePeriod("S")><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
-var titleS = 'Active slices';
-var sourceS = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesS = 'Unit: <b>%</b>';
-var detailS = '<i>Average number of active slices over the selected period for which CoMoN reports a value. The period is the most recent for which data is available, with CoMoN data being collected by MySlice daily</i>';
-var descS = '<span class="myslice title">'+titleS+'</span><p>'+detailS+'<p>'+selectPeriodS+'<p>'+valuesS+'<p>'+sourceS; 
-
-var titleSN = 'Site name';
-var sourceSN = 'Source: '+sourceMyPLC;
-var descSN = '<span class="myslice title">'+titleSN+'</span><p>'+sourceSN;
-
-var selectPeriodSSH = 'Select period: <select id="selectperiodSSH" onChange=updatePeriod("SSH")><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
-var titleSSH = 'Average SSH response delay';
-var valuesSSH = 'Unit: <b>%</b>';
-var detailSSH = '<i>The average response delay of the node to SSH logins over the selected period for which CoMoN reports a value. The period is the most recent for which data is available, with CoMoN data being collected by MySlice daily</i>';
-var sourceSSH ='Source: '+sourceComon+' (via '+sourceMySlice+')';
-var descSSH = '<span class="myslice title">'+titleSSH+'</span><p>'+detailSSH+'<p>'+selectPeriodSSH+'<p>'+valuesSSH+'<p>'+sourceSSH; 
-
-var titleST = 'Status';
-var sourceST = 'Source: '+sourceMonitor;
-var valuesST = 'Values: <b>online</b> (up and running), <b>good</b> (up and running recently), <b>offline</b> (unreachable today), <b>down</b> (unreachable nodes for more than 1 day), <b>failboot</b> (safeboot, MyPLC API term for debug)';
-var descST = '<span class="myslice title">'+titleST+'</span><p>'+valuesST+'<p>'+sourceST;
-
-highlightOption("AU");
-overrideTitles();
-
-
-/*
-document.defaultAction = false;
-document.onkeyup = detectEvent;
-
-function detectEvent(e) {
-	var evt = e || window.event;
-	//debugfilter(evt.type);
-	//debugfilter('keyCode is ' + evt.keyCode);
-	//debugfilter('charCode is ' + evt.charCode);
-	//debugfilter(document.getElementById('testfocus').focused);
-	return document.defaultAction;
-}
-*/
-
-
-</script>
