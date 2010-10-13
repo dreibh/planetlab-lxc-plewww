@@ -49,7 +49,8 @@ class VisibleTags {
 
     # cache for next time
     $this->columns=$columns;
-//    plc_debug('columns',$columns);
+
+    //plc_debug('columns',$columns);
     return $columns;
   }
 
@@ -63,8 +64,14 @@ class VisibleTags {
     $headers=array();
     $columns=$this->columns();
     foreach ($columns as $column)
+	{
 	    //panos: needed a few more fields in the header array
-	$headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['description']);
+	$headerId = $column['header'];
+	if ($column['headerId'] != "")
+		$headerId = $column['headerId'];
+
+	$headers[$headerId]=array('header'=>$column['header'],'headerId'=>$headerId, 'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['description']);
+	}
     /*
       if ($column['header'] == $column['tagname']) 
 	$headers[$column['header']]=$column['type'];

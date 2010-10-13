@@ -64,11 +64,19 @@ $this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>
 }
 
 foreach ($this->tag_columns as $column) {
-$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['tagname'], 'description'=>$column['title'], 'label'=>$this->removeDuration($column['header']),'visible'=>false);
+
+//print("<br>".$column['header'].":".$column['headerId'].":".$column['tagname']);
+
+if ($column['headerId'] != "")
+	$headerId = $column['headerId'];
+else
+	$headerId = $column['header'];
+
+$this->all_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
 }
 
 foreach ($this->extra_columns as $column) {
-$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['tagname'], 'description'=>$column['title'], 'label'=>$this->removeDuration($column['header']),'visible'=>false);
+$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
 }
 
 return $this->all_headers;
@@ -80,6 +88,20 @@ function get_headers() {
 
 return $this->all_headers;
 
+}
+
+function get_selected_period($label) {
+
+if ($this->all_headers[$label."w"]['visible'])
+	return "w";
+else if ($this->all_headers[$label."m"]['visible'])
+	return "m";
+else if ($this->all_headers[$label."y"]['visible'])
+	return "y";
+else if ($this->all_headers[$label]['visible'])
+	return "";
+	
+return "";
 }
 
 function node_tags() {
@@ -101,7 +123,7 @@ function print_headers() {
 
 	foreach ($this->all_headers as $h)
 	{
-		$headers.="<br>".$h['header'].":".$h['label'].":".$h['tagname'];
+		$headers.="<br>".$h['header'].":".$h['label'].":".$h['tagname'].":".$h['visible'];
 	}
 	return $headers;
 }
@@ -122,11 +144,11 @@ function headerIsVisible($header_name) {
 
 $headersToShow = $this->visible_headers;
 
+if (in_array($header_name, $headersToShow))
+	return true;
 
-	if ($this->inTypeC($header_name."w") || $this->inTypeC($header_name."m") || $this->inTypeC($header_name."y"))
-		return (in_array($header_name."w", $headersToShow) || in_array($header_name."m", $headersToShow) || in_array($header_name."y", $headersToShow));
-	else
-		return in_array($header_name, $headersToShow);
+if ($this->inTypeC($header_name."w"))
+	return (in_array($header_name."w", $headersToShow) || in_array($header_name."m", $headersToShow) || in_array($header_name."y", $headersToShow));
 }
 
 
@@ -267,11 +289,13 @@ function checkThreshold($value, $threshold, $hh) {
 
 function cells($table, $node) {
 
+$this->fetch_data($node);
 
 foreach ($this->all_headers as $h)
 {
+if (!$h['fixed']) { 
 
-if (!$h['fixed'] && $h['visible'])
+if ($h['visible'] != "")
 {
 if ($this->inTypeC($h['header']))
 {
@@ -304,9 +328,9 @@ else
         $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
 }
 }
-else
+else 
         $table->cell("??", array('name'=>$h['header'], 'display'=>'none'));
-
+}
 }
 
 }
@@ -319,68 +343,106 @@ HTML
 */
 
 
-function javascript_vars() {
+function javascript_init() {
 
 print("<input type='hidden' id='reference_node' value='".$this->reference_node."' />");
 
-$all_columns_string = "";
-foreach ($this->all_headers as $h)
-        $all_columns_string.= $h['header'].",";
-
 print("<script type='text/javascript'>");
+print("highlightOption('AU');");
+print("overrideTitles();");
+print("</script>");
 
-print("var column_table = new Array();"); 
-print ("var column_index=0;");
-print("var column_table2 = new Array();");
-print("var column_headers = new Array();");
-print("var columns_to_fetch = new Array();");
-//document.onkeyup = scrollList('test');
-foreach ($this->all_headers as $h)
-{
-/*
-        print("column_table2[column_index] = new Array();");
-        print("column_table2[column_index]['header'] = ".$h['header'].";");
-        print("column_table2[column_index]['label'] = ".$h['label'].";");
-        if ($h['visible'])
-	{
-        print("column_table2[column_index]['visible'] = true;");
-        print("column_table2[column_index]['fetched'] = true;");
-	}
-        else
-	{
-        print("column_table2[column_index]['visible'] = false;");
-        print("column_table2[column_index]]['fetch'] = false;");
-	}
-        print("column_table2[column_index]['tagname'] = '".$h['tagname']."';");
-        print("column_table2[column_index]['description'] = '".$h['description']."';");
-*/
-
-        print("column_table[\"".$h['header']."\"] = new Array();");
-        if ($h['visible'])
-	{
-        print("column_table['".$h['header']."']['visible'] = true;");
-        print("column_table['".$h['header']."']['fetched'] = true;");
-	}
-        else
-	{
-        print("column_table['".$h['header']."']['visible'] = false;");
-        print("column_table['".$h['header']."']['fetch'] = false;");
-	}
-
-        print("column_table['".$h['header']."']['tagname'] = '".$h['tagname']."';");
-        print("column_table['".$h['header']."']['description'] = '".$h['description']."';");
 }
 
+
+
+function quickselect_html() {
+
+//return '<p>This link uses the onclick event handler.<br><a href="#" onclick="setVisible(\'quicklist\');return false" target="_self">Open popup</a></p>';
+
+
+$quickselection = "<select id='quicklist' multiple size=10 onChange=changeSelectStatus(this.value)><option value''>Add/remove columns</option>";
+$prev_label="";
+$optionclass = "out";
 foreach ($this->all_headers as $h)
-        print("column_headers['".$h['label']."'] = '0';");
+{
+	if ($h['header'] == "hostname")
+		continue;
 
-print("var all_columns_string = '".substr($all_columns_string,0,strlen($all_columns_string)-1)."';");
+	if ($h['fixed'])
+		$disabled = "disabled=true";
+	else
+		$disabled = "";
 
-//if ($first_time == true)
-        //print("resetConfiguration();");
-//print("debugfilter('vars are OK');");
+        if ($this->headerIsVisible($h['label']))
+	{
+               	$optionclass = "in";
+		//$selected = "selected=selected";
+	}
+	else
+	{
+               	$optionclass = "out";
+		//$selected = "";
+	}
 
-print("</script>");
+	if ($prev_label == $h['label'])
+		continue;
+
+	$prev_label = $h['label'];
+
+
+$quickselection.="<option id='option'".$h['label']." class='".$optionclass."' '".$selected."' value='".$h['label']."'>".$h['label'].":&nbsp;".$h['title']."</option>";
+}
+
+
+$quickselection.="</select>";
+$quickselection.="&nbsp;<input type='button' id='fetchbutton' onclick='fetchData()' value='Fetch data' disabled=true />";
+
+return $quickselection;
+
+}
+
+
+function quickselect_popup_html() {
+
+print('<div id="quickdiv">');
+print ("<select size='12' id='quicklist' onChange=changeSelectStatus(this.value)>");
+
+$prev_label="";
+$optionclass = "out";
+foreach ($this->all_headers as $h)
+{
+	if ($h['header'] == "hostname")
+		continue;
+
+	if ($h['fixed'])
+		$disabled = "disabled=true";
+	else
+		$disabled = "";
+
+        if ($this->headerIsVisible($h['label']))
+	{
+               	$optionclass = "in";
+		//$selected = "selected=selected";
+	}
+	else
+	{
+               	$optionclass = "out";
+		//$selected = "";
+	}
+
+	if ($prev_label == $h['label'])
+		continue;
+
+	$prev_label = $h['label'];
+
+
+        print ("<option id='option'".$h['label']." class='".$optionclass."' '".$selected."' value='".$h['label']."'>".$h['label'].":&nbsp;".$h['title']."</option>");
+}
+
+
+print("</select></div>");
+print("&nbsp;<input type='button' id='fetchbutton' onclick='fetchData()' value='Fetch data' disabled=true />");
 
 }
 
@@ -393,14 +455,14 @@ else
 	$table_width = 350;
 
 print("<table align=center cellpadding=10 width=".$table_width.">");
-print("<tr><th>Add/delete columns</th>");
+print("<tr><th>Add/remove columns</th>");
 
 if ($showDescription)
 	print("<th>Column description and configuration</th>");
 
 print("</tr><tr><td valign=top width=300>");
 
-	print('<div id="scrolldiv" onFocusOut="debugfilter(this.id);" style="border : solid 2px grey; padding:4px; width:300px; height:180px; overflow:auto;">');
+	print('<div id="scrolldiv" style="border : solid 2px grey; padding:4px; width:300px; height:180px; overflow:auto;">');
 print ("<table>");
 	$prev_label="";
 	$optionclass = "out";
@@ -417,19 +479,34 @@ print ("<table>");
         	if ($this->headerIsVisible($h['label']))
 		{
                 	$selected = "checked=true";
+			$fetch = "true";
 			//print("header ".$h['label']." checked!");
 		}
         	else
 		{
 			$selected = "";
+			$fetch = "false";
 		}
+
+		print("<input type='hidden' id='tagname".$h['header']."' value='".$h['tagname']."'></input>");
 
 		if ($prev_label == $h['label'])
 			continue;
 
 		$prev_label = $h['label'];
+		$period = $this->get_selected_period($h['label']);
 
-        	print ("<tr><td><div id='".$h['label']."' class='".$optionclass."' onkeyup='debugfilter(this.id)' onclick='highlightOption(this.id)'><table width=280 id='table".$h['label']."'><tr><td align=left width=30>".$h['label']."</td><td align=left>&nbsp;<span style='height:10px' id ='htitle".$h['label']."'>".$h['title']."</span>&nbsp;</td><td align=right width=20><input id='check".$h['label']."' type='checkbox' ".$selected." ".$disabled." autocomplete='off' value='".$h['label']."' onclick='changeCheckStatus(this.id)'></input></td></tr></table></div></td></tr>");
+//<input type='hidden' id='fdesc".$h['label']."' value='".$h['description']."'></input>
+        	print ("<tr><td>
+<input type='hidden' id='fetched".$h['label']."' value=',".$period.",".$fetch."'></input>
+<input type='hidden' id='period".$h['label']."' value='".$period."'></input>
+		<div id='".$h['label']."' name='columnlist' class='".$optionclass."' onclick='highlightOption(this.id)'>
+<table width=280 id='table".$h['label']."'><tr>
+<td bgcolor=#CAE8EA align=center width=30><b><span style='color:#3399CC'>".$h['label']."</span></b></td> 
+<td align=left>&nbsp;<span style='height:10px' id ='htitle".$h['label']."'>".$h['title']."</span>&nbsp;</td>
+<td align=right width=20>&nbsp;<span style='height:10px' id ='loading".$h['label']."'></span>&nbsp;</td>
+<td align=right width=20><input id='check".$h['label']."' name='".$h['tagname']."' type='checkbox' ".$selected." ".$disabled." autocomplete='off' value='".$h['label']."' onclick='changeCheckStatus(this.id)'></input></td>
+</tr></table></div></td></tr>");
 	}
 
 	print("</table> </div></td>");
@@ -440,18 +517,22 @@ if ($showDescription)
 	print("<div class='myslice' id='selectdescr'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></td>");
 }
 
-print("</tr><tr><td align=center>");
+print("</tr>");
+//print("<tr><td align=center>");
 //print("<input type='button' value='Reset' onclick=resetCols('previousConf') />");
 //print("<input type='button' value='Default' onclick=saveConfiguration('defaultConf') />");
-print("<input type='button' value='Reset table' onclick=\"resetConfiguration('defaultConf')\" />");
-print("&nbsp;<input type='button' value='Save configuration' onclick=saveConfiguration('column_configuration') />");
-print("&nbsp;<input type='button' id='fetchbutton' onclick='fetchData()' value='Fetch data' disabled=true /> </td>");
+//print("<input type='button' value='Reset table' onclick=\"resetConfiguration()\" />");
+//print("</td>");
+//print("&nbsp;<input type='button' value='Save configuration' onclick=saveConfiguration('column_configuration') />");
+//print("&nbsp;<input type='button' id='fetchbutton' onclick='fetchData()' value='Fetch data' disabled=true /> </td>");
 
 if ($showDescription)
 	print("<td></td>");
 
 print(" </tr> </table>");
 }
+
+
 
 function column_filter () {
 

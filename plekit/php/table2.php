@@ -1,13 +1,8 @@
 <?php
 
-  // $Id: table.php 15752 2009-11-15 22:28:05Z thierry $
+  // $Id$
 
 require_once 'prototype.php';
-
-// Get session and API handles
-require_once 'plc_session.php';
-global $plc, $api;
-
 
 drupal_set_html_head('
 <script type="text/javascript" src="/plekit/tablesort/tablesort.js"></script>
@@ -43,7 +38,7 @@ drupal_set_html_head('
 //  - notes : an array of additional notes
 //  - debug: enables debug callbacks (prints out on console.log)
 
-class PlekitTable2 {
+class PlekitTable {
   // mandatory
   var $table_id;
   var $headers;
@@ -61,13 +56,12 @@ class PlekitTable2 {
   var $max_pages;     // the max number of pages to display in the paginator
   var $notes;         // an array of additional notes
   var $debug;	      // set to true for enabling various log messages on console.log
-  var $headersToShow;
-
+  var $configurable;  // boolen (whether the column configuration option is set or not)
 
   // internal
   var $has_tfoot;
 
-  function PlekitTable2 ($table_id,$headers,$sort_column,$headersToShow=NULL,$options=NULL) {
+  function PlekitTable ($table_id,$headers,$sort_column,$options=NULL) {
     $this->table_id = $table_id;
     $this->headers = $headers;
     $this->sort_column = $sort_column;
@@ -84,15 +78,12 @@ class PlekitTable2 {
     $this->max_pages = 10;
     $this->notes = array();
     $this->debug = false;
+    $this->configurable = true;
+
     $this->set_options ($options);
-    //$this->headersToShow=array();
-	$this->headersToShow = $headersToShow;
+
     // internal
     $this->has_tfoot=false;
-
-//print_r ($this->headersToShow);
-
-
   }
 
   function set_options ($options) {
@@ -110,6 +101,7 @@ class PlekitTable2 {
     if (array_key_exists('max_pages',$options)) $this->max_pages=$options['max_pages'];
     if (array_key_exists('notes',$options)) $this->notes=array_merge($this->notes,$options['notes']);
     if (array_key_exists('debug',$options)) $this->debug=$options['debug'];
+    if (array_key_exists('configurable',$options)) $this->configurable=$options['configurable'];
   }
 
   public function columns () {
@@ -150,29 +142,30 @@ class PlekitTable2 {
       print "<caption> $this->caption </caption>";
     print "<tr>";
 
+//a hidden column to store the node_id (used for the dynamic update of column data but not sure if
+//it is necessary)
+if ($this->configurable)
+      print ("<th class=\"plekit_table\" style=\"display:none\">nodeid</th>\n");
 
-
-//panos: hidden column for the node_id
-print ("<th class=\"plekit_table\" name=\"nid\" style=\"display:none\">nid</th>\n");
-////DON'T FORGET!
-
-    foreach ($this->headers as $hkey => $colspec) {
-	//print $label;
+    foreach ($this->headers as $label => $colspec) {
       // which form is being used
       if (is_array($colspec)) {
 	$type=$colspec['type'];
-	$title=$colspec['title'];
-//panos some additional attributes
-	$visible=$colspec['visible'];
-	$header = $colspec['header'];
-	$label=$colspec['label'];
+	$title=ucfirst($colspec['title']);
+	if ($this->configurable) {
+		$visible=$colspec['visible'];
+        	$header = $colspec['header'];
+        	$tlabel=$colspec['label'];
+	}
       } else {
 	// simple/legacy form
 	$type=$colspec;
 	$title=NULL;
-	$visible = true;
-	$label=$hkey;
-	$header=$hkey;
+	if ($this->configurable) {
+		$visible = true;
+        	$tlabel=$label;
+        	$header=$hkey;
+	}
       }
       switch ($type) {
       case "none" : 
@@ -186,10 +179,13 @@ print ("<th class=\"plekit_table\" name=\"nid\" style=\"display:none\">nid</th>\
       }
       $title_part=$title ? "title=\"$title\"" : "";
 
-
-	if ($visible) print ("<th class=\"$class plekit_table\" $title_part name=\"$header\" style=\"display:table-cell\">".$label."</th>\n");
-	else  print ("<th class=\"$class plekit_table\" $title_part name=\"$header\" style=\"display:none\">".$label."</th>\n");
-
+      if ($this->configurable) {
+	if ($visible) print ("<th class=\"$class plekit_table\" $title_part name=\"$header\" style=\"display:table-cell\">".$tlabel."</th>\n");
+        else  print ("<th class=\"$class plekit_table\" $title_part name=\"$header\" style=\"display:none\">".$tlabel."</th>\n");
+      }
+      else
+      	print ("<th class=\"$class plekit_table\" $title_part name=\"$label\" style=\"display:table-cell\">$label</th>\n");
+      	//print ("<th class=\"$class plekit_table\" $title_part>$label</th>\n");
     }
 
     print "</tr></thead><tbody>";
@@ -268,25 +264,25 @@ EOF;
 
   ////////////////////////////////////////
   function notes_area_html () {
-//    $search_notes =  
-//      array("Enter &amp; or | in the search area to switch between <span class='bold'>AND</span> and <span class='bold'>OR</span> search modes");
-//    $sort_notes = 
-//      array ("Hold down the shift key to select multiple columns to sort");
+    $search_notes =  
+      array("Enter &amp; or | in the search area to switch between <span class='bold'>AND</span> and <span class='bold'>OR</span> search modes");
+    $sort_notes = 
+      array ("Hold down the shift key to select multiple columns to sort");
 
     if ($this->notes)
       $notes=$this->notes;
     else
       $notes=array();
-//    $notes=array_merge($notes,$sort_notes);
-//    if ($this->search_area)
-//      $notes=array_merge($notes,$search_notes);
+    $notes=array_merge($notes,$sort_notes);
+    if ($this->search_area)
+      $notes=array_merge($notes,$search_notes);
     if (! $notes)
       return "";
     $result = "";
-//    $result .= "<p class='table_note'> <span class='table_note_title'>Notes</span>\n";
-//    foreach ($notes as $note) 
-//      $result .= "<br/><div id='test' style=\"display:none; width:160px; height:80px; background:#ccc;\">$note</div>";
- //   $result .= "</p>";
+    $result .= "<p class='table_note'> <span class='table_note_title'>Notes</span>\n";
+    foreach ($notes as $note) 
+      $result .= "<br/>$note\n";
+    $result .= "</p>";
     return $result;
   }
 
@@ -319,9 +315,9 @@ EOF;
     $option=$options['columns'];if ($option) $html .= " colspan='$option'";
     $option=$options['hfill'];	if ($option) $html .= " colspan='" . $this->columns() . "'";
     $option=$options['align'];	if ($option) $html .= " style='text-align:$option'";
-    $option=$options['color'];	if ($option) $html .= " style='color:$option'";
+    $option=$options['color'];  if ($option) $html .= " style='color:$option'";
     $option=$options['display'];  if ($option) $html .= " style='display: $option'";
-    $option=$options['name']; 	if ($option) $html .= " name='$option'";
+    $option=$options['name'];   if ($option) $html .= " name='$option'";
     $html .= ">$text</td>";
     return $html;
   }

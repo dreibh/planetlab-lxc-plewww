@@ -40,13 +40,16 @@ table#leases_data {
 #leases_buttons { padding: 0px 10px 10px 10px; }
 #leases_clear { position: relative; left: 30%;}
 #leases_submit { position: relative; left: 60%; }
-       
+        
 
-/*panos: some additional styles for the column configuration */
+/* column configuation style */
 
 div#toggle-container-my-slice-nodes-configuration {
     background: #f8f8f8;
 }
+
+OPTION.out{background-color:white; color:black}
+OPTION.in{background-color:#CAE8EA; color:#4f6b72}
 
 div.out{background-color:white; color:black}
 div.in{background-color:#CAE8EA; color:#4f6b72}
@@ -59,16 +62,17 @@ div.invisible{display:none}
 }
 
 .myslice .title {
-	font: 11px;
-	font-weight: bold;
+        font: 11px;
+        font-weight: bold;
 }
 
 .myslice .desc {
-	font: 11px;
-	font-style: italic;
+        font: 11px;
+        font-style: italic;
 }
 
 .myslice .subtitle{
         color: #bb9c61;
 }
+
 
