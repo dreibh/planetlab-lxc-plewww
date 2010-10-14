@@ -14,8 +14,8 @@ require_once 'plc_drupal.php';
 require_once 'plc_functions.php';
 
 $value=$_GET["value"];
-$person_id=intval($_GET["person_id"]);
-$slice_id=intval($_GET["slice_id"]);
+$person_id=$_GET["person_id"];
+$slice_id=$_GET["slice_id"];
 $tag_id=intval($_GET["tag_id"]);
 
 $api->UpdatePersonTag( $tag_id, $value );

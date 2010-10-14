@@ -52,7 +52,7 @@ var titleASN = 'Autonomous system name';
 var sourceASN = 'Source: '+sourceTophat;
 var descASN = '<span class="myslice title">'+titleASN+'</span><p>'+sourceASN;
 
-var selectPeriodBU = 'Select period: <select id="selectperiodBU" onChange=updatePeriod("BU",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var selectPeriodBU = 'Select period: <select id="selectperiodBU" onChange=updatePeriod("BU",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleBU = 'Bandwidth utilization ';
 var sourceBU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
 var valuesBU ='Unit: <b>Kbps</b>';
@@ -80,12 +80,16 @@ var sourceCR = 'Source: '+sourceComon;
 var valuesCR = 'Unit: <b>GHz</b><p>Current PlanetLab hardware requirements: <b>2.4 GHz</b>';
 var descCR = '<span class="myslice title">'+titleCR+'</span><p>'+valuesCR+'<p>'+sourceCR;
 
-var selectPeriodCF = 'Select period: <select id="selectperiodCF" onChange=updatePeriod("CF",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var selectPeriodCF = 'Select period: <select id="selectperiodCF" onChange=updatePeriod("CF",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleCF = 'Free CPU';
 var sourceCF = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
 var valuesCF = 'Unit: <b>%</b>';
 var detailCF = '<i> The average CPU percentage that gets allocated to a test slice named burb that is periodically run by CoMon.</i>';
 var descCF = '<span class="myslice title">'+titleCF+'</span><p>'+detailCF+'<p>'+selectPeriodCF+'<p>'+valuesCF+'<p>'+sourceCF; 
+
+var titleDN = 'Toplevel domain name';
+var sourceDN = 'Source: '+sourceMyPLC;
+var descDN = '<span class="myslice title">'+titleDN+'</span><p>'+sourceDN;
 
 var titleDS = 'Disk size';
 var sourceDS = 'Source: '+sourceComon;
@@ -98,13 +102,19 @@ var valuesDU = 'Unit: <b>GB</b>';
 var detailDU = '<i> The amount of disk space currently consumed (checked daily).</i>';
 var descDU = '<span class="myslice title">'+titleDU+'</span><p>'+detailDU+'<p>'+valuesDU+'<p>'+sourceDU;
 
+var titleDF = 'Disk space free';
+var sourceDF = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
+var valuesDF = 'Unit: <b>GB</b>';
+var detailDF = '<i> The amount of disk space currently available (checked daily).</i>';
+var descDF = '<span class="myslice title">'+titleDF+'</span><p>'+detailDF+'<p>'+valuesDF+'<p>'+sourceDF;
+
 var titleHC = 'Hop count (pairwise)';
 var sourceHC = 'Source: '+sourceTophat;
 var detailHC = '<i>TopHat conducts traceroutes every five minutes in a full mesh between all PlanetLab nodes. The hop count is the length of the traceroute from the node to the reference node, based upon the most recently reported traceroute</i>.';
 var descHC = '<span class="myslice title">'+titleHC+'</span><p>'+detailHC+'<p>'+selectReferenceNode+'<p>'+sourceHC;
 
 var titleIP = 'IP address';
-var sourceIP = 'Source: '+sourceTophat;
+var sourceIP = 'Source: '+sourceMyPLC;
 var descIP = '<span class="myslice title">'+titleIP+'</span><p>'+sourceIP;
 
 var selectPeriodL = 'Select period: <select id="selectperiodL" onChange=updatePeriod("L",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
@@ -112,8 +122,8 @@ var titleL= 'Load ';
 var sourceL = 'Source: '+sourceComon;
 var valuesL = 'Unit: <b>5-minute load</b>';
 var detailL = '<i>The average 5-minute load (as reported by the Unix uptime command) over the selected period.</i>';
-//var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+selectPeriodL+'<p>'+valuesL+'<p>'+sourceL; 
-var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+valuesL+'<p>'+sourceL; 
+var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+selectPeriodL+'<p>'+valuesL+'<p>'+sourceL; 
+//var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+valuesL+'<p>'+sourceL; 
 
 var titleLON= 'Longitude';
 var sourceLON = 'Source: '+sourceTophat;
@@ -154,7 +164,7 @@ var sourceMS = 'Source: '+sourceComon;
 var valuesMS = 'Unit: <b>GB</b><p>Current PlanetLab hardware requirements: <b>4 GB</b>.';
 var descMS = '<span class="myslice title">'+titleMS+'</span><p>'+valuesMS+'<p>'+sourceMS;
 
-var selectPeriodMU = 'Select period: <select id="selectperiodMU" onChange=updatePeriod("MU",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var selectPeriodMU = 'Select period: <select id="selectperiodMU" onChange=updatePeriod("MU",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleMU = 'Memory utilization';
 var sourceMU = 'Source: '+sourceComon;
 var valuesMU = '<p>Unit: <b>%</b>';
@@ -229,7 +239,7 @@ var valuesRES = 'Values: <b>-R-</b> (if yes)';
 var detailRES = '<i> Whether the node can be reserved for a certain duration.<br>Your slivers will be available <span class=bold>only during timeslots where you have obtained leases (see tab above)</span></i>.  <p>Please note that as of August 2010 this feature is experimental.  Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>';
 var descRES = '<span class="myslice title">'+titleRES+'</span><p>'+detailRES+'<p>'+valuesRES+'<p>'+sourceRES;
 
-var selectPeriodS = 'Select period: <select id="selectperiodS" onChange=updatePeriod("S",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var selectPeriodS = 'Select period: <select id="selectperiodS" onChange=updatePeriod("S",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleS = 'Active slices';
 var sourceS = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
 var valuesS = 'Unit: <b>%</b>';
@@ -240,7 +250,7 @@ var titleSN = 'Site name';
 var sourceSN = 'Source: '+sourceMyPLC;
 var descSN = '<span class="myslice title">'+titleSN+'</span><p>'+sourceSN;
 
-var selectPeriodSSH = 'Select period: <select id="selectperiodSSH" onChange=updatePeriod("SSH",this.value)><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
+var selectPeriodSSH = 'Select period: <select id="selectperiodSSH" onChange=updatePeriod("SSH",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleSSH = 'Average SSH response delay';
 var valuesSSH = 'Unit: <b>%</b>';
 var detailSSH = '<i>The average response delay of the node to SSH logins over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
@@ -434,14 +444,16 @@ function closeShowReservable()
 }
 
 
-function updateColumnConfiguration(slice_id, value, reload)
+function updateColumnConfiguration(value, reload)
 {
 	var person_id = document.getElementById('person_id').value;
+	var slice_id = document.getElementById('slice_id').value;
 	var tag_id = document.getElementById('conf_tag_id').value;
 	var full_column_configuration = document.getElementById('full_column_configuration').value;
 
 	//debugfilter("<br>OLD = "+full_column_configuration);
 	//debugfilter("<br>value = "+value);
+	//
 	
 	var old_columns = full_column_configuration.split(";");
 	var new_columns = new Array();
@@ -452,8 +464,12 @@ function updateColumnConfiguration(slice_id, value, reload)
 			new_columns.push(old_columns[++column_index]);
 		else
 		{
+			if (value != "")
+				new_columns.push(value);
+			else
+				new_columns.push("default");
+				
 			column_index++;
-			new_columns.push(value);
 		}
 	}
 
@@ -526,7 +542,6 @@ function sortCompleteCallback(tableid) {
 function addColumnToConfiguration(column) {
 
 	var old_configuration = document.getElementById('column_configuration').value;
-	var slice_id = document.getElementById('slice_id').value;
 
 	var new_configuration = "";
 
@@ -537,14 +552,13 @@ function addColumnToConfiguration(column) {
 
 	//debugfilter("new configuration = "+new_configuration);
 
-	updateColumnConfiguration(slice_id, new_configuration, false);
+	updateColumnConfiguration(new_configuration, false);
 }
 
 
 function deleteColumnFromConfiguration(column) {
 
 	var old_configuration = document.getElementById('column_configuration').value;
-	var slice_id = document.getElementById('slice_id').value;
 
 	var old_columns = old_configuration.split("|");
 	var new_columns = new Array();
@@ -556,14 +570,13 @@ function deleteColumnFromConfiguration(column) {
 	}
 
 	var new_configuration = new_columns.join("|");
-	updateColumnConfiguration(slice_id, new_configuration, false);
+	updateColumnConfiguration(new_configuration, false);
 
 }
 
 function replaceColumnConfiguration(column_old, column_new) {
 
 	var old_configuration = document.getElementById('column_configuration').value;
-	var slice_id = document.getElementById('slice_id').value;
 
 	var old_columns = old_configuration.split("|");
 	var new_columns = new Array();
@@ -578,7 +591,7 @@ function replaceColumnConfiguration(column_old, column_new) {
 
 	var new_configuration = new_columns.join("|");
 	
-	updateColumnConfiguration(slice_id, new_configuration);
+	updateColumnConfiguration(new_configuration);
 }
 
 /*
@@ -612,8 +625,12 @@ var headers = header.split("|");
 var data_table = data.split("|"); 
 
 //debugfilter("<p>headers[0] = "+headers[0]);
-//debugfilter("<p>sample line = "+data_table[2]);
+//debugfilter("<p>data[2] = "+data_table[2]);
 
+//debugfilter("data = "+data);
+
+if (data != "")
+{
 
   var node_data;
 
@@ -643,6 +660,7 @@ var data_table = data.split("|");
 
   }
 	
+
   if (rows)
   for (var row_index = 0; row_index < rows.length ; row_index++) {
     var tr=rows[row_index];
@@ -708,6 +726,7 @@ if (data_table[node_index] == '---potential---')
   //fdTableSort.removeTableCache(table_id2);
   fdTableSort.init(table_id2);
   tablePaginater.init(table_id2);
+}
 
 }
 

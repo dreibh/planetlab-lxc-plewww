@@ -16,7 +16,6 @@ var $all_headers = array();
 var $this_table_headers = array();
 var $visible_headers = array();
 
-var $all_columns = array();
 var $fix_columns = array();
 var $tag_columns = array();
 var $extra_columns = array();
@@ -46,7 +45,6 @@ var $HopCount = array();
 	//print("<p>VISIBLE<p>");
 	//print_r($this->visible_headers);
 
-	$this->all_columns = array_merge($fix_columns, $tag_columns, $extra_columns);
 }
 
 
@@ -63,21 +61,32 @@ foreach ($this->fix_columns as $column) {
 $this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fixed'=>true, 'visible'=>false);
 }
 
+$tmp_headers = array();
 foreach ($this->tag_columns as $column) {
-
-//print("<br>".$column['header'].":".$column['headerId'].":".$column['tagname']);
 
 if ($column['headerId'] != "")
 	$headerId = $column['headerId'];
 else
 	$headerId = $column['header'];
 
-$this->all_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
+//$this->all_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
+$tmp_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
 }
 
+if ($this->extra_columns)
 foreach ($this->extra_columns as $column) {
-$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
+//$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'],'visible'=>false);
+$tmp_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'], 'visible'=>false);
+
+usort ($tmp_headers, create_function('$col1,$col2','return strcmp($col1["label"],$col2["label"]);'));
 }
+
+foreach ($tmp_headers as $t) 
+$this->all_headers[$t['header']] = $t;
+
+//$this->all_headers = array_merge($this->all_headers, $tmp_headers);
+
+//print($this->print_headers());
 
 return $this->all_headers;
 
@@ -110,7 +119,7 @@ function node_tags() {
 
 	foreach ($this->all_headers as $h)
 	{
-		if ($h['visible'] == true)
+		if ($h['visible'] == true && $h['tagname'] != "" && !$h['fetched'])
 			$fetched_tags[] = $h['tagname'];
 	}
 
@@ -121,9 +130,9 @@ function print_headers() {
 
 	$headers = "";	
 
-	foreach ($this->all_headers as $h)
+	foreach ($this->all_headers as $l => $h)
 	{
-		$headers.="<br>".$h['header'].":".$h['label'].":".$h['tagname'].":".$h['visible'];
+		$headers.="<br>[".$l."]=".$h['header'].":".$h['label'].":".$h['tagname'].":".$h['visible'];
 	}
 	return $headers;
 }
@@ -166,15 +175,22 @@ function parse_configuration($column_configuration) {
 	$this->column_configuration = $column_configuration;
 	//$this->default_configuration = $default_configuration;
 
+	//print($this->print_headers());
+
 	$columns_conf = explode("|", $column_configuration);
+
 	foreach ($columns_conf as $c)
 	{
         	$conf = explode(":",$c);
 
+		if ($conf[0] == "default")
+			continue;
+
                 $this->all_headers[$conf[0]]['visible']=true;
-		//print("<p>".$conf[0]."should be visible now");
+		//print("<p>-".$conf[0]."-should be visible now - ".$this->all_headers[$conf[0]]['visible']);
 		//print_r($this->all_headers[$conf[0]]);
 
+/*
 		if ($conf[1] == "f")
 			continue;
 
@@ -202,6 +218,7 @@ function parse_configuration($column_configuration) {
                 	$threshold = explode(",",$conf[1]);
                 	$this->all_headers[$conf[0]]['threshold']=$threshold;
         	}
+*/
 	}
 }
 
@@ -272,6 +289,7 @@ function excludeItems($value, $exclude_list, $hh) {
         return array($value, array('name'=>$hh, 'display'=>'table-cell'));
 }
 
+
 function checkThreshold($value, $threshold, $hh) {
 
         if ($value == "")
@@ -329,7 +347,10 @@ else
 }
 }
 else 
-        $table->cell("??", array('name'=>$h['header'], 'display'=>'none'));
+	if ($node[$h['tagname']])
+        	$table->cell($node[$h['tagname']], array('name'=>$h['header'], 'display'=>'none'));
+	else
+        	$table->cell("??", array('name'=>$h['header'], 'display'=>'none'));
 }
 }
 
@@ -366,7 +387,7 @@ $prev_label="";
 $optionclass = "out";
 foreach ($this->all_headers as $h)
 {
-	if ($h['header'] == "hostname")
+	if ($h['header'] == "hostname" || $h['header'] == "ID")
 		continue;
 
 	if ($h['fixed'])
@@ -468,7 +489,7 @@ print ("<table>");
 	$optionclass = "out";
 	foreach ($this->all_headers as $h)
 	{
-		if ($h['header'] == "hostname")
+		if ($h['header'] == "hostname" || $h['header'] == "ID")
 			continue;
 
 		if ($h['fixed'])
@@ -485,7 +506,10 @@ print ("<table>");
         	else
 		{
 			$selected = "";
-			$fetch = "false";
+			if ($h['fetched'])
+				$fetch = "true";
+			else
+				$fetch = "false";
 		}
 
 		print("<input type='hidden' id='tagname".$h['header']."' value='".$h['tagname']."'></input>");

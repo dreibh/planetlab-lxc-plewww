@@ -78,7 +78,7 @@ class PlekitTable {
     $this->max_pages = 10;
     $this->notes = array();
     $this->debug = false;
-    $this->configurable = true;
+    $this->configurable = false;
 
     $this->set_options ($options);
 
@@ -145,7 +145,7 @@ class PlekitTable {
 //a hidden column to store the node_id (used for the dynamic update of column data but not sure if
 //it is necessary)
 if ($this->configurable)
-      print ("<th class=\"plekit_table\" style=\"display:none\">nodeid</th>\n");
+      print ("<th class=\"plekit_table\" style=\"display:none\">hiddenID</th>\n");
 
     foreach ($this->headers as $label => $colspec) {
       // which form is being used
