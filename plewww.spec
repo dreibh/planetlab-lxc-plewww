@@ -5,7 +5,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 52
+%define taglevel 53
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -126,6 +126,11 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Fri Oct 15 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-53
+- add a 'report a problem' link for the RebootNode button
+- new exp page nodes2.php with consistent selectable-columns layout as myslice
+- tweaks in the exp. myslice (slices.php)
+
 * Wed Oct 13 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-52
 - new action reboot-node-with-pcu & reboot button on node page (not sure about the status of that though)
 - my_slice with adjustable set of columns in slices/slice2.php
