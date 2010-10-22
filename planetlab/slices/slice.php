@@ -728,7 +728,7 @@ $toggle_nodes->end();
 
 $all_sites=$api->GetSites(NULL, array('site_id','login_base'));
 $site_hash=array();
-foreach ($all_sites as $site) $site_hash[$site['site_id']]=$site['login_base'];
+foreach ($all_sites as $tmp_site) $site_hash[$tmp_site['site_id']]=$tmp_site['login_base'];
 
 $interface_columns=array('ip','node_id','interface_id');
 $interface_filter=array('is_primary'=>TRUE);
