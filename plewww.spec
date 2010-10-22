@@ -1,7 +1,3 @@
-#
-# $Id$
-#
-
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
@@ -25,7 +21,7 @@ BuildRequires: python
 Vendor: OneLab
 Packager: OneLab <support@one-lab.org>
 Distribution: PlanetLab %{version}
-URL: http://svn.one-lab.org/svn/new_plc_www/
+URL: %{SCMURL}
 
 # We use set everywhere
 #Requires: httpd >= 2.0
