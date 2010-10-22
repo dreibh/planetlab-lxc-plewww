@@ -77,6 +77,7 @@ if ($profiling) plc_debug_prof('3: peers',count($peers));
 $sites= $api->GetSites( array( $site_id ) );
 $site=$sites[0];
 $site_name= $site['name'];
+$max_slices = $site['max_slices'];
 
 if ($profiling) plc_debug_prof('4: sites',count($sites));
 //////////////////////////////////////// building blocks for the renew area
@@ -158,14 +159,14 @@ EOF;
      } else {
       print <<< EOF
 <div class='my-slice-renewal'>
-<p>You <span class='bold'>must</span> provide a short description, 
+<p>You are strongly encouraged to provide a short description, 
 as well as a link to a project website, before renewing it.
 
 <br/> Please make sure to provide reasonable details on <span class='bold'>
 the kind of traffic</span>, and <span class='bold'>copyrights</span> if relevant. 
-Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against 
+Be sure not to provide bogus information; Otherwise, if a complaint is lodged against 
 your slice  and your PlanetLab Operations Center is unable to determine what the normal behavior 
-of your slice is, your slice may be deleted to resolve the complaint.</p>
+of your slice is, your slice may be deleted without your persmission to resolve the complaint.</p>
 
 <p><span class='bold'>NOTE:</span> 
 Slices cannot be renewed beyond another $max_renewal_weeks week(s) ($max_renewal_date).
@@ -206,18 +207,18 @@ $tabs [] = tab_site($site);
 
 // are these the right privileges for deletion ?
 if ($privileges) {
-  $tabs["Events"]=array_merge(tablook_event(),
-			      array('url'=>l_event("Slice","slice",$slice_id),
-				    'bubble'=>"Events for slice $name"));
   $tabs ['Delete']= array('url'=>l_actions(),
 			  'method'=>'post',
 			  'values'=>array('action'=>'delete-slice','slice_id'=>$slice_id),
 			  'bubble'=>"Delete slice $name",
 			  'confirm'=>"Are you sure to delete slice $name");
 
-  //$tabs["Comon"]=array_merge(tablook_comon(),
-			     //array('url'=>l_comon("slice_id",$slice_id),
-				   //'bubble'=>"Comon page about slice $name"));
+  $tabs["Events"]=array_merge(tablook_event(),
+			      array('url'=>l_event("Slice","slice",$slice_id),
+				    'bubble'=>"Events for slice $name"));
+  $tabs["Comon"]=array_merge(tablook_comon(),
+			     array('url'=>l_comon("slice_id",$slice_id),
+				   'bubble'=>"Comon page about slice $name"));
 }
 
 plekit_linetabs($tabs);
@@ -442,13 +443,15 @@ $extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 
 
 //Get user's column configuration
 
-$default_configuration = "hostname:f|ST:f|AU:f|RES:f|R|L|OS|MS";
+$first_time_configuration = false;
+$default_configuration = "hostname:f|ST:f|AU:f|RES:f";
+//$extra_default = "";
 $column_configuration = "";
 $slice_column_configuration = "";
 
 $show_configuration = "";
 $show_reservable_message = '1';
-$show_columns_message = true;
+$show_columns_message = '1';
 
 
 //$PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
@@ -473,6 +476,7 @@ foreach ($PersonTags as $ptag) {
 $sliceconf_exists = false;
 if ($column_configuration == "")
 {
+	$first_time_configuration = true;
 	$column_configuration = $slice_id.";default";
 	$sliceconf_exists = true;
 }
@@ -522,7 +526,7 @@ foreach ($show_conf as $ss) {
 	if ($ss =="reservable")
 		$show_reservable_message = '0';
 	if ($ss =="columns")
-		$show_columns_message = false;
+		$show_columns_message = '0';
 }        
 
 //print("res:".$show_reservable_message." - cols:".$show_columns_message);
@@ -572,10 +576,10 @@ if (count($reservable_nodes) && $privileges) {
 <br>
 <div id='note_reservable_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
 <table align=center><tr><td valign=top>
-You have attached one or more <span class='bold'>reservable nodes</span> to your slice. 
+You have attached one or more reservable nodes to your slice. 
 Reservable nodes show up with the '$mark' mark. 
-Your slivers will be available <span class='bold'>only during timeslots
-where you have obtained leases</span>. 
+Your slivers will be available only during timeslots
+where you have obtained leases. 
 You can manage your leases in the tab below.
 <br>
 Please note that as of August 2010 this feature is experimental. 
@@ -674,7 +678,7 @@ EOF;
 
 //////////////////// node configuration panel
 
-if ($show_columns_message) 
+if ($first_time_configuration) 
 $column_conf_visible = '1';
 else
 $column_conf_visible = '0';
@@ -701,10 +705,10 @@ print("<input type='hidden' id='previousConf' value='".$slice_column_configurati
 print("<input type='hidden' id='defaultConf' value='".$default_configuration."'></input>");
 
 //print ("showing column message = ".$show_columns_message);
-if ($show_columns_message) 
-$note_display = "";
-else
+if ($show_columns_message == '0') 
 $note_display = "display:none;";
+else
+$note_display = "";
 
   print <<<EOF
 <div id='note_columns_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
@@ -724,7 +728,7 @@ $toggle_nodes->end();
 
 $all_sites=$api->GetSites(NULL, array('site_id','login_base'));
 $site_hash=array();
-foreach ($all_sites as $tmp_site) $site_hash[$tmp_site['site_id']]=$tmp_site['login_base'];
+foreach ($all_sites as $site) $site_hash[$site['site_id']]=$site['login_base'];
 
 $interface_columns=array('ip','node_id','interface_id');
 $interface_filter=array('is_primary'=>TRUE);

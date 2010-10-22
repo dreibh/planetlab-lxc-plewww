@@ -75,10 +75,11 @@ function node_status ($node) {
 $first_time_configuration = 'false';
 
 if (plc_is_admin()) 
-	$default_configuration = "ID:f|hostname:f|ST:f|AU:f|SN|DN|LCN|R|L";
+	$default_configuration = "ID:f|hostname:f|ST:f|AU:f";
 else
-	$default_configuration = "hostname:f|ST:f|AU:f|SN|LCN|DN|R|L";
+	$default_configuration = "hostname:f|ST:f|AU:f";
 
+//$extra_default = "LCN|DN|R|L|OS|MS|SN";
 $column_configuration = "";
 $slice_column_configuration = "";
 
@@ -152,6 +153,7 @@ $extra_columns = array();
 $extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true);
 $extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true);
 $extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true);
+$extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false);
 
 $ConfigureColumns =new PlekitColumns($full_configuration, $fix_columns, $tag_columns, $extra_columns);
 
@@ -362,19 +364,4 @@ $nifty->end();
 include 'plc_footer.php';
 
 ?>
-
-<script type='text/javascript'>
-document.defaultAction = false;
-document.onkeyup = detectEvent;
-
-function detectEvent(e) {
-        var evt = e || window.event;
-        debugfilter(evt.type);
-        debugfilter('keyCode is ' + evt.keyCode);
-        debugfilter('charCode is ' + evt.charCode);
-        debugfilter(document.getElementById('scrolldiv').focused);
-        return document.defaultAction;
-}
-
-</script>
 

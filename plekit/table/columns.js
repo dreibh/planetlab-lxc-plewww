@@ -806,6 +806,7 @@ function addColumnAjax(column, header) {
 
 	if (to_load)
 	{
+		document.getElementById('loading'+column).innerHTML = "<img width=10 src=/plekit/icons/ajax-loader.gif>";
 		var url = "/plekit/php/updateColumn.php?slice_id="+slice_id+"&tagName="+t;
 		load_data(column, header, url);
 	}
@@ -818,7 +819,6 @@ function addColumn(column, fetch) {
 	var selectedperiod="";
 	var header=column;
 
-	document.getElementById('loading'+column).innerHTML = "<img width=10 src=/plekit/icons/ajax-loader.gif>";
 
 	if (inTypeC(column)!=-1)
 	{
@@ -834,11 +834,8 @@ function addColumn(column, fetch) {
 
 	if (fetch)
 		addColumnAjax(column, header);
-	else
-		document.getElementById('loading'+column).innerHTML = "";
 
 	addColumnToConfiguration(header);
-	
 }
 
 
@@ -849,7 +846,6 @@ function deleteColumnCells(header) {
 		cells[j].style.display = "none";
 
 }
-
 
 
 function deleteColumn(column) {
@@ -865,9 +861,14 @@ function deleteColumn(column) {
 	deleteColumnCells(header);
 
 	deleteColumnFromConfiguration(header);
-
-	//document.getElementById('check'+column).checked = false;
 }
+
+
+/* 
+ 
+EXTRA
+
+//to be used for scrolling the column list with down/up arrows 
 
 function scrollList() {
 debugfilter("here "+document.getElementById('scrolldiv').focused);
@@ -876,13 +877,6 @@ if (event.keyCode == 40)
 else if (event.keyCode == 38)
 	debugfilter("up");
 }
-
-/* 
- 
-EXTRA
-
-//to be used for scrolling the column list with down/up arrows 
-
 
 function resetColumns() {
 
