@@ -17,10 +17,18 @@ include 'plc_header.php';
 require_once 'plc_functions.php';
 require_once 'plc_objects.php';
 require_once 'plc_peers.php';
-require_once 'plc_visibletags.php';
+require_once 'plc_visibletags2.php';
 require_once 'linetabs.php';
-require_once 'table.php';
+require_once 'table2.php';
 require_once 'nifty.php';
+require_once 'toggle.php';
+require_once 'columns.php';
+
+// keep css separate for now
+drupal_set_html_head('
+<link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
+');
+
 
 ini_set("memory_limit","64M");
 
@@ -63,12 +71,100 @@ function node_status ($node) {
   return plc_vertical_table($messages,'plc-warning');
 }
 
+
+$first_time_configuration = 'false';
+
+if (plc_is_admin()) 
+	$default_configuration = "ID:f|hostname:f|ST:f|AU:f|SN|DN|LCN|R|L";
+else
+	$default_configuration = "hostname:f|ST:f|AU:f|SN|LCN|DN|R|L";
+
+$column_configuration = "";
+$slice_column_configuration = "";
+
+$PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
+//print_r($PersonTags);
+foreach ($PersonTags as $ptag) {
+        if ($ptag['tagname'] == 'columnconf')
+        {
+                $column_configuration = $ptag['value'];
+                $conf_tag_id = $ptag['person_tag_id'];
+        }
+}
+
+//print("column configuration = ".$column_configuration);
+
+$nodesconf_exists = false;
+if ($column_configuration == "")
+{
+        $column_configuration = "nodes;default";
+        $nodesconf_exists = true;
+}
+else {
+        $slice_conf = explode(";",$column_configuration);
+        for ($i=0; $i<count($slice_conf); $i++ ) {
+                if ($slice_conf[$i] == "nodes")
+                {
+                        $i++;
+                        $slice_column_configuration = $slice_conf[$i];
+                        $nodesconf_exists = true;
+                        break;
+                }
+                else
+                {
+                        $i++;
+                        $slice_column_configuration = $slice_conf[$i];
+                }
+        }
+}
+
+if ($nodesconf_exists == false)
+        $column_configuration = $column_configuration.";nodes;default";
+//panos: need to define an "empty" configuration here (for the moment A column
+//will be added by default the first time
+
+
+if ($slice_column_configuration == "" || $slice_column_configuration == "default")
+        $full_configuration = $default_configuration;
+	
+else
+        $full_configuration = $default_configuration."|".$slice_column_configuration;
+
+//print("full configuration = ".$full_configuration);
+
 // fetch nodes 
-$node_fixed_columns=array('hostname','node_type','site_id','node_id','boot_state','run_level','last_contact',
-			  'interface_ids','peer_id', 'slice_ids');
+$node_fixed_columns=array('hostname','node_type','site_id','node_id','boot_state','last_contact','interface_ids','peer_id', 'slice_ids');
+
+$fix_columns = array();
+if (plc_is_admin()) 
+$fix_columns[]=array('tagname'=>'node_id', 'header'=>'ID', 'type'=>'string', 'title'=>'The ID the node');
+$fix_columns[]=array('tagname'=>'hostname', 'header'=>'hostname', 'type'=>'string', 'title'=>'The name of the node');
+$fix_columns[]=array('tagname'=>'peer_id', 'header'=>'AU', 'type'=>'string', 'title'=>'Authority');
+$fix_columns[]=array('tagname'=>'run_level', 'header'=>'ST', 'type'=>'string', 'title'=>'Status');
+//$fix_columns[]=array('tagname'=>'node_type', 'header'=>'RES', 'type'=>'string', 'title'=>'Reservable');
+
+
 $visibletags = new VisibleTags ($api, 'node');
-$visiblecolumns = $visibletags->column_names();
+$visibletags->columns();
+$tag_columns = $visibletags->headers();
+
+$extra_columns = array();
+$extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true);
+$extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true);
+$extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true);
+
+$ConfigureColumns =new PlekitColumns($full_configuration, $fix_columns, $tag_columns, $extra_columns);
+
+$visiblecolumns = $ConfigureColumns->node_tags();
+
 $node_columns=array_merge($node_fixed_columns,$visiblecolumns);
+
+//$visibletags = new VisibleTags ($api, 'node');
+//$visiblecolumns = $visibletags->column_names();
+//print("<p>OLD");
+//print_r($visiblecolumns);
+//$node_columns=array_merge($node_fixed_columns,$visiblecolumns);
+
 
 // server-side filtering - set pattern in $_GET for filtering on hostname
 if ($pattern) {
@@ -159,7 +255,10 @@ $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
 $headers = array (); $offset=0;
 $notes=array();
+$notes [] = "For information about the different columns please see the <b>node table layout</b> tab above or <b>mouse over</b> the column headers";
 
+
+/*
 // fixed columns
 if (plc_is_admin()) { 
   $short="I"; $long="node_id"; $type='int'; 
@@ -183,9 +282,41 @@ $headers=array_merge($headers,$visibletags->headers());
 $notes=array_merge($notes,$visibletags->notes());
 $short="?"; $long="extra status info"; $type='string'; 
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
+*/
+
+$info_header = array();
+$short="?"; $long="extra status info"; $type='string'; 
+$info_header[$short]=array('type'=>$type,'title'=>$long, 'label'=>'?', 'header'=>'?', 'visible'=>true); 
+//$notes []= "$short = $long";
+//$info_header["?"] = "none";
+$headers = array_merge($ConfigureColumns->get_headers(),$info_header);
+
+//print("<p>HEADERS");
+//print_r($headers);
+
+$toggle_nodes=new PlekitToggle('nodes-column-configuration',
+                               "Node table layout",
+                               array('visible'=>'1'));
+$toggle_nodes->start();
+print("<div id='debug'></div>");
+print("<input type='hidden' id='slice_id' value='nodes' />");
+print("<input type='hidden' id='person_id' value='".$plc->person['person_id']."' />");
+print("<input type='hidden' id='conf_tag_id' value='".$conf_tag_id."' />");
+print("<input type='hidden' id='column_configuration' value='".$slice_column_configuration."' />");
+print("<br><input type='hidden' size=80 id='full_column_configuration' value='".$column_configuration."' />");
+//print("<input type='hidden' id='previousConf' value='".$slice_column_configuration."'></input>");
+print("<input type='hidden' id='defaultConf' value='".$default_configuration."'></input>");
+$ConfigureColumns->configuration_panel_html(true);
+$ConfigureColumns->javascript_init();
+$toggle_nodes->end();
+
+$table_options = array('notes'=>$notes,
+                       'search_width'=>15,
+                       'pagesize'=>20,
+                        'configurable'=>true);
 
 # initial sort on hostnames
-$table=new PlekitTable ("nodes",$headers,3+$offset);
+$table=new PlekitTable ("nodes",$headers,3+$offset, $table_options);
 $table->start();
 
 $peers = new Peers ($api);
@@ -202,22 +333,27 @@ foreach ($nodes as $node) {
   $peer_id=$node['peer_id'];
   
   $table->row_start();
+  $table->cell($node['node_id'], array('display'=>'none'));
   if (plc_is_admin()) $table->cell(l_node_t($node_id,$node_id));
-  $peers->cell ($table,$peer_id);
-  $table->cell (topdomain($hostname));
-  $table->cell (l_site_t($site_id,$login_base));
   $table->cell (l_node_t($node_id,$hostname));
-  $table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
+  $peers->cell ($table,$peer_id);
+  //$table->cell (topdomain($hostname));
+  $node['domain'] = topdomain($hostname);
+  //$table->cell (l_site_t($site_id,$login_base));
+  $node['sitename'] = l_site_t($site_id,$login_base);
+  //$table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
+  $node['ipaddress'] = l_interface_t($interface_id,$ip);
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
-  $table->cell (count($node['slice_ids']));
-  foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+  //$table->cell (count($node['slice_ids']));
+  //foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+  $ConfigureColumns->cells($table, $node);
   $table->cell (node_status($node));
   $table->row_end();
   
 }
 
-$table->end(array('notes'=>$notes));
+$table->end();
 $nifty->end();
 
 //plekit_linetabs ($tabs,"bottom");
@@ -226,3 +362,19 @@ $nifty->end();
 include 'plc_footer.php';
 
 ?>
+
+<script type='text/javascript'>
+document.defaultAction = false;
+document.onkeyup = detectEvent;
+
+function detectEvent(e) {
+        var evt = e || window.event;
+        debugfilter(evt.type);
+        debugfilter('keyCode is ' + evt.keyCode);
+        debugfilter('charCode is ' + evt.charCode);
+        debugfilter(document.getElementById('scrolldiv').focused);
+        return document.defaultAction;
+}
+
+</script>
+

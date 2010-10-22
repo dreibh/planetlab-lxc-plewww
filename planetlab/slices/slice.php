@@ -17,13 +17,14 @@ include 'plc_header.php';
 require_once 'plc_functions.php';
 require_once 'plc_peers.php';
 require_once 'plc_objects.php';
-require_once 'plc_visibletags.php';
+require_once 'plc_visibletags2.php';
 require_once 'linetabs.php';
-require_once 'table.php';
+require_once 'table2.php';
 require_once 'details.php';
 require_once 'toggle.php';
 require_once 'form.php';
 require_once 'raphael.php';
+require_once 'columns.php';
 
 // keep css separate for now
 drupal_set_html_head('
@@ -206,18 +207,18 @@ $tabs [] = tab_site($site);
 
 // are these the right privileges for deletion ?
 if ($privileges) {
+  $tabs["Events"]=array_merge(tablook_event(),
+			      array('url'=>l_event("Slice","slice",$slice_id),
+				    'bubble'=>"Events for slice $name"));
   $tabs ['Delete']= array('url'=>l_actions(),
 			  'method'=>'post',
 			  'values'=>array('action'=>'delete-slice','slice_id'=>$slice_id),
 			  'bubble'=>"Delete slice $name",
 			  'confirm'=>"Are you sure to delete slice $name");
 
-  $tabs["Events"]=array_merge(tablook_event(),
-			      array('url'=>l_event("Slice","slice",$slice_id),
-				    'bubble'=>"Events for slice $name"));
-  $tabs["Comon"]=array_merge(tablook_comon(),
-			     array('url'=>l_comon("slice_id",$slice_id),
-				   'bubble'=>"Comon page about slice $name"));
+  //$tabs["Comon"]=array_merge(tablook_comon(),
+			     //array('url'=>l_comon("slice_id",$slice_id),
+				   //'bubble'=>"Comon page about slice $name"));
 }
 
 plekit_linetabs($tabs);
@@ -295,7 +296,7 @@ $count=count($persons);
 
 if ($profiling) plc_debug_prof('4: persons',count($persons));
 $toggle=
-  new PlekitToggle ('my-slice-persons',"$count Users",
+  new PlekitToggle ('my-slice-persons',"$count users",
 		    array('bubble'=>
 			  'Manage accounts attached to this slice',
 			  'visible'=>get_arg('show_persons',false)));
@@ -405,17 +406,128 @@ $toggle->end();
 //     (.) type is passed to the javascript table, for sorting (default is 'string')
 
 // minimal list as a start
-$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist',
+$node_fixed_columns = array('hostname','node_id','peer_id','slice_ids_whitelist', 'site_id',
 			    'run_level','boot_state','last_contact','node_type');
 // create a VisibleTags object : basically the list of tag columns to show
-$visibletags = new VisibleTags ($api, 'node');
-$visiblecolumns = $visibletags->column_names();
-$node_columns=array_merge($node_fixed_columns,$visiblecolumns);
+//$visibletags = new VisibleTags ($api, 'node');
+//$visiblecolumns = $visibletags->column_names();
 
 // optimizing calls to GetNodes
-$all_nodes=$api->GetNodes(NULL,$node_columns);
+//$all_nodes=$api->GetNodes(NULL,$node_columns);
 //$slice_nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),$node_columns);
 //$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),$node_columns);
+
+
+//NEW CODE FOR ENABLING COLUMN CONFIGURATION
+
+//prepare fix and configurable columns
+
+$fix_columns = array();
+$fix_columns[]=array('tagname'=>'hostname', 'header'=>'hostname', 'type'=>'string', 'title'=>'The name of the node');
+$fix_columns[]=array('tagname'=>'peer_id', 'header'=>'AU', 'type'=>'string', 'title'=>'Authority');
+$fix_columns[]=array('tagname'=>'run_level', 'header'=>'ST', 'type'=>'string', 'title'=>'Status');
+$fix_columns[]=array('tagname'=>'node_type', 'header'=>'RES', 'type'=>'string', 'title'=>'Reservable');
+
+// columns that correspond to the visible tags for nodes (*node/ui*)
+$visibletags = new VisibleTags ($api, 'node');
+$visibletags->columns();
+$tag_columns = $visibletags->headers();
+
+// extra columns that are not tags (for the moment not sorted correctly)
+
+$extra_columns = array();
+$extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true);
+$extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true);
+$extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true);
+$extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false);
+
+//Get user's column configuration
+
+$default_configuration = "hostname:f|ST:f|AU:f|RES:f|R|L|OS|MS";
+$column_configuration = "";
+$slice_column_configuration = "";
+
+$show_configuration = "";
+$show_reservable_message = '1';
+$show_columns_message = true;
+
+
+//$PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
+$PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
+//print_r($PersonTags);
+foreach ($PersonTags as $ptag) {
+	if ($ptag['tagname'] == 'columnconf')
+	{
+                $column_configuration = $ptag['value'];
+		$conf_tag_id = $ptag['person_tag_id'];
+	}
+	if ($ptag['tagname'] == 'showconf')
+	{
+                $show_configuration = $ptag['value'];
+		$show_tag_id = $ptag['person_tag_id'];
+	}
+}
+
+//print("<br>person column configuration = ".$column_configuration);
+//print("<br>person show configuration = ".$show_configuration);
+
+$sliceconf_exists = false;
+if ($column_configuration == "")
+{
+	$column_configuration = $slice_id.";default";
+	$sliceconf_exists = true;
+}
+else {
+	$slice_conf = explode(";",$column_configuration);
+	for ($i=0; $i<count($slice_conf); $i++ ) {
+        	if ($slice_conf[$i] == $slice_id)
+        	{
+                	$i++;
+        		$slice_column_configuration = $slice_conf[$i];
+			$sliceconf_exists = true;
+                	break;
+        	}
+		else
+		{
+                	$i++;
+        		$slice_column_configuration = $slice_conf[$i];
+		}
+	}        
+}
+
+if ($sliceconf_exists == false)
+	$column_configuration = $column_configuration.";".$slice_id.";default";
+
+//print("<br>slice configuration = ".$slice_column_configuration);
+
+
+if ($slice_column_configuration == "")
+	$full_configuration = $default_configuration;
+else
+	$full_configuration = $default_configuration."|".$slice_column_configuration;
+
+
+//instantiate the column configuration class, which prepares the headers array
+$ConfigureColumns =new PlekitColumns($full_configuration, $fix_columns, $tag_columns, $extra_columns);
+
+$visiblecolumns = $ConfigureColumns->node_tags();
+
+$node_columns=array_merge($node_fixed_columns,$visiblecolumns);
+//print_r($node_columns);
+$all_nodes=$api->GetNodes(NULL,$node_columns);
+
+//print("<br>person show configuration = ".$show_configuration);
+
+$show_conf = explode(";",$show_configuration);
+foreach ($show_conf as $ss) {
+	if ($ss =="reservable")
+		$show_reservable_message = '0';
+	if ($ss =="columns")
+		$show_columns_message = false;
+}        
+
+//print("res:".$show_reservable_message." - cols:".$show_columns_message);
+
 $slice_nodes=array();
 $potential_nodes=array();
 $reservable_nodes=array();
@@ -438,31 +550,43 @@ $toggle=new PlekitToggle ('my-slice-nodes',$nodes_message,
 				'visible'=>get_arg('show_nodes',false)));
 $toggle->start();
 
-////////// show a notice to people having attached a reservable node
-if (count($reservable_nodes) && $privileges) {
-  $mark=reservable_mark();
-  print <<<EOF
-<p class='note_reservable'>
-You have attached one or more <span class='bold'>reservable nodes</span> to your slice. 
-Reservable nodes show up with the '$mark' mark. 
-Your slice will be available <span class='bold'>only during timeslots
-where you have obtained leases</span>. 
-You can manage your leases in the tab below.
-<br>
-Please note that as of August 2010 this feature is experimental. 
-Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
-</p>
-EOF;
-}  
 
 //////////////////// reservable nodes area
+
 $count=count($reservable_nodes);
 if ($count && $privileges) {
   // having reservable nodes in white lists looks a bit off scope for now...
   $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
 				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
-				 array('visible'=>get_arg('show_nodes_resa',false)));
+				 array('visible'=>$show_reservable_message, 'info_div'=>'note_reservable_div'));
   $toggle_nodes->start();
+
+if ($show_reservable_message) 
+$note_display = "";
+else
+$note_display = "display:none;";
+
+////////// show a notice to people having attached a reservable node
+if (count($reservable_nodes) && $privileges) {
+  $mark=reservable_mark();
+  print <<<EOF
+<br>
+<div id='note_reservable_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
+<table align=center><tr><td valign=top>
+You have attached one or more <span class='bold'>reservable nodes</span> to your slice. 
+Reservable nodes show up with the '$mark' mark. 
+Your slivers will be available <span class='bold'>only during timeslots
+where you have obtained leases</span>. 
+You can manage your leases in the tab below.
+<br>
+Please note that as of August 2010 this feature is experimental. 
+Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
+</td><td valign=top><span onClick=closeMessage('reservable')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message"></span>
+</td></tr></table>
+</div>
+EOF;
+}  
+
   $grain=$api->GetLeaseGranularity();
   if ($profiling) plc_debug_prof('6 granul',$grain);
   // where to start from, expressed as an offset in hours from now
@@ -548,6 +672,72 @@ EOF;
   $toggle_nodes->end();
  }
 
+
+//////////////////// node configuration panel
+
+if ($show_columns_message) 
+$column_conf_visible = '1';
+else
+$column_conf_visible = '0';
+
+
+$toggle_nodes=new PlekitToggle('my-slice-nodes-configuration',
+                               "Node table layout",
+                               array('visible'=>$column_conf_visible, 'info_div'=>'note_columns_div'));
+$toggle_nodes->start();
+
+//usort ($table_headers, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
+//print("<p>TABLE HEADERS<p>");
+//print_r($table_headers);
+
+print("<div id='debug'></div>");
+print("<input type='hidden' id='slice_id' value='".$slice['slice_id']."' />");
+print("<input type='hidden' id='person_id' value='".$plc->person['person_id']."' />");
+print("<input type='hidden' id='conf_tag_id' value='".$conf_tag_id."' />");
+print("<input type='hidden' id='show_tag_id' value='".$show_tag_id."' />");
+print("<input type='hidden' id='show_configuration' value='".$show_configuration."' />");
+print("<input type='hidden' id='column_configuration' value='".$slice_column_configuration."' />");
+print("<br><input type='hidden' size=80 id='full_column_configuration' value='".$column_configuration."' />");
+print("<input type='hidden' id='previousConf' value='".$slice_column_configuration."'></input>");
+print("<input type='hidden' id='defaultConf' value='".$default_configuration."'></input>");
+
+//print ("showing column message = ".$show_columns_message);
+if ($show_columns_message) 
+$note_display = "";
+else
+$note_display = "display:none;";
+
+  print <<<EOF
+<div id='note_columns_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
+<table align=center><tr><td valign=top>
+This tab allows you to customize the columns in the node tables, below. Information on the nodes comes from a variety of monitoring sources. If you, as either a user or a provider of monitoring data, would like to see additional columns made available, please send us your request in mail to <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
+</td><td valign=top><span onClick=closeMessage('columns')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
+</td></tr></table>
+</div>
+EOF;
+
+$ConfigureColumns->configuration_panel_html(true);
+
+$ConfigureColumns->javascript_init();
+
+$toggle_nodes->end();
+
+
+$all_sites=$api->GetSites(NULL, array('site_id','login_base'));
+$site_hash=array();
+foreach ($all_sites as $tmp_site) $site_hash[$tmp_site['site_id']]=$tmp_site['login_base'];
+
+$interface_columns=array('ip','node_id','interface_id');
+$interface_filter=array('is_primary'=>TRUE);
+$interfaces=$api->GetInterfaces($interface_filter,$interface_columns);
+
+$interface_hash=array();
+foreach ($interfaces as $interface) $interface_hash[$interface['node_id']]=$interface;
+
+
+
+
+
 //////////////////// nodes currently in
 $toggle_nodes=new PlekitToggle('my-slice-nodes-current',
 			       count_english($slice_nodes,"node") . " currently in $name",
@@ -556,6 +746,10 @@ $toggle_nodes->start();
 
 $headers=array();
 $notes=array();
+//$notes=array_merge($notes,$visibletags->notes());
+$notes [] = "For information about the different columns please see the <b>node table layout</b> tab above or <b>mouse over</b> the column headers";
+
+/*
 $headers['peer']='string';
 $headers['hostname']='string';
 $short="-S-"; $long=Node::status_footnote(); $type='string'; 
@@ -564,27 +758,51 @@ $short=reservable_mark(); $long=reservable_legend(); $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 // the extra tags, configured for the UI
 $headers=array_merge($headers,$visibletags->headers());
-$notes=array_merge($notes,$visibletags->notes());
 
 if ($privileges) $headers[plc_delete_icon()]="none";
+*/
+
+$edit_header = array();
+if ($privileges) $edit_header[plc_delete_icon()]="none";
+$headers = array_merge($ConfigureColumns->get_headers(),$edit_header);
+
+//print("<p>HEADERS<p>");
+//print_r($headers);
 
 $table_options = array('notes'=>$notes,
                        'search_width'=>15,
-                       'pagesize'=>20);
-$table=new PlekitTable('nodes',$headers,'1',$table_options);
+                       'pagesize'=>20,
+			'configurable'=>true);
+
+$table=new PlekitTable('nodes',$headers,NULL,$table_options);
 
 $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
 $form->start();
 $table->start();
 if ($slice_nodes) foreach ($slice_nodes as $node) {
   $table->row_start();
-  $peers->cell($table,$node['peer_id']);
+
+$table->cell($node['node_id'], array('display'=>'none'));
+
   $table->cell(l_node_obj($node));
+  $peers->cell($table,$node['peer_id']);
   $run_level=$node['run_level'];
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
   $table->cell( ($node['node_type']=='reservable')?reservable_mark():"" );
-  foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+
+  $hostname=$node['hostname'];
+  $ip=$interface_hash[$node['node_id']]['ip'];
+  $interface_id=$interface_hash[$node['node_id']]['interface_id'];
+
+//extra columns
+$node['domain'] = topdomain($hostname);
+$node['sitename'] = l_site_t($node['site_id'],$site_hash[$node['site_id']]);
+$node['ipaddress'] = l_interface_t($interface_id,$ip);
+
+
+ //foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+ $ConfigureColumns->cells($table, $node);
 
   if ($privileges) $table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
   $table->row_end();
@@ -623,6 +841,9 @@ if ($privileges) {
   if ( $potential_nodes ) {
     $headers=array();
     $notes=array();
+
+
+/*
     $headers['peer']='string';
     $headers['hostname']='string';
     $short="-S-"; $long=Node::status_footnote(); $type='string'; 
@@ -631,22 +852,43 @@ if ($privileges) {
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
     // the extra tags, configured for the UI
     $headers=array_merge($headers,$visibletags->headers());
-    $notes=array_merge($notes,$visibletags->notes());
     $headers['+']="none";
+*/
+
+    $add_header = array();
+    $add_header['+']="none";
+    $headers = array_merge($ConfigureColumns->get_headers(),$add_header);
+
+    //$notes=array_merge($notes,$visibletags->notes());
+$notes [] = "For information about the different columns please see the <b>node table layout</b> tab above or <b>mouse over</b> the column headers";
     
-    $table=new PlekitTable('add_nodes',$headers,'1', $table_options);
+    $table=new PlekitTable('add_nodes',$headers,NULL, $table_options);
     $form=new PlekitForm(l_actions(),
 			 array('slice_id'=>$slice['slice_id']));
     $form->start();
     $table->start();
     if ($potential_nodes) foreach ($potential_nodes as $node) {
 	$table->row_start();
-	$peers->cell($table,$node['peer_id']);
+
+$table->cell($node['node_id'], array('display'=>'none'));
+
 	$table->cell(l_node_obj($node));
+	$peers->cell($table,$node['peer_id']);
 	list($label,$class) = Node::status_label_class_($node);
 	$table->cell ($label,array('class'=>$class));
 	$table->cell( ($node['node_type']=='reservable')?reservable_mark():"" );
-	foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+
+	//extra columns
+	  $hostname=$node['hostname'];
+	  $ip=$interface_hash[$node['node_id']]['ip'];
+	  $interface_id=$interface_hash[$node['node_id']]['interface_id'];
+	$node['domain'] = topdomain($hostname);
+	$node['sitename'] = l_site_t($node['site_id'],$site_hash[$node['site_id']]);
+	$node['ipaddress'] = l_interface_t($interface_id,$ip);
+
+	//foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
+  	$ConfigureColumns->cells($table, $node);
+
 	$table->cell ($form->checkbox_html('node_ids[]',$node['node_id']));
 	$table->row_end();
       }
