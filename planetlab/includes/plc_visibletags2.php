@@ -65,6 +65,9 @@ class VisibleTags {
     $columns=$this->columns();
     foreach ($columns as $column)
 	{
+	if ($column['header'] == 'f')
+                continue;
+
 	    //panos: needed a few more fields in the header array
 	$headerId = $column['header'];
 	if ($column['headerId'] != "")
