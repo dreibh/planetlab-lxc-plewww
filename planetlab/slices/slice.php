@@ -77,7 +77,6 @@ if ($profiling) plc_debug_prof('3: peers',count($peers));
 $sites= $api->GetSites( array( $site_id ) );
 $site=$sites[0];
 $site_name= $site['name'];
-$max_slices = $site['max_slices'];
 
 if ($profiling) plc_debug_prof('4: sites',count($sites));
 //////////////////////////////////////// building blocks for the renew area
