@@ -152,36 +152,32 @@ EOF;
     if ( empty( $selectors ) ) {
       print <<< EOF
 <div class='my-slice-renewal'>
-Slices annot be renewed more than $MAX_WEEKS weeks from now, i.e. not beyond $max_text. 
+Slices cannot be renewed more than $MAX_WEEKS weeks from now, i.e. not beyond $max_text. 
 For this reason, the current slice cannot be renewed any further into the future, try again closer to expiration date.
 </div>
 EOF;
      } else {
       print <<< EOF
 <div class='my-slice-renewal'>
-<p>You are strongly encouraged to provide a short description, 
-as well as a link to a project website, before renewing it.
-
-<br/> Please make sure to provide reasonable details on <span class='bold'>
-the kind of traffic</span>, and <span class='bold'>copyrights</span> if relevant. 
-Be sure not to provide bogus information; Otherwise, if a complaint is lodged against 
-your slice  and your PlanetLab Operations Center is unable to determine what the normal behavior 
-of your slice is, your slice may be deleted without your persmission to resolve the complaint.</p>
-
-<p><span class='bold'>NOTE:</span> 
-Slices cannot be renewed beyond another $max_renewal_weeks week(s) ($max_renewal_date).
+<span class='bold'>Important:</span> Please take this opportunity to review and update your slice information in the Details tab, below.
+<p>
+PlanetLab's security model requires that anyone who is concerned about a slice's activity be able to immediately learn about that slice. The details that you provide are your public explanation about why the slice behaves as it does. Be sure to describe the <span class='bold'>kind of traffic</span> that your slice generates, and how it handles material that is under <span class='bold'>copyright</span>, if relevant.
+</p><p>
+The PlanetLab Operations Centres regularly respond to concerns raised by third parties about site behaviour. Most incidents are resolved rapidly based upon the publicly posted slice details. However, when these details are not sufficiently clear or accurate, and we cannot immediately reach the slice owner, we must delete the slice. 
 </p>
-</div>
 EOF;
 
       $form = new PlekitForm (l_actions(),
 			      array('action'=>'renew-slice',
 				    'slice_id'=>$slice['slice_id']));
       $form->start();
-      print $form->label_html('expires','Duration');
+      print $form->label_html('expires','Duration:&nbsp;');
       print $form->select_html('expires',$selectors,array('label'=>'Pick one'));
       print $form->submit_html('renew-button','Renew');
       $form->end();
+
+print("<p><i>NOTE: Slices cannot be renewed beyond another $max_renewal_weeks week(s) ($max_renewal_date).</i>  </p>");
+print ("</div>");
     }
   }
  
