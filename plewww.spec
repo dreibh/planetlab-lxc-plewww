@@ -106,6 +106,9 @@ for module in user node; do
     cp -f /var/www/html/drupal-hacks/${module}.module /var/www/html/modules/${module}.module
 done
 popd
+# create myslice.log and change its ownership
+touch /var/log/myslice.log
+chown apache:apache /var/log/myslice.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
