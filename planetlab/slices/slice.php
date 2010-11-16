@@ -933,15 +933,24 @@ $tag_value_threshold=24;
   $form->start();
   $table->start();
   if ($tags) {
+    // Get hostnames for nodes in a single pass
+    $_node_ids = array();
+    foreach ($tags as $tag) {
+      if ($tag['node_id']) {
+        array_push($_node_ids, $tag['node_id']);
+      }
+    }
+    $_nodes = $api->GetNodes(array('node_id' => $_node_ids), array('node_id', 'hostname'));
+    $_hostnames = array();
+    foreach ($_nodes as $_node) {
+      $_hostnames[$_node['node_id']] = $_node['hostname'];
+    }
+
+    // Loop through tags again to display
     foreach ($tags as $tag) {
       $node_name = "ALL";
       if ($tag['node_id']) {
-        $tag_nodes = $api->GetNodes(array('node_id'=>$tag['node_id']));
-	if ($profiling) plc_debug_prof('9 node for slice tag',count($tag_nodes));
-        if($tag_nodes) {
-          $node = $tag_nodes[0];
-          $node_name = $node['hostname'];
-        }
+        $node_name = $_hostnames[$tag['node_id']];
       }
       $nodegroup_name="n/a";
       if ($tag['nodegroup_id']) { 
