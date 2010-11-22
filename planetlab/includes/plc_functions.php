@@ -130,6 +130,7 @@ function l_person_obj ($person)		{ return l_person_t($person['person_id'],$perso
 function l_tags ()			{ return "/db/tags/index.php"; }
 function l_tag ($tag_type_id)		{ return "/db/tags/index.php?id=$tag_type_id"; }
 function l_tag_obj ($tag)		{ return href(l_tag($tag['tag_type_id']),$tag['tagname']); }
+function l_tag_roles ($tag_type_id)	{ return "/db/tags/index.php?id=$tag_type_id&show_details=0&show_roles=1"; }
 
 function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
 function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroup.php?id=$nodegroup_id"; }

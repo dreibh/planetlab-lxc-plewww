@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 // Require login
 require_once 'plc_login.php';
 
@@ -34,7 +32,7 @@ $tabs []= tab_slices();
 drupal_set_title($title);
 plekit_linetabs($tabs);
 
-$tag_type_columns = array( "tag_type_id", "tagname", "category", "description", "min_role_id" );
+$tag_type_columns = array( "tag_type_id", "tagname", "category", "description", "roles");
 
 $tag_type_filter=NULL;
 if ($pattern) 
@@ -49,8 +47,7 @@ $notes=array();
 $headers['Name']="string";
 $headers['Description']="string";
 $headers['Category']="string";
-$headers['MR']="string";
-$notes []= "MR: Min Role, needed to manage this tag";
+$headers['Roles']="string";
 
 // xxx ref count would be helpful but seem too expensive to compute at this stage 
 // the individual tag page show those ref counts per type
@@ -64,21 +61,16 @@ $form->start();
 $table = new PlekitTable("tags",$headers,0,array('notes'=>$notes));
 $table->start();
 
-$roles_hash=plc_role_global_hash($api);
-
 $description_width=40;
 
 foreach( $tag_types as $tag_type ) {
-  $role_name=$roles_hash[$tag_type['min_role_id']];
 
   $table->row_start();
   $tag_type_id=$tag_type['tag_type_id'];
   $table->cell(href(l_tag($tag_type_id),$tag_type['tagname']));
   $table->cell(wordwrap($tag_type['description'],$description_width,"<br/>"));
   $table->cell($tag_type['category']);
-  $table->cell($role_name);
-  // ref count
-  //  if (plc_is_admin())     $table->cell('xxx');
+  $table->cell(plc_vertical_table ($tag_type['roles']));
   $table->cell($tag_type_id);
   if (plc_is_admin()) 
     $table->cell ($form->checkbox_html('tag_type_ids[]',$tag_type_id));
@@ -96,16 +88,10 @@ if (plc_is_admin()) {
   // an inline area to add a tag type
   $table->row_start();
   
-  // build the role selector
-  $relevant_roles = $api->GetRoles( array("~role_id"=>$role_ids));
-  function selector_argument ($role) { return array('display'=>$role['name'],"value"=>$role['role_id']); }
-  $selectors=array_map("selector_argument",$relevant_roles);
-  $role_input=$form->select_html("min_role_id",$selectors,array('label'=>"Role"));
-
   $table->cell($form->text_html('tagname',''));
   $table->cell($form->textarea_html('description','',$description_width,2));
   $table->cell($form->text_html('category',''));
-  $table->cell($role_input);
+  $table->cell("<span class='note_roles'>add roles later</span>");
   $table->cell($form->submit_html("add-tag-type","Add"),2);
   $table->row_end();
  }

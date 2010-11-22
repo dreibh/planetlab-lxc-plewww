@@ -99,6 +99,10 @@ $known_actions []= "add-tag-type";
 //	expects:	tag_type_id & tagname & description & category & min_role_id  
 $known_actions []= "delete-tag-types";
 //	expects:	tag_type_ids
+$known_actions []= "remove-roles-from-tag-type";
+//	expects:	tag_type_id & role_ids
+$known_actions []= "add-role-to-tag-type";
+//	expects:	tag_type_id_id & id
 
 //////////////////////////////////////// tags
 $known_actions []= "set-tag-on-node";
@@ -813,6 +817,30 @@ Our support team will be glad to answer any question that you might have.
      drupal_set_error ("Could not delete all selected tags, only $counter were removed");
    plc_redirect (l_tags());
    break;
+ }
+
+ case 'remove-roles-from-tag-type' : {
+   $tag_type_id=$_POST['tag_type_id'];
+   $role_ids=$_POST['role_ids'];
+   if ( ! $role_ids) {
+     drupal_set_error("You have not selected role(s) to remove");
+   } else {
+     foreach( $role_ids as $role_id)  
+       if ( $api->DeleteRoleFromTagType( intval( $role_id ), intval( $tag_type_id ) ) != 1 ) 
+	 drupal_set_error ("Could not remove role $role_id from tag type $tag_type_id");
+   }
+   plc_redirect (l_tag_roles($tag_type_id));
+ }
+     
+ case 'add-role-to-tag-type' : {
+   $tag_type_id=$_POST['tag_type_id'];
+   $role_id=$_POST['role_id'];
+   if ( ! $role_id) {
+     drupal_set_error ("You have not selected a role to add");
+   } else if ($api->AddRoleToTagType( intval( $role_id ), intval( $tag_type_id ) ) != 1) {
+     drupal_set_error("Could not add role $role_id to tag $tag_type_id");
+   }
+   plc_redirect (l_tag_roles($tag_type_id));
  }
 
 //////////////////////////////////////// tags   

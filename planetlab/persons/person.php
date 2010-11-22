@@ -320,7 +320,6 @@ if ($local_peer) {
 
   $is_pi_of_the_site = ( plc_in_site($site_ids[0]) && plc_is_pi() );
   $can_manage_roles= ( ($local_peer && plc_is_admin()) || $is_pi_of_the_site );
-  $table_options=array("search_area"=>false,"notes_area"=>false);
 
   $headers=array("Role"=>"string");
   if ($can_manage_roles) $headers [plc_delete_icon()]="none";

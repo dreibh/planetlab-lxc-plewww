@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 // Require login
 require_once 'plc_login.php';
 
@@ -39,7 +37,8 @@ $tag_types= $api->GetTagTypes( array( $tag_type_id ) );
 $tag_type=$tag_types[0];
   
 $tagname=$tag_type['tagname'];
-$min_role_id= $tag_type['min_role_id'];
+$role_ids= $tag_type['role_ids'];
+$roles= $tag_type['roles'];
 $description= $tag_type['description'];
 $category=$tag_type['category'];
 
@@ -47,6 +46,8 @@ $category=$tag_type['category'];
 $filter=array('tag_type_id'=>$tag_type_id);
 $node_tags=$api->GetNodeTags($filter);
 $interface_tags=$api->GetInterfaceTags($filter);
+$person_tags=$api->GetPersonTags($filter);
+$site_tags=$api->GetSiteTags($filter);
 // split slice tags into 3 families, whether this applies to the whole slice, or a nodegroup, or a node
 // using filters for this purpose does not work out very well, maybe a bug in the filter stuff
 // anyway this is more efficient, and we compute the related node(groups) in the same pass
@@ -79,7 +80,7 @@ foreach ($nodegroups as $nodegroup) $nodegroup_hash[$nodegroup['nodegroup_id']]=
 drupal_set_title("Details for tag type $tagname");
 plekit_linetabs($tabs);
 
-// ----------
+//////////////////// details
 $toggle = new PlekitToggle ('details','Details');
 $toggle->start();
 $can_update=plc_is_admin();
@@ -92,15 +93,6 @@ $details->th_td("Name",$tagname,"tagname");
 $details->th_td("Category",$category,"category",array('width'=>30));
 $details->th_td("Description",$description,"description",array('width'=>40));
 
-if ($can_update) {
-// select the option corresponding with min_role_id
-  $selectors = $details->form()->role_selectors($api->GetRoles(),$min_role_id);
-  $select_field = $details->form()->select_html("min_role_id",$selectors);
-  // xxx would need to turn role_id into role name
-  $details->th_td("Min role",$select_field,"min_role_id",array('input_type'=>'select','value'=>$min_role_id));
- } else {
-  $details->th_td("Min role",$min_role_id);
- }
 if ($can_update) 
   $details->tr_submit('update-tag-type',"Update tag type");
 
@@ -114,6 +106,76 @@ $details->th_td("Used in slices",$count_slice);
 $details->end();
 $details->form_end();
 $toggle->end();
+
+//////////////////// roles
+$form=new PlekitForm(l_actions(), array("tag_type_id"=>$tag_type_id));
+$form->start();
+
+$toggle=new PlekitToggle ('roles',count_english($roles,"role"),array('visible'=>get_arg('show_roles',false)));
+$toggle->start();
+
+if (! $roles) plc_warning ("This tag type has no role !");
+
+$can_manage_roles= plc_is_admin();
+
+$headers=array("Role"=>"string");
+if ($can_manage_roles) $headers [plc_delete_icon()]="none";
+
+$table_options=array('search_area'=>false,'pagesize_area'=>false,'notes_area'=>false);
+$table=new PlekitTable("tag_roles",$headers,0,$table_options);  
+$table->start();
+  
+// construct array of role objs
+$role_objs=array();
+for ($n=0; $n<count($roles); $n++) {
+  $role_objs[]= array('role_id'=>$role_ids[$n], 'name'=>$roles[$n]);
+}
+
+if ($role_objs) foreach ($role_objs as $role_obj) {
+    $table->row_start();
+    $table->cell($role_obj['name']);
+    if ($can_manage_roles) $table->cell ($form->checkbox_html('role_ids[]',$role_obj['role_id']));
+    $table->row_end();
+  }
+
+// footers : the remove and add buttons
+if ($can_manage_roles) {
+  
+  // remove
+  $table->tfoot_start();
+  if ($roles) {
+    $table->row_start();
+    $table->cell($form->submit_html("remove-roles-from-tag-type","Remove Roles"),
+		 array('hfill'=>true,'align'=>'right'));
+    $table->row_end();
+  }
+
+  // add
+  // compute the roles that can be added
+  if ($can_manage_roles) 
+    // all roles
+    $exclude_role_ids=array();
+  else
+    // all roles except admin and pi
+    $exclude_role_ids=array(10,20);
+  $possible_roles = roles_except($api->GetRoles(),$exclude_role_ids);
+  $roles_to_add = roles_except ($possible_roles,$role_ids);
+  if ( $roles_to_add ) {
+    $selectors=$form->role_selectors($roles_to_add);
+    $table->row_start();
+    $add_role_left_area=$form->select_html("role_id",$selectors,array('label'=>"Choose role"));
+    // add a role : the button
+    $add_role_right_area=$form->submit_html("add-role-to-tag-type","Add role");
+    $table->cell ($add_role_left_area . $add_role_right_area,
+		  array('hfill'=>true,'align'=>'right'));
+    $table->row_end();
+  }
+}
+$table->end();
+$toggle->end();
+$form->end();
+
+//////////////////// the 5 flavours of objects that the tag may be attached to
 
 // common options for tables below
 $table_options=array('notes_area'=>false, 'pagesize_area'=>false, 'search_width'=>10);
@@ -148,6 +210,36 @@ if (count ($interface_tags)) {
   $table->end();
   $toggle->end();
  }
+
+if (count ($site_tags)) {
+  $toggle=new PlekitToggle('tag_sites',"Sites");
+  $toggle->start();
+  $table=new PlekitTable("tag_sites",array("L"=>"login_base","value"=>"string"),0,$table_options);
+  $table->start();
+  foreach ($site_tags as $site_tag) {
+    $table->row_start();
+    $table->cell(href(l_site($site_tag['site_id']),$site_tag['login_base']));
+    $table->cell($site_tag['value']);
+    $table->row_end();
+  }
+  $table->end();
+  $toggle->end();
+}
+
+if (count ($person_tags)) {
+  $toggle=new PlekitToggle('tag_persons',"Persons");
+  $toggle->start();
+  $table=new PlekitTable("tag_persons",array("E"=>"email","value"=>"string"),0,$table_options);
+  $table->start();
+  foreach ($person_tags as $person_tag) {
+    $table->row_start();
+    $table->cell(href(l_person($person_tag['person_id']),$person_tag['email']));
+    $table->cell($person_tag['value']);
+    $table->row_end();
+  }
+  $table->end();
+  $toggle->end();
+}
 
 if (count ($slice_tags)) {
   $toggle=new PlekitToggle('tag_slices',"Slice tags");

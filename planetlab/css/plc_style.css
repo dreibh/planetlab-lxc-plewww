@@ -184,3 +184,7 @@ p.note_reservable {
     text-align: center;
     font-size: larger; 
 }
+span.note_roles {
+    font-style:italic;
+    font-size: smaller;
+}
