@@ -14,11 +14,12 @@ require_once 'plc_drupal.php';
 require_once 'plc_functions.php';
 
 $value=$_GET["value"];
-$person_id=$_GET["slice_id"];
+$person_id=$_GET["person_id"];
+$slice_id=$_GET["slice_id"];
 
-$myFile = "/var/log/myslice-log";
+$myFile = "/var/log/myslice.log";
 $fh = fopen($myFile, 'a') or die("can't open file");
-$stringData = "\n".date('Ymd-H:i')."|".$person_id.":".$value;
+$stringData = "\n".date('Ymd-H:i')."|".$person_id.":".$slice_id.":".$value;
 fwrite($fh, $stringData);
 fclose($fh);
 

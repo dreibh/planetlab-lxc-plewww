@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 53
+%define taglevel 54
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -106,6 +106,9 @@ for module in user node; do
     cp -f /var/www/html/drupal-hacks/${module}.module /var/www/html/modules/${module}.module
 done
 popd
+# create myslice.log and change its ownership
+touch /var/log/myslice.log
+chown apache:apache /var/log/myslice.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -122,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Oct 25 2010 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - plewww-4.3-54
+- tagging plewww for a new deployment
+
 * Fri Oct 15 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-53
 - add a 'report a problem' link for the RebootNode button
 - new exp page nodes2.php with consistent selectable-columns layout as myslice

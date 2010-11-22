@@ -382,7 +382,8 @@ function quickselect_html() {
 //return '<p>This link uses the onclick event handler.<br><a href="#" onclick="setVisible(\'quicklist\');return false" target="_self">Open popup</a></p>';
 
 
-$quickselection = "<select id='quicklist' multiple size=10 onChange=changeSelectStatus(this.value)><option value''>Add/remove columns</option>";
+$quickselection = "<select id='quicklist' onChange=changeSelectStatus(this.value)><option value='0'>Short column descriptions and quick add/remove</option>";
+//$quickselection = "<select id='quicklist'><option value='0'>Short column descriptions and quick add/remove</option>";
 $prev_label="";
 $optionclass = "out";
 foreach ($this->all_headers as $h)
@@ -412,63 +413,19 @@ foreach ($this->all_headers as $h)
 	$prev_label = $h['label'];
 
 
-$quickselection.="<option id='option'".$h['label']." class='".$optionclass."' '".$selected."' value='".$h['label']."'>".$h['label'].":&nbsp;".$h['title']."</option>";
+//$quickselection.="<option onclick=\"debugfilter('here2');removeSelectHandler(this);\" id='option'".$h['label']." class='".$optionclass."' value='".$h['label']."'><b>".$h['label']."</b>:&nbsp;".$h['title']."</option>";
+$quickselection.="<option id='option'".$h['label']." class='".$optionclass."' value='".$h['label']."'><b>".$h['label']."</b>:&nbsp;".$h['title']."</option>";
 }
 
 
 $quickselection.="</select>";
-$quickselection.="&nbsp;<input type='button' id='fetchbutton' onclick='fetchData()' value='Fetch data' disabled=true />";
 
 return $quickselection;
 
 }
 
 
-function quickselect_popup_html() {
-
-print('<div id="quickdiv">');
-print ("<select size='12' id='quicklist' onChange=changeSelectStatus(this.value)>");
-
-$prev_label="";
-$optionclass = "out";
-foreach ($this->all_headers as $h)
-{
-	if ($h['header'] == "hostname")
-		continue;
-
-	if ($h['fixed'])
-		$disabled = "disabled=true";
-	else
-		$disabled = "";
-
-        if ($this->headerIsVisible($h['label']))
-	{
-               	$optionclass = "in";
-		//$selected = "selected=selected";
-	}
-	else
-	{
-               	$optionclass = "out";
-		//$selected = "";
-	}
-
-	if ($prev_label == $h['label'])
-		continue;
-
-	$prev_label = $h['label'];
-
-
-        print ("<option id='option'".$h['label']." class='".$optionclass."' '".$selected."' value='".$h['label']."'>".$h['label'].":&nbsp;".$h['title']."</option>");
-}
-
-
-print("</select></div>");
-print("&nbsp;<input type='button' id='fetchbutton' onclick='fetchData()' value='Fetch data' disabled=true />");
-
-}
-
 function configuration_panel_html($showDescription) {
-
 
 if ($showDescription)
 	$table_width = 700;

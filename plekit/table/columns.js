@@ -123,7 +123,6 @@ var sourceL = 'Source: '+sourceComon;
 var valuesL = 'Unit: <b>5-minute load</b>';
 var detailL = '<i>The average 5-minute load (as reported by the Unix uptime command) over the selected period.</i>';
 var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+selectPeriodL+'<p>'+valuesL+'<p>'+sourceL; 
-//var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+valuesL+'<p>'+sourceL; 
 
 var titleLON= 'Longitude';
 var sourceLON = 'Source: '+sourceTophat;
@@ -230,7 +229,6 @@ var sourceR = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
 var detailR = '<i>CoMon queries nodes every 5 minutes, for 255 queries per day. The average reliability is the percentage of queries over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
 var valuesR = 'Unit: <b>%</b>';
 var descR = '<span class="myslice title">'+titleR+'</span><p>'+detailR+'<p>'+selectPeriodR+'<p>'+valuesR+'<p>'+sourceR; 
-//var descR = '<span class="myslice title">'+titleR+'</span><p>'+detailR+'<p>'+valuesR+'<p>'+sourceR; 
 
 var titleRES = 'Reservation capabilities';
 var sourceRES = 'Source: '+sourceMyPLC;
@@ -360,13 +358,20 @@ function changeCheckStatus(column) {
 		deleteColumn(document.getElementById(column).value);
 }
 
+function removeSelectHandler(object)
+{
+	debugfilter(object);
+        object.onclick = null;
+}
+
+
 //This function is used when the alternative "quick" selection list is used
 function changeSelectStatus(column) {
 
 	var optionClass = "";
 	var selected_index = document.getElementById('quicklist').selectedIndex;
 
-	if (document.getElementById('quicklist'))
+	if (document.getElementById('quicklist') && selected_index != 0)
 	{
 
 		optionClass = document.getElementById('quicklist').options[selected_index].className;
@@ -375,11 +380,13 @@ function changeSelectStatus(column) {
 		{
 			deleteColumn(document.getElementById('quicklist').value);
 			document.getElementById('quicklist').options[selected_index].className = "out";
+			document.getElementById('quicklist').value="0";
 		}
 		else
 		{
 			addColumn(document.getElementById('quicklist').value, true);
 			document.getElementById('quicklist').options[selected_index].className = "in";
+			document.getElementById('quicklist').value="0";
 		}
 	}
 }
@@ -421,15 +428,35 @@ function getHTTPObject()
         return false;
 }
 
-
-function closeShowReservable()
+function closeMessage(tab)
 {
+	var current_conf = document.getElementById('show_configuration').value;
+	var value = '';
+
+	if (current_conf != "")
+		current_conf += ";";
+
+	if (tab == 'reservable') {	
+        document.getElementById('note_reservable_div').style.display = "none";
+	if (current_conf.indexOf('reservable') != -1)
+		return;
+	value = current_conf+'reservable';
+	}
+
+	if (tab == 'columns') {	
+        document.getElementById('note_columns_div').style.display = "none";
+	if (current_conf.indexOf('columns') != -1)
+		return;
+	value = current_conf+'columns';
+	}
+
 	var slice_id = document.getElementById('slice_id').value;
 	var person_id = document.getElementById('person_id').value;
 	var tag_id = document.getElementById('show_tag_id').value;
-        document.getElementById('note_reservable_div').style.display = "none";
-
-        var url = "/plekit/php/updateConfiguration.php?value="+slice_id+";reservable:no&slice_id="+slice_id+"&person_id="+person_id+"&tag_id="+tag_id;
+	
+        var url = "/plekit/php/updateConfiguration.php?value="+value+"&slice_id="+slice_id+"&person_id="+person_id+"&tag_id="+tag_id;
+	//debugfilter("updating conf with "+url);
+	document.getElementById('show_configuration').value = value;
 
 	var req = getHTTPObject();
 	req.open('GET', url, true);
@@ -504,14 +531,12 @@ function updateColumnConfiguration(value, reload)
         xmlhttp.send();
 }
 
-function logSortingAction(slice_id, value)
+function logSortingAction(person_id, slice_id, value)
 {
 
-	if (value.indexOf("column-1")!=-1)
-		return;
 
 	var req = getHTTPObject();
-        var url = "/plekit/php/logSorting.php?value="+value+"&slice_id="+slice_id;
+        var url = "/plekit/php/logSorting.php?value="+value+"&slice_id="+slice_id+"&person_id="+person_id;
 
 	req.open('GET', url, true);
 	req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -526,14 +551,17 @@ function logSortingAction(slice_id, value)
 function sortCompleteCallback(tableid) {
 
 	var slice_id = document.getElementById('slice_id').value;
+	var person_id = document.getElementById('person_id').value;
 
 	var ths = document.getElementById(tableid).getElementsByTagName("th");
 	for(var i = 0, th; th = ths[i]; i++) {
 	if (th.className.indexOf("Sort") != -1)
 	{
-		var column = th.className.substr(th.className.indexOf("column"),th.className.indexOf("column")+1);
-		var sortdirection = th.className.substr(th.className.indexOf("Sort")-8,th.className.indexOf("Sort"));
-		logSortingAction(slice_id, tableid+"|"+column+"|"+sortdirection);
+		var hclass = th.className;
+		var column = hclass.substr(hclass.indexOf("column"),hclass.indexOf("column")+1);
+		var sortdirection = hclass.substr(hclass.indexOf("Sort")-8,hclass.indexOf("Sort"));
+		if (column.indexOf("column-1")==-1 && column.indexOf("column-0")==-1)
+			logSortingAction(person_id, slice_id, tableid+"|"+column+"|"+sortdirection);
 	}
 	}
 }
@@ -791,6 +819,7 @@ function addColumn(column, fetch) {
 	var selectedperiod="";
 	var header=column;
 
+
 	if (inTypeC(column)!=-1)
 	{
 		column = column.substring(0,column.length-1);
@@ -807,7 +836,6 @@ function addColumn(column, fetch) {
 		addColumnAjax(column, header);
 
 	addColumnToConfiguration(header);
-	
 }
 
 
@@ -818,7 +846,6 @@ function deleteColumnCells(header) {
 		cells[j].style.display = "none";
 
 }
-
 
 
 function deleteColumn(column) {
@@ -834,8 +861,6 @@ function deleteColumn(column) {
 	deleteColumnCells(header);
 
 	deleteColumnFromConfiguration(header);
-
-	//document.getElementById('check'+column).checked = false;
 }
 
 
@@ -845,15 +870,12 @@ EXTRA
 
 //to be used for scrolling the column list with down/up arrows 
 
-function scrollList(tableid) {
-
-debugfilter("here");
-
+function scrollList() {
+debugfilter("here "+document.getElementById('scrolldiv').focused);
 if (event.keyCode == 40)
 	debugfilter("down");
 else if (event.keyCode == 38)
 	debugfilter("up");
-
 }
 
 function resetColumns() {

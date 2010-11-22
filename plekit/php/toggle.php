@@ -35,6 +35,7 @@ class PlekitToggle {
   // mandatory
   var $id;
   var $nifty;
+  var $info_div = "";
 
   function PlekitToggle ($id,$trigger,$options=NULL) {
     $this->id = $id;
@@ -44,6 +45,11 @@ class PlekitToggle {
       $options['start-hidden'] = ! $options['visible'];
       unset ($options['visible']);
     }
+
+    if (array_key_exists ('info_div',$options)) {
+	$this->info_div = $options['info_div'];
+    }
+
     if (!isset ($options['start-hidden'])) $options['start-hidden']=false;
     $this->options = $options;
   }
@@ -99,6 +105,8 @@ class PlekitToggle {
     $html .= $this->image_html();
     $html .= $this->trigger;
     $html .= "</$tagname>";
+    if ($this->info_div != "")
+    $html .= "&nbsp;(<a href=javascript:plc_show_toggle_info('$this->info_div','$this->id')>?</a>)";
     return $html;
   }
 

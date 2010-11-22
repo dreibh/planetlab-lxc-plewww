@@ -20,7 +20,7 @@ $tag_id=intval($_GET["tag_id"]);
 
 $api->UpdatePersonTag( $tag_id, $value );
 
-$myFile = "/var/log/myslice-log";
+$myFile = "/var/log/myslice.log";
 $fh = fopen($myFile, 'a') or die("can't open file");
 $stringData = "\n".date('Ymd-H:i')."|".$person_id.":".$slice_id.":".$value;
 fwrite($fh, $stringData);
