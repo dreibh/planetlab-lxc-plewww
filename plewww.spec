@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 54
+%define taglevel 55
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Dec 01 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-55
+- needed for plcapi-5.0-19, i.e. tag permissions based on roles
+
 * Mon Oct 25 2010 Baris Metin <Talip-Baris.Metin@sophia.inria.fr> - plewww-4.3-54
 - tagging plewww for a new deployment
 
