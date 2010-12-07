@@ -101,7 +101,7 @@ if ($local_peer && $privileges && ! $is_my_account)
 			     'confirm'=>"Are you sure you want to enable $first_name $last_name");
 
 // delete
-if ($local_peer && $privileges && $local_peer) 
+if ($local_peer && $privileges && $local_peer && ! $is_my_account) 
   $tabs['Delete'] = array ('method'=>'POST',
 			   'url'=>l_actions(),
 			   'values'=> array ('person_id'=>$person_id,
