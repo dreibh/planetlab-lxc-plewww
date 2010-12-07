@@ -59,6 +59,8 @@ function person_status ($person) {
       $messages [] = "No Site";
   if ( ! $person['enabled'] ) 
     $messages[] = "Disabled";
+  if ( count ($person['roles']) == 0)
+    $messages []= "No role!";
   // for tech-only people: outline user if in a slice
   if ( ( count($person['roles'])==1 ) && 
        ( in_array('tech',$person['roles']) ) ) {
