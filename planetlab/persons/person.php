@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 // Require login
 require_once 'plc_login.php';
 
@@ -78,7 +76,7 @@ $tabs=array();
 
 // enable / disable
 // become
-if (plc_is_admin() && ! $is_my_account && $local_peer) 
+if (plc_is_admin() && ! $is_my_account && $local_peer && $enabled) 
   $tabs['Become'] = array('method'=>'POST',
 			  'url'=>l_actions(),
 			  'values'=>array('action'=>'become-person',
@@ -86,7 +84,7 @@ if (plc_is_admin() && ! $is_my_account && $local_peer)
 			  'bubble'=>"Become $first_name $last_name",
 			  'confirm'=>"Are you sure you want to become $first_name $last_name");
     
-if ($local_peer && $privileges) 
+if ($local_peer && $privileges && ! $is_my_account) 
   if ($enabled) 
     $tabs['Disable'] = array ('method'=>'POST',
 			      'url'=>l_actions(),
