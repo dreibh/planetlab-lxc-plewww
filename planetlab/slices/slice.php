@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 // Require login
 require_once 'plc_login.php';
 
@@ -159,7 +157,7 @@ EOF;
      } else {
       print <<< EOF
 <div class='my-slice-renewal'>
-<span class='bold'>Important:</span> Please take this opportunity to review and update your slice information in the Details tab, below.
+<span class='bold'>Important:</span> Please take this opportunity to review and update your slice information in the Details tab.
 <p>
 PlanetLab's security model requires that anyone who is concerned about a slice's activity be able to immediately learn about that slice. The details that you provide are your public explanation about why the slice behaves as it does. Be sure to describe the <span class='bold'>kind of traffic</span> that your slice generates, and how it handles material that is under <span class='bold'>copyright</span>, if relevant.
 </p><p>
