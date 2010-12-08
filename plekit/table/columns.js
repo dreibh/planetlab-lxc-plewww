@@ -77,6 +77,11 @@ var sourceCN = 'Source: '+sourceComon;
 var valuesCN = '<i>The number of CPUs on the node. For reference, the '+hardwareReqs+' is <b>1 (if quad core) or 2 (if dual core)</b>.</i>';
 var descCN = '<span class="myslice title">'+titleCN+'</span><p>'+valuesCN+'<p>'+sourceCN;
 
+var titleCPC = 'Number of cores per CPU';
+var sourceCPC = 'Source: '+sourceComon;
+var valuesCPC = '<i>The number of cores per CPU on the node.</i>'; 
+var descCPC = '<span class="myslice title">'+titleCPC+'</span><p>'+valuesCPC+'<p>'+sourceCPC;
+
 var titleCR = 'CPU clock rate';
 var detailCR = '<i>The clock rate for the CPUs on the node. For reference, the '+hardwareReqs+' is <b>2.4 GHz</b></i>.';
 var sourceCR = 'Source: '+sourceComon;
@@ -99,6 +104,12 @@ var sourceDA = 'Source: '+sourceMyPLC;
 var detailDA = '<i> The date that the noded was added to PlanetLab.</i>';
 var descDA = '<span class="myslice title">'+titleDA+'</span><p>'+detailDA+'<p>'+sourceDA;
 
+var titleDL = 'Deployment';
+var detailDL = '<i>The deployment status.</i>';
+var valuesDL = 'Values: <b>alpha</b>, <b>beta</b>, <b>production</b>, <b>n/a</b>';
+var sourceDL = 'Source: '+sourceMyPLC;
+var descDL = '<span class="myslice title">'+titleDL+'</span><p>'+detailDL+'<p>'+valuesDL+'<p>'+sourceDL;
+
 var titleDS = 'Disk size';
 var detailDS = '<i>The size of the hard disk available on the node. For reference, the '+hardwareReqs+' is <b>500 GB</b></i>.';
 var sourceDS = 'Source: '+sourceComon;
@@ -106,15 +117,15 @@ var valuesDS = 'Unit: <b>GB</b>';
 var descDS = '<span class="myslice title">'+titleDS+'</span><p>'+detailDS+'<p>'+valuesDS+'<p>'+sourceDS;
 
 var titleDU = 'Current disk utilization';
-var sourceDU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
+var sourceDU = 'Source: '+sourceComon;
 var valuesDU = 'Unit: <b>GB</b>';
-var detailDU = '<i> The amount of disk space currently consumed (checked daily).</i>';
+var detailDU = '<i> The amount of disk space currently consumed.</i>';
 var descDU = '<span class="myslice title">'+titleDU+'</span><p>'+detailDU+'<p>'+valuesDU+'<p>'+sourceDU;
 
 var titleDF = 'Disk space free';
-var sourceDF = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesDF = 'Unit: <b>GB</b>';
-var detailDF = '<i> The amount of disk space currently available (checked daily).</i>';
+var sourceDF = 'Source: '+sourceComon;
+var valuesDF = 'Unit: <b>GB</b>.';
+var detailDF = '<i> The amount of disk space currently available.</i>';
 var descDF = '<span class="myslice title">'+titleDF+'</span><p>'+detailDF+'<p>'+valuesDF+'<p>'+sourceDF;
 
 var titleHC = 'Hop count (pairwise)';
@@ -171,7 +182,7 @@ var titleMS= 'Memory size';
 var detailMS = '<i>The memory size (RAM) available on the node. For reference, the '+hardwareReqs+' is <b>4 GB</b></i>.';
 var sourceMS = 'Source: '+sourceComon;
 var valuesMS = 'Unit: <b>GB</b>.';
-var descMS = '<span class="myslice title">'+titleMS+'</span><p>'+valuesMS+'<p>'+sourceMS;
+var descMS = '<span class="myslice title">'+titleMS+'</span><p>'+detailMS+'<p>'+valuesMS+'<p>'+sourceMS;
 
 var selectPeriodMU = 'Select period: <select id="selectperiodMU" onChange=updatePeriod("MU",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleMU = 'Memory utilization';
@@ -254,6 +265,11 @@ var sourceS = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
 var valuesS = 'Unit: <b>%</b>';
 var detailS = '<i>Average number of active slices over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
 var descS = '<span class="myslice title">'+titleS+'</span><p>'+detailS+'<p>'+selectPeriodS+'<p>'+valuesS+'<p>'+sourceS; 
+
+var titleSM= 'Slices in memory';
+var detailSM = '<i>The total number of slices in memory (both active and inactive).</i>';
+var sourceSM = 'Source: '+sourceComon;
+var descSM = '<span class="myslice title">'+titleSM+'</span><p>'+detailSM+'<p>'+sourceSM;
 
 var titleSN = 'Site name';
 var sourceSN = 'Source: '+sourceMyPLC;

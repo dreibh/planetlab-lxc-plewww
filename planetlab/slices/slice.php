@@ -429,13 +429,31 @@ $visibletags = new VisibleTags ($api, 'node');
 $visibletags->columns();
 $tag_columns = $visibletags->headers();
 
+//columns that are not defined as extra myslice tags
 $extra_columns = array();
-$extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true);
-$extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true);
-$extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true);
-$extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'uptime', 'header'=>'UT', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Continuous uptime until now', 'fetched'=>false);
+//MyPLC columns
+$extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true, 'source'=>'myplc');
+$extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true, 'source'=>'myplc');
+$extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true, 'source'=>'myplc');
+$extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false, 'source'=>'myplc');
 $extra_columns[]=array('tagname'=>'date_created', 'header'=>'DA', 'source'=>'myplc', 'type'=>'date', 'title'=>'Date added', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'arch', 'header'=>'A', 'source'=>'myplc', 'type'=>'string', 'title'=>'Architecture', 'fetched'=>false);
+if (plc_is_admin()) {
+$extra_columns[]=array('tagname'=>'deployment', 'header'=>'DL', 'source'=>'myplc', 'type'=>'string', 'title'=>'Deployment', 'fetched'=>false);
+}
+
+//CoMon Live data
+$extra_columns[]=array('tagname'=>'bwlimit', 'header'=>'BW', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Bandwidth limit', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'numcores', 'header'=>'CC', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Number of CPU Cores', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'cpuspeed', 'header'=>'CR', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'CPU clock rate', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'disksize', 'header'=>'DS', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Disk size', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'gbfree', 'header'=>'DF', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Currently available disk space', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'memsize', 'header'=>'MS', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Memory size', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'numslices', 'header'=>'SM', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Number of slices in memory', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'uptime', 'header'=>'UT', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Continuous uptime until now', 'fetched'=>false);
+
+//TopHat Live data
+//$extra_columns[]=array('tagname'=>'hopcount', 'header'=>'HC', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Hop count from reference node', 'fetched'=>false);
 
 
 //Get user's column configuration

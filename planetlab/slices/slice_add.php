@@ -191,15 +191,13 @@ if ($multiple_sites) {
 		  
 print <<< EOF
 <div class='create-slice-instantiations'>
-<p>You <span class='bold'>must</span> provide a short description, 
-as well as a link to a project website, before creating it.
-
-<br/> Please make sure to provide reasonable details on <span class='bold'>
-the kind of traffic</span>, and <span class='bold'>copyrights</span> if relevant. 
-Do <span class='bold'>not</span> provide bogus information; if a complaint is lodged against 
-your slice  and your PlanetLab Operations Center is unable to determine what the normal behavior 
-of your slice is, your slice may be deleted to resolve the complaint.</p>
-
+<p><span class='bold'>Important:</span> Please provide a short description, as well as a 
+link to a project website, before creating your slice.</p>
+<p>
+PlanetLab's security model requires that anyone who is concerned about a slice's activity be able to immediately learn about that slice. The details that you provide are your public explanation about why the slice behaves as it does. Be sure to describe the <span class='bold'>kind of traffic</span> that your slice generates, and how it handles material that is under <span class='bold'>copyright</span>, if relevant.
+</p><p>
+The PlanetLab Operations Centres regularly respond to concerns raised by third parties about site behaviour. Most incidents are resolved rapidly based upon the publicly posted slice details. However, when these details are not sufficiently clear or accurate, and we cannot immediately reach the slice owner, we must delete the slice.
+</p>
 <p><span class='bold'>NOTE</span>: All PlanetLab users are <span class='bold'>strongly</span>
  encouraged to join the PlanetLab 
 <a href='https://lists.planet-lab.org/mailman/listinfo/users'>Users</a> 

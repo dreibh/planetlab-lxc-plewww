@@ -68,6 +68,14 @@ $this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>
 }
 
 $tmp_headers = array();
+
+if ($this->extra_columns)
+foreach ($this->extra_columns as $column) {
+$tmp_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'], 'visible'=>false, 'source'=>$column['source']);
+
+}
+
+if ($this->tag_columns)
 foreach ($this->tag_columns as $column) {
 
 if ($column['headerId'] != "")
@@ -75,17 +83,10 @@ if ($column['headerId'] != "")
 else
 	$headerId = $column['header'];
 
-//$this->all_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
 $tmp_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false, 'source'=>'myplc');
 }
 
-if ($this->extra_columns)
-foreach ($this->extra_columns as $column) {
-//$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'],'visible'=>false);
-$tmp_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'], 'visible'=>false, 'source'=>$column['source']);
-
 usort ($tmp_headers, create_function('$col1,$col2','return strcmp($col1["label"],$col2["label"]);'));
-}
 
 foreach ($tmp_headers as $t) 
 $this->all_headers[$t['header']] = $t;
