@@ -72,7 +72,7 @@ function node_status ($node) {
 }
 
 
-$first_time_configuration = 'false';
+$first_time_configuration = false;
 
 if (plc_is_admin()) 
 	$default_configuration = "ID:f|hostname:f|ST:f|AU:f";
@@ -82,6 +82,9 @@ else
 //$extra_default = "LCN|DN|R|L|OS|MS|SN";
 $column_configuration = "";
 $slice_column_configuration = "";
+$show_configuration = "";
+$show_columns_message = '1';
+
 
 $PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
 //print_r($PersonTags);
@@ -91,6 +94,11 @@ foreach ($PersonTags as $ptag) {
                 $column_configuration = $ptag['value'];
                 $conf_tag_id = $ptag['person_tag_id'];
         }
+	if ($ptag['tagname'] == 'showconf')
+        {
+                $show_configuration = $ptag['value'];
+                $show_tag_id = $ptag['person_tag_id'];
+        }
 }
 
 //print("column configuration = ".$column_configuration);
@@ -98,6 +106,7 @@ foreach ($PersonTags as $ptag) {
 $nodesconf_exists = false;
 if ($column_configuration == "")
 {
+        $first_time_configuration = true;
         $column_configuration = "nodes;default";
         $nodesconf_exists = true;
 }
@@ -134,7 +143,7 @@ else
 //print("full configuration = ".$full_configuration);
 
 // fetch nodes 
-$node_fixed_columns=array('hostname','node_type','site_id','node_id','boot_state','last_contact','interface_ids','peer_id', 'slice_ids');
+$node_fixed_columns=array('node_type','site_id','boot_state','last_contact','interface_ids','peer_id', 'slice_ids');
 
 $fix_columns = array();
 if (plc_is_admin()) 
@@ -150,10 +159,14 @@ $visibletags->columns();
 $tag_columns = $visibletags->headers();
 
 $extra_columns = array();
-$extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true);
-$extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true);
-$extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true);
-$extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true, 'source'=>'myplc');
+$extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true, 'source'=>'myplc');
+$extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true, 'source'=>'myplc');
+$extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false, 'source'=>'myplc');
+$extra_columns[]=array('tagname'=>'uptime', 'header'=>'UT', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Continuous uptime until now', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'date_created', 'header'=>'DA', 'source'=>'myplc', 'type'=>'date', 'title'=>'Date added', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'hopcount', 'header'=>'HC', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Hop count from reference node', 'fetched'=>false);
+
 
 $ConfigureColumns =new PlekitColumns($full_configuration, $fix_columns, $tag_columns, $extra_columns);
 
@@ -217,7 +230,22 @@ if ($person_id) {
  }
 
 // go
+//print("getting nodes ".$node_columns);
+//print_r($node_columns);
 $nodes=$api->GetNodes($node_filter,$node_columns);
+
+//print("<p> GOT NODES </p>");
+//print_r($nodes);
+
+$ConfigureColumns->fetch_live_data($nodes);
+
+$show_conf = explode(";",$show_configuration);
+foreach ($show_conf as $ss) {
+        if ($ss =="columns")
+                $show_columns_message = '0';
+}
+
+
 
 // build site_ids - interface_ids
 $site_ids=array();
@@ -293,21 +321,40 @@ $info_header[$short]=array('type'=>$type,'title'=>$long, 'label'=>'?', 'header'=
 //$info_header["?"] = "none";
 $headers = array_merge($ConfigureColumns->get_headers(),$info_header);
 
-//print("<p>HEADERS");
-//print_r($headers);
+if ($first_time_configuration)
+$column_conf_visible = '1';
+else
+$column_conf_visible = '0';
 
 $toggle_nodes=new PlekitToggle('nodes-column-configuration',
                                "Node table layout",
-                               array('visible'=>'1'));
+                               array('visible'=>$column_conf_visible, 'info_div'=>'note_columns_div'));
 $toggle_nodes->start();
 print("<div id='debug'></div>");
 print("<input type='hidden' id='slice_id' value='nodes' />");
 print("<input type='hidden' id='person_id' value='".$plc->person['person_id']."' />");
 print("<input type='hidden' id='conf_tag_id' value='".$conf_tag_id."' />");
+print("<input type='hidden' id='show_tag_id' value='".$show_tag_id."' />");
+print("<input type='hidden' id='show_configuration' value='".$show_configuration."' />");
 print("<input type='hidden' id='column_configuration' value='".$slice_column_configuration."' />");
 print("<br><input type='hidden' size=80 id='full_column_configuration' value='".$column_configuration."' />");
-//print("<input type='hidden' id='previousConf' value='".$slice_column_configuration."'></input>");
 print("<input type='hidden' id='defaultConf' value='".$default_configuration."'></input>");
+
+if ($show_columns_message == '0')
+$note_display = "display:none;";
+else
+$note_display = "";
+
+
+print <<<EOF
+<div id='note_columns_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
+<table align=center><tr><td valign=top>
+This tab allows you to customize the columns in the node tables, below. Information on the nodes comes from a variety of monitoring sources. If you, as either a user or a provider of monitoring data, would like to see additional columns made available, please send us your request in mail to <a href="mailto:support@myslice.info">support@myslice.info</a>. You can find more information about the MySlice project at <a href="http://trac.myslice.info">http://trac.myslice.info</a>.
+</td><td valign=top><span onClick=closeMessage('columns')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
+</td></tr></table>
+</div>
+EOF;
+
 $ConfigureColumns->configuration_panel_html(true);
 $ConfigureColumns->javascript_init();
 $toggle_nodes->end();
@@ -339,12 +386,15 @@ foreach ($nodes as $node) {
   if (plc_is_admin()) $table->cell(l_node_t($node_id,$node_id));
   $table->cell (l_node_t($node_id,$hostname));
   $peers->cell ($table,$peer_id);
-  //$table->cell (topdomain($hostname));
+
+  //prefetch some columns
   $node['domain'] = topdomain($hostname);
-  //$table->cell (l_site_t($site_id,$login_base));
   $node['sitename'] = l_site_t($site_id,$login_base);
-  //$table->cell (l_interface_t($interface_id,$ip),array('only-if'=> !$peer_id));
-  $node['ipaddress'] = l_interface_t($interface_id,$ip);
+  if ($interface_id)
+  	$node['ipaddress'] = l_interface_t($interface_id,$ip);
+  else
+  	$node['ipaddress'] = "n/a";
+
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
   //$table->cell (count($node['slice_ids']));

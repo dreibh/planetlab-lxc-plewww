@@ -15,32 +15,34 @@ var sourceMyPLC = '<b><a target="source_window" href="https://www.planet-lab.eu/
 var sourceManiacs = '<b><a target="source_window" href="http://www.ece.gatech.edu/research/labs/MANIACS/as_taxonomy/">MANIACS</a></b>';
 var sourceMaxmind = '<b><a target="source_window" href="http://www.maxmind.com/app/geolitecity">MaxMind</a></b>';
 var sourceMonitor = '<b><a target="source_window" href="http://monitor.planet-lab.org/">Monitor</a></b>';
-var selectReferenceNode ='Select reference node: <select id="reference_node" onChange="updateDefaultConf(this.value)"><option value=planetlab-europe-07.ipv6.lip6.fr>planetlab-europe-07.ipv6.lip6.fr</option></select>';
-var addButton = '<input id="addButton" type="button" value="Add" onclick=addColumnAjax(document.getElementById("list1").value)></input>';
-var deleteButton = '<input id="deleteButton" type="button" value="Delete" onclick=deleteColumn(window.document.getElementById("list1").value)></input>';
+var hardwareReqs = 'current <b><a target="source_window" href="http://www.planet-lab.org/hardware">PlanetLab hardware requirement</a></b>';
+var selectReferenceNode ='Select reference node: <select id="reference_node" onChange="updateReferenceNode(this.value)"><option value=planetlab-europe-07.ipv6.lip6.fr>planetlab-europe-07.ipv6.lip6.fr</option><option value=planetlab2.ipv6.lip6.fr>planetlab2.ipv6.lip6.fr</option></select>';
+//var addButton = '<input id="addButton" type="button" value="Add" onclick=addColumnAjax(document.getElementById("list1").value)></input>';
+//var deleteButton = '<input id="deleteButton" type="button" value="Delete" onclick=deleteColumn(window.document.getElementById("list1").value)></input>';
 
 var descHOSTNAME = "test";
 
-var titleA = 'Architecture name';
-var detailA = '<i>The node architecture.</i>';
-var sourceA = '<b>Source:</b> '+sourceMyPLC;
-var valuesA = 'Values: <b>x86_64</b>, <b>i386</b>';
-var descA = '<span class="myslice title">'+titleA+'</span><p>'+detailA+'<p>'+valuesA+'<p>'+sourceA;
-
-var titlef = 'Operating system';
-var detailf = '<i>Fedora or CentOS distribution to use for node or slivers.</i>';
-var sourcef = '<b>Source:</b> '+sourceMyPLC;
-var descf = '<span class="myslice title">'+titlef+'</span><p>'+detailf+'<p>'+sourcef;
 
 var titleAU = 'Authority';
 var detailAU = '<i>The authority of the global PlanetLab federation that the site of the node belongs to.</i>';
 var valuesAU = 'Values: <b>PLC</b> (PlanetLab Central), <b>PLE</b> (PlanetLab Europe)';
-var sourceAU = '<b>Source:</b> '+sourceMyPLC;
+var sourceAU = 'Source: '+sourceMyPLC;
 var descAU = '<span class="myslice title">'+titleAU+'</span><p>'+detailAU+'<p>'+valuesAU+'<p>'+sourceAU;
+
+var titleST = 'Status';
+var sourceST = 'Source: '+sourceMonitor;
+var valuesST = 'Values: <b>online</b> (up and running), <b>good</b> (up and running recently), <b>offline</b> (unreachable today), <b>down</b> (node unreachable for more than one day), <b>failboot</b> (reachable, but only by administrators for debugging purposes).';
+var descST = '<span class="myslice title">'+titleST+'</span><p>'+valuesST+'<p>'+sourceST;
+
+var titleA = 'Architecture name';
+var detailA = '<i>The node architecture.</i>';
+var sourceA = 'Source: '+sourceMyPLC;
+var valuesA = 'Values: <b>x86_64</b>, <b>i386</b>, <b>n/a</b>';
+var descA = '<span class="myslice title">'+titleA+'</span><p>'+detailA+'<p>'+valuesA+'<p>'+sourceA;
 
 var titleAS = 'Autonomous system ID';
 var sourceAS = 'Source: '+sourceCymru+' (via '+sourceTophat+')';
-var valuesAS = 'Unit: <b>Integer between 0 and 65535</b>';
+var valuesAS = 'Values: <b>Integer between 0 and 65535</b>, <b>n/a</b>';
 var descAS = '<span class="myslice title">'+titleAS+'</span><p>'+valuesAS+'<p>' + sourceAS;
 
 var titleAST = 'Autonomous system type';
@@ -67,18 +69,19 @@ var descBW = '<span class="myslice title">'+titleBW+'</span><p>'+detailBW+'<p>'+
 
 var titleCC = 'Number of CPU cores';
 var sourceCC = 'Source: '+sourceComon;
-var valuesCC = 'Current PlanetLab hardware requirements: 4 cores min. <br><i>(Older nodes may have fewer cores)</i>.';
+var valuesCC = '<i>The number of CPU cores on the node. For reference, the '+hardwareReqs+' is <b>4 cores min.</b> <br> (Older nodes may have fewer cores)</i>.';
 var descCC = '<span class="myslice title">'+titleCC+'</span><p>'+valuesCC+'<p>'+sourceCC;
 
 var titleCN = 'Number of CPUs';
 var sourceCN = 'Source: '+sourceComon;
-var valuesCN = 'Current PlanetLab hardware requirements: <b>1 (if quad core) or 2 (if dual core)</b>';
+var valuesCN = '<i>The number of CPUs on the node. For reference, the '+hardwareReqs+' is <b>1 (if quad core) or 2 (if dual core)</b>.</i>';
 var descCN = '<span class="myslice title">'+titleCN+'</span><p>'+valuesCN+'<p>'+sourceCN;
 
 var titleCR = 'CPU clock rate';
+var detailCR = '<i>The clock rate for the CPUs on the node. For reference, the '+hardwareReqs+' is <b>2.4 GHz</b></i>.';
 var sourceCR = 'Source: '+sourceComon;
-var valuesCR = 'Unit: <b>GHz</b><p>Current PlanetLab hardware requirements: <b>2.4 GHz</b>';
-var descCR = '<span class="myslice title">'+titleCR+'</span><p>'+valuesCR+'<p>'+sourceCR;
+var valuesCR = 'Unit: <b>GHz</b>';
+var descCR = '<span class="myslice title">'+titleCR+'</span><p>'+detailCR+'<p>'+valuesCR+'<p>'+sourceCR;
 
 var selectPeriodCF = 'Select period: <select id="selectperiodCF" onChange=updatePeriod("CF",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleCF = 'Free CPU';
@@ -91,10 +94,16 @@ var titleDN = 'Toplevel domain name';
 var sourceDN = 'Source: '+sourceMyPLC;
 var descDN = '<span class="myslice title">'+titleDN+'</span><p>'+sourceDN;
 
+var titleDA = 'Date added';
+var sourceDA = 'Source: '+sourceMyPLC;
+var detailDA = '<i> The date that the noded was added to PlanetLab.</i>';
+var descDA = '<span class="myslice title">'+titleDA+'</span><p>'+detailDA+'<p>'+sourceDA;
+
 var titleDS = 'Disk size';
+var detailDS = '<i>The size of the hard disk available on the node. For reference, the '+hardwareReqs+' is <b>500 GB</b></i>.';
 var sourceDS = 'Source: '+sourceComon;
-var valuesDS = 'Unit: <b>GB</b><p>Current PlanetLab hardware requirements: <b>500 GB</b>';
-var descDS = '<span class="myslice title">'+titleDS+'</span><p>'+valuesDS+'<p>'+sourceDS;
+var valuesDS = 'Unit: <b>GB</b>';
+var descDS = '<span class="myslice title">'+titleDS+'</span><p>'+detailDS+'<p>'+valuesDS+'<p>'+sourceDS;
 
 var titleDU = 'Current disk utilization';
 var sourceDU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
@@ -149,7 +158,7 @@ var descLCY = '<span class="myslice title">'+titleLCY+'</span><p>'+detailLCY+'<p
 
 var titleLPR= 'Location precision radius';
 var sourceLPR = 'Source: '+sourceTophat;
-var valuesLPR = 'Unit: <b>float</b>';
+var valuesLPR = 'Unit: <b>float</b>.';
 var detailLPR = '<i>The radius of the circle corresponding to the error in precision of the geolocalization estimate.</i>';
 var descLPR = '<span class="myslice title">'+titleLPR+'</span><p>'+detailLPR+'<p>'+valuesLPR+'<p>'+sourceLPR;
 
@@ -159,8 +168,9 @@ var detailLRN = '<i>Based on the latitude and longitude information.</i>';
 var descLRN = '<span class="myslice title">'+titleLRN+'</span><p>'+detailLRN+'<p>'+sourceLRN;
 
 var titleMS= 'Memory size';
+var detailMS = '<i>The memory size (RAM) available on the node. For reference, the '+hardwareReqs+' is <b>4 GB</b></i>.';
 var sourceMS = 'Source: '+sourceComon;
-var valuesMS = 'Unit: <b>GB</b><p>Current PlanetLab hardware requirements: <b>4 GB</b>.';
+var valuesMS = 'Unit: <b>GB</b>.';
 var descMS = '<span class="myslice title">'+titleMS+'</span><p>'+valuesMS+'<p>'+sourceMS;
 
 var selectPeriodMU = 'Select period: <select id="selectperiodMU" onChange=updatePeriod("MU",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
@@ -219,8 +229,9 @@ var detailNRR = '<i> Whether the node can send packets packets using the IP reco
 var descNRR = '<span class="myslice title">'+titleNRR+'</span><p>'+detailNRR+'<p>'+valuesNRR+'<p>'+sourceNRR;
 
 var titleOS = 'Operating system';
+var detailOS = '<i>Fedora or CentOS distribution to use for node or slivers.</i>';
 var sourceOS = 'Source: '+sourceMyPLC;
-var valuesOS = 'Values: <b>Fedora, Cent/OS, other, n/a</b>';
+var valuesOS = 'Values: <b>f8, f12, Cent/OS, other, n/a</b>';
 var descOS = '<span class="myslice title">'+titleOS+'</span><p>'+valuesOS+'<p>'+sourceOS;
 
 var selectPeriodR = 'Select period: <select id="selectperiodR" onChange=updatePeriod("R",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
@@ -255,10 +266,12 @@ var detailSSH = '<i>The average response delay of the node to SSH logins over th
 var sourceSSH ='Source: '+sourceComon+' (via '+sourceMySlice+')';
 var descSSH = '<span class="myslice title">'+titleSSH+'</span><p>'+detailSSH+'<p>'+selectPeriodSSH+'<p>'+valuesSSH+'<p>'+sourceSSH; 
 
-var titleST = 'Status';
-var sourceST = 'Source: '+sourceMonitor;
-var valuesST = 'Values: <b>online</b> (up and running), <b>good</b> (up and running recently), <b>offline</b> (unreachable today), <b>down</b> (node unreachable for more than one day), <b>failboot</b> (reachable, but only by administrators for debugging purposes).';
-var descST = '<span class="myslice title">'+titleST+'</span><p>'+valuesST+'<p>'+sourceST;
+
+var titleUT = 'Uptime';
+var sourceUT = 'Source: '+sourceComon;
+var valuesUT = 'Unit: <b>days</b>';
+var detailUT = 'The continuous uptime until the moment that the page is loaded, as reported by the CoMon html query API.';
+var descUT = '<span class="myslice title">'+titleUT+'</span><p>'+detailUT+'<p>'+valuesUT+'<p>'+sourceUT;
 
 
 //Categorization of columns in different types, useful for filtering 
@@ -349,20 +362,21 @@ function overrideTitles() {
 //When the checkbox is clicked. Adds/removes column respectively
 function changeCheckStatus(column) {
 
+	var h = document.getElementById(column).value;
+
 	if (document.getElementById('selectdescr'))
-		showDescription(document.getElementById(column).value);
+		showDescription(h);
+
+	//debugfilter("HERE: "+column+" - "+document.getElementById('type '+column).value);
+	//debugfilter("HERE: "+column);
+
 
 	if (document.getElementById(column).checked)
-		addColumn(document.getElementById(column).value, true);
+		addColumn(h, true, document.getElementById('type'+h).value);
 	else
-		deleteColumn(document.getElementById(column).value);
+		deleteColumn(h);
 }
 
-function removeSelectHandler(object)
-{
-	debugfilter(object);
-        object.onclick = null;
-}
 
 
 //This function is used when the alternative "quick" selection list is used
@@ -390,6 +404,23 @@ function changeSelectStatus(column) {
 		}
 	}
 }
+
+function updateReferenceNode(new_ref_node) {
+
+	var old_ref_node = document.getElementById('selected_reference_node').value;
+	document.getElementById('selected_reference_node').value=new_ref_node;
+
+	//debugfilter("changed "+old_ref_node+" with "+new_ref_node);
+
+	if (document.getElementById('checkHC').checked)
+	{
+		addColumnAjax('HC', 'HC');
+		//debugfilter("replacing "+old_ref_node+" with "+new_ref_node);
+		replaceColumnConfiguration('HC:'+old_ref_node,'HC:'+new_ref_node);
+	}
+
+}
+
 
 //When the period of an already selected column is changed
 function updatePeriod(h, new_period) {
@@ -454,7 +485,7 @@ function closeMessage(tab)
 	var person_id = document.getElementById('person_id').value;
 	var tag_id = document.getElementById('show_tag_id').value;
 	
-        var url = "/plekit/php/updateConfiguration.php?value="+value+"&slice_id="+slice_id+"&person_id="+person_id+"&tag_id="+tag_id;
+        var url = "/plekit/php/updateConfiguration.php?value="+value+"&slice_id="+slice_id+"&person_id="+person_id+"&tag_name=showconf&tag_id="+tag_id;
 	//debugfilter("updating conf with "+url);
 	document.getElementById('show_configuration').value = value;
 
@@ -525,7 +556,7 @@ function updateColumnConfiguration(value, reload)
             }
           }
 
-        xmlhttp.open("GET","/plekit/php/updateConfiguration.php?value="+new_configuration+"&slice_id="+slice_id+"&person_id="+person_id+"&tag_id="+tag_id,true);
+        xmlhttp.open("GET","/plekit/php/updateConfiguration.php?value="+new_configuration+"&slice_id="+slice_id+"&person_id="+person_id+"&tag_name=columnconf&tag_id="+tag_id,true);
         //xmlhttp.open("GET","/plekit/php/updateConf.php?value="+value+"&slice_id="+slice_id+"&person_id="+person_id+"&tagName=Columnconf",true);
 
         xmlhttp.send();
@@ -557,11 +588,17 @@ function sortCompleteCallback(tableid) {
 	for(var i = 0, th; th = ths[i]; i++) {
 	if (th.className.indexOf("Sort") != -1)
 	{
+		//debugfilter("sorted"+th.getAttribute("name"));
+
+		var column_name = th.getAttribute("name");
 		var hclass = th.className;
 		var column = hclass.substr(hclass.indexOf("column"),hclass.indexOf("column")+1);
-		var sortdirection = hclass.substr(hclass.indexOf("Sort")-8,hclass.indexOf("Sort"));
+		var sortdirection = "forward";
+		if (hclass.indexOf("reverse")!=-1)
+			sortdirection = "reverse";
+
 		if (column.indexOf("column-1")==-1 && column.indexOf("column-0")==-1)
-			logSortingAction(person_id, slice_id, tableid+"|"+column+"|"+sortdirection);
+			logSortingAction(person_id, slice_id, tableid+"|"+column_name+"|"+sortdirection);
 	}
 	}
 }
@@ -609,9 +646,11 @@ function replaceColumnConfiguration(column_old, column_new) {
 	var old_columns = old_configuration.split("|");
 	var new_columns = new Array();
 
+	var olds = column_old.split(':');
+
 	for (var column_index = 0; column_index < old_columns.length ; column_index++) {
 		var conf = old_columns[column_index].split(':');
-		if (conf[0] != column_old)
+		if (conf[0] != olds[0])
 			new_columns.push(old_columns[column_index]);
 		else
 			new_columns.push(column_new);
@@ -629,9 +668,37 @@ ADD/REMOVE COLUMNS
 */
 
 
+function convert_data(value, data_source, data_type, tagname) {
+
+	//debugfilter("v["+tagname+"]="+value+"-");
+
+	if (value == "" || value == "n/a" || value == null || value == "NaN" || value == "None")
+		return "n/a";
+
+	if (tagname == "uptime") {
+		return parseInt((parseFloat(value) / 86400));
+	}
+	
+	if (data_type == "date") {
+
+		var date = new Date(value*1000);
+
+		var year = date.getFullYear();
+		var month = date.getMonth()+1;
+		if (month < 10)
+			month = "0"+month;
+		var day = date.getDate();
+		if (day < 10)
+			day = "0"+day;
+	
+		return year + '-' + month + '-' + day;
+	}
+
+	return value;
+}
 
 
-function load_data(column, header, url) {
+function load_data(column, header, url, data_source, data_type, tagname) {
 
 	//debugfilter("<br>loading "+url);
 	var req = getHTTPObject();
@@ -641,13 +708,13 @@ function load_data(column, header, url) {
 	req.onreadystatechange =
         function() {
                 if (req.readyState == 4)
-                { updateColumnData(column, header, req.responseText); }
+                { updateColumnData(column, header, req.responseText, data_source, data_type, tagname); }
         }
 	req.send(null);
 }
 
 
-function updateColumnData(column, header, data) {
+function updateColumnData(column, header, data, data_source, data_type, tagname) {
 
 var headers = header.split("|");
 var data_table = data.split("|"); 
@@ -655,10 +722,12 @@ var data_table = data.split("|");
 //debugfilter("<p>headers[0] = "+headers[0]);
 //debugfilter("<p>data[2] = "+data_table[2]);
 
-//debugfilter("data = "+data);
+//debugfilter("data = "+data + " with type "+data_type + " and source "+data_source);
 
 if (data != "")
 {
+  
+//debugfilter("GOT SOME DATA");
 
   var node_data;
 
@@ -680,10 +749,10 @@ if (data != "")
 
 	for (var h_index=0; h_index < headers.length; h_index++) {
 		
-		if (node_data[h_index+1] == "")
+		if (node_data[h_index+1] == "" || node_data[h_index+1] == "None")
 			data_array1[node_data[0]][h_index] = "n/a";
 		else
-			data_array1[node_data[0]][h_index] = node_data[h_index+1];
+			data_array1[node_data[0]][h_index] = convert_data(node_data[h_index+1], data_source, data_type, tagname);
 	}
 
   }
@@ -705,8 +774,8 @@ if (data != "")
     }
   }
 
+  //tablePaginater.init(table_id1);
   fdTableSort.init(table_id1);
-  tablePaginater.init(table_id1);
 
 //potential nodes
 if (data_table[node_index] == '---potential---')	
@@ -733,7 +802,7 @@ if (data_table[node_index] == '---potential---')
 		if (node_data[h_index+1] == "")
 			data_array2[node_data[0]][h_index] = "n/a";
 		else
-			data_array2[node_data[0]][h_index] = node_data[h_index+1];
+			data_array2[node_data[0]][h_index] = convert_data(node_data[h_index+1], data_source, data_type, tagname);
 	}
   }
 	
@@ -750,12 +819,15 @@ if (data_table[node_index] == '---potential---')
 		}
     }
   }
-
-  //fdTableSort.removeTableCache(table_id2);
   fdTableSort.init(table_id2);
-  tablePaginater.init(table_id2);
+  //tablePaginater.init(table_id2);
+
 }
 
+  //fdTableSort.removeTableCache(table_id2);
+  //document.getElementById('loading'+column).innerHTML = "";
+  //debugfilter("Reset sorting .....");
+  
 }
 
 document.getElementById('loading'+column).innerHTML = "";
@@ -789,6 +861,8 @@ function addColumnAjax(column, header) {
         var selectedperiod = document.getElementById('period'+column).value;
 
 	var fetched = document.getElementById('fetched'+column).value;
+	var data_source = document.getElementById('source'+column).value;
+	var data_type = document.getElementById('type'+column).value;
 	var to_load = false;
 
 	//debugfilter("<br>adding "+column+","+header+','+fetched+','+t);
@@ -807,8 +881,8 @@ function addColumnAjax(column, header) {
 	if (to_load)
 	{
 		document.getElementById('loading'+column).innerHTML = "<img width=10 src=/plekit/icons/ajax-loader.gif>";
-		var url = "/plekit/php/updateColumn.php?slice_id="+slice_id+"&tagName="+t;
-		load_data(column, header, url);
+		var url = "/plekit/php/updateColumn.php?slice_id="+slice_id+"&tagName="+t+"&data_type="+data_type+"&data_source="+data_source;
+		load_data(column, header, url, data_source, data_type, t);
 	}
 }
 
@@ -818,6 +892,7 @@ function addColumn(column, fetch) {
 
 	var selectedperiod="";
 	var header=column;
+	var conf="";
 
 
 	if (inTypeC(column)!=-1)
@@ -828,14 +903,22 @@ function addColumn(column, fetch) {
         selectedperiod = document.getElementById('period'+column).value;
 	header = column+""+selectedperiod;
 
-	//debugfilter("adding column "+column+" and header "+header);
+	if (inTypeD(column)!=-1)
+	{
+		conf = header+":"+document.getElementById('reference_node').value;
+		document.getElementById('selected_reference_node').value=document.getElementById('reference_node').value;
+	}
+	else
+		conf = header;
+
+	//debugfilter("adding column "+column+" and header "+header+" and conf = "+conf);
 
 	addColumnCells(header);
 
 	if (fetch)
 		addColumnAjax(column, header);
 
-	addColumnToConfiguration(header);
+	addColumnToConfiguration(conf);
 }
 
 
@@ -867,6 +950,13 @@ function deleteColumn(column) {
 /* 
  
 EXTRA
+
+
+function removeSelectHandler(object)
+{
+	debugfilter(object);
+        object.onclick = null;
+}
 
 //to be used for scrolling the column list with down/up arrows 
 

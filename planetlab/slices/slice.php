@@ -1,5 +1,7 @@
 <?php
 
+// $Id$
+
 // Require login
 require_once 'plc_login.php';
 
@@ -427,13 +429,14 @@ $visibletags = new VisibleTags ($api, 'node');
 $visibletags->columns();
 $tag_columns = $visibletags->headers();
 
-// extra columns that are not tags (for the moment not sorted correctly)
-
 $extra_columns = array();
 $extra_columns[]=array('tagname'=>'sitename', 'header'=>'SN', 'type'=>'string', 'title'=>'Site name', 'fetched'=>true);
 $extra_columns[]=array('tagname'=>'domain', 'header'=>'DN', 'type'=>'string', 'title'=>'Toplevel domain name', 'fetched'=>true);
 $extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string', 'title'=>'IP Address', 'fetched'=>true);
 $extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'uptime', 'header'=>'UT', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Continuous uptime until now', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'date_created', 'header'=>'DA', 'source'=>'myplc', 'type'=>'date', 'title'=>'Date added', 'fetched'=>false);
+
 
 //Get user's column configuration
 
@@ -512,6 +515,8 @@ $visiblecolumns = $ConfigureColumns->node_tags();
 $node_columns=array_merge($node_fixed_columns,$visiblecolumns);
 //print_r($node_columns);
 $all_nodes=$api->GetNodes(NULL,$node_columns);
+
+$ConfigureColumns->fetch_live_data($all_nodes);
 
 //print("<br>person show configuration = ".$show_configuration);
 
@@ -707,7 +712,7 @@ $note_display = "";
   print <<<EOF
 <div id='note_columns_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
 <table align=center><tr><td valign=top>
-This tab allows you to customize the columns in the node tables, below. Information on the nodes comes from a variety of monitoring sources. If you, as either a user or a provider of monitoring data, would like to see additional columns made available, please send us your request in mail to <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
+This tab allows you to customize the columns in the node tables, below. Information on the nodes comes from a variety of monitoring sources. If you, as either a user or a provider of monitoring data, would like to see additional columns made available, please send us your request in mail to <a href="mailto:support@myslice.info">support@myslice.info</a>. You can find more information about the MySlice project at <a href="http://trac.myslice.info">http://trac.myslice.info</a>.
 </td><td valign=top><span onClick=closeMessage('columns')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
 </td></tr></table>
 </div>
@@ -795,8 +800,10 @@ $table->cell($node['node_id'], array('display'=>'none'));
 //extra columns
 $node['domain'] = topdomain($hostname);
 $node['sitename'] = l_site_t($node['site_id'],$site_hash[$node['site_id']]);
-$node['ipaddress'] = l_interface_t($interface_id,$ip);
-
+if ($interface_id)
+        $node['ipaddress'] = l_interface_t($interface_id,$ip);
+  else
+        $node['ipaddress'] = "n/a";
 
  //foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
  $ConfigureColumns->cells($table, $node);

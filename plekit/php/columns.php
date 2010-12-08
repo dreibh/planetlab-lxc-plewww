@@ -20,12 +20,17 @@ var $fix_columns = array();
 var $tag_columns = array();
 var $extra_columns = array();
 
+var $comon_live_data = "";
+var $tophat_live_data = "";
+var $live_data = array();
+
 var $table_ids;
 
 var $HopCount = array();
 
   function PlekitColumns ($column_configuration, $fix_columns, $tag_columns, $extra_columns=NULL, $this_table_headers=NULL) {
 
+	if ($column_configuration != NULL) {
 	$this->fix_columns = $fix_columns;
 	$this->tag_columns = $tag_columns;
 	$this->extra_columns = $extra_columns;
@@ -41,6 +46,7 @@ var $HopCount = array();
 	$this->parse_configuration($column_configuration);
 
 	$this->visible_headers = $this->get_visible();
+	}
 
 	//print("<p>VISIBLE<p>");
 	//print_r($this->visible_headers);
@@ -58,7 +64,7 @@ INFO
 function prepare_headers() {
 
 foreach ($this->fix_columns as $column) {
-$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fixed'=>true, 'visible'=>false);
+$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fixed'=>true, 'visible'=>false, 'source'=>'myplc');
 }
 
 $tmp_headers = array();
@@ -70,13 +76,13 @@ else
 	$headerId = $column['header'];
 
 //$this->all_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
-$tmp_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false);
+$tmp_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false, 'source'=>'myplc');
 }
 
 if ($this->extra_columns)
 foreach ($this->extra_columns as $column) {
 //$this->all_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'],'visible'=>false);
-$tmp_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'], 'visible'=>false);
+$tmp_headers[$column['header']]=array('header'=>$column['header'],'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'], 'fetched'=>$column['fetched'], 'visible'=>false, 'source'=>$column['source']);
 
 usort ($tmp_headers, create_function('$col1,$col2','return strcmp($col1["label"],$col2["label"]);'));
 }
@@ -115,11 +121,11 @@ return "";
 
 function node_tags() {
 
-	$fetched_tags = array('node_id');	
+	$fetched_tags = array('node_id','hostname');	
 
 	foreach ($this->all_headers as $h)
 	{
-		if ($h['visible'] == true && $h['tagname'] != "" && !$h['fetched'])
+		if ($h['visible'] == true && $h['tagname'] != "" && !$h['fetched'] && $h['source']=="myplc")
 			$fetched_tags[] = $h['tagname'];
 	}
 
@@ -179,6 +185,7 @@ function parse_configuration($column_configuration) {
 
 	$columns_conf = explode("|", $column_configuration);
 
+
 	foreach ($columns_conf as $c)
 	{
         	$conf = explode(":",$c);
@@ -186,7 +193,24 @@ function parse_configuration($column_configuration) {
 		if ($conf[0] == "default")
 			continue;
 
+		if (!$this->all_headers[$conf[0]])
+			continue;
+
                 $this->all_headers[$conf[0]]['visible']=true;
+
+		if ($this->all_headers[$conf[0]]['source'] == "comon")
+			$this->comon_live_data.=",".$this->all_headers[$conf[0]]['tagname'];
+
+		if ($this->all_headers[$conf[0]]['source'] == "tophat")
+		{
+                	$this->reference_node = $conf[1];
+			print ("ref node in configuration = ".$conf[1]);
+                	$this->reference_node = "planetlab-europe-07.ipv6.lip6.fr";
+                	$this->all_headers[$conf[0]]['refnode']=$this->reference_node;
+                	//$threshold = explode(",",$conf[1]);
+                	//$this->all_headers[$conf[0]]['threshold']=$threshold;
+		}
+
 		//print("<p>-".$conf[0]."-should be visible now - ".$this->all_headers[$conf[0]]['visible']);
 		//print_r($this->all_headers[$conf[0]]);
 
@@ -197,14 +221,6 @@ function parse_configuration($column_configuration) {
 		else if ($this->inTypeC($conf[0]))
         	{
                 	$this->all_headers[$conf[0]]['duration']= substr($conf[0], strlen($conf[0])-1, strlen($conf[0]));
-                	$threshold = explode(",",$conf[1]);
-                	$this->all_headers[$conf[0]]['threshold']=$threshold;
-        	}
-        	else if ($this->inTypeD($conf[0]))
-        	{
-                	$this->reference_node = $conf[1];
-                	$this->reference_node = "planetlab-europe-07.ipv6.lip6.fr";
-                	$this->all_headers[$conf[0]]['refnode']=$this->reference_node;
                 	$threshold = explode(",",$conf[1]);
                 	$this->all_headers[$conf[0]]['threshold']=$threshold;
         	}
@@ -220,6 +236,7 @@ function parse_configuration($column_configuration) {
         	}
 */
 	}
+
 }
 
 
@@ -232,46 +249,110 @@ CELLS
 
 */
 
-function getHopCount($ref_node, $planetlab_nodes)
-{
+function convert_data($value, $data_type) {
 
-$tophat_auth = array( 'AuthMethod' => 'password', 'Username' => 'guest', 'AuthString' => 'guest');
-$tophat_api = new TopHatAPI($tophat_auth);
+	if ($value == "" || $value == null || $value == "n/a" || $value == "None")
+		return "n/a";
 
-$traceroute = $tophat_api->Get('traceroute', 'latest', array('src_hostname' => $ref_node, 'dst_hostname' => $planetlab_nodes), array('dst_hostname', 'hop_count') );
+	if ($data_type == "string")
+		return $value;
 
-$hopcount = array();
+	if ($data_type == "date") 
+		return date("Y-m-d", $value);
 
-if ($traceroute) foreach ($traceroute as $t)
-$hopcount[$t['dst_hostname']]=$t['hop_count'];
-return $hopcount;
+	if ($data_type == "uptime") 
+		return (int)((int) $value / 86400);
+	
+	return ((int) ($value * 10))/10;
+
+}
+
+function getHopCount($ref_node, $planetlab_nodes) {
+
+	$tophat_auth = array( 'AuthMethod' => 'password', 'Username' => 'guest', 'AuthString' => 'guest');
+	$tophat_api = new TopHatAPI($tophat_auth);
+
+	$traceroute = $tophat_api->Get('traceroute', 'latest', array('src_hostname' => $ref_node, 'dst_hostname' => $planetlab_nodes), array('dst_hostname', 'hop_count') );
+
+	$hopcount = array();
+
+	if ($traceroute) foreach ($traceroute as $t)
+		$hopcount[$t['dst_hostname']]=$t['hop_count'];
+
+	return $hopcount;
+}
+
+function comon_query_nodes($requested_data) {
+	//$base_url = 'http://comon.cs.princeton.edu/status/tabulator.cgi?forma=nameonly&';
+	$base_url = "http://comon.cs.princeton.edu/status/tabulator.cgi?table=table_nodeviewshort&format=formatcsv&dumpcols='name";
+
+	$url = $base_url.$requested_data."'";
+
+	//print ("retriecing comon data for url ".$url);
+
+	$sPattern = '\', \'';
+	$sReplace = '|';
+
+	if( false == ($str=file_get_contents($url)))
+       		return '';
+
+     	$result=preg_replace( $sPattern, $sReplace, $str );
+	$sPattern = '/\s+/';
+	$sReplace = ';';
+     	$result=preg_replace( $sPattern, $sReplace, $result );
+
+	$comon_data = explode(";", $result);
+	$cl = array();
+	$comon_values = array();
+
+	foreach ($comon_data as $cd) {
+		$cc = explode("|", $cd);
+		if ($cc[0] == "name") {
+			$cl = $cc;
+		}
+		$comon_values[$cc[0]] = array();
+		$cindex=1;
+		foreach ($cl as $cltag) {
+			if ($cltag != "name")
+				$comon_values[$cc[0]][$cltag] = $cc[$cindex++];
+		}
+	}
+
+	return $comon_values;
 }
 
 
 //Depending on the columns selected more data might need to be fetched from
 //external sources
 
-function fetch_data($nodes) {
+function fetch_live_data($all_nodes) {
+
+	//print("<p>fetching live data<p>");
+
+//comon data
+	if ($this->comon_live_data != "") {
+	
+		//print ("live data to be fetched =".$this->comon_live_data);
+		$this->live_data = $this->comon_query_nodes($this->comon_live_data);
+		//print_r($this->live_data);
+	}
+
 
 //TopHat pairwise data
-
+	//if ($this->tophat_live_data != "")
 	if ($this->reference_node != "")
 	{
 		$dd = array();
 
-		if ($nodes) foreach ($nodes as $n)
-			$dd[] = $n['hostname'];
-
-		if ($potential_nodes) foreach ($potential_nodes as $n)
+		if ($all_nodes) foreach ($all_nodes as $n)
 			$dd[] = $n['hostname'];
 
 		print("Calling tophat api for reference node = ".$this->reference_node);
 		$st = time() + microtime();
 		$HopCount = $this->getHopCount($this->reference_node, $dd);
 		printf(" (%.2f ms)<br/>", (time() + microtime()-$st)*100);
-		//print_r($HopCount);
+		print_r($HopCount);
 	}
-
 }
 
 
@@ -307,14 +388,14 @@ function checkThreshold($value, $threshold, $hh) {
 
 function cells($table, $node) {
 
-$this->fetch_data($node);
-
 foreach ($this->all_headers as $h)
 {
 if (!$h['fixed']) { 
 
 if ($h['visible'] != "")
 {
+
+/*
 if ($this->inTypeC($h['header']))
 {
         $tagname = $h['tagname'];
@@ -340,17 +421,37 @@ else if ($this->inTypeA($h['header']))
         $v = $this->excludeItems($value, $h['exclude_list'], $h['header']);
         $table->cell($v[0],$v[1]);
 }
+*/
+if ($h['type'] == "date")
+{
+        $value = $this->convert_data($node[$h['tagname']], $h['type']);
+        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+}
+else if ($h['source'] == "comon")
+{
+	//print("<br>Searching for ".$h['tagname']."at ".$node);
+        $value = $this->convert_data($this->live_data[$node['hostname']][$h['tagname']], $h['tagname']);
+
+        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+}
 else
 {
-        $value = $node[$h['tagname']];
+        //$value = $node[$h['tagname']];
+        $value = $this->convert_data($node[$h['tagname']], $h['type']);
         $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
 }
 }
 else 
 	if ($node[$h['tagname']])
-        	$table->cell($node[$h['tagname']], array('name'=>$h['header'], 'display'=>'none'));
+	{
+        	$value = $this->convert_data($node[$h['tagname']], $h['type']);
+        	$table->cell($value, array('name'=>$h['header'], 'display'=>'none'));
+	}
 	else
-        	$table->cell("??", array('name'=>$h['header'], 'display'=>'none'));
+		if ($node[$h['fetched']])
+        		$table->cell("n/a", array('name'=>$h['header'], 'display'=>'none'));
+		else
+        		$table->cell("??", array('name'=>$h['header'], 'display'=>'none'));
 }
 }
 
@@ -366,7 +467,7 @@ HTML
 
 function javascript_init() {
 
-print("<input type='hidden' id='reference_node' value='".$this->reference_node."' />");
+print("<input type='hidden' id='selected_reference_node' value='".$this->reference_node."' />");
 
 print("<script type='text/javascript'>");
 print("highlightOption('AU');");
@@ -374,8 +475,6 @@ print("overrideTitles();");
 print("</script>");
 
 }
-
-
 
 function quickselect_html() {
 
@@ -481,6 +580,8 @@ print ("<table>");
         	print ("<tr><td>
 <input type='hidden' id='fetched".$h['label']."' value=',".$period.",".$fetch."'></input>
 <input type='hidden' id='period".$h['label']."' value='".$period."'></input>
+<input type='hidden' id='type".$h['label']."' value='".$h['type']."'></input>
+<input type='hidden' id='source".$h['label']."' value='".$h['source']."'></input>
 		<div id='".$h['label']."' name='columnlist' class='".$optionclass."' onclick='highlightOption(this.id)'>
 <table width=280 id='table".$h['label']."'><tr>
 <td bgcolor=#CAE8EA align=center width=30><b><span style='color:#3399CC'>".$h['label']."</span></b></td> 
