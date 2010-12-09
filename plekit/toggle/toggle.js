@@ -24,6 +24,15 @@ function plc_show_toggle_info(div, id) {
 
 	if (document.getElementById(div).style.display == "none") 
 		document.getElementById(div).style.display = "";
+	else
+		document.getElementById(div).style.display = "none";
 
-	plc_toggle(id);
+	if(! area.visible()){
+		area.toggle();
+		visible.show();
+		hidden.hide();
+		document.getElementById(div).style.display = "";
+	}
+
+	//plc_toggle(id);
 }
