@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 56
+%define taglevel 57
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,12 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Thu Dec 09 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-57
+- on-the-fly retrieval of data at comon & tophat (unused so far)
+- use accessors to store person's preference of columns
+- fix in toggle.js for the '?' button, node table layout tab
+- sort actions logging improved
+
 * Tue Dec 07 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-56
 - keep people from disabling or deleting themselves
 - cannot become a disabled person
