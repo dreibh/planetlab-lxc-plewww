@@ -85,10 +85,15 @@ function generic_search ($type,$field,$tokens) {
   global $api;
   $results=array();
   $methodname='Get'.$type;
+  /*
+    This was broken after 598e1e840b55262fd40c6d1700148e4f0b508065 change in plcapi.
+    We no longer generate a list of methods but let the api (php) object pass them through.
+
   if ( ! method_exists($api,$methodname)) {
     plc_error("generic_search failed with methodname=$methodname");
     return $results;
   }
+  */
   foreach ($tokens as $token) {
     $filter=array($field=>token_pattern($token));
     $new_results = $api->$methodname($filter);
