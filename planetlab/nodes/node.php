@@ -428,7 +428,7 @@ if ( $local_peer ) {
     // set tag area
     $table->row_start();
     // get list of tag names in the node/* category    
-    $all_tags= $api->GetTagTypes( array ("category"=>"node*"), array("tagname","tag_type_id"));
+    $all_tags= $api->GetTagTypes( array ("category"=>"node*","-SORT"=>"tagname"), array("tagname","tag_type_id"));
     // xxx cannot use onchange=submit() - would need to somehow pass action name 
     function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
     $selector=array_map("tag_selector",$all_tags);
