@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 57
+%define taglevel 58
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Sun Jan 23 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-58
+- display tags in alphabetic order in node view, tags section, the drop down menu
+
 * Thu Dec 09 2010 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-57
 - on-the-fly retrieval of data at comon & tophat (unused so far)
 - use accessors to store person's preference of columns
