@@ -95,6 +95,11 @@ if ( $_POST['add-slice'] ) {
 	} else {
 	  drupal_set_message("Successfully set the 'omf_control' tag on slice");
 	}
+	if ($api->SetSliceVref($slice_id,'omf') != 'omf') {
+	  drupal_set_error("Could not set the 'vref' tag on newly created slice...");
+	} else {
+	  drupal_set_message("Successfully set the 'vref' tag on slice");
+	}
       }
 
       if ($person_ids) {
