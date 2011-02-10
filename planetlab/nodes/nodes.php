@@ -75,9 +75,9 @@ function node_status ($node) {
 $first_time_configuration = false;
 
 if (plc_is_admin()) 
-	$default_configuration = "ID:f|hostname:f|ST:f|AU:f";
+	$default_configuration = "ID:f|hostname:f|ST:f|AU:f|RES:f";
 else
-	$default_configuration = "hostname:f|ST:f|AU:f";
+	$default_configuration = "hostname:f|ST:f|AU:f|RES:f";
 
 //$extra_default = "LCN|DN|R|L|OS|MS|SN";
 $column_configuration = "";
@@ -151,7 +151,7 @@ $fix_columns[]=array('tagname'=>'node_id', 'header'=>'ID', 'type'=>'string', 'ti
 $fix_columns[]=array('tagname'=>'hostname', 'header'=>'hostname', 'type'=>'string', 'title'=>'The name of the node');
 $fix_columns[]=array('tagname'=>'peer_id', 'header'=>'AU', 'type'=>'string', 'title'=>'Authority');
 $fix_columns[]=array('tagname'=>'run_level', 'header'=>'ST', 'type'=>'string', 'title'=>'Status');
-//$fix_columns[]=array('tagname'=>'node_type', 'header'=>'RES', 'type'=>'string', 'title'=>'Reservable');
+$fix_columns[]=array('tagname'=>'node_type', 'header'=>'RES', 'type'=>'string', 'title'=>'Reservable');
 
 
 $visibletags = new VisibleTags ($api, 'node');
@@ -414,6 +414,7 @@ foreach ($nodes as $node) {
 
   list($label,$class) = Node::status_label_class_($node);
   $table->cell ($label,array('class'=>$class));
+  $table->cell( ($node['node_type']=='reservable')?reservable_mark():"" );
   //$table->cell (count($node['slice_ids']));
   //foreach ($visiblecolumns as $tagname) $table->cell($node[$tagname]);
   $ConfigureColumns->cells($table, $node);
