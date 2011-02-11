@@ -716,8 +716,8 @@ print("<input type='hidden' id='show_tag_id' value='".$show_tag_id."' />");
 print("<input type='hidden' id='show_configuration' value='".$show_configuration."' />");
 print("<input type='hidden' id='column_configuration' value='".$slice_column_configuration."' />");
 print("<br><input type='hidden' size=80 id='full_column_configuration' value='".$column_configuration."' />");
-print("<input type='hidden' id='previousConf' value='".$slice_column_configuration."'></input>");
-print("<input type='hidden' id='defaultConf' value='".$default_configuration."'></input>");
+print("<input type='hidden' id='previousConf' value='".$slice_column_configuration."' />");
+print("<input type='hidden' id='defaultConf' value='".$default_configuration."' />");
 
 //print ("showing column message = ".$show_columns_message);
 if ($show_columns_message == '0') 
