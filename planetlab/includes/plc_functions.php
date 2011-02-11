@@ -1,6 +1,7 @@
 <?php
 
-// $Id$
+// install the default timezone as defined in php.ini
+date_default_timezone_set(ini_get('date.timezone'));
 
 # note: this needs to be consistent with the value in Monitor/monitor/wrapper/plc.py
 global $PENDING_CONSORTIUM_ID;
