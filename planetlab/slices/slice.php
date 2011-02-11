@@ -606,15 +606,22 @@ This feature is still experimental; feedback is appreciated at <a href="mailto:d
 EOF;
 }  
 
+  // get settings from environment, otherwise set to defaults
+  // when to start, in hours in the future from now
+  $resa_offset=$_GET['resa_offset'];
+  if ( ! $resa_offset ) $resa_offset=0;
+  // how many timeslots to show
+  $resa_slots=$_GET['resa_slots'];
+  if ( ! $resa_slots ) $resa_slots = 36;
+  // the width in pixel for each timeslot
+  $resa_x_grain = $_GET['resa_x_grain'];
+  if ( ! $resa_x_grain) $resa_x_grain=20;
+
   $grain=$api->GetLeaseGranularity();
   if ($profiling) plc_debug_prof('6 granul',$grain);
   // where to start from, expressed as an offset in hours from now
-  $resa_offset=$_GET['resa_offset'];
-  if ( ! $resa_offset ) $resa_offset=0;
   $rough_start=time()+$resa_offset*3600;
   // show the next 36 grains 
-  $resa_slots=$_GET['resa_slots'];
-  if ( ! $resa_slots ) $resa_slots = 36;
   $duration=$resa_slots*$grain;
   $steps=$duration/$grain;
   $start=intval($rough_start/$grain)*$grain;
@@ -634,11 +641,11 @@ EOF;
     $lease['nuntil']=($lease['t_until']-$start)/$grain;
     $host_hash[$hostname] []= $lease;
   }
-  # leases_data is the name used by leases.js to locate this table
+  // leases_data is the name used by leases.js to locate this table
   echo "<table id='leases_data'>";
-  # pass (slice_id,slicename) as the [0,0] coordinate as thead>tr>td
-  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . "</td>";
-  # the timeslot headers read (timestamp,label)
+  // pass (slice_id,slicename,x_grain) in the upper-left cell, as thead>tr>td
+  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . '&' . $resa_x_grain . "</td>";
+  // the timeslot headers read (timestamp,label)
   $day_names=array('Su','M','Tu','W','Th','F','Sa');
   for ($i=0; $i<$steps; $i++) {
     $timestamp=($start+$i*$grain);

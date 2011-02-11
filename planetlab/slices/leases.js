@@ -10,11 +10,12 @@ var y_header = 12;
 var y_sep = 10;
 
 // 1-grain leases attributes
-var x_grain = 20;
+// x_grain is configurable from $_GET
+//var x_grain = 20;
 var y_node = 15;
 var radius= 6;
 
-var anim_delay=500;
+var anim_delay=350;
 
 /* decorations / headers */
 /* note: looks like the 'font' attr is not effective... */
@@ -27,10 +28,10 @@ var txt_timelabel = {"font": 'Times, "Trebuchet MS", Verdana, Arial, Helvetica, 
 var txt_allnodes = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#404"};
 var txt_nodelabel = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-serif', stroke: "none", fill: "#008"};
 
-var attr_timebutton = {'fill':'#bbf', 'stroke': '#338','stroke-width':2, 
+var attr_timebutton = {'fill':'#bbf', 'stroke': '#338','stroke-width':1, 
 		       'stroke-linecap':'round', 'stroke-linejoin':'miter', 'stroke-miterlimit':3};
-// keep consistent with sizes above - need for something nicer
-var timebutton_path = "M1,0L19,0L10,8L1,0";
+var attr_daymarker = {'stroke':'#000','stroke-width':2};
+var attr_half_daymarker = {'stroke':'#444','stroke-width':2};
 
 /* lease dimensions and colors */
 /* refrain from using gradient color, seems to not be animated properly */
@@ -50,7 +51,7 @@ var txt_otherslice = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-s
 
 ////////////////////////////////////////////////////////////
 // the scheduler object
-function Scheduler (sliceid, slicename, axisx, axisy, data) {
+function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 
     // the data contains slice names, and lease_id, we need this to find our own leases (mine)
     this.sliceid=sliceid;
@@ -58,6 +59,10 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
     this.axisx=axisx;
     this.axisy=axisy;
     this.data=data;
+
+    this.x_grain = parseInt(x_grain);
+    // the path for the triangle-shaped buttons
+    this.timebutton_path="M1,0L"+(this.x_grain-1)+",0L"+(this.x_grain/2)+","+y_header+"L1,0";
 
     // utilities to keep track of all the leases
     this.leases=[];
@@ -69,7 +74,7 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
     this.nb_grains = function () { return axisx.length;}
 
     this.init = function (canvas_id) {
-	this.total_width = x_nodelabel + this.nb_grains()*x_grain; 
+	this.total_width = x_nodelabel + this.nb_grains()*this.x_grain; 
 	this.total_height =   2*y_header /* the timelabels */
 			    + 2*y_sep    /* extra space */
                 	    + y_node	 /* all-nodes & timebuttons row */ 
@@ -83,10 +88,16 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 	var top=0;
 	var left=x_nodelabel;
 
+	var daymarker_height= 2*y_header+2*y_sep + (axisy.length+1)*(y_node+y_sep);
+	var daymarker_path="M0,0L0," + daymarker_height;
+
+	var half_daymarker_off= 2*y_header+y_sep;
+	var half_daymarker_path="M0," + half_daymarker_off + "L0," + daymarker_height;
+
 	var col=0;
 	for (var i=0, len=axisx.length; i < len; ++i) {
 	    // pick the printable part
-	    timelabel=axisx[i][1];
+	    var timelabel=axisx[i][1];
 	    var y = top+y_header;
 	    if (col%2 == 0) y += y_header;
 	    col +=1;
@@ -96,12 +107,19 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 	    // draw vertical line
 	    var path_spec="M"+left+" "+(y+y_header/2)+"L"+left+" "+this.total_height;
 	    var rule=paper.path(path_spec).attr(attr_rules);
-	    left+=x_grain;
+	    // show a day marker when relevant
+	    var timestamp=parseInt(axisx[i][0]);
+	    if ( (timestamp%(24*3600))==0) {
+		paper.path(daymarker_path).attr({'translation':left+','+top}).attr(attr_daymarker);
+	    } else if ( (timestamp%(12*3600))==0) {
+		paper.path(half_daymarker_path).attr({'translation':left+','+top}).attr(attr_daymarker);
+	    }
+	    left+=(this.x_grain);
 	}
 
+	////////// the row with the timeslot buttons (the one labeled 'All nodes')
 	this.granularity=axisx[1][0]-axisx[0][0];
 
-	////////// the row with the timeslot buttons
 	// move two lines down
 	top += 2*y_header+2*y_sep;
 	left=x_nodelabel;
@@ -112,11 +130,11 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 	allnodes.click(allnodes_methods.click);
 	// timeslot buttons
 	for (var i=0, len=axisx.length; i < len; ++i) {
-	    var timebutton=paper.path(timebutton_path).attr({'translation':left+','+top}).attr(attr_timebutton);
+	    var timebutton=paper.path(this.timebutton_path).attr({'translation':left+','+top}).attr(attr_timebutton);
 	    timebutton.from_time=axisx[i][0];
 	    timebutton.scheduler=this;
 	    timebutton.click(timebutton_methods.click);
-	    left+=x_grain;
+	    left+=(this.x_grain);
 	}
 	
 	//////// the body of the scheduler : loop on nodes
@@ -137,7 +155,7 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 		lease_id=data[data_index][0];
 		slicename=data[data_index][1];
 		duration=data[data_index][2];
-		var lease=paper.rect (left,top,x_grain*duration,y_node,radius);
+		var lease=paper.rect (left,top,this.x_grain*duration,y_node,radius);
 		lease.lease_id=lease_id;
 		lease.nodename=nodename;
 		lease.nodelabel=nodelabel;
@@ -159,7 +177,7 @@ function Scheduler (sliceid, slicename, axisx, axisy, data) {
 		// and vice versa
 		this.append_lease(lease);
 		// move on with the loop
-		left += x_grain*duration;
+		left += this.x_grain*duration;
 		data_index +=1;
 	    }
 	    top += y_node + y_sep;
@@ -367,6 +385,11 @@ function init_scheduler () {
     var table = $$("table#leases_data")[0];
     // no reservable nodes - no data
     if ( ! table) return;
+    // upper-left cell : sliceid & slicename & x_grain
+    var slice_attributes = getInnerText(table.getElementsBySelector("thead>tr>td")[0]).split('&');
+    var sliceid=slice_attributes[0];
+    var slicename=slice_attributes[1];
+    var x_grain=slice_attributes[2];
     // the nodelabels
     table.getElementsBySelector("tbody>tr>th").each(function (cell) {
         axisy.push(getInnerText(cell));
@@ -390,11 +413,7 @@ function init_scheduler () {
 	}
         data.push(cell_data);
     });
-    // sliceid & slicename : the upper-left cell
-    var slice_attributes = getInnerText(table.getElementsBySelector("thead>tr>td")[0]).split('&');
-    var sliceid=slice_attributes[0];
-    var slicename=slice_attributes[1];
-    var scheduler = new Scheduler (sliceid,slicename, axisx, axisy, data);
+    var scheduler = new Scheduler (sliceid,slicename, x_grain, axisx, axisy, data);
     table.hide();
     // leases_area is a <div> created by slice.php as a placeholder
     scheduler.init ("leases_area");
