@@ -613,10 +613,9 @@ EOF;
   $resa_offset=$_GET['resa_offset'];
   if ( ! $resa_offset ) $resa_offset=0;
   $rough_start=time()+$resa_offset*3600;
-  // xxx should be configurable
+  // show the next 36 grains 
   $resa_slots=$_GET['resa_slots'];
   if ( ! $resa_slots ) $resa_slots = 36;
-  // for now, show the next 72 hours, or 72 grains, which ever is smaller
   $duration=$resa_slots*$grain;
   $steps=$duration/$grain;
   $start=intval($rough_start/$grain)*$grain;
