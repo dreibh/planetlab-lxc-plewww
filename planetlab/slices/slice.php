@@ -599,8 +599,7 @@ Your slivers will be available only during timeslots
 where you have obtained leases. 
 You can manage your leases in the tab below.
 <br>
-Please note that as of August 2010 this feature is experimental. 
-Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
+This feature is still experimental; feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
 </td><td valign=top><span onClick=closeMessage('reservable')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message"></span>
 </td></tr></table>
 </div>
