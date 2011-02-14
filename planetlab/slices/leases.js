@@ -10,8 +10,8 @@ var y_header = 12;
 var y_sep = 10;
 
 // 1-grain leases attributes
-// x_grain is configurable from $_GET
-//var x_grain = 20;
+// w_grain is configurable from $_GET
+//var w_grain = 20;
 var y_node = 15;
 var radius= 6;
 
@@ -51,36 +51,103 @@ var txt_otherslice = {"font": '"Trebuchet MS", Verdana, Arial, Helvetica, sans-s
 
 ////////////////////////////////////////////////////////////
 // the scheduler object
-function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
+function Scheduler (sliceid, slicename, w_grain) {
+
+    // xxx-hacky dunno how to retrieve this object from an ajax callback
+    Scheduler.scheduler=this;
 
     // the data contains slice names, and lease_id, we need this to find our own leases (mine)
     this.sliceid=sliceid;
     this.slicename=slicename;
-    this.axisx=axisx;
-    this.axisy=axisy;
-    this.data=data;
+    this.paper=null;
 
-    this.x_grain = parseInt(x_grain);
+    this.w_grain = parseInt(w_grain);
     // the path for the triangle-shaped buttons
-    this.timebutton_path="M1,0L"+(this.x_grain-1)+",0L"+(this.x_grain/2)+","+y_header+"L1,0";
-
-    // utilities to keep track of all the leases
-    this.leases=[];
-    this.append_lease = function (lease) { 
-	this.leases.push(lease);
-    }
+    this.timebutton_path="M1,0L"+(this.w_grain-1)+",0L"+(this.w_grain/2)+","+y_header+"L1,0";
 
     // how many time slots 
-    this.nb_grains = function () { return axisx.length;}
+    this.nb_grains = function () { return this.axisx.length;}
 
-    this.init = function (canvas_id) {
-	this.total_width = x_nodelabel + this.nb_grains()*this.x_grain; 
+    ////////////////////
+    // store the result of an ajax request in the leases_data table 
+    this.set_html = function (html_data) {
+	var table_text = $$("table#leases_data")[0].innerHTML;
+	$$("table#leases_data")[0].innerHTML=html_data;
+	table_text = $$("table#leases_data")[0].innerHTML;
+	return true;
+    }
+
+    ////////////////////
+    // the names of the hidden fields that hold the input to this class
+    // are hard-wired for now
+    this.parse_html = function () {
+	this.sliceid=getInnerText($$("span#leases_sliceid")[0]).strip();
+	this.slicename=getInnerText($$("span#leases_slicename")[0]).strip();
+	this.leases_grain=getInnerText($$("span#leases_grain")[0]).strip();
+	this.leases_offset=getInnerText($$("span#leases_offset")[0]).strip();
+	this.leases_slots=getInnerText($$("span#leases_slots")[0]).strip();
+	this.leases_w=getInnerText($$("span#leases_w")[0]).strip();
+	
+	var table = $$("table#leases_data")[0];
+	// no reservable nodes - no data
+	if ( ! table) return false;
+	// check for the body too xxx
+	// the nodelabels
+	var data = [], axisx = [], axisy = [];
+	table.getElementsBySelector("tbody>tr>th").each(function (cell) {
+            axisy.push(getInnerText(cell));
+	});
+
+	// the timeslot labels
+	table.getElementsBySelector("thead>tr>th").each(function (cell) {
+	    /* [0]: timestamp -- [1]: displayable*/
+            axisx.push(getInnerText(cell).split("&"));
+	});
+
+	// leases - expect colspan to describe length in grains
+	// the text contents is expected to be lease_id & slicename
+	table.getElementsBySelector("tbody>tr>td").each(function (cell) {
+	    var cell_data;
+	    var slice_attributes=getInnerText(cell).split('&');
+	    // booked leases come with lease id and slice name
+	    if (slice_attributes.length == 2) {
+		// leases is booked : slice_id, slice_name, duration in grains
+		cell_data=new Array (slice_attributes[0], slice_attributes[1], cell.colSpan);
+	    } else {
+		cell_data = new Array ('','',cell.colSpan);
+	    }
+            data.push(cell_data);
+	});
+
+	this.axisx=axisx;
+	this.axisy=axisy;
+	this.data=data;
+	return true;
+    }
+
+    ////////////////////
+    // draw 
+    this.draw_area = function (canvas_id) {
+	this.total_width = x_nodelabel + this.nb_grains()*this.w_grain; 
 	this.total_height =   2*y_header /* the timelabels */
 			    + 2*y_sep    /* extra space */
                 	    + y_node	 /* all-nodes & timebuttons row */ 
          		    + (this.axisy.length)*(y_node+y_sep);  /* the regular nodes and preceding space */
-	paper = Raphael (canvas_id, this.total_width+x_sep, this.total_height);
+	// reuse for paper if exists with same size, or (re-)create otherwise
+	var paper;
+	if (this.paper == null) {
+	    paper = Raphael (canvas_id, this.total_width+x_sep, this.total_height);
+	} else if (this.paper.width==this.total_width && this.paper.height==this.total_height) {
+	    paper=this.paper;
+	    paper.clear();
+	} else {
+	    $$("#"+canvas_id)[0].innerHTML="";
+	    paper = Raphael (canvas_id, this.total_width+x_sep, this.total_height);
+	}
+	this.paper=paper;
 
+	var axisx=this.axisx;
+	var axisy=this.axisy;
 	// maintain the list of nodelabels for the 'all nodes' button
 	this.nodelabels=[];
 
@@ -114,7 +181,7 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 	    } else if ( (timestamp%(12*3600))==0) {
 		paper.path(half_daymarker_path).attr({'translation':left+','+top}).attr(attr_daymarker);
 	    }
-	    left+=(this.x_grain);
+	    left+=(this.w_grain);
 	}
 
 	////////// the row with the timeslot buttons (the one labeled 'All nodes')
@@ -134,14 +201,15 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 	    timebutton.from_time=axisx[i][0];
 	    timebutton.scheduler=this;
 	    timebutton.click(timebutton_methods.click);
-	    left+=(this.x_grain);
+	    left+=(this.w_grain);
 	}
 	
 	//////// the body of the scheduler : loop on nodes
 	top += y_node+y_sep;
 	var data_index=0;
+	this.leases=[];
 	for (var i=0, len=axisy.length; i<len; ++i) {
-	    nodename=axisy[i];
+	    var nodename=axisy[i];
 	    left=0;
 	    var nodelabel = paper.text(x_nodelabel-x_sep,top+y_node/2,nodename).attr(txt_nodelabel)
 		.attr ({"font-size":y_node, "text-anchor":"end","baseline":"bottom"});
@@ -152,10 +220,10 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 	    left += x_nodelabel;
 	    var grain=0;
 	    while (grain < this.nb_grains()) {
-		lease_id=data[data_index][0];
-		slicename=data[data_index][1];
-		duration=data[data_index][2];
-		var lease=paper.rect (left,top,this.x_grain*duration,y_node,radius);
+		lease_id=this.data[data_index][0];
+		slicename=this.data[data_index][1];
+		duration=this.data[data_index][2];
+		var lease=paper.rect (left,top,this.w_grain*duration,y_node,radius);
 		lease.lease_id=lease_id;
 		lease.nodename=nodename;
 		lease.nodelabel=nodelabel;
@@ -175,9 +243,9 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 		// record scheduler in lease
 		lease.scheduler=this;
 		// and vice versa
-		this.append_lease(lease);
+		this.leases.push(lease);
 		// move on with the loop
-		left += this.x_grain*duration;
+		left += this.w_grain*duration;
 		data_index +=1;
 	    }
 	    top += y_node + y_sep;
@@ -193,11 +261,15 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 		var from_time=lease.from_time;
 		var until_time=lease.until_time;
 		/* scan the leases just after this one and merge if appropriate */
-		var j=i+1;
-		while (j<len && lease_methods.compare (lease, until_time, this.leases[j])) {
-//		    window.console.log('merged index='+j);
-		    until_time=this.leases[j].until_time;
-		    ++j; ++i;
+		/* this makes sense when adding leases only though */
+		if (lease.current=='mine') {
+		    var j=i+1;
+		    while (j<len && lease_methods.compare (lease, until_time, this.leases[j])) {
+//			window.console.log('merging index='+i+' initial='+this.leases[i].initial+' current='+this.leases[i].current);
+//			window.console.log('merged index='+j+' initial='+this.leases[j].initial+' current='+this.leases[j].current);
+			until_time=this.leases[j].until_time;
+			++j; ++i;
+		    }
 		}
 		if (lease.current!='free') { // lease to add
 		    actions.push(new Array('add-leases',
@@ -212,10 +284,6 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 	    }
 	}
 	sliceid=this.sliceid;
-	// once we're done with the side-effect performed in actions.php, we need to refresh this view
-	redirect = function (sliceid) {
-	    window.location = '/db/slices/slice.php?id=' + sliceid + '&show_details=0&show_nodes=1&show_nodes_resa=1';
-	}
 	// Ajax.Request comes with prototype
 	var ajax=new Ajax.Request('/planetlab/common/actions.php', 
 				  {method:'post',
@@ -224,14 +292,14 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 				   onSuccess: function(transport) {
 				       var response = transport.responseText || "no response text";
 				       document.body.style.cursor = "default";
-				       alert("Server answered:\n\n" + response + "\n\nPress OK to refresh page");
-				       redirect(sliceid);
+//				       alert("Server answered:\n\n" + response + "\n\nPress OK to refresh page");
+				       Scheduler.scheduler.refresh();
 				   },
 				   onFailure: function(){ 
 				       document.body.style.cursor = "default";
 				       alert("Could not reach server, sorry...\n\nPress OK to refresh page");
 				       // not too sure what to do here ...
-				       redirect(sliceid);
+				       Scheduler.scheduler.refresh();
 				   },
 				  });
     }
@@ -244,6 +312,36 @@ function Scheduler (sliceid, slicename, x_grain, axisx, axisy, data) {
 		else			     lease_methods.init_mine(lease,lease_methods.click_free);
 	    }
 	}
+    }
+
+    this.refresh = function () {
+	document.body.style.cursor = "wait";
+	var ajax=new Ajax.Request('/planetlab/slices/leases-data.php',
+				  {method:'post',
+				   parameters:{'sliceid':this.sliceid,
+					       'slicename':this.slicename,
+					       'leases_grain':this.leases_grain,
+					       'leases_offset':this.leases_offset,
+					       'leases_slots':this.leases_slots,
+					       'leases_w':this.leases_w},
+				   onSuccess: function (transport) {
+				       var response = transport.responseText || "no response text";
+//				       window.console.log("received from ajax=[["+response+"]]");
+				       var scheduler=Scheduler.scheduler;
+				       if ( ! scheduler.set_html (response)) 
+					   alert ("Something wrong .. Could not store ajax result..");
+				       else if ( ! scheduler.parse_html()) 
+					   alert ("Something wrong .. Could not parse ajax result..");
+				       else
+					   scheduler.draw_area("leases_area");
+				       document.body.style.cursor = "default";
+				   },
+				   onFailure: function(){ 
+				       document.body.style.cursor = "default";
+				       alert("Could not reach server, sorry...\n\n");
+				   },
+				  });
+				       
     }
 
 } // end Scheduler
@@ -382,46 +480,22 @@ var lease_methods = {
 function init_scheduler () {
     // Grab the data
     var data = [], axisx = [], axisy = [];
-    var table = $$("table#leases_data")[0];
-    // no reservable nodes - no data
-    if ( ! table) return;
-    // upper-left cell : sliceid & slicename & x_grain
-    var slice_attributes = getInnerText(table.getElementsBySelector("thead>tr>td")[0]).split('&');
-    var sliceid=slice_attributes[0];
-    var slicename=slice_attributes[1];
-    var x_grain=slice_attributes[2];
-    // the nodelabels
-    table.getElementsBySelector("tbody>tr>th").each(function (cell) {
-        axisy.push(getInnerText(cell));
-    });
-    // the timeslot labels
-    table.getElementsBySelector("thead>tr>th").each(function (cell) {
-	/* [0]: timestamp -- [1]: displayable*/
-        axisx.push(getInnerText(cell).split("&"));
-    });
-    // leases - expect colspan to describe length in grains
-    // the text contents is expected to be lease_id & slicename
-    table.getElementsBySelector("tbody>tr>td").each(function (cell) {
-	var cell_data;
-	slice_attributes=getInnerText(cell).split('&');
-	// booked leases come with lease id and slice name
-	if (slice_attributes.length == 2) {
-	    // leases is booked : slice_id, slice_name, duration in grains
-	    cell_data=new Array (slice_attributes[0], slice_attributes[1], cell.colSpan);
-	} else {
-	    cell_data = new Array ('','',cell.colSpan);
-	}
-        data.push(cell_data);
-    });
-    var scheduler = new Scheduler (sliceid,slicename, x_grain, axisx, axisy, data);
-    table.hide();
-    // leases_area is a <div> created by slice.php as a placeholder
-    scheduler.init ("leases_area");
-
+    var sliceid = getInnerText($$("span#leases_sliceid")[0]).strip();
+    var slicename = getInnerText($$("span#leases_slicename")[0]).strip();
+    var w_grain = getInnerText($$("span#leases_w")[0]).strip();
+    var scheduler = new Scheduler (sliceid,slicename,w_grain);
+    // parse the table with data, and if not empty, draw the scheduler
+    if (scheduler.parse_html ()) {
+	scheduler.draw_area("leases_area");
+    }
+    
+    // attach behaviour to buttons
+    var refresh=$$("button#leases_refresh")[0];
+    if (refresh) refresh.onclick = function () { scheduler.refresh();}
     var submit=$$("button#leases_submit")[0];
     submit.onclick = function () { scheduler.submit(); }
-    var clear=$$("button#leases_clear")[0];
-    clear.onclick = function () { scheduler.clear(); }
+
+    scheduler.refresh();
 
 }
 

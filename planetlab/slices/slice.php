@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 // Require login
 require_once 'plc_login.php';
 
@@ -608,21 +606,32 @@ EOF;
 
   // get settings from environment, otherwise set to defaults
   // when to start, in hours in the future from now
-  $resa_offset=$_GET['resa_offset'];
-  if ( ! $resa_offset ) $resa_offset=0;
+  $leases_offset=$_GET['leases_offset'];
+  if ( ! $leases_offset ) $leases_offset=0;
   // how many timeslots to show
-  $resa_slots=$_GET['resa_slots'];
-  if ( ! $resa_slots ) $resa_slots = 36;
-  // the width in pixel for each timeslot
-  $resa_x_grain = $_GET['resa_x_grain'];
-  if ( ! $resa_x_grain) $resa_x_grain=20;
+  $leases_slots=$_GET['leases_slots'];
+  if ( ! $leases_slots ) $leases_slots = 36;
+  // offset in hours (in the future) from now 
+  $leases_w = $_GET['leases_w'];
+  if ( ! $leases_w) $leases_w=20;
+  // number of timeslots to display
 
   $grain=$api->GetLeaseGranularity();
+
+  // these elements are for passing data to the javascript layer
+  echo "<span class='hidden' id='leases_slicename'>" . $slice['name'] . "</span>";
+  echo "<span class='hidden' id='leases_sliceid'>" . $slice['slice_id']. "</span>";
+  echo "<span class='hidden' id='leases_grain'>" . $grain . "</span>";
+  echo "<span class='hidden' id='leases_offset'>" . $leases_offset . "</span>";
+  echo "<span class='hidden' id='leases_slots'>" . $leases_slots . "</span>";
+  echo "<span class='hidden' id='leases_w'>" . $leases_w . "</span>";
+
+  // cut off
   if ($profiling) plc_debug_prof('6 granul',$grain);
   // where to start from, expressed as an offset in hours from now
-  $rough_start=time()+$resa_offset*3600;
+  $rough_start=time()+$leases_offset*3600;
   // show the next 36 grains 
-  $duration=$resa_slots*$grain;
+  $duration=$leases_slots*$grain;
   $steps=$duration/$grain;
   $start=intval($rough_start/$grain)*$grain;
   $end=$rough_start+$duration;
@@ -642,9 +651,9 @@ EOF;
     $host_hash[$hostname] []= $lease;
   }
   // leases_data is the name used by leases.js to locate this table
-  echo "<table id='leases_data'>";
+  echo "<table id='leases_data' class='hidden'>";
   // pass (slice_id,slicename,x_grain) in the upper-left cell, as thead>tr>td
-  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . '&' . $resa_x_grain . "</td>";
+  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . '&' . $leases_w . "</td>";
   // the timeslot headers read (timestamp,label)
   $day_names=array('Su','M','Tu','W','Th','F','Sa');
   for ($i=0; $i<$steps; $i++) {
@@ -689,7 +698,7 @@ EOF;
 <div id='leases_area'></div>
 
 <div id='leases_buttons'>
-  <button id='leases_clear' type='submit'>Clear</button>
+  <button id='leases_refresh' type='submit'>Refresh</button>
   <button id='leases_submit' type='submit'>Submit</button>
 </div>
 EOF;

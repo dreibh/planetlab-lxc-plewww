@@ -1,5 +1,3 @@
-/* $Id$ */
-
 var debug=false;
 
 /* for debugging purposes */

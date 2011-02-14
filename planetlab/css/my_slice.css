@@ -28,8 +28,9 @@ div#leases_area {
   padding: 10px 25px;
 }
 
-/* don't display the scheduler data table - not quite sure this works */
-table#leases_data {
+/* this class is used to store data that needs to get passed to javascript code */
+/* these elements re not meant to be rendered */
+.hidden {
     display: none;
 }
 
