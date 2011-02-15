@@ -1,1 +1,1 @@
-prototype-1.7.0.0.js
+prototype-1.6.0.3.js
