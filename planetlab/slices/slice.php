@@ -616,82 +616,19 @@ EOF;
   if ( ! $leases_w) $leases_w=20;
   // number of timeslots to display
 
-  $grain=$api->GetLeaseGranularity();
+  $granularity=$api->GetLeaseGranularity();
 
   // these elements are for passing data to the javascript layer
   echo "<span class='hidden' id='leases_slicename'>" . $slice['name'] . "</span>";
-  echo "<span class='hidden' id='leases_sliceid'>" . $slice['slice_id']. "</span>";
-  echo "<span class='hidden' id='leases_grain'>" . $grain . "</span>";
+  echo "<span class='hidden' id='leases_slice_id'>" . $slice['slice_id']. "</span>";
+  echo "<span class='hidden' id='leases_granularity'>" . $granularity . "</span>";
   echo "<span class='hidden' id='leases_offset'>" . $leases_offset . "</span>";
   echo "<span class='hidden' id='leases_slots'>" . $leases_slots . "</span>";
   echo "<span class='hidden' id='leases_w'>" . $leases_w . "</span>";
 
-  // cut off
-  if ($profiling) plc_debug_prof('6 granul',$grain);
-  // where to start from, expressed as an offset in hours from now
-  $rough_start=time()+$leases_offset*3600;
-  // show the next 36 grains 
-  $duration=$leases_slots*$grain;
-  $steps=$duration/$grain;
-  $start=intval($rough_start/$grain)*$grain;
-  $end=$rough_start+$duration;
-  $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
-  $leases=$api->GetLeases(array(']t_until'=>$rough_start,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
-  if ($profiling) plc_debug_prof('7 leases',count($leases));
-  // hash nodes -> leases
-  $host_hash=array();
-  foreach ($leases as $lease) {
-    $hostname=$lease['hostname'];
-    if ( ! $host_hash[$hostname] ) {
-	$host_hash[$hostname]=array();
-    }
-    // resync within the table
-    $lease['nfrom']=($lease['t_from']-$start)/$grain;
-    $lease['nuntil']=($lease['t_until']-$start)/$grain;
-    $host_hash[$hostname] []= $lease;
-  }
-  // leases_data is the name used by leases.js to locate this table
-  echo "<table id='leases_data' class='hidden'>";
-  // pass (slice_id,slicename,x_grain) in the upper-left cell, as thead>tr>td
-  echo "<thead><tr><td>" . $slice['slice_id'] . '&' . $slice['name'] . '&' . $leases_w . "</td>";
-  // the timeslot headers read (timestamp,label)
-  $day_names=array('Su','M','Tu','W','Th','F','Sa');
-  for ($i=0; $i<$steps; $i++) {
-    $timestamp=($start+$i*$grain);
-    $day=$day_names[intval(strftime("%w",$timestamp))];
-    $label=$day . strftime(" %H:%M",$timestamp);
-    // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
-    echo "<th>" . implode("&",array($timestamp,$label)) . "</th>";
-  }
-  echo "</tr></thead><tbody>";
-  // todo - sort on hostnames
-  function sort_hostname ($a,$b) { return ($a['hostname']<$b['hostname'])?-1:1;}
-  usort($reservable_nodes,sort_hostname);
-  foreach ($reservable_nodes as $node) {
-    echo "<tr><th scope='row'>". $node['hostname'] . "</th>";
-    $hostname=$node['hostname'];
-    $leases=$host_hash[$hostname];
-    $counter=0;
-    while ($counter<$steps) {
-      if ($leases && ($leases[0]['nfrom']<=$counter)) {
-	$lease=array_shift($leases);
-	/* nicer display, merge two consecutive leases for the same slice 
-	   avoid doing that for now, as it might makes things confusing */
-	/* while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
-	  $lease['nuntil']=$leases[0]['nuntil'];
-	  array_shift($leases);
-	  }*/
-	$duration=$lease['nuntil']-$counter;
-	echo "<td colspan='$duration'>" . $lease['lease_id'] . '&' . $lease['name'] . "</td>";
-	$counter=$lease['nuntil']; 
-      } else {
-	echo "<td></td>";
-	$counter+=1;
-      }
-    }
-    echo "</tr>";
-  }
-  echo "</tbody></table>\n";
+  // leases_data is the name used by leases.js to locate this place
+  // first population will be triggered by init_scheduler from leases.js
+  echo "<table id='leases_data' class='hidden'></table>";
 
   // the general layout for the scheduler
   echo <<< EOF

@@ -10,23 +10,23 @@ require_once 'plc_login.php';
 require_once 'plc_session.php';
 global $plc, $api;
 
-$sliceid=$_POST['sliceid'];
+$slice_id=$_POST['slice_id'];
 $slicename=$_POST['slicename'];
-$leases_grain=$_POST['leases_grain'];
+$leases_granularity=$_POST['leases_granularity'];
 $leases_offset=$_POST['leases_offset'];
 $leases_slots=$_POST['leases_slots'];
 $leases_w=$_POST['leases_w'];
 
 // need to recompute reservable nodes for this slice
 $node_columns=array('hostname','node_id');
-$reservable_nodes=$api->GetNodes(array('|slice_ids'=>intval($sliceid), 'node_type'=>'reservable'),$node_columns);
+$reservable_nodes=$api->GetNodes(array('|slice_ids'=>intval($slice_id), 'node_type'=>'reservable'),$node_columns);
 
 // where to start from, expressed as an offset in hours from now
 $rough_start=time()+$leases_offset*3600;
 // show the next 36 grains 
-$duration=$leases_slots*$leases_grain;
-$steps=$duration/$leases_grain;
-$start=intval($rough_start/$leases_grain)*$leases_grain;
+$duration=$leases_slots*$leases_granularity;
+$steps=$duration/$leases_granularity;
+$start=intval($rough_start/$leases_granularity)*$leases_granularity;
 $end=$rough_start+$duration;
 $lease_columns=array('lease_id','name','t_from','t_until','hostname','name');
 $leases=$api->GetLeases(array(']t_until'=>$rough_start,'[t_from'=>$end,'-SORT'=>'t_from'),$lease_columns);
@@ -38,8 +38,8 @@ foreach ($leases as $lease) {
     $host_hash[$hostname]=array();
   }
   // resync within the table
-  $lease['nfrom']=($lease['t_from']-$start)/$leases_grain;
-  $lease['nuntil']=($lease['t_until']-$start)/$leases_grain;
+  $lease['nfrom']=($lease['t_from']-$start)/$leases_granularity;
+  $lease['nuntil']=($lease['t_until']-$start)/$leases_granularity;
   $host_hash[$hostname] []= $lease;
 }
 // leases_data is the name used by leases.js to locate this table
@@ -49,7 +49,7 @@ echo "<thead><tr><td></td>";
 // the timeslot headers read (timestamp,label)
 $day_names=array('Su','M','Tu','W','Th','F','Sa');
 for ($i=0; $i<$steps; $i++) {
-  $timestamp=($start+$i*$leases_grain);
+  $timestamp=($start+$i*$leases_granularity);
   $day=$day_names[intval(strftime("%w",$timestamp))];
   $label=$day . strftime(" %H:%M",$timestamp);
   // expose in each header cell the full timestamp, and how to display it - use & as a separator*/
