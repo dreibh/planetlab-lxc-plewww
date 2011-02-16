@@ -1,3 +1,5 @@
+/*  Thierry Parmentelat -- INRIA */
+
 /* need to put some place else in CSS ? */
 
 // space for the nodenames
@@ -72,14 +74,11 @@ function Scheduler () {
     // the names of the hidden fields that hold the input to this class
     // are hard-wired for now
     this.parse_html = function () {
-	window.console.log('in parse_html');
 	
 	var table = $$("table#leases_data")[0];
 	// no reservable nodes - no data
-	if ( ! table) {
-	    window.console.log('no table');
-	    return false;
-	}
+	if ( ! table) return false;
+
 	// the nodelabels
 	var data = [], axisx = [], axisy = [];
 	table.getElementsBySelector("tbody>tr>th").each(function (cell) {
@@ -87,11 +86,7 @@ function Scheduler () {
 	});
 	// test for at least one entry; other wise this means we haven't retrieved
 	// the html dta yet
-	if (axisy.length <1) {
-	    window.console.log('no axisy');
-	    window.console.log('have retrieved html text as'+getInnerText(table));
-	    return false;
-	}
+	if (axisy.length <1) return false;
 
 	// the timeslot labels
 	table.getElementsBySelector("thead>tr>th").each(function (cell) {
@@ -115,7 +110,6 @@ function Scheduler () {
 	});
 
 	this.axisx=axisx;
-	window.console.log('in parse_html, set axisx to'+axisx.length);
 	this.axisy=axisy;
 	this.data=data;
 	return true;
@@ -127,7 +121,6 @@ function Scheduler () {
     ////////////////////
     // draw 
     this.draw_area = function (canvas_id) {
-	window.console.log('in draw_area');
 	this.total_width = x_nodelabel + this.nb_grains()*this.leases_w; 
 	this.total_height =   2*y_header /* the timelabels */
 			    + 2*y_sep    /* extra space */
@@ -150,7 +143,6 @@ function Scheduler () {
 	this.timebutton_path="M1,0L"+(this.leases_w-1)+",0L"+(this.leases_w/2)+","+y_header+"L1,0";
 
 	var axisx=this.axisx;
-	window.console.log('in draw_area, retrieved axisx' + axisx.length);
 	
 	var axisy=this.axisy;
 	// maintain the list of nodelabels for the 'all nodes' button
@@ -270,7 +262,7 @@ function Scheduler () {
 		if (lease.current=='mine') {
 		    var j=i+1;
 		    while (j<len && lease_methods.compare (lease, until_time, this.leases[j])) {
-//			window.console.log('merging index='+i+' initial='+this.leases[i].initial+' current='+this.leases[i].current);
+//			window.console.log('merging index='+i+' initial='+lease.initial+' current='+lease.current);
 //			window.console.log('merged index='+j+' initial='+this.leases[j].initial+' current='+this.leases[j].current);
 			until_time=this.leases[j].until_time;
 			++j; ++i;
@@ -322,13 +314,12 @@ function Scheduler () {
     // re-read settings from the html, ajax-aquire the html text for the leases_data table
     // store it in the html tree, parse it, and refresh graphic
     this.refresh = function () {
-	window.console.log('in refresh');
 	this.slice_id=getInnerText($$("span#leases_slice_id")[0]).strip();
 	this.slicename=getInnerText($$("span#leases_slicename")[0]).strip();
 	this.leases_granularity=getInnerText($$("span#leases_granularity")[0]).strip();
-	this.leases_offset=getInnerText($$("span#leases_offset")[0]).strip();
-	this.leases_slots=getInnerText($$("span#leases_slots")[0]).strip();
-	this.leases_w=parseInt(getInnerText($$("span#leases_w")[0]).strip());
+	this.leases_offset=$("leases_offset_input").value.strip();
+	this.leases_slots=$("leases_slots_input").value.strip();
+	this.leases_w=parseInt($("leases_w_input").value.strip());
 
 	document.body.style.cursor = "wait";
 	var ajax=new Ajax.Request('/planetlab/slices/leases-data.php',
@@ -341,7 +332,7 @@ function Scheduler () {
 					       'leases_w':this.leases_w},
 				   onSuccess: function (transport) {
 				       var response = transport.responseText || "no response text";
-				       window.console.log("received from ajax=[["+response+"]]");
+//				       window.console.log("received from ajax=[["+response+"]]");
 				       var scheduler=Scheduler.scheduler;
 				       if ( ! scheduler.set_html (response)) 
 					   alert ("Something wrong .. Could not store ajax result..");
@@ -496,14 +487,11 @@ function init_scheduler () {
     // Grab the data
     var scheduler = new Scheduler ();
     // parse the table with data, and if not empty, draw the scheduler
-    window.console.log('in init_scheduler');
     scheduler.refresh();
     
     // attach behaviour to buttons
-    var refresh=$$("button#leases_refresh")[0];
-    if (refresh) refresh.onclick = function () { scheduler.refresh();}
-    var submit=$$("button#leases_submit")[0];
-    submit.onclick = function () { scheduler.submit(); }
+    $("leases_submit").onclick = function () { scheduler.submit(); }
+    $("leases_refresh").onclick = function () { scheduler.refresh();}
 
 }
 

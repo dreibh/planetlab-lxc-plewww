@@ -466,61 +466,45 @@ $show_configuration = "";
 $show_reservable_message = '1';
 $show_columns_message = '1';
 
-
-//$PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
 $PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
-//print_r($PersonTags);
+//plc_debug('ptags',$PersonTags);
 foreach ($PersonTags as $ptag) {
-	if ($ptag['tagname'] == 'columnconf')
-	{
-                $column_configuration = $ptag['value'];
-		$conf_tag_id = $ptag['person_tag_id'];
-	}
-	if ($ptag['tagname'] == 'showconf')
-	{
-                $show_configuration = $ptag['value'];
-		$show_tag_id = $ptag['person_tag_id'];
-	}
+  if ($ptag['tagname'] == 'columnconf') {
+    $column_configuration = $ptag['value'];
+    $conf_tag_id = $ptag['person_tag_id'];
+  } else if ($ptag['tagname'] == 'showconf') {
+    $show_configuration = $ptag['value'];
+    $show_tag_id = $ptag['person_tag_id'];
+  }
 }
-
-//print("<br>person column configuration = ".$column_configuration);
-//print("<br>person show configuration = ".$show_configuration);
 
 $sliceconf_exists = false;
-if ($column_configuration == "")
-{
-	$first_time_configuration = true;
-	$column_configuration = $slice_id.";default";
-	$sliceconf_exists = true;
-}
-else {
-	$slice_conf = explode(";",$column_configuration);
-	for ($i=0; $i<count($slice_conf); $i++ ) {
-        	if ($slice_conf[$i] == $slice_id)
-        	{
-                	$i++;
-        		$slice_column_configuration = $slice_conf[$i];
-			$sliceconf_exists = true;
-                	break;
-        	}
-		else
-		{
-                	$i++;
-        		$slice_column_configuration = $slice_conf[$i];
-		}
-	}        
+if ($column_configuration == "") {
+  $first_time_configuration = true;
+  $column_configuration = $slice_id.";default";
+  $sliceconf_exists = true;
+} else {
+  $slice_conf = explode(";",$column_configuration);
+  for ($i=0; $i<count($slice_conf); $i++ ) {
+    if ($slice_conf[$i] == $slice_id) {
+      $i++;
+      $slice_column_configuration = $slice_conf[$i];
+      $sliceconf_exists = true;
+      break;
+    } else {
+      $i++;
+      $slice_column_configuration = $slice_conf[$i];
+    }
+  }        
 }
 
 if ($sliceconf_exists == false)
-	$column_configuration = $column_configuration.";".$slice_id.";default";
-
-//print("<br>slice configuration = ".$slice_column_configuration);
-
+  $column_configuration = $column_configuration.";".$slice_id.";default";
 
 if ($slice_column_configuration == "")
-	$full_configuration = $default_configuration;
+  $full_configuration = $default_configuration;
 else
-	$full_configuration = $default_configuration."|".$slice_column_configuration;
+  $full_configuration = $default_configuration."|".$slice_column_configuration;
 
 
 //instantiate the column configuration class, which prepares the headers array
@@ -529,22 +513,17 @@ $ConfigureColumns =new PlekitColumns($full_configuration, $fix_columns, $tag_col
 $visiblecolumns = $ConfigureColumns->node_tags();
 
 $node_columns=array_merge($node_fixed_columns,$visiblecolumns);
-//print_r($node_columns);
 $all_nodes=$api->GetNodes(NULL,$node_columns);
 
 $ConfigureColumns->fetch_live_data($all_nodes);
 
-//print("<br>person show configuration = ".$show_configuration);
-
 $show_conf = explode(";",$show_configuration);
 foreach ($show_conf as $ss) {
-	if ($ss =="reservable")
-		$show_reservable_message = '0';
-	if ($ss =="columns")
-		$show_columns_message = '0';
+  if ($ss =="reservable")
+    $show_reservable_message = '0';
+  else if ($ss =="columns")
+    $show_columns_message = '0';
 }        
-
-//print("res:".$show_reservable_message." - cols:".$show_columns_message);
 
 $slice_nodes=array();
 $potential_nodes=array();
@@ -576,13 +555,13 @@ if ($count && $privileges) {
   // having reservable nodes in white lists looks a bit off scope for now...
   $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
 				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
-				 array('visible'=>$show_reservable_message, 'info_div'=>'note_reservable_div'));
+				 array('visible'=>get_arg('show_nodes_resa',false), 'info_div'=>'note_reservable_div'));
   $toggle_nodes->start();
 
 if ($show_reservable_message) 
-$note_display = "";
+  $note_display = "";
 else
-$note_display = "display:none;";
+  $note_display = "display:none;";
 
 ////////// show a notice to people having attached a reservable node
 if (count($reservable_nodes) && $privileges) {
@@ -610,10 +589,10 @@ EOF;
   if ( ! $leases_offset ) $leases_offset=0;
   // how many timeslots to show
   $leases_slots=$_GET['leases_slots'];
-  if ( ! $leases_slots ) $leases_slots = 36;
+  if ( ! $leases_slots ) $leases_slots = 48;
   // offset in hours (in the future) from now 
   $leases_w = $_GET['leases_w'];
-  if ( ! $leases_w) $leases_w=20;
+  if ( ! $leases_w) $leases_w=14;
   // number of timeslots to display
 
   $granularity=$api->GetLeaseGranularity();
@@ -622,9 +601,15 @@ EOF;
   echo "<span class='hidden' id='leases_slicename'>" . $slice['name'] . "</span>";
   echo "<span class='hidden' id='leases_slice_id'>" . $slice['slice_id']. "</span>";
   echo "<span class='hidden' id='leases_granularity'>" . $granularity . "</span>";
-  echo "<span class='hidden' id='leases_offset'>" . $leases_offset . "</span>";
-  echo "<span class='hidden' id='leases_slots'>" . $leases_slots . "</span>";
-  echo "<span class='hidden' id='leases_w'>" . $leases_w . "</span>";
+  // ditto, and editable - very rough for now
+  echo "<div class='center' id='leases_settings'>";
+  echo "<label id='leases_offset_label' class='leases_label'>start, in hours from now</label>";
+  echo "<input type='text' class='leases_input' id='leases_offset_input' value='$leases_offset' />";
+  echo "<label id='leases_slots_label' class='leases_label'># of timeslots</label>";
+  echo "<input type='text' class='leases_input' id='leases_slots_input' value='$leases_slots' />";
+  echo "<label id='leases_w_label' class='leases_label'>slot width, in pixels</label>";
+  echo "<input type='text' class='leases_input' id='leases_w_input' value='$leases_w' />";
+  echo "</div>";
 
   // leases_data is the name used by leases.js to locate this place
   // first population will be triggered by init_scheduler from leases.js
@@ -645,7 +630,6 @@ EOF;
 
 
 //////////////////// node configuration panel
-
 if ($first_time_configuration) 
 $column_conf_visible = '1';
 else
@@ -674,9 +658,9 @@ print("<input type='hidden' id='defaultConf' value='".$default_configuration."' 
 
 //print ("showing column message = ".$show_columns_message);
 if ($show_columns_message == '0') 
-$note_display = "display:none;";
+  $note_display = "display:none;";
 else
-$note_display = "";
+  $note_display = "";
 
   print <<<EOF
 <div id='note_columns_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">

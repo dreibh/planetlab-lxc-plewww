@@ -1,5 +1,5 @@
 /*
- $Id: toggle.css 12435 2009-03-11 15:07:00Z thierry $
+ Thierry Parmentelat -- INRIA
  */
 
 /* space around various messages */
@@ -25,23 +25,25 @@ div#toggle-container-my-slice-nodes-reserve {
 
 /* where the graphics go */
 div#leases_area {
-  padding: 10px 25px;
+  padding: 10px 20px;
 }
 
 /* this class is used to store data that needs to get passed to javascript code */
-/* these elements re not meant to be rendered */
+/* these elements are not meant to be rendered */
 .hidden {
     display: none;
 }
+.center {
+    text-align: center;
+}
 
 /* the various controls for the scheduler */
-/* upper section, with selection mode */
-#leases_modes { padding: 10px; text-align: center; color: #333; }
-
-#leases_buttons { padding: 0px 10px 10px 10px; }
-#leases_clear { position: relative; left: 30%;}
-#leases_submit { position: relative; left: 60%; }
-        
+/* bottom section with the buttons */
+input.leases_input { width: 28px; text-align: right; }
+.leases_label { padding-left: 12px; padding-right: 8px; }
+#leases_settings { padding: 15px 30px 10px 30px; }
+#leases_buttons { text-align: center; padding: 0px 10px 10px 10px; }
+#leases_refresh,#leases_submit { padding-left: 20px; padding-right: 20px; margin-left: 10px; margin-right:10px; }
 
 /* column configuation style */
 

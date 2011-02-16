@@ -1,7 +1,5 @@
 <?php
 
-  // $Id$
-
 require_once 'prototype.php';
 require_once 'nifty.php';
 
@@ -106,7 +104,7 @@ class PlekitToggle {
     $html .= $this->trigger;
     $html .= "</$tagname>";
     if ($this->info_div != "")
-    $html .= "&nbsp;(<a href=javascript:plc_show_toggle_info('$this->info_div','$this->id')>?</a>)";
+      $html .= "&nbsp;(<a href=javascript:plc_show_toggle_info('$this->info_div','$this->id')>?</a>)";
     return $html;
   }
 
