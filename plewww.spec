@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 59
+%define taglevel 60
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,13 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Thu Feb 17 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-60
+- reservation page uses ajax - no need to reload after submit
+- reservation dialogs for offset in the future & # slots
+- fix the timezone in reservations (actually use php.ini)
+- reservation visible (and hardwired) in nodes view
+- have pulled prototype 1.7 but not in used yet
+
 * Thu Feb 03 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-59
 - set both 'omf_control' and 'vref' for omf-friendly slices
 
