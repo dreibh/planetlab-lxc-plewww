@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 60
+%define taglevel 61
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Fri Feb 18 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-61
+- bugfix for the reservation interface
+
 * Thu Feb 17 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-60
 - reservation page uses ajax - no need to reload after submit
 - reservation dialogs for offset in the future & # slots
