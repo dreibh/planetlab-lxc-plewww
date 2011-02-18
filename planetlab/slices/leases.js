@@ -221,6 +221,8 @@ function Scheduler () {
 		slicename=this.data[data_index][1];
 		duration=this.data[data_index][2];
 		var lease=paper.rect (left,top,this.leases_w*duration,y_node,radius);
+		// record scheduler in lease - early as we need this in init_other
+		lease.scheduler=this;
 		lease.lease_id=lease_id;
 		lease.nodename=nodename;
 		lease.nodelabel=nodelabel;
@@ -231,14 +233,12 @@ function Scheduler () {
 		    lease.initial="mine";
 		    lease_methods.init_mine(lease);
 		} else {
-		    lease_initial="other";
+		    lease.initial="other";
 		    lease_methods.init_other(lease,slicename);
 		}
 		lease.from_time = axisx[grain%this.nb_grains()][0];
 		grain += duration;
 		lease.until_time = axisx[grain%this.nb_grains()][0];
-		// record scheduler in lease
-		lease.scheduler=this;
 		// and vice versa
 		this.leases.push(lease);
 		// move on with the loop
@@ -471,9 +471,9 @@ var lease_methods = {
     init_other: function (lease, slicename) {
 	lease.animate (attr_lease_other,anim_delay);
 	/* a text obj to display the name of the slice that owns that lease */
-	var otherslicelabel = paper.text (lease.attr("x")+lease.attr("width")/2,
-					  // xxx
-					  lease.attr("y")+lease.attr("height")/2,slicename).attr(txt_otherslice);
+	var otherslicelabel = lease.scheduler.paper.text (lease.attr("x")+lease.attr("width")/2,
+							  // xxx
+							  lease.attr("y")+lease.attr("height")/2,slicename).attr(txt_otherslice);
 	/* hide it right away */
 	otherslicelabel.hide();
 	/* record it */
