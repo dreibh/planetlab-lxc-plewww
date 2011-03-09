@@ -337,7 +337,7 @@ function Scheduler () {
 				       if ( ! scheduler.set_html (response)) 
 					   alert ("Something wrong .. Could not store ajax result..");
 				       else if ( ! scheduler.parse_html()) 
-					   alert ("Something wrong .. Could not parse ajax result..");
+					   alert ("Error: could not parse ajax result..\nIf your session has expired, you need to log back in");
 				       else
 					   scheduler.draw_area("leases_area");
 				       document.body.style.cursor = "default";
