@@ -9,7 +9,7 @@ drupal_set_html_head('
 class PlekitColumns {
 
 var $column_configuration = "";
-var $reference_node = "";
+var $reference_nodes = array();
 var $first_time = false;
 
 var $all_headers = array();
@@ -22,42 +22,34 @@ var $extra_columns = array();
 
 var $comon_live_data = "";
 var $tophat_live_data = "";
-var $live_data = array();
+var $ComonData = array();
+var $TopHatData = array();
+var $TopHatAgents = array();
 
 var $table_ids;
 
 var $HopCount = array();
+var $RTT = array();
 
-  function PlekitColumns ($column_configuration, $fix_columns, $tag_columns, $extra_columns=NULL, $this_table_headers=NULL) {
+function PlekitColumns ($column_configuration, $fix_columns, $tag_columns, $extra_columns=NULL, $this_table_headers=NULL) {
 
 	if ($column_configuration != NULL) {
 	$this->fix_columns = $fix_columns;
 	$this->tag_columns = $tag_columns;
 	$this->extra_columns = $extra_columns;
 
-	//print("<p>FIX<p>");
-	//print_r($this->fix_columns);
-	//print("<p>TAG<p>");
-	//print_r($this->tag_columns);
-	//print("<p>EXTRA<p>");
-	//print_r($this->extra_columns);
-
 	$this->prepare_headers();
 	$this->parse_configuration($column_configuration);
 
 	$this->visible_headers = $this->get_visible();
 	}
-
-	//print("<p>VISIBLE<p>");
-	//print_r($this->visible_headers);
-
 }
 
 
 
 /*
 
-INFO
+INFO/HEADERS
 
 */
 
@@ -180,10 +172,6 @@ CONFIGURATION
 function parse_configuration($column_configuration) {
 
 	$this->column_configuration = $column_configuration;
-	//$this->default_configuration = $default_configuration;
-
-	//print($this->print_headers());
-
 	$columns_conf = explode("|", $column_configuration);
 
 
@@ -204,24 +192,23 @@ function parse_configuration($column_configuration) {
 
 		if ($this->all_headers[$conf[0]]['source'] == "tophat")
 		{
-                	$this->reference_node = $conf[1];
-			print ("ref node in configuration = ".$conf[1]);
-                	$this->reference_node = "planetlab-europe-07.ipv6.lip6.fr";
-                	$this->all_headers[$conf[0]]['refnode']=$this->reference_node;
+			if ($this->all_headers[$conf[0]]['tagname'] == 'hopcount')
+			{
+				$this->reference_nodes['hopcount'] = $conf[1];
+				//print ("ref node in configuration = ".$conf[1]);
+				$this->all_headers[$conf[0]]['refnode']=$this->reference_nodes['hopcount'];
+			}
+			else if (strpos($this->all_headers[$conf[0]]['tagname'],"agents") === false)
+				$this->tophat_live_data.=",".$this->all_headers[$conf[0]]['tagname'];
                 	//$threshold = explode(",",$conf[1]);
                 	//$this->all_headers[$conf[0]]['threshold']=$threshold;
 		}
 
-		//print("<p>-".$conf[0]."-should be visible now - ".$this->all_headers[$conf[0]]['visible']);
 		//print_r($this->all_headers[$conf[0]]);
 
 /*
-		if ($conf[1] == "f")
-			continue;
-
 		else if ($this->inTypeC($conf[0]))
         	{
-                	$this->all_headers[$conf[0]]['duration']= substr($conf[0], strlen($conf[0])-1, strlen($conf[0]));
                 	$threshold = explode(",",$conf[1]);
                 	$this->all_headers[$conf[0]]['threshold']=$threshold;
         	}
@@ -229,11 +216,6 @@ function parse_configuration($column_configuration) {
         	{
                 	$exclude_list = explode(",",$conf[1]);
                 	$this->all_headers[$conf[0]]['exclude_list']=$exclude_list;
-        	}
-		else
-        	{
-                	$threshold = explode(",",$conf[1]);
-                	$this->all_headers[$conf[0]]['threshold']=$threshold;
         	}
 */
 	}
@@ -252,6 +234,8 @@ CELLS
 
 function convert_data($value, $data_type) {
 
+	//print "converting ".$value." as ".$data_type;
+
 	if ($value == "" || $value == null || $value == "n/a" || $value == "None")
 		return "n/a";
 
@@ -263,38 +247,145 @@ function convert_data($value, $data_type) {
 
 	if ($data_type == "uptime") 
 		return (int)((int) $value / 86400);
+
+	if (is_numeric($value))
+		return ((int) ($value * 10))/10;
 	
-	return ((int) ($value * 10))/10;
+	return $value;
 
 }
 
-function getHopCount($ref_node, $planetlab_nodes) {
+function getTopHatAgents() {
 
-	$tophat_auth = array( 'AuthMethod' => 'password', 'Username' => 'guest', 'AuthString' => 'guest');
+	$tophat_auth = array( 'AuthMethod' => 'password', 'Username' => 'guest@top-hat.info', 'AuthString' => 'guest');
 	$tophat_api = new TopHatAPI($tophat_auth);
 
-	$traceroute = $tophat_api->Get('traceroute', 'latest', array('src_hostname' => $ref_node, 'dst_hostname' => $planetlab_nodes), array('dst_hostname', 'hop_count') );
+	//print ("Requesting tophat agents...");
+	//print_r($r);
+
+	$values = $tophat_api->Get('agents', 'latest', array('colocated.platform_name' => array('SONoMA', 'DIMES', 'ETOMIC', 'TDMI'), 'platform_name'=> 'TDMI'), array('hostname', 'colocated.peer_name', 'colocated.platform_name'));
+
+	$result = array();
+
+	if ($values) foreach ($values as $t) {
+		//print_r($t);
+		//print("<hr>");
+		$result[$t['hostname']] = "";
+		foreach ($t['colocated'] as $ll) {
+
+			if (strpos($result[$t['hostname']]['all'],$ll['platform_name']) === false) {
+				if ($result[$t['hostname']]['all'] != "")
+					$result[$t['hostname']]['all'] .= ",";
+				$result[$t['hostname']]['all'] .= $ll['platform_name'];
+			}
+
+			if ($ll['platform_name'] == 'SONoMA') {
+			if (strpos($result[$t['hostname']]['sonoma'],$ll['peer_name']) === false) {
+					if ($result[$t['hostname']]['sonoma'] != "")
+						$result[$t['hostname']]['sonoma'] .= ",";
+					$result[$t['hostname']]['sonoma'] .= $ll['peer_name'];
+			}
+			}
+
+			if ($ll['platform_name'] == 'TDMI') {
+			if (strpos($result[$t['hostname']]['tdmi'],$ll['peer_name']) === false) {
+				if ($result[$t['hostname']]['tdmi'] != "")
+					$result[$t['hostname']]['tdmi'] .= ",";
+				$result[$t['hostname']]['tdmi'] .= $ll['peer_name'];
+			}
+			}
+		}
+	}
+
+	$this->TopHatAgents = $result;
+
+	//print_r($this->TopHatAgents);
+
+	return $result;
+}
+
+function getTopHatData($data, $planetlab_nodes) {
+
+	$tophat_auth = array( 'AuthMethod' => 'password', 'Username' => 'guest@top-hat.info', 'AuthString' => 'guest');
+	$tophat_api = new TopHatAPI($tophat_auth);
+
+	$requested_data = explode(",", $data);
+
+	$r = array ('hostname');
+	
+	foreach ($requested_data as $rd)
+		if ($rd) $r[] = $rd;
+
+	//print ("Requesting data from TopHat ...");
+	//print_r($r);
+
+	$values = $tophat_api->Get('ips', 'latest', array('hostname' => $planetlab_nodes), $r );
+
+	$result = array();
+
+	if ($values) foreach ($values as $t)
+		foreach ($requested_data as $rd)
+			if ($rd) $result[$t['hostname']][$rd] = $t[$rd];
+
+	//print_r($result);
+
+	return $result;
+}
+
+function getTopHatRefNodes() {
+
+	$tophat_auth = array( 'AuthMethod' => 'password', 'Username' => 'guest@top-hat.info', 'AuthString' => 'guest');
+	$tophat_api = new TopHatAPI($tophat_auth);
+
+	//print "calling tophat for agents";
+
+	$agents = $tophat_api->Get('agents', 'latest', array('peer_name'=>array('PLC', 'PLE'), 'agent_status'=> 'OK'),  array('hostname'));
+
+	//print_r($agents);
+
+	return $agents;
+
+}
+
+function getPairwise($ref_node, $planetlab_nodes, $command, $data) {
+
+	$tophat_auth = array( 'AuthMethod' => 'password', 'Username' => 'guest@top-hat.info', 'AuthString' => 'guest');
+	$tophat_api = new TopHatAPI($tophat_auth);
+
+	$traceroute = $tophat_api->Get($command, 'latest', array('src_hostname' => $ref_node, 'dst_hostname' => $planetlab_nodes), array('dst_hostname', $data) );
+
+	print "Got result: ".$traceroute;
 
 	$hopcount = array();
 
-	if ($traceroute) foreach ($traceroute as $t)
-		$hopcount[$t['dst_hostname']]=$t['hop_count'];
+	if ($traceroute) 
+	{
+		foreach ($traceroute as $t)
+		{
+			$hopcount[$t['dst_hostname']]=$t[$data];
+			//print "  current: ".$t['dst_hostname'].":".$t['hop_count'];
+		}
 
-	return $hopcount;
+		return $hopcount;
+	}
+	else
+		return "";
 }
 
 function comon_query_nodes($requested_data) {
-	//$base_url = 'http://comon.cs.princeton.edu/status/tabulator.cgi?forma=nameonly&';
+
 	$base_url = "http://comon.cs.princeton.edu/status/tabulator.cgi?table=table_nodeviewshort&format=formatcsv&dumpcols='name";
 
 	$url = $base_url.$requested_data."'";
 
-	//print ("retriecing comon data for url ".$url);
+	//print ("Retrieving comon data for url ".$url);
 
 	$sPattern = '\', \'';
 	$sReplace = '|';
 
-	if( false == ($str=file_get_contents($url)))
+	$str=file_get_contents($url);
+
+	if ($str === false)
        		return '';
 
      	$result=preg_replace( $sPattern, $sReplace, $str );
@@ -334,25 +425,55 @@ function fetch_live_data($all_nodes) {
 	if ($this->comon_live_data != "") {
 	
 		//print ("live data to be fetched =".$this->comon_live_data);
-		$this->live_data = $this->comon_query_nodes($this->comon_live_data);
-		//print_r($this->live_data);
+		$this->ComonData= $this->comon_query_nodes($this->comon_live_data);
+		//print_r($this->ComonData);
 	}
 
-
-//TopHat pairwise data
-	//if ($this->tophat_live_data != "")
-	if ($this->reference_node != "")
+//TopHat per_node data
+	if ($this->tophat_live_data != "")
 	{
 		$dd = array();
 
 		if ($all_nodes) foreach ($all_nodes as $n)
 			$dd[] = $n['hostname'];
 
-		print("Calling tophat api for reference node = ".$this->reference_node);
+		//print("Calling tophat api for ".$this->tophat_live_data);
 		$st = time() + microtime();
-		$HopCount = $this->getHopCount($this->reference_node, $dd);
-		printf(" (%.2f ms)<br/>", (time() + microtime()-$st)*100);
-		print_r($HopCount);
+		$this->TopHatData = $this->getTopHatData($this->tophat_live_data, $dd);
+		//printf(" (%.2f ms)<br/>", (time() + microtime()-$st)*100);
+		//print_r($this->TopHatData);
+	}
+
+//TopHat pairwise data
+
+	$this->HopCount = "";
+	$this->RTT = "";
+
+	if ($this->reference_nodes != "")
+	{
+		//print_r($this->reference_nodes);
+
+		$dd = array();
+
+		if ($all_nodes) foreach ($all_nodes as $n)
+			$dd[] = $n['hostname'];
+
+		$st = time() + microtime();
+		if ($this->headerIsVisible("HC"))
+		{
+			print("[NEW] Calling tophat api for HopCount with reference node = ".$this->reference_nodes['hopcount']);
+			$this->HopCount = $this->getPairwise($this->reference_nodes['hopcount'], $dd, 'traceroute', 'hop_count');
+		}
+		else 
+
+		if ($this->headerIsVisible("RTT"))
+		{
+			print("[NEW] Calling tophat api for RTT with reference node = ".$this->reference_nodes['rtt']);
+			$this->RTT = $this->getPairwise($this->reference_nodes['rtt'], $dd, 'rtt','rtt');
+		}
+
+		//printf(" (%.2f ms)<br/>", (time() + microtime()-$st)*100);
+		print_r($this->HopCount);
 	}
 }
 
@@ -389,31 +510,19 @@ function checkThreshold($value, $threshold, $hh) {
 
 function cells($table, $node) {
 
-foreach ($this->all_headers as $h)
-{
+//$node_string = "";
+
+foreach ($this->all_headers as $h) {
+
 if (!$h['fixed']) { 
 
-if ($h['visible'] != "")
-{
+if ($h['visible'] != "") {
 
 /*
-if ($this->inTypeC($h['header']))
-{
-        $tagname = $h['tagname'];
-        $value = $node[$tagname];
-        $v = $this->checkThreshold($value, $h['threshold'], $h['header']);
-        $table->cell($v[0],$v[1]);
-}
-else if ($this->inTypeB($h['header']))
+if ($this->inTypeB($h['header']))
 {
         $value = $node[$h['tagname']];
         $v = $this->checkThreshold($value, $h['threshold'], $h['header']);
-        $table->cell($v[0],$v[1]);
-}
-else if ($this->inTypeD($h['header']))
-{
-        $value = $this->HopCount[$node['hostname']];
-        $v = $this->excludeItems($value, $h['threshold'], $h['header']);
         $table->cell($v[0],$v[1]);
 }
 else if ($this->inTypeA($h['header']))
@@ -423,23 +532,86 @@ else if ($this->inTypeA($h['header']))
         $table->cell($v[0],$v[1]);
 }
 */
-if ($h['type'] == "date")
-{
-        $value = $this->convert_data($node[$h['tagname']], $h['type']);
-        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
-}
-else if ($h['source'] == "comon")
+if ($h['source'] == "comon")
 {
 	//print("<br>Searching for ".$h['tagname']."at ".$node);
-        $value = $this->convert_data($this->live_data[$node['hostname']][$h['tagname']], $h['tagname']);
+	if ($this->ComonData != "")
+        	$value = $this->convert_data($this->ComonData[$node['hostname']][$h['tagname']], $h['tagname']);
+	else
+		$value = "n/a";
 
         $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+	//$node_string.= "\"".$value."\",";
+}
+else if ($h['source'] == "tophat")
+{
+	//print("<br>Searching for ".$h['tagname']."at ".$node);
+	if ($h['tagname'] == "hopcount")
+	{
+		//print "value = ".$this->HopCount[$node['hostname']];
+		//$value = "hc";
+		if ($this->HopCount != "")
+        		$value = $this->HopCount[$node['hostname']];
+		else
+			$value = "n/a";
+	}
+	else if ($h['tagname'] == "rtt")
+	{
+		if ($this->RTT != "")
+			if ($this->RTT[$node['hostname']] != "")
+        			$value = $this->RTT[$node['hostname']];
+			else
+				$value = "n/a";
+		else
+			$value = "n/a";
+	}	
+	else if ($h['tagname'] == "agents")
+	{
+		if ($this->TopHatAgents != "")
+			if ($this->TopHatAgents[$node['hostname']] != "")
+        			$value = $this->TopHatAgents[$node['hostname']]['all'];
+			else
+				$value = "n/a";
+		else
+			$value = "n/a";
+	}	
+	else if ($h['tagname'] == "agents_tdmi")
+	{
+		if ($this->TopHatAgents != "")
+			if ($this->TopHatAgents[$node['hostname']] != "")
+        			$value = $this->TopHatAgents[$node['hostname']]['tdmi'];
+			else
+				$value = "n/a";
+		else
+			$value = "n/a";
+	}	
+	else if ($h['tagname'] == "agents_sonoma")
+	{
+		if ($this->TopHatAgents != "")
+			if ($this->TopHatAgents[$node['hostname']] != "")
+        			$value = $this->TopHatAgents[$node['hostname']]['sonoma'];
+			else
+				$value = "n/a";
+		else
+			$value = "n/a";
+	}	
+	else
+	{
+		if ($this->TopHatData != "")
+        		$value = $this->convert_data($this->TopHatData[$node['hostname']][$h['tagname']], $h['type']);
+		else
+			$value = "n/a";
+	}
+
+        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+	//$node_string.= "\"".$value."\",";
 }
 else
 {
         //$value = $node[$h['tagname']];
         $value = $this->convert_data($node[$h['tagname']], $h['type']);
         $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+	//$node_string.= "\"".$value."\",";
 }
 }
 else 
@@ -449,12 +621,11 @@ else
         	$table->cell($value, array('name'=>$h['header'], 'display'=>'none'));
 	}
 	else
-		if ($node[$h['fetched']])
-        		$table->cell("n/a", array('name'=>$h['header'], 'display'=>'none'));
-		else
-        		$table->cell("??", array('name'=>$h['header'], 'display'=>'none'));
+        	$table->cell("n/a", array('name'=>$h['header'], 'display'=>'none'));
 }
 }
+
+//return $node_string;
 
 }
 
@@ -468,22 +639,32 @@ HTML
 
 function javascript_init() {
 
-print("<input type='hidden' id='selected_reference_node' value='".$this->reference_node."' />");
+$refnodes = $this->getTopHatRefNodes();
+//$tophat_agents = $this->getTopHatAgents();
+$ref_nodes = "";
+foreach ($refnodes as $r)
+{
+	if ($r['hostname'] == $this->reference_nodes['hopcount'])
+		$selected = "selected=selected";
+	else
+		$selected = "";
+
+	$ref_nodes = $ref_nodes."<option value=".$r['hostname']." ".$selected.">".$r['hostname']."</option>";
+}
+
+print("<input type='hidden' id='selected_reference_node' value='".$this->reference_nodes['hopcount']."' />");
 
 print("<script type='text/javascript'>");
 print("highlightOption('AU');");
 print("overrideTitles();");
+print "var ref_nodes_select =\"Select reference node: <select id='refnodeHC' onChange='updateReferenceNode(this.id,this.value)'>".$ref_nodes."</select>\";";
 print("</script>");
 
 }
 
 function quickselect_html() {
 
-//return '<p>This link uses the onclick event handler.<br><a href="#" onclick="setVisible(\'quicklist\');return false" target="_self">Open popup</a></p>';
-
-
 $quickselection = "<select id='quicklist' onChange=changeSelectStatus(this.value)><option value='0'>Short column descriptions and quick add/remove</option>";
-//$quickselection = "<select id='quicklist'><option value='0'>Short column descriptions and quick add/remove</option>";
 $prev_label="";
 $optionclass = "out";
 foreach ($this->all_headers as $h)
@@ -497,26 +678,18 @@ foreach ($this->all_headers as $h)
 		$disabled = "";
 
         if ($this->headerIsVisible($h['label']))
-	{
                	$optionclass = "in";
-		//$selected = "selected=selected";
-	}
 	else
-	{
                	$optionclass = "out";
-		//$selected = "";
-	}
 
 	if ($prev_label == $h['label'])
 		continue;
 
 	$prev_label = $h['label'];
 
+	$quickselection.="<option id='option'".$h['label']." class='".$optionclass."' value='".$h['label']."'><span class='bold'>".$h['label']."</span>:&nbsp;".$h['title']."</option>";
 
-//$quickselection.="<option onclick=\"debugfilter('here2');removeSelectHandler(this);\" id='option'".$h['label']." class='".$optionclass."' value='".$h['label']."'><b>".$h['label']."</b>:&nbsp;".$h['title']."</option>";
-$quickselection.="<option id='option'".$h['label']." class='".$optionclass."' value='".$h['label']."'><b>".$h['label']."</b>:&nbsp;".$h['title']."</option>";
 }
-
 
 $quickselection.="</select>";
 
@@ -532,15 +705,15 @@ if ($showDescription)
 else
 	$table_width = 350;
 
-print("<table align=center cellpadding=10 width=".$table_width.">");
-print("<tr><th>Add/remove columns</th>");
+print("<table class='center' width='".$table_width."px'>");
+print("<tr><th class='top'>Add/remove columns</th>");
 
 if ($showDescription)
-	print("<th>Column description and configuration</th>");
+	print("<th class='top'>Column description and configuration</th>");
 
-print("</tr><tr><td valign=top width=300>");
+print("</tr><tr><td class='top' width='300px'>");
 
-	print('<div id="scrolldiv" style="border : solid 2px grey; padding:4px; width:300px; height:180px; overflow:auto;">');
+	print('<div id="scrolldiv">');
 print ("<table>");
 	$prev_label="";
 	$optionclass = "out";
@@ -584,11 +757,11 @@ print ("<table>");
 <input type='hidden' id='type".$h['label']."' value='".$h['type']."'></input>
 <input type='hidden' id='source".$h['label']."' value='".$h['source']."'></input>
 		<div id='".$h['label']."' name='columnlist' class='".$optionclass."' onclick='highlightOption(this.id)'>
-<table width=280 id='table".$h['label']."'><tr>
-<td bgcolor=#CAE8EA align=center width=30><b><span style='color:#3399CC'>".$h['label']."</span></b></td> 
-<td align=left>&nbsp;<span style='height:10px' id ='htitle".$h['label']."'>".$h['title']."</span>&nbsp;</td>
-<td align=right width=20>&nbsp;<span style='height:10px' id ='loading".$h['label']."'></span>&nbsp;</td>
-<td align=right width=20><input id='check".$h['label']."' name='".$h['tagname']."' type='checkbox' ".$selected." ".$disabled." autocomplete='off' value='".$h['label']."' onclick='changeCheckStatus(this.id)'></input></td>
+<table class='columnlist' id='table".$h['label']."'><tr>
+<td class='header'><span class='header'>".$h['label']."</span></td> 
+<td align=left>&nbsp;<span class='short' id ='htitle".$h['label']."'>".$h['title']."</span>&nbsp;</td>
+<td class='smallright'>&nbsp;<span class='short' id ='loading".$h['label']."'></span>&nbsp;</td>
+<td class='smallright'><input id='check".$h['label']."' name='".$h['tagname']."' type='checkbox' ".$selected." ".$disabled." autocomplete='off' value='".$h['label']."' onclick='changeCheckStatus(this.id)'></input></td>
 </tr></table></div></td></tr>");
 	}
 
@@ -596,8 +769,8 @@ print ("<table>");
 
 if ($showDescription)
 {
-	print("<td valign=top width=400>");
-	print("<div class='myslice' id='selectdescr'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></td>");
+	print("<td class='top' width='400px'>");
+	print("<div id='selectdescr'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></td>");
 }
 
 print("</tr>");

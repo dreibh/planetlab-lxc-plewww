@@ -22,55 +22,83 @@ $tagN=$_GET["tagName"];
 $data_source=$_GET["data_source"];
 $data_type=$_GET["data_type"];
 
-
+//print "getting column data for ".$slice_id." with ".$tagN." - ".$data_source." - ".$data_type;
 $nodetags = array('node_id');
 $extratags = explode("|", $tagN);
+
 
 if ($slice_id == "nodes") {
 
 if ($data_source == "comon") {
 
-$comontags = $extratags;
-$extratags = array ('hostname');
-$nodes=$api->GetNodes(NULL, array_merge($nodetags, $extratags));
-$ColumnsConfigure = new PlekitColumns(NULL, NULL, NULL);
-$comon_data = $ColumnsConfigure->comon_query_nodes(",".$tagN);
+	$comontags = $extratags;
+	$extratags = array ('hostname');
+	$nodes=$api->GetNodes(NULL, array_merge($nodetags, $extratags));
+	$ColumnsConfigure = new PlekitColumns(NULL, NULL, NULL);
+	$comon_data = $ColumnsConfigure->comon_query_nodes(",".$tagN);
 
-//print ("comon tags = ".$comontags);
-
-echo "---attached---";
-if ($nodes) foreach ($nodes as $node) {
-	echo "|".$node['node_id'];
-	foreach ($comontags as $t)
-		echo ":".$ColumnsConfigure->convert_data($comon_data[$node['hostname']][$t], $data_type);
-}
+	//print ("comon tags = ".$comontags);
+	
+	if ($comon_data != "")
+	{
+	echo "---attached---";
+	if ($nodes) foreach ($nodes as $node) {
+		echo "|".$node['node_id'];
+		foreach ($comontags as $t)
+			echo ":".$ColumnsConfigure->convert_data($comon_data[$node['hostname']][$t], $data_type);
+	}
+	}
 }
 else if ($data_source == "tophat") {
-$extratags = array ('hostname');
-$nodes=$api->GetNodes(NULL, array_merge($nodetags, $extratags));
-echo "---attached---";
-if ($nodes) foreach ($nodes as $node) {
-	echo "|".$node['node_id'];
-	echo ":n/a";
+
+	$ColumnsConfigure = new PlekitColumns(NULL, NULL, NULL);
+
+	$extratags = array ('hostname');
+	$nodes=$api->GetNodes(NULL, array_merge($nodetags, $extratags));
+
+	$dd = array();
+	if ($nodes) foreach ($nodes as $n)
+		$dd[] = $n['hostname'];
+
+	if ($tagN == "hopcount") 
+	{
+		$ref_node=$_GET["ref_node"];
+		//print("getting hop count with ref node = ".$ref_node);
+		$tophat_data = $ColumnsConfigure->getPairwise($ref_node, $dd, "traceroute", "hop_count");
+	}
+	else
+		$tophat_data = $ColumnsConfigure->getTopHatData($tagN, $dd);
+
+	//print_r($tophat_data);
+
+	if ($tophat_data != "") {
+	echo "---attached---";
+	if ($nodes) foreach ($nodes as $node) {
+		echo "|".$node['node_id'];
+		echo ":".$ColumnsConfigure->convert_data($tophat_data[$node['hostname']][$tagN], $data_type);
+	}
+	}
 }
-}
-else
+else //MyPLC API
 {
 
-echo "---attached---";
-$nodes=$api->GetNodes(NULL, array_merge($nodetags, $extratags));
-//echo $nodes;
+	$nodes=$api->GetNodes(NULL, array_merge($nodetags, $extratags));
 
-if ($nodes) foreach ($nodes as $node) {
-	echo "|".$node['node_id'];
-	foreach ($extratags as $t)
-		echo ":".$node[$t];
+	if ($nodes) {
+	echo "---attached---";
+
+	foreach ($nodes as $node) {
+		echo "|".$node['node_id'];
+		foreach ($extratags as $t)
+			echo ":".$node[$t];
+	}
+	}
 }
-}
 
 
 
 }
+// in slices view
 else
 {
 
@@ -83,63 +111,91 @@ $slice=$slices[0];
 
 if ($data_source == "comon") {
 
-$comontags = $extratags;
-$extratags = array ('hostname');
+	$comontags = $extratags;
+	$extratags = array ('hostname');
 
-$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
-$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
+	$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
+	$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
 
-$ColumnsConfigure = new PlekitColumns(NULL, NULL, NULL);
-$comon_data = $ColumnsConfigure->comon_query_nodes(",".$tagN);
+	$ColumnsConfigure = new PlekitColumns(NULL, NULL, NULL);
+	$comon_data = $ColumnsConfigure->comon_query_nodes(",".$tagN);
 
-//print ("comon tags = ".$comontags);
+	//print ("comon tags = ".$comontags);
 
-echo "---attached---";
-if ($nodes) foreach ($nodes as $node) {
-	echo "|".$node['node_id'];
-	foreach ($comontags as $t)
-		echo ":".$ColumnsConfigure->convert_data($comon_data[$node['hostname']][$t], $data_type);
-}
-echo "|---potential---";
-if ($potential_nodes) foreach ($potential_nodes as $potential_node) {
-	echo "|".$potential_node['node_id'];
-	foreach ($comontags as $t)
-		echo ":".$ColumnsConfigure->convert_data($comon_data[$potential_node['hostname']][$t], $data_type);
-}
+	if ($comon_data != "") {
+	echo "---attached---";
+	if ($nodes) foreach ($nodes as $node) {
+		echo "|".$node['node_id'];
+		foreach ($comontags as $t)
+			echo ":".$ColumnsConfigure->convert_data($comon_data[$node['hostname']][$t], $data_type);
+	}
+	echo "|---potential---";
+	if ($potential_nodes) foreach ($potential_nodes as $potential_node) {
+		echo "|".$potential_node['node_id'];
+		foreach ($comontags as $t)
+			echo ":".$ColumnsConfigure->convert_data($comon_data[$potential_node['hostname']][$t], $data_type);
+	}
+	}
 }
 else if ($data_source == "tophat") {
-$extratags = array ('hostname');
-$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
-$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
-echo "---attached---";
-if ($nodes) foreach ($nodes as $node) {
-	echo "|".$node['node_id'];
-	echo ":n/a";
+
+	$ColumnsConfigure = new PlekitColumns(NULL, NULL, NULL);
+
+	$extratags = array ('hostname');
+	$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
+	$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
+	
+	$dd = array();
+	if ($nodes) foreach ($nodes as $n)
+		$dd[] = $n['hostname'];
+	if ($potential_nodes) foreach ($potential_nodes as $n)
+		$dd[] = $n['hostname'];
+	
+	if ($tagN == "hopcount") 
+	{
+		$ref_node=$_GET["ref_node"];
+		print("getting hop count with ref node = ".$ref_node);
+		$tophat_data = $ColumnsConfigure->getPairwise($ref_node, $dd, "hop_count");
+	}
+	else
+		$tophat_data = $ColumnsConfigure->getTopHatData($tagN, $dd);
+
+	if ($tophat_data != "") {
+	echo "---attached---";
+	if ($nodes) foreach ($nodes as $node) {
+		echo "|".$node['node_id'];
+		echo ":".$ColumnsConfigure->convert_data($tophat_data[$node['hostname']][$tagN], $data_type);
+	}
+
+	echo "|---potential---";
+	if ($potential_nodes) foreach ($potential_nodes as $potential_node) {
+		echo "|".$potential_node['node_id'];
+		echo ":".$ColumnsConfigure->convert_data($tophat_data[$potential_node['hostname']][$tagN], $data_type);
+	}
+	}
 }
-echo "|---potential---";
-if ($potential_nodes) foreach ($potential_nodes as $potential_node) {
-	echo "|".$potential_node['node_id'];
-	echo ":n/a";
-}
-}
-else
+else //MyPLC API
 {
 
-$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
-$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
-
-echo "---attached---";
-if ($nodes) foreach ($nodes as $node) {
-	echo "|".$node['node_id'];
-	foreach ($extratags as $t)
-		echo ":".$node[$t];
-}
-echo "|---potential---";
-if ($potential_nodes) foreach ($potential_nodes as $potential_node) {
-	echo "|".$potential_node['node_id'];
-	foreach ($extratags as $t)
-		echo ":".$potential_node[$t];
-}
+	$nodes=$api->GetNodes(array('node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
+	$potential_nodes=$api->GetNodes(array('~node_id'=>$slice['node_ids']),array_merge($nodetags, $extratags));
+	
+	if ($nodes) {
+	echo "---attached---";
+	foreach ($nodes as $node) {
+		echo "|".$node['node_id'];
+		foreach ($extratags as $t)
+			echo ":".$node[$t];
+	}
+	}
+	if ($potential_nodes) {
+	echo "|---potential---";
+	foreach ($potential_nodes as $potential_node) {
+		echo "|".$potential_node['node_id'];
+		foreach ($extratags as $t)
+			echo ":".$potential_node[$t];
+	}
+	}
 }
 }
 ?> 

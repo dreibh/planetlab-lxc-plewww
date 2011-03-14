@@ -59,23 +59,74 @@ div.in{background-color:#CAE8EA; color:#4f6b72}
 div.selected{background-color:gray; color:black}
 div.invisible{display:none}
 
-.myslice {
-        font: 11px Arial, Helvetica, sans-serif;
-        color: gray;
+div.note-div {
+ 	padding: 4px;
+ 	background-color: #cae8ea;
+ 	width: 700px;
 }
 
-.myslice .title {
-        font: 11px;
+div#scrolldiv {
+	border : solid 2px grey; 
+	padding:4px; 
+	width:300px; 
+	height:180px; 
+	overflow:auto;
+}
+
+th,td.top {
+	vertical-align: top;
+	text-align: left;
+	padding:10px;
+}
+
+td.smallright {
+	text-align: right;
+	width:20px;
+}
+
+table.center {
+	margin-left:auto; 
+	margin-right:auto;
+}
+
+table.columnlist {
+	width:280px;
+}
+
+td.header {
+	background-color: #CAE8EA;
+	text-align: center;
+	width:30px;
+}
+
+span.header {
+	font-weight: bold;
+	color: #3399CC;
+}
+
+a.source-url{
         font-weight: bold;
 }
 
-.myslice .desc {
-        font: 11px;
+span.gray{
+        color: #555555;
+}
+
+span.short {
+	height:10px;
+}
+
+span.column-title {
+        font-size: 15px;
+        font-weight: bold;
+}
+
+span.column-detail {
+        font-size: 11px; 
         font-style: italic;
 }
 
-.myslice .subtitle{
-        color: #bb9c61;
-}
+
+
 
 

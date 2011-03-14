@@ -32,6 +32,7 @@ drupal_set_html_head('
 
 // -------------------- admins potentially need to get full list of users
 ini_set('memory_limit','32M');
+//error_reporting(0);
 
 $profiling=false;
 if ($_GET['profiling']) $profiling=true;
@@ -451,8 +452,20 @@ $extra_columns[]=array('tagname'=>'numslices', 'header'=>'SM', 'source'=>'comon'
 $extra_columns[]=array('tagname'=>'uptime', 'header'=>'UT', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Continuous uptime until now', 'fetched'=>false);
 
 //TopHat Live data
+$extra_columns[]=array('tagname'=>'asn', 'header'=>'AS', 'source'=>'tophat', 'type'=>'string', 'title'=>'AS Number', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'city', 'header'=>'LCY', 'source'=>'tophat', 'type'=>'string', 'title'=>'City', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'region', 'header'=>'LRN', 'source'=>'tophat', 'type'=>'string', 'title'=>'Region', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'country', 'header'=>'LCN', 'source'=>'tophat', 'type'=>'string', 'title'=>'Country', 'fetched'=>false);
+$extra_columns[]=array('tagname'=>'continent', 'header'=>'LCT', 'source'=>'tophat', 'type'=>'string', 'title'=>'Continent', 'fetched'=>false);
 //$extra_columns[]=array('tagname'=>'hopcount', 'header'=>'HC', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Hop count from reference node', 'fetched'=>false);
-
+//$extra_columns[]=array('tagname'=>'rtt', 'header'=>'RTT', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Round trip time from reference node', 'fetched'=>false);
+////$extra_columns[]=array('tagname'=>'agents', 'header'=>'MA', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located measurement agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_sonoma', 'header'=>'MAS', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located SONoMA agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_etomic', 'header'=>'MAE', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located ETOMIC agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_tdmi', 'header'=>'MAT', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located TDMI agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_dimes', 'header'=>'MAD', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located DIMES agents', 'fetched'=>true);
+//
+//
 
 //Get user's column configuration
 
@@ -663,10 +676,10 @@ else
   $note_display = "";
 
   print <<<EOF
-<div id='note_columns_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
-<table align=center><tr><td valign=top>
+<div class='note-div' id='note_columns_div' style='$note_display'>
+<table class='center'><tr><td class='top'>
 This tab allows you to customize the columns in the node tables, below. Information on the nodes comes from a variety of monitoring sources. If you, as either a user or a provider of monitoring data, would like to see additional columns made available, please send us your request in mail to <a href="mailto:support@myslice.info">support@myslice.info</a>. You can find more information about the MySlice project at <a href="http://trac.myslice.info">http://trac.myslice.info</a>.
-</td><td valign=top><span onClick=closeMessage('columns')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
+</td><td class='top'><span onClick=closeMessage('columns')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
 </td></tr></table>
 </div>
 EOF;

@@ -6,288 +6,299 @@ var normal_color = "black";
 
 //Descriptions overriding the default ones set in Accessors_site.py and configuration 
 
-var sourceComon = '<a target="source_window" href="http://comon.cs.princeton.edu/">CoMon</a>';
-var sourceTophat = '<b><a target="source_window" href="http://www.top-hat.info/">TopHat</a></b>';
-var sourceTophatAPI = '<b><a target="source_window" href="http://www.top-hat.info/API/">TopHat API</a></b>';
-var sourceMySlice = '<b><a target="source_window" href="http://myslice.info/">MySlice</a></b>';
-var sourceCymru = '<b><a target="source_window" href="http://www.team-cymru.org/">Team Cymru</a></b>';
-var sourceMyPLC = '<b><a target="source_window" href="https://www.planet-lab.eu/db/doc/PLCAPI.php">MyPLC API</a></b>';
-var sourceManiacs = '<b><a target="source_window" href="http://www.ece.gatech.edu/research/labs/MANIACS/as_taxonomy/">MANIACS</a></b>';
-var sourceMaxmind = '<b><a target="source_window" href="http://www.maxmind.com/app/geolitecity">MaxMind</a></b>';
-var sourceMonitor = '<b><a target="source_window" href="http://monitor.planet-lab.org/">Monitor</a></b>';
-var hardwareReqs = 'current <b><a target="source_window" href="http://www.planet-lab.org/hardware">PlanetLab hardware requirement</a></b>';
-var selectReferenceNode ='Select reference node: <select id="reference_node" onChange="updateReferenceNode(this.value)"><option value=planetlab-europe-07.ipv6.lip6.fr>planetlab-europe-07.ipv6.lip6.fr</option><option value=planetlab2.ipv6.lip6.fr>planetlab2.ipv6.lip6.fr</option></select>';
-//var addButton = '<input id="addButton" type="button" value="Add" onclick=addColumnAjax(document.getElementById("list1").value)></input>';
-//var deleteButton = '<input id="deleteButton" type="button" value="Delete" onclick=deleteColumn(window.document.getElementById("list1").value)></input>';
+var sourceComon = '<a class="source-url" target="source_window" href="http://comon.cs.princeton.edu/">CoMon</a>';
+var sourceTophat = '<a class="source-url" target="source_window" href="http://www.top-hat.info/">TopHat</a>';
+var sourceTophatAPI = '<a class="source-url" target="source_window" href="http://www.top-hat.info/API/">TopHat API</a>';
+var sourceMySlice = '<a class="source-url" target="source_window" href="http://myslice.info/">MySlice</a>';
+var sourceCymru = '<a class="source-url" target="source_window" href="http://www.team-cymru.org/">Team Cymru</a>';
+var sourceSonoma = '<a class="source-url" target="source_window" href="http://sonoma.etomic.org/">SONoMA</a>';
+var sourceMyPLC = '<a class="source-url" target="source_window" href="https://www.planet-lab.eu/db/doc/PLCAPI.php">MyPLC API</a>';
+var sourceManiacs = '<a class="source-url" target="source_window" href="http://www.ece.gatech.edu/research/labs/MANIACS/as_taxonomy/">MANIACS</a>';
+var sourceMaxmind = '<a class="source-url" target="source_window" href="http://www.maxmind.com/app/geolitecity">MaxMind</a>';
+var sourceMonitor = '<a class="source-url" target="source_window" href="http://monitor.planet-lab.org/">Monitor</a>';
+var hardwareReqs = 'current <a class="info-url" target="info_window" href="http://www.planet-lab.org/hardware">PlanetLab hardware requirement</a>';
+var selectReferenceNode ='<div id="refnodes_div"></div>';
+var selectReferenceNodeRTT ='<div id="refnodes_rtt_div"></div>';
 
 var descHOSTNAME = "test";
 
-
 var titleAU = 'Authority';
-var detailAU = '<i>The authority of the global PlanetLab federation that the site of the node belongs to.</i>';
-var valuesAU = 'Values: <b>PLC</b> (PlanetLab Central), <b>PLE</b> (PlanetLab Europe)';
+var detailAU = 'The authority of the global PlanetLab federation that the site of the node belongs to.';
+var valuesAU = '<span class="bold">PLC</span> (PlanetLab Central), <span class="bold">PLE</span> (PlanetLab Europe)';
 var sourceAU = 'Source: '+sourceMyPLC;
-var descAU = '<span class="myslice title">'+titleAU+'</span><p>'+detailAU+'<p>'+valuesAU+'<p>'+sourceAU;
+var descAU = '<span class="gray"><span class="column-title">'+titleAU+'</span><p><span class="column-detail">'+detailAU+'</span></p><p>Values: '+valuesAU+'</p><p>Source: '+sourceMyPLC+'</p></span>';
 
 var titleST = 'Status';
 var sourceST = 'Source: '+sourceMonitor;
-var valuesST = 'Values: <b>online</b> (up and running), <b>good</b> (up and running recently), <b>offline</b> (unreachable today), <b>down</b> (node unreachable for more than one day), <b>failboot</b> (reachable, but only by administrators for debugging purposes).';
-var descST = '<span class="myslice title">'+titleST+'</span><p>'+valuesST+'<p>'+sourceST;
+var valuesST = 'Values: <span class="bold">online</span> (up and running), <span class="bold">good</span> (up and running recently), <span class="bold">offline</span> (unreachable today), <span class="bold">down</span> (node unreachable for more than one day), <span class="bold">failboot</span> (reachable, but only by administrators for debugging purposes).';
+var descST = '<span class="gray"><span class="column-title">'+titleST+'</span><p>'+valuesST+'</p><p>'+sourceST+'</p></span>';
 
 var titleA = 'Architecture name';
-var detailA = '<i>The node architecture.</i>';
+var detailA = 'The node architecture.';
 var sourceA = 'Source: '+sourceMyPLC;
-var valuesA = 'Values: <b>x86_64</b>, <b>i386</b>, <b>n/a</b>';
-var descA = '<span class="myslice title">'+titleA+'</span><p>'+detailA+'<p>'+valuesA+'<p>'+sourceA;
+var valuesA = '<span class="bold">x86_64</span>, <span class="bold">i386</span>, <span class="bold">n/a</span>';
+var descA = '<span class="gray"><span class="column-title">'+titleA+'</span><p><span class="column-detail">'+detailA+'</span></p><p>Values: '+valuesA+'</p><p>'+sourceA+'</p></span>';
 
 var titleAS = 'Autonomous system ID';
 var sourceAS = 'Source: '+sourceCymru+' (via '+sourceTophat+')';
-var valuesAS = 'Values: <b>Integer between 0 and 65535</b>, <b>n/a</b>';
-var descAS = '<span class="myslice title">'+titleAS+'</span><p>'+valuesAS+'<p>' + sourceAS;
+var valuesAS = 'Values: <span class="bold">Integer between 0 and 65535</span>, <span class="bold">n/a</span>';
+var descAS = '<span class="gray"><span class="column-title">'+titleAS+'</span><p>'+valuesAS+'</p><p>' + sourceAS+'</p></span>';
 
 var titleAST = 'Autonomous system type';
 var sourceAST = 'Source: '+sourceManiacs;
-var valuesAST = 'Values: <b>t1</b> (tier-1), <b>t2</b> (tier-2), <b>edu</b> (university), <b>comp</b> (company), <b>nic</b> (network information centre -- old name for a domain name registry operator), <b>ix</b> (IXP), <b>n/a</b>';
-var descAST = '<span class="myslice title">'+titleAST+'</span><p>'+valuesAST+'<p>'+sourceAST;
+var valuesAST = 'Values: <span class="bold">t1</span> (tier-1), <span class="bold">t2</span> (tier-2), <span class="bold">edu</span> (university), <span class="bold">comp</span> (company), <span class="bold">nic</span> (network information centre -- old name for a domain name registry operator), <span class="bold">ix</span> (IXP), <span class="bold">n/a</span>';
+var descAST = '<span class="gray"><span class="column-title">'+titleAST+'</span><p>'+valuesAST+'</p><p>'+sourceAST+'</p></span>';
 
 var titleASN = 'Autonomous system name';
 var sourceASN = 'Source: '+sourceTophat;
-var descASN = '<span class="myslice title">'+titleASN+'</span><p>'+sourceASN;
+var descASN = '<span class="gray"><span class="column-title">'+titleASN+'</span><p>'+sourceASN+'</p></span>';
 
 var selectPeriodBU = 'Select period: <select id="selectperiodBU" onChange=updatePeriod("BU",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleBU = 'Bandwidth utilization ';
 var sourceBU = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesBU ='Unit: <b>Kbps</b>';
-var detailBU = '<i>The average transmited bandwidh over the selected period. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>'
-var descBU = '<span class="myslice title">'+titleBU+'</span><p>'+detailBU+'<p>'+selectPeriodBU+'<p>'+valuesBU+'<p>'+sourceBU; 
+var valuesBU ='Unit: <span class="bold">Kbps</span>';
+var detailBU = 'The average transmited bandwidh over the selected period. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.'
+var descBU = '<span class="gray"><span class="column-title">'+titleBU+'</span><p><span class="column-detail">'+detailBU+'</span></p><p>'+selectPeriodBU+'</p><p>'+valuesBU+'</p><p>'+sourceBU+'</p></span>'; 
 
 var titleBW= 'Bandwidth limit';
 var sourceBW = 'Source: '+sourceComon;
-var valuesBW = 'Unit: <b>Kbps</b>';
-var detailBW = '<i>The bandwidth limit is a cap on the total outbound bandwidth usage of a node. It is set by the site administrator (PI). For more details see <a targe="source_window" href="http://www.planet-lab.org/doc/BandwidthLimits">Bandwidth Limits (planet-lab.org)</a></i>.';
-var descBW = '<span class="myslice title">'+titleBW+'</span><p>'+detailBW+'<p>'+valuesBW+'<p>'+sourceBW;
+var valuesBW = 'Unit: <span class="bold">Kbps</span>';
+var detailBW = 'The bandwidth limit is a cap on the total outbound bandwidth usage of a node. It is set by the site administrator (PI). For more details see <a targe="source_window" href="http://www.planet-lab.org/doc/BandwidthLimits">Bandwidth Limits (planet-lab.org)</a>.';
+var descBW = '<span class="gray"><span class="column-title">'+titleBW+'</span><p><span class="column-detail">'+detailBW+'</span></p><p>'+valuesBW+'</p><p>'+sourceBW+'</p></span>';
 
 var titleCC = 'Number of CPU cores';
 var sourceCC = 'Source: '+sourceComon;
-var valuesCC = '<i>The number of CPU cores on the node. For reference, the '+hardwareReqs+' is <b>4 cores min.</b> <br> (Older nodes may have fewer cores)</i>.';
-var descCC = '<span class="myslice title">'+titleCC+'</span><p>'+valuesCC+'<p>'+sourceCC;
+var detailCC = 'The number of CPU cores on the node. For reference, the '+hardwareReqs+' is <span class="bold">4 cores min.</span> (Older nodes may have fewer cores).';
+var descCC = '<span class="gray"><span class="column-title">'+titleCC+'</span><p><span class="column-detail">'+detailCC+'</span></p><p>'+sourceCC+'</p></span>';
 
 var titleCN = 'Number of CPUs';
 var sourceCN = 'Source: '+sourceComon;
-var valuesCN = '<i>The number of CPUs on the node. For reference, the '+hardwareReqs+' is <b>1 (if quad core) or 2 (if dual core)</b>.</i>';
-var descCN = '<span class="myslice title">'+titleCN+'</span><p>'+valuesCN+'<p>'+sourceCN;
+var detailCN = 'The number of CPUs on the node. For reference, the '+hardwareReqs+' is <span class="bold">1 (if quad core) or 2 (if dual core)</span>.';
+var descCN = '<span class="gray"><span class="column-title">'+titleCN+'</span><p><span class="column-detail">'+detailCN+'</detail></p><p>'+sourceCN+'</p></span>';
 
 var titleCPC = 'Number of cores per CPU';
 var sourceCPC = 'Source: '+sourceComon;
-var valuesCPC = '<i>The number of cores per CPU on the node.</i>'; 
-var descCPC = '<span class="myslice title">'+titleCPC+'</span><p>'+valuesCPC+'<p>'+sourceCPC;
+var detailCPC = 'The number of cores per CPU on the node.'; 
+var descCPC = '<span class="gray"><span class="column-title">'+titleCPC+'</span><p><span class="column-detail">'+detailCPC+'</span></p><p>'+sourceCPC+'</p></span>';
 
 var titleCR = 'CPU clock rate';
-var detailCR = '<i>The clock rate for the CPUs on the node. For reference, the '+hardwareReqs+' is <b>2.4 GHz</b></i>.';
+var detailCR = 'The clock rate for the CPUs on the node. For reference, the '+hardwareReqs+' is <span class="bold">2.4 GHz</span>.';
 var sourceCR = 'Source: '+sourceComon;
-var valuesCR = 'Unit: <b>GHz</b>';
-var descCR = '<span class="myslice title">'+titleCR+'</span><p>'+detailCR+'<p>'+valuesCR+'<p>'+sourceCR;
+var valuesCR = 'Unit: <span class="bold">GHz</span>';
+var descCR = '<span class="gray"><span class="column-title">'+titleCR+'</span><p><span class="column-detail">'+detailCR+'</span></p><p>'+valuesCR+'</p><p>'+sourceCR+'</p></span>';
 
 var selectPeriodCF = 'Select period: <select id="selectperiodCF" onChange=updatePeriod("CF",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleCF = 'Free CPU';
 var sourceCF = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesCF = 'Unit: <b>%</b>';
-var detailCF = '<i> The average CPU percentage that gets allocated to a test slice named burb that is periodically run by CoMon.</i>';
-var descCF = '<span class="myslice title">'+titleCF+'</span><p>'+detailCF+'<p>'+selectPeriodCF+'<p>'+valuesCF+'<p>'+sourceCF; 
+var valuesCF = 'Unit: <span class="bold">%</span>';
+var detailCF = 'The average CPU percentage that gets allocated to a test slice named burb that is periodically run by CoMon.';
+var descCF = '<span class="gray"><span class="column-title">'+titleCF+'</span><p><span class="column-detail">'+detailCF+'</span></p><p>'+selectPeriodCF+'</p><p>'+valuesCF+'</p><p>'+sourceCF+'</p></span>'; 
 
 var titleDN = 'Toplevel domain name';
 var sourceDN = 'Source: '+sourceMyPLC;
-var descDN = '<span class="myslice title">'+titleDN+'</span><p>'+sourceDN;
+var descDN = '<span class="gray"><span class="column-title">'+titleDN+'</span><p>'+sourceDN+'</p></span>';
 
 var titleDA = 'Date added';
 var sourceDA = 'Source: '+sourceMyPLC;
-var detailDA = '<i> The date that the noded was added to PlanetLab.</i>';
-var descDA = '<span class="myslice title">'+titleDA+'</span><p>'+detailDA+'<p>'+sourceDA;
+var detailDA = 'The date that the node was added to PlanetLab.';
+var descDA = '<span class="gray"><span class="column-title">'+titleDA+'</span><p><span class="column-detail">'+detailDA+'</span></p><p>'+sourceDA+'</p></span>';
 
 var titleDL = 'Deployment';
-var detailDL = '<i>The deployment status.</i>';
-var valuesDL = 'Values: <b>alpha</b>, <b>beta</b>, <b>production</b>, <b>n/a</b>';
+var detailDL = 'The deployment status.';
+var valuesDL = 'Values: <span class="bold">alpha</span>, <span class="bold">beta</span>, <span class="bold">production</span>, <span class="bold">n/a</span>';
 var sourceDL = 'Source: '+sourceMyPLC;
-var descDL = '<span class="myslice title">'+titleDL+'</span><p>'+detailDL+'<p>'+valuesDL+'<p>'+sourceDL;
+var descDL = '<span class="gray"><span class="column-title">'+titleDL+'</span><p><span class="column-detail">'+detailDL+'</span></p><p>'+valuesDL+'</p><p>'+sourceDL+'</p></span>';
 
 var titleDS = 'Disk size';
-var detailDS = '<i>The size of the hard disk available on the node. For reference, the '+hardwareReqs+' is <b>500 GB</b></i>.';
+var detailDS = 'The size of the hard disk available on the node. For reference, the '+hardwareReqs+' is <span class="bold">500 GB</span>.';
 var sourceDS = 'Source: '+sourceComon;
-var valuesDS = 'Unit: <b>GB</b>';
-var descDS = '<span class="myslice title">'+titleDS+'</span><p>'+detailDS+'<p>'+valuesDS+'<p>'+sourceDS;
+var valuesDS = 'Unit: <span class="bold">GB</span>';
+var descDS = '<span class="gray"><span class="column-title">'+titleDS+'</span><p><span class="column-detail">'+detailDS+'</span></p><p>'+valuesDS+'</p><p>'+sourceDS+'</p></span>';
 
 var titleDU = 'Current disk utilization';
 var sourceDU = 'Source: '+sourceComon;
-var valuesDU = 'Unit: <b>GB</b>';
-var detailDU = '<i> The amount of disk space currently consumed.</i>';
-var descDU = '<span class="myslice title">'+titleDU+'</span><p>'+detailDU+'<p>'+valuesDU+'<p>'+sourceDU;
+var valuesDU = 'Unit: <span class="bold">GB</span>';
+var detailDU = 'The amount of disk space currently consumed.';
+var descDU = '<span class="gray"><span class="column-title">'+titleDU+'</span><p><span class="column-detail">'+detailDU+'</span></p><p>'+valuesDU+'</p><p>'+sourceDU+'</p></span>';
 
 var titleDF = 'Disk space free';
 var sourceDF = 'Source: '+sourceComon;
-var valuesDF = 'Unit: <b>GB</b>.';
-var detailDF = '<i> The amount of disk space currently available.</i>';
-var descDF = '<span class="myslice title">'+titleDF+'</span><p>'+detailDF+'<p>'+valuesDF+'<p>'+sourceDF;
+var valuesDF = 'Unit: <span class="bold">GB</span>.';
+var detailDF = 'The amount of disk space currently available.';
+var descDF = '<span class="gray"><span class="column-title">'+titleDF+'</span><p><span class="column-detail">'+detailDF+'</span></p><p>'+valuesDF+'</p><p>'+sourceDF+'</p></span>';
 
 var titleHC = 'Hop count (pairwise)';
 var sourceHC = 'Source: '+sourceTophat;
-var detailHC = '<i>TopHat conducts traceroutes every five minutes in a full mesh between all PlanetLab nodes. The hop count is the length of the traceroute from the node to the reference node, based upon the most recently reported traceroute</i>.';
-var descHC = '<span class="myslice title">'+titleHC+'</span><p>'+detailHC+'<p>'+selectReferenceNode+'<p>'+sourceHC;
+var detailHC = 'TopHat conducts traceroutes every five minutes in a full mesh between all PlanetLab nodes. The hop count is the length of the traceroute from the node to the reference node, based upon the most recently reported traceroute.';
+var descHC = '<span class="gray"><span class="column-title">'+titleHC+'</span><p><span class="column-detail">'+detailHC+'</span></p><p>'+selectReferenceNode+'</p><p>'+sourceHC+'</p></span>';
 
 var titleIP = 'IP address';
 var sourceIP = 'Source: '+sourceMyPLC;
-var descIP = '<span class="myslice title">'+titleIP+'</span><p>'+sourceIP;
+var descIP = '<span class="gray"><span class="column-title">'+titleIP+'</span><p>'+sourceIP+'</p></span>';
 
 var selectPeriodL = 'Select period: <select id="selectperiodL" onChange=updatePeriod("L",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleL= 'Load ';
 var sourceL = 'Source: '+sourceComon;
-var valuesL = 'Unit: <b>5-minute load</b>';
-var detailL = '<i>The average 5-minute load (as reported by the Unix uptime command) over the selected period.</i>';
-var descL = '<span class="myslice title">'+titleL+'</span><p>'+detailL+'<p>'+selectPeriodL+'<p>'+valuesL+'<p>'+sourceL; 
+var valuesL = 'Unit: <span class="bold">5-minute load</span>';
+var detailL = 'The average 5-minute load (as reported by the Unix uptime command) over the selected period.';
+var descL = '<span class="gray"><span class="column-title">'+titleL+'</span><p><span class="column-detail">'+detailL+'</span></p><p>'+selectPeriodL+'</p><p>'+valuesL+'</p><p>'+sourceL+'</p></span>'; 
 
 var titleLON= 'Longitude';
 var sourceLON = 'Source: '+sourceTophat;
-var descLON = '<span class="myslice title">'+titleLON+'</span><p>'+sourceLON;
+var descLON = '<span class="gray"><span class="column-title">'+titleLON+'</span><p>'+sourceLON+'</p></span>';
 
 var titleLAT= 'Latitude';
 var sourceLAT = 'Source: '+sourceTophat;
-var descLAT = '<span class="myslice title">'+titleLAT+'</span><p>'+sourceLAT;
+var descLAT = '<span class="gray"><span class="column-title">'+titleLAT+'</span><p>'+sourceLAT+'</p></span>';
 
 var titleLCN= 'Location (Country)';
 var sourceLCN = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
-var detailLCN = '<i>Based on the latitude and longitude information.</i>';
-var descLCN = '<span class="myslice title">'+titleLCN+'</span><p>'+detailLCN+'<p>'+sourceLCN;
+var detailLCN = 'Based on the latitude and longitude information.';
+var descLCN = '<span class="gray"><span class="column-title">'+titleLCN+'</span><p><span class="column-detail">'+detailLCN+'</span></p><p>'+sourceLCN+'</p></span>';
 
 var titleLCT= 'Location (Continent)';
 var sourceLCT = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
-var detailLCT = '<i>Based on the latitude and longitude information.</i>';
-var descLCT = '<span class="myslice title">'+titleLCT+'</span><p>'+detailLCT+'<p>'+sourceLCT;
+var detailLCT = 'Based on the latitude and longitude information.';
+var descLCT = '<span class="gray"><span class="column-title">'+titleLCT+'</span><p><span class="column-detail">'+detailLCT+'</span></p><p>'+sourceLCT+'</p></span>';
 
 var titleLCY= 'Location (City)';
 var sourceLCY = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
-var detailLCY = '<i>Based on the latitude and longitude information.</i>';
-var descLCY = '<span class="myslice title">'+titleLCY+'</span><p>'+detailLCY+'<p>'+sourceLCY;
+var detailLCY = 'Based on the latitude and longitude information.';
+var descLCY = '<span class="gray"><span class="column-title">'+titleLCY+'</span><p><span class="column-detail">'+detailLCY+'</span></p><p>'+sourceLCY+'</p></span>';
 
 var titleLPR= 'Location precision radius';
 var sourceLPR = 'Source: '+sourceTophat;
-var valuesLPR = 'Unit: <b>float</b>.';
-var detailLPR = '<i>The radius of the circle corresponding to the error in precision of the geolocalization estimate.</i>';
-var descLPR = '<span class="myslice title">'+titleLPR+'</span><p>'+detailLPR+'<p>'+valuesLPR+'<p>'+sourceLPR;
+var valuesLPR = 'Unit: <span class="bold">float</span>.';
+var detailLPR = 'The radius of the circle corresponding to the error in precision of the geolocalization estimate.';
+var descLPR = '<span class="gray"><span class="column-title">'+titleLPR+'</span><p><span class="column-detail">'+detailLPR+'</span></p><p>'+valuesLPR+'</p><p>'+sourceLPR+'</p></span>';
 
 var titleLRN= 'Location (Region)';
 var sourceLRN = 'Source: '+sourceMaxmind+' (via '+sourceTophat+')';
-var detailLRN = '<i>Based on the latitude and longitude information.</i>';
-var descLRN = '<span class="myslice title">'+titleLRN+'</span><p>'+detailLRN+'<p>'+sourceLRN;
+var detailLRN = 'Based on the latitude and longitude information.';
+var descLRN = '<span class="gray"><span class="column-title">'+titleLRN+'</span><p><span class="column-detail">'+detailLRN+'</span></p><p>'+sourceLRN+'</p></span>';
 
 var titleMS= 'Memory size';
-var detailMS = '<i>The memory size (RAM) available on the node. For reference, the '+hardwareReqs+' is <b>4 GB</b></i>.';
+var detailMS = 'The memory size (RAM) available on the node. For reference, the '+hardwareReqs+' is <span class="bold">4 GB</span>.';
 var sourceMS = 'Source: '+sourceComon;
-var valuesMS = 'Unit: <b>GB</b>.';
-var descMS = '<span class="myslice title">'+titleMS+'</span><p>'+detailMS+'<p>'+valuesMS+'<p>'+sourceMS;
+var valuesMS = 'Unit: <span class="bold">GB</span>.';
+var descMS = '<span class="gray"><span class="column-title">'+titleMS+'</span><p><span class="column-detail">'+detailMS+'</span></p><p>'+valuesMS+'</p><p>'+sourceMS+'</p></span>';
 
 var selectPeriodMU = 'Select period: <select id="selectperiodMU" onChange=updatePeriod("MU",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleMU = 'Memory utilization';
 var sourceMU = 'Source: '+sourceComon;
-var valuesMU = '<p>Unit: <b>%</b>';
-var detailMU = '<i>The average active memory utilization as reported by CoMon.</i>';
-var descMU = '<span class="myslice title">'+titleMU+'</span><p>'+detailMU+'<p>'+selectPeriodMU+'<p>'+valuesMU+'<p>'+sourceMU; 
+var valuesMU = 'Unit: <span class="bold">%</span>';
+var detailMU = 'The average active memory utilization as reported by CoMon.';
+var descMU = '<span class="gray"><span class="column-title">'+titleMU+'</span><p><span class="column-detail">'+detailMU+'</span></p><p>'+selectPeriodMU+'</p><p>'+valuesMU+'</p><p>'+sourceMU+'</p></span>'; 
 
-var titleNEC= 'Network information (ETOMIC)';
-var sourceNEC = 'Source: '+sourceTophat;
-var valuesNEC = 'Values: <b>yes/no</b>';
-var detailNEC = '<i>The existence of a colocated ETOMIC box. When an ETOMIC box is present, you have the possibility to conduct high-precision measurements through the '+sourceTophatAPI+'.</i>';
-var descNEC = '<span class="myslice title">'+titleNEC+'</span><p>'+detailNEC+'<p>'+valuesNEC+'<p>'+sourceNEC;
+var titleMA= 'Measurement agents';
+var sourceMA = 'Source: '+sourceTophat;
+var valuesMA = 'Values: <span class="bold">ETOMIC</span>, <span class="bold">SONoMA</span>, <span class="bold">TDMI</span>, <span class="bold">DIMES</span>.';
+var detailMA = 'Co-located measurement agents.';
+var descMA = '<span class="gray"><span class="column-title">'+titleMA+'</span><p><span class="column-detail">'+detailMA+'</span></p><p>'+valuesMA+'</p><p>'+sourceMA+'</p></span>';
 
-var titleNSN= 'Network information (SONoMA)';
-var sourceNSN = 'Source: '+sourceTophat;
-var valuesNSN = 'Values: <b>yes/no</b>';
-var detailNSN = '<i>The existence of a SONoMA agent. When an SONoMA is present, you have the possibility to have access to high-precision measurements through the '+sourceTophatAPI+'.</i>';
-var descNSN = '<span class="myslice title">'+titleNSN+'</span><p>'+detailNSN+'<p>'+valuesNSN+'<p>'+sourceNSN;
+var titleMAS= 'Measurement agent SONoMA';
+var sourceMAS = 'Source: '+sourceTophat;
+var valuesMAS = 'Values: <span class="bold">Node type</span> (e.g., PLE, APE)';
+var detailMAS = 'The existence of a SONoMA agent. When an SONoMA is present, you have the possibility to have access to high-precision measurements through the '+sourceTophatAPI+'.';
+var descMAS = '<span class="gray"><span class="column-title">'+titleMAS+'</span><p><span class="column-detail">'+detailMAS+'</span></p><p>'+valuesMAS+'</p><p>'+sourceMAS+'</p></span>';
 
-var titleNTH= 'Network information (TopHat)';
-var sourceNTH = 'Source: '+sourceTophat;
-var valuesNTH = 'Values: <b>yes/no</b>';
-var detailNTH = '<i>The existence of a colocated TDMI (TopHat Dedicated Measurement Infrastructure) agent. When a TDMI agent is present, you have access to a wide variety of network topology measurements through the '+sourceTophatAPI+'.</i>';
-var descNTH = '<span class="myslice title">'+titleNTH+'</span><p>'+detailNTH+'<p>'+valuesNTH+'<p>'+sourceNTH;
+var titleMAE= 'Measurement agent ETOMIC';
+var sourceMAE = 'Source: '+sourceTophat;
+var valuesMAE = 'Values: <span class="bold">yes/no</span>';
+var detailMAE = 'The existence of a colocated ETOMIC box. When an ETOMIC box is present, you have the possibility to conduct high-precision measurements through the '+sourceTophatAPI+'.';
+var descMAE = '<span class="gray"><span class="column-title">'+titleMAE+'</span><p><span class="column-detail">'+detailMAE+'</span></p><p>'+valuesMAE+'</p><p>'+sourceMAE+'</p></span>';
 
-var titleNDS= 'Network information (DIMES)';
-var sourceNDS = 'Source: '+sourceTophat;
-var valuesNDS = 'Values: <b>yes/no</b>';
-var detailNDS = '<i>The existence of a colocated DIMES agent. When a DIMES agent is present, you have access to DIMES measurements through the '+sourceTophatAPI+'.</i>';
-var descNDS = '<span class="myslice title">'+titleNDS+'</span><p>'+detailNDS+'<p>'+valuesNDS+'<p>'+sourceNDS;
+var titleMAT= 'Measurement agent TDMI';
+var sourceMAT = 'Source: '+sourceTophat;
+var valuesMAT = 'Values: <span class="bold">yes/no</span>';
+var detailMAT = 'The existence of a colocated TDMI (TopHat Dedicated Measurement Infrastructure) agent. When a TDMI agent is present, you have access to a wide variety of network topology measurements through the '+sourceTophatAPI+'.';
+var descMAT = '<span class="gray"><span class="column-title">'+titleMAT+'</span><p><span class="column-detail">'+detailMAT+'</span></p><p>'+valuesMAT+'</p><p>'+sourceMAT+'</p></span>';
+
+var titleMAD= 'Measurement agent DIMES';
+var sourceMAD = 'Source: '+sourceTophat;
+var valuesMAD = 'Values: <span class="bold">yes/no</span>';
+var detailMAD = 'The existence of a colocated DIMES agent. When a DIMES agent is present, you have access to DIMES measurements through the '+sourceTophatAPI+'.';
+var descMAD = '<span class="gray"><span class="column-title">'+titleMAD+'</span><p><span class="column-detail">'+detailMAD+'</span></p><p>'+valuesMAD+'</p><p>'+sourceMAD+'</p></span>';
 
 var titleNSF= 'Network information (spoof)';
 var sourceNSF = 'Source: '+sourceTophat;
-var valuesNSF = '<p>Values: <b>yes/no</b>';
-var detailNSF = '<i> Whether the node can send packets successfully (or not) with a spoofed IP source address.</i>';
-var descNSF = '<span class="myslice title">'+titleNSF+'</span><p>'+detailNSF+'<p>'+valuesNSF+'<p>'+sourceNSF;
+var valuesNSF = 'Values: <span class="bold">yes/no</span>';
+var detailNSF = 'Whether the node can send packets successfully (or not) with a spoofed IP source address.';
+var descNSF = '<span class="gray"><span class="column-title">'+titleNSF+'</span><p><span class="column-detail">'+detailNSF+'</span></p><p>'+valuesNSF+'</p><p>'+sourceNSF+'</p></span>';
 
 var titleNSR= 'Network information (source route)';
 var sourceNSR = 'Source: '+sourceTophat;
-var valuesNSR = '<p>Values: <b>yes/no</b>';
-var detailNSR = '<i> Whether the node can send packets packets using the IP source route option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option003.htm">here</a>for more info.</i>';
-var descNSR = '<span class="myslice title">'+titleNSR+'</span><p>'+detailNSR+'<p>'+valuesNSR+'<p>'+sourceNSR;
+var valuesNSR = 'Values: <span class="bold">yes/no</span>';
+var detailNSR = 'Whether the node can send packets packets using the IP source route option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option003.htm">here</a>for more info.';
+var descNSR = '<span class="gray"><span class="column-title">'+titleNSR+'</span><p><span class="column-detail">'+detailNSR+'</span></p><p>'+valuesNSR+'</p><p>'+sourceNSR+'</p></span>';
 
 var titleNTP= 'Network information (timestamp)';
 var sourceNTP = 'Source: '+sourceTophat;
-var valuesNTP = '<p>Values: <b>yes/no</b>';
-var detailNTP = '<i> Whether the node can send packets packets using the IP timestamp option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option004.htm">here</a>for more info.</i>';
-var descNTP = '<span class="myslice title">'+titleNTP+'</span><p>'+detailNTP+'<p>'+valuesNTP+'<p>'+sourceNTP;
+var valuesNTP = 'Values: <span class="bold">yes/no</span>';
+var detailNTP = 'Whether the node can send packets packets using the IP timestamp option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option004.htm">here</a>for more info.';
+var descNTP = '<span class="gray"><span class="column-title">'+titleNTP+'</span><p><span class="column-detail">'+detailNTP+'</span></p><p>'+valuesNTP+'</p><p>'+sourceNTP+'</p></span>';
 
 var titleNRR= 'Network information (record route)';
 var sourceNRR = 'Source: '+sourceTophat;
-var valuesNRR = '<p>Values: <b>yes/no</b>';
-var detailNRR = '<i> Whether the node can send packets packets using the IP record route option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option007.htm">here</a>for more info.</i>';
-var descNRR = '<span class="myslice title">'+titleNRR+'</span><p>'+detailNRR+'<p>'+valuesNRR+'<p>'+sourceNRR;
+var valuesNRR = 'Values: <span class="bold">yes/no</span>';
+var detailNRR = 'Whether the node can send packets packets using the IP record route option. See <a target="info_window" href="http://www.networksorcery.com/enp/protocol/ip/option007.htm">here</a>for more info.';
+var descNRR = '<span class="gray"><span class="column-title">'+titleNRR+'</span><p><span class="column-detail">'+detailNRR+'</span></p><p>'+valuesNRR+'</p><p>'+sourceNRR+'</p></span>';
 
 var titleOS = 'Operating system';
-var detailOS = '<i>Fedora or CentOS distribution to use for node or slivers.</i>';
+var detailOS = 'Fedora or CentOS distribution to use for node or slivers.';
 var sourceOS = 'Source: '+sourceMyPLC;
-var valuesOS = 'Values: <b>f8, f12, Cent/OS, other, n/a</b>';
-var descOS = '<span class="myslice title">'+titleOS+'</span><p>'+valuesOS+'<p>'+sourceOS;
+var valuesOS = 'Values: <span class="bold">f8, f12, Cent/OS, other, n/a</span>';
+var descOS = '<span class="gray"><span class="column-title">'+titleOS+'</span><p><span class="column-detail">'+detailOS+'</span></p><p>'+valuesOS+'</p><p>'+sourceOS+'</p></span>';
+
+var titleRTT = 'Round Trip Time (pairwise)';
+var detailRTT = 'The round trip time between a selected SONoMA agent and PlanetLab nodes.';
+var sourceRTT = 'Source: '+sourceSonoma+' (via '+sourceTophat+ ')';
+var descRTT = '<span class="gray"><span class="column-title">'+titleRTT+'</span><p><span class="column-detail">'+detailRTT+'</span></p><p>'+selectReferenceNodeRTT+'</p><p>'+sourceRTT+'</p></span>';
 
 var selectPeriodR = 'Select period: <select id="selectperiodR" onChange=updatePeriod("R",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleR = 'Reliability';
 var sourceR = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var detailR = '<i>CoMon queries nodes every 5 minutes, for 255 queries per day. The average reliability is the percentage of queries over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
-var valuesR = 'Unit: <b>%</b>';
-var descR = '<span class="myslice title">'+titleR+'</span><p>'+detailR+'<p>'+selectPeriodR+'<p>'+valuesR+'<p>'+sourceR; 
+var detailR = 'CoMon queries nodes every 5 minutes, for 255 queries per day. The average reliability is the percentage of queries over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.';
+var valuesR = 'Unit: <span class="bold">%</span>';
+var descR = '<span class="gray"><span class="column-title">'+titleR+'</span><p><span class="column-detail">'+detailR+'</span></p><p>'+selectPeriodR+'</p><p>'+valuesR+'</p><p>'+sourceR+'</p></span>'; 
 
 var titleRES = 'Reservation capabilities';
 var sourceRES = 'Source: '+sourceMyPLC;
-//var valuesRES = 'Values: <b>yes/no</b>';
-var valuesRES = 'Values: <b>-R-</b> (if yes)';
-var detailRES = '<i> Whether the node can be reserved for a certain duration.<br>Your slivers will be available <span class=bold>only during timeslots where you have obtained leases (see tab above)</span></i>.  <p>Please note that as of August 2010 this feature is experimental.  Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>';
-var descRES = '<span class="myslice title">'+titleRES+'</span><p>'+detailRES+'<p>'+valuesRES+'<p>'+sourceRES;
+//var valuesRES = 'Values: <span class="bold">yes/no</span>';
+var valuesRES = 'Values: <span class="bold">-R-</span> (if yes)';
+var detailRES = 'Whether the node can be reserved for a certain duration. Your slivers will be available <span class=bold>only during timeslots where you have obtained leases (see tab above)</span>.  <p>Please note that as of August 2010 this feature is experimental.  Feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a></p>';
+var descRES = '<span class="gray"><span class="column-title">'+titleRES+'</span><p><span class="column-detail">'+detailRES+'</span></p><p>'+valuesRES+'</p><p>'+sourceRES+'</p></span>';
 
 var selectPeriodS = 'Select period: <select id="selectperiodS" onChange=updatePeriod("S",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleS = 'Active slices';
 var sourceS = 'Source: '+sourceComon+' (via '+sourceMySlice+')';
-var valuesS = 'Unit: <b>%</b>';
-var detailS = '<i>Average number of active slices over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
-var descS = '<span class="myslice title">'+titleS+'</span><p>'+detailS+'<p>'+selectPeriodS+'<p>'+valuesS+'<p>'+sourceS; 
+var valuesS = 'Unit: <span class="bold">%</span>';
+var detailS = 'Average number of active slices over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.';
+var descS = '<span class="gray"><span class="column-title">'+titleS+'</span><p><span class="column-detail">'+detailS+'</span></p><p>'+selectPeriodS+'</p><p>'+valuesS+'</p><p>'+sourceS+'</p></span>'; 
 
 var titleSM= 'Slices in memory';
-var detailSM = '<i>The total number of slices in memory (both active and inactive).</i>';
+var detailSM = 'The total number of slices in memory (both active and inactive).';
 var sourceSM = 'Source: '+sourceComon;
-var descSM = '<span class="myslice title">'+titleSM+'</span><p>'+detailSM+'<p>'+sourceSM;
+var descSM = '<span class="gray"><span class="column-title">'+titleSM+'</span><p><span class="column-detail">'+detailSM+'</span></p><p>'+sourceSM+'</p></span>';
 
 var titleSN = 'Site name';
 var sourceSN = 'Source: '+sourceMyPLC;
-var descSN = '<span class="myslice title">'+titleSN+'</span><p>'+sourceSN;
+var descSN = '<span class="gray"><span class="column-title">'+titleSN+'</span><p>'+sourceSN+'</p></span>';
 
 var selectPeriodSSH = 'Select period: <select id="selectperiodSSH" onChange=updatePeriod("SSH",this.value)><option value="">Latest</option><option value=w>Week</option><option value=m>Month</option><option value=y>Year</option></select>';
 var titleSSH = 'Average SSH response delay';
-var valuesSSH = 'Unit: <b>%</b>';
-var detailSSH = '<i>The average response delay of the node to SSH logins over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.</i>';
+var valuesSSH = 'Unit: <span class="bold">msecs</span>';
+var detailSSH = 'The average response delay of the node to SSH logins over the selected period for which CoMon reports a value. The period is the most recent for which data is available, with CoMon data being collected by MySlice daily.';
 var sourceSSH ='Source: '+sourceComon+' (via '+sourceMySlice+')';
-var descSSH = '<span class="myslice title">'+titleSSH+'</span><p>'+detailSSH+'<p>'+selectPeriodSSH+'<p>'+valuesSSH+'<p>'+sourceSSH; 
+var descSSH = '<span class="gray"><span class="column-title">'+titleSSH+'</span><p><span class="column-detail">'+detailSSH+'</span></p><p>'+selectPeriodSSH+'</p><p>'+valuesSSH+'</p><p>'+sourceSSH+'</p></span>'; 
 
 
 var titleUT = 'Uptime';
 var sourceUT = 'Source: '+sourceComon;
-var valuesUT = 'Unit: <b>days</b>';
+var valuesUT = 'Unit: <span class="bold">days</span>';
 var detailUT = 'The continuous uptime until the moment that the page is loaded, as reported by the CoMon html query API.';
-var descUT = '<span class="myslice title">'+titleUT+'</span><p>'+detailUT+'<p>'+valuesUT+'<p>'+sourceUT;
+var descUT = '<span class="gray"><span class="column-title">'+titleUT+'</span><p><span class="column-detail">'+detailUT+'</span></p><p>'+valuesUT+'</p><p>'+sourceUT+'</p></span>';
+
 
 
 //Categorization of columns in different types, useful for filtering 
@@ -324,8 +335,6 @@ function debugfilter(s) {
 
 function highlightOption(divid) {
 
-	//debugfilter("highlighting option "+divid);
-
 	var columns = document.getElementsByName('columnlist');
 	for(var j = 0; j < columns.length; j++)
 		columns[j].className = 'out'; 
@@ -345,19 +354,20 @@ function highlightOption(divid) {
 
 function showDescription(h) {
 
-	//debugfilter("showing description "+h);
-
-//Checks if the detailed description div exists 
 	if (document.getElementById('selectdescr'))
 	{
 		//Checks if there is a detailed description defined
 		if (window['desc'+h])
 			document.getElementById('selectdescr').innerHTML = ""+window['desc'+h];
-		//else if (document.getElementById('fdesc'+h))
-			//document.getElementById('selectdescr').innerHTML = document.getElementById('fdesc'+h).value;
 		else 
 			document.getElementById('selectdescr').innerHTML = "No detailed description provided";
 	}
+
+	if (document.getElementById('refnodes_div'))
+		document.getElementById('refnodes_div').innerHTML = ref_nodes_select;
+
+	if (document.getElementById('refnodes_rtt_div'))
+		document.getElementById('refnodes_rtt_div').innerHTML = ref_nodes_select_rtt;
 }
 
 
@@ -373,6 +383,8 @@ function overrideTitles() {
 		if (window['title'+kk])
 			document.getElementById('htitle'+kk).innerHTML = window['title'+kk];
 	}
+
+
 }
 
 //When the checkbox is clicked. Adds/removes column respectively
@@ -421,18 +433,26 @@ function changeSelectStatus(column) {
 	}
 }
 
-function updateReferenceNode(new_ref_node) {
+function updateReferenceNode(select_id, new_ref_node) {
 
-	var old_ref_node = document.getElementById('selected_reference_node').value;
-	document.getElementById('selected_reference_node').value=new_ref_node;
+	var old_ref_node = document.getElementById(select_id).value;
+	document.getElementById(select_id).value=new_ref_node;
 
-	//debugfilter("changed "+old_ref_node+" with "+new_ref_node);
+	//debugfilter("changed "+old_ref_node+" with "+new_ref_node+" and column is "+document.getElementById('checkHC').checked);
 
-	if (document.getElementById('checkHC').checked)
+	if (select_id == 'refnodeHC' && document.getElementById('checkHC').checked)
 	{
+		document.getElementById('fetchedHC').value = "false";
 		addColumnAjax('HC', 'HC');
 		//debugfilter("replacing "+old_ref_node+" with "+new_ref_node);
 		replaceColumnConfiguration('HC:'+old_ref_node,'HC:'+new_ref_node);
+	}
+	else if (select_id == 'refnodeRTT' && document.getElementById('checkRTT').checked)
+	{
+		document.getElementById('fetchedRTT').value = "false";
+		addColumnAjax('RTT', 'RTT');
+		//debugfilter("replacing "+old_ref_node+" with "+new_ref_node);
+		replaceColumnConfiguration('RTT:'+old_ref_node,'RTT:'+new_ref_node);
 	}
 
 }
@@ -458,6 +478,7 @@ function updatePeriod(h, new_period) {
 /*
  
 RESET/SAVE CONFIGURATION
+
 */
 
 function getHTTPObject()
@@ -683,7 +704,6 @@ ADD/REMOVE COLUMNS
 
 */
 
-
 function convert_data(value, data_source, data_type, tagname) {
 
 	//debugfilter("v["+tagname+"]="+value+"-");
@@ -739,12 +759,11 @@ var data_table = data.split("|");
 //debugfilter("<p>data[2] = "+data_table[2]);
 
 //debugfilter("data = "+data + " with type "+data_type + " and source "+data_source);
+//debugfilter("<p>data table length = "+data_table.length);
 
-if (data != "")
+if (data_table.length > 1)
 {
   
-//debugfilter("GOT SOME DATA");
-
   var node_data;
 
   var table_id1 = 'nodes';
@@ -790,6 +809,7 @@ if (data != "")
     }
   }
 
+  //debugfilter("Reset sorting .....");
   //tablePaginater.init(table_id1);
   fdTableSort.init(table_id1);
 
@@ -842,9 +862,9 @@ if (data_table[node_index] == '---potential---')
 
   //fdTableSort.removeTableCache(table_id2);
   //document.getElementById('loading'+column).innerHTML = "";
-  //debugfilter("Reset sorting .....");
   
 }
+
 
 document.getElementById('loading'+column).innerHTML = "";
 
@@ -875,13 +895,12 @@ function addColumnAjax(column, header) {
 	var slice_id = document.getElementById('slice_id').value;
 
         var selectedperiod = document.getElementById('period'+column).value;
-
 	var fetched = document.getElementById('fetched'+column).value;
 	var data_source = document.getElementById('source'+column).value;
 	var data_type = document.getElementById('type'+column).value;
 	var to_load = false;
 
-	//debugfilter("<br>adding "+column+","+header+','+fetched+','+t);
+	//debugfilter("<br>adding "+column+","+header+','+fetched+','+t+','+data_source+','+data_type);
 
 	if (fetched.indexOf("false")!=-1)
 	{
@@ -896,8 +915,12 @@ function addColumnAjax(column, header) {
 
 	if (to_load)
 	{
+		//debugfilter("ready to load ... ");
 		document.getElementById('loading'+column).innerHTML = "<img width=10 src=/plekit/icons/ajax-loader.gif>";
 		var url = "/plekit/php/updateColumn.php?slice_id="+slice_id+"&tagName="+t+"&data_type="+data_type+"&data_source="+data_source;
+		if (t == "hopcount")
+			url = url+"&ref_node="+document.getElementById('selected_reference_node').value;
+		//debugfilter("calling "+url);
 		load_data(column, header, url, data_source, data_type, t);
 	}
 }
@@ -921,8 +944,10 @@ function addColumn(column, fetch) {
 
 	if (inTypeD(column)!=-1)
 	{
-		conf = header+":"+document.getElementById('reference_node').value;
-		document.getElementById('selected_reference_node').value=document.getElementById('reference_node').value;
+		//conf = header+":"+document.getElementById('reference_node').value;
+		//document.getElementById('selected_reference_node').value=document.getElementById('reference_node').value;
+		conf = header+":"+document.getElementById('refnodeHC').value;
+		document.getElementById('selected_reference_node').value=document.getElementById('refnodeHC').value;
 	}
 	else
 		conf = header;
@@ -963,8 +988,8 @@ function deleteColumn(column) {
 }
 
 
-/* 
  
+/*
 EXTRA
 
 
