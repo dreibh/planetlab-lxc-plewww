@@ -87,6 +87,9 @@ $known_actions []= 'remove-nodes-from-slice';
 //	expects:	slice_id & node_ids
 $known_actions []= 'add-nodes-in-slice';
 //	expects:	slice_id & node_ids
+$known_actions []= 'update-initscripts';
+//	expects:	slice_id & name & previous-initscript & previous-initscript-body 
+//			& initscript & initscript-body
 $known_actions []= 'delete-slice-tags';
 //      expects:        slice_tag_id
 $known_actions []= 'add-slice-tag';
@@ -705,6 +708,49 @@ Our support team will be glad to answer any question that you might have.
    break;
  }
 
+ case 'update-initscripts': {
+//	expects:	slice_id & name & previous-initscript & previous-initscript-body 
+//			& initscript & initscript-body
+   $slice_id = intval ($_POST['slice_id']); 	
+   $previous_initscript=$_POST['previous-initscript'];
+   $initscript=$_POST['initscript'];
+   $previous_initscript_body=$_POST['previous-initscript-body'];
+   $initscript_body=$_POST['initscript-body'];
+
+   $changes=FALSE;
+   if (strcmp($initscript,$previous_initscript) != 0) {
+     $newvalue=$api->SetSliceInitscript($slice_id,$initscript);
+     $status = (strcmp($newvalue,$initscript)==0) ? "OK" : "failed";
+     if (! $initscript)		drupal_set_message("Removed shared initscript '" . $previous_initscript . "' " . $status);
+     else			drupal_set_message("Replaced shared initscript with '" . $initscript . "' " . $status);
+     $changes=TRUE;
+   }
+
+   // somehow some \r chars make it here; just ignore them
+   $previous_initscript_body=str_replace("\r","",$previous_initscript_body);
+   //   plc_debug_txt('previous initscript_body after cr',$previous_initscript_body);
+
+   $initscript_body=str_replace("\r","",$initscript_body);
+   // make sure the script ends with a single \n 
+   $initscript_body=trim($initscript_body);
+   if (!empty($initscript_body) && $initscript_body[strlen($initscript_body)-1] != "\n")
+     $initscript_body.="\n";
+   // plc_debug_txt('initscript_body after cr & nl/eof',$initscript_body);
+
+   if (strcmp($initscript_body,$previous_initscript_body) != 0) {
+     $newvalue=$api->SetSliceInitscriptBody($slice_id,$initscript_body);
+     // plc_debug_txt('newvalue',$newvalue);
+     $status=(strcmp($newvalue,$initscript_body)==0) ? "OK" : "failed";
+     if (! $initscript_body)	drupal_set_message("Removed initscript body " . $status);
+     else			drupal_set_message("Installed new initscript body " . $status);
+     $changes=TRUE;
+   }
+   if (!$changes) drupal_set_message("No changes required in initscript");
+   plc_redirect(l_slice($slice_id) . "&show_details=0&show_initscripts=1" );
+   break;
+ }
+
+
  case 'delete-slice-tags': {
    $slice_id = intval($_POST['slice_id']);
    $slice_tag_ids = array_map("intval", $_POST['slice_tag_ids']);
@@ -719,7 +765,7 @@ Our support team will be glad to answer any question that you might have.
    }
    if ($success)
      drupal_set_message ("Deleted $count slice tag(s)");
-   plc_redirect(l_slice($slice_id) . "&show_tags=true" );
+   plc_redirect(l_slice($slice_id) . "&show_tags=1" );
    break;
  }
   

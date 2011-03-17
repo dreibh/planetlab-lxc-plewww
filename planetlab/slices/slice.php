@@ -876,17 +876,106 @@ $table->cell($node['node_id'], array('display'=>'none'));
 
 $toggle->end();
 
+//////////////////////////////////////// retrieve all slice tags
+$tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
+//////////////////////////////////////////////////////////// tab:initscripts
+// xxx fixme
+// * add a message on how to use this:
+// * explain the 2 mechanisms (initscript_body, initscript)
+// * explain the interface : initscript start|stop|restart slicename
+// xxx fixme
+
+$shared_initscripts=$api->GetInitScripts(array('-SORT'=>'name'),array('name'));
+//$shared_initscripts=$api->GetInitScripts();
+if ($profiling) plc_debug_prof('6 initscripts',count($initscripts));
+// xxx expose this even on foreign slices for now
+if ($local_peer) {
+  $initscript='';
+  $initscript_body='';
+  if ($tags) foreach ($tags as $tag) {
+      if ($tag['tagname']=='initscript') {
+	if ($initscript!='') drupal_set_error("multiple occurrences of 'initscript' tag");
+	$initscript=$tag['value'];
+      }
+      if ($tag['tagname']=='initscript_body') {
+	if ($initscript_body!='') drupal_set_error("multiple occurrences of 'initscript_body' tag");
+	$initscript_body=$tag['value'];
+	// plc_debug_txt('retrieved body',$initscript_body);
+      }
+    }
+  $label="No initscript";
+  $trimmed=trim($initscript_body);
+  if (!empty($trimmed)) $label="Initscript : slice-specific (" . substr($initscript_body,0,20) . " ...)";
+  else if (!empty($initscript)) $label="Initscript: shared " . $initscript;
+
+  $toggle = new PlekitToggle('slice-initscripts',$label,
+			     array('bubble'=>'Manage initscript on that slice',
+				   'visible'=>get_arg('show_initscripts',false)));
+  $toggle->start();
+
+  $details=new PlekitDetails(TRUE);
+  $details->form_start(l_actions(),array('action'=>'update-initscripts',
+					 'slice_id'=>$slice_id,
+					 'name'=>$name,
+					 'previous-initscript'=>$initscript,
+					 'previous-initscript-body'=>$initscript_body));
+  $details->start();
+  // comppute a pulldown with available names
+  $selectors=array();
+  $is_found=FALSE;
+  if ($shared_initscripts) foreach ($shared_initscripts as $is) {
+      $is_selector=array('display'=>$is['name'],'value'=>$is['name']);
+      if ($is['name']==$initscript) {
+	$is_selector['selected']=TRUE;
+	$is_found=TRUE;
+      }
+      $selectors[]=$is_selector;
+    }
+  // display a warning when initscript references an unknown script
+  $details->tr_submit('unused','Update initscripts');
+  ////////// by name
+  $details->th_td("shared initscript name",
+		  $details->form()->select_html('initscript',$selectors,array('label'=>'none')),
+		  'initscript',
+		  array('input_type'=>'select'));
+  if ($initscript && ! $is_found) 
+    // xxx better rendering ?
+    $details->th_td('WARNING',plc_warning_html("Current name '" . $initscript . "' is not a known shared initscript name"));
+  ////////// by contents
+  $script_height=8;
+  $script_width=60;
+  if ($initscript_body) {
+    $text=explode("\n",$initscript_body);
+    $script_height=count($text);
+    $script_width=10;
+    foreach ($text as $line) $script_width=max($script_width,strlen($line));
+  }
+  $details->th_td('slice initscript',$initscript_body,'initscript-body',
+		  array('input_type'=>'textarea', 'width'=>$script_width,'height'=>$script_height));
+  $details->th_td('Howto',"xxx yourscript start|stop|restart slicename");
+  $details->tr_submit('unused','Update initscripts');
+  $details->form_end();
+  $details->end();  
+  $toggle->end();
+}
+
+//////////////////////////////////////////////////////////// tab:tags
 // very wide values get abbreviated
 $tag_value_threshold=24;
-//////////////////////////////////////////////////////////// Tags
+// xxx fixme
+// * this area could use a help message about some special tags:
+// * initscript-related should be taken out
+// * sliverauth-related (ssh_key & hmac) should have a toggle to hide or show
+// xxx fixme
+
+// xxx expose this even on foreign slices for now
 //if ( $local_peer ) {
-  $tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
-  if ($profiling) plc_debug_prof('8 slice tags',count($tags));
+  if ($profiling) plc_debug_prof('7 slice tags',count($tags));
   function get_tagname ($tag) { return $tag['tagname'];}
   $tagnames = array_map ("get_tagname",$tags);
   
   $toggle = new PlekitToggle ('slice-tags',count_english_warning($tags,'tag'),
-			      array('bubble'=>'Inspect and set tags on tat slice',
+			      array('bubble'=>'Inspect and set tags on that slice',
 				    'visible'=>get_arg('show_tags',false)));
   $toggle->start();
   
