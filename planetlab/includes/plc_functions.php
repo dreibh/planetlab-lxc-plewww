@@ -431,6 +431,16 @@ function plc_debug ($message,$object) {
   print "</pre>";
 }
 
+function plc_debug_txt ($message,$txt) {
+  print "<br />" . $message . "<pre>";
+  $txt=str_replace(" ","&lt;SPC&gt;",$txt);
+  $txt=str_replace("\t","&lt;TAB&gt;",$txt);
+  $txt=str_replace("\n","&lt;LF&gt;",$txt);
+  $txt=str_replace("\r","&lt;CR&gt;",$txt);
+  print $txt . "&lt;EOF&gt;";
+  print "</pre>";
+}
+
 $plc_prof_start=0.;
 $plc_prof_time=0.;
 $plc_prof_counter=0;
