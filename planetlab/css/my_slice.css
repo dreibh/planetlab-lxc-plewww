@@ -1,5 +1,5 @@
 /*
- Thierry Parmentelat -- INRIA
+ $Id: toggle.css 12435 2009-03-11 15:07:00Z thierry $
  */
 
 /* space around various messages */
@@ -25,25 +25,22 @@ div#toggle-container-my-slice-nodes-reserve {
 
 /* where the graphics go */
 div#leases_area {
-  padding: 10px 20px;
+  padding: 10px 25px;
 }
 
-/* this class is used to store data that needs to get passed to javascript code */
-/* these elements are not meant to be rendered */
-.hidden {
+/* don't display the scheduler data table - not quite sure this works */
+table#leases_data {
     display: none;
-}
-.center {
-    text-align: center;
 }
 
 /* the various controls for the scheduler */
-/* bottom section with the buttons */
-input.leases_input { width: 28px; text-align: right; }
-.leases_label { padding-left: 12px; padding-right: 8px; }
-#leases_settings { padding: 15px 30px 10px 30px; }
-#leases_buttons { text-align: center; padding: 0px 10px 10px 10px; }
-#leases_refresh,#leases_submit { padding-left: 20px; padding-right: 20px; margin-left: 10px; margin-right:10px; }
+/* upper section, with selection mode */
+#leases_modes { padding: 10px; text-align: center; color: #333; }
+
+#leases_buttons { padding: 0px 10px 10px 10px; }
+#leases_clear { position: relative; left: 30%;}
+#leases_submit { position: relative; left: 60%; }
+        
 
 /* column configuation style */
 
@@ -62,7 +59,10 @@ div.invisible{display:none}
 div.note-div {
  	padding: 4px;
  	background-color: #cae8ea;
- 	width: 700px;
+ 	width: 800px;
+	margin-left:auto;
+	margin-right:auto;
+
 }
 
 div#scrolldiv {
@@ -125,7 +125,6 @@ span.column-detail {
         font-size: 11px; 
         font-style: italic;
 }
-
 
 
 

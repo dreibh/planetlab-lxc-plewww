@@ -173,28 +173,31 @@ $extra_columns[]=array('tagname'=>'deployment', 'header'=>'DL', 'source'=>'myplc
 }
 
 //CoMon Live data
-$extra_columns[]=array('tagname'=>'bwlimit', 'header'=>'BW', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Bandwidth limit', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'numcores', 'header'=>'CC', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Number of CPU Cores', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'cpuspeed', 'header'=>'CR', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'CPU clock rate', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'disksize', 'header'=>'DS', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Disk size', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'gbfree', 'header'=>'DF', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Currently available disk space', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'memsize', 'header'=>'MS', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Memory size', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'numslices', 'header'=>'SM', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Number of slices in memory', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'uptime', 'header'=>'UT', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Continuous uptime until now', 'fetched'=>false);
+//NOTE: Uncomment these lines if CoMon provides information for your nodes
+
+//$extra_columns[]=array('tagname'=>'bwlimit', 'header'=>'BW', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Bandwidth limit', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'numcores', 'header'=>'CC', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Number of CPU Cores', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'cpuspeed', 'header'=>'CR', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'CPU clock rate', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'disksize', 'header'=>'DS', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Disk size', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'gbfree', 'header'=>'DF', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Currently available disk space', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'memsize', 'header'=>'MS', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Memory size', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'numslices', 'header'=>'SM', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Number of slices in memory', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'uptime', 'header'=>'UT', 'source'=>'comon', 'type'=>'sortAlphaNumericTop', 'title'=>'Continuous uptime until now', 'fetched'=>false);
 
 //TopHat Live data
-$extra_columns[]=array('tagname'=>'asn', 'header'=>'AS', 'source'=>'tophat', 'type'=>'string', 'title'=>'AS Number', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'city', 'header'=>'LCY', 'source'=>'tophat', 'type'=>'string', 'title'=>'City', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'region', 'header'=>'LRN', 'source'=>'tophat', 'type'=>'string', 'title'=>'Region', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'country', 'header'=>'LCN', 'source'=>'tophat', 'type'=>'string', 'title'=>'Country', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'continent', 'header'=>'LCT', 'source'=>'tophat', 'type'=>'string', 'title'=>'Continent', 'fetched'=>false);
-$extra_columns[]=array('tagname'=>'hopcount', 'header'=>'HC', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Hop count from reference node', 'fetched'=>false);
-//$extra_columns[]=array('tagname'=>'rtt', 'header'=>'RTT', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Round trip time from reference node', 'fetched'=>false);
-//$extra_columns[]=array('tagname'=>'agents', 'header'=>'MA', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located measurement agents', 'fetched'=>true);
-//$extra_columns[]=array('tagname'=>'agents_sonoma', 'header'=>'MAS', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located SONoMA agents', 'fetched'=>true);
-//$extra_columns[]=array('tagname'=>'agents_etomic', 'header'=>'MAE', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located ETOMIC agents', 'fetched'=>true);
-//$extra_columns[]=array('tagname'=>'agents_tdmi', 'header'=>'MAT', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located TDMI agents', 'fetched'=>true);
-//$extra_columns[]=array('tagname'=>'agents_dimes', 'header'=>'MAD', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located DIMES agents', 'fetched'=>true);
+//NOTE: Uncomment these lines if TopHat provides information for your nodes
+//$extra_columns[]=array('tagname'=>'asn', 'header'=>'AS', 'source'=>'tophat', 'type'=>'string', 'title'=>'AS Number', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'city', 'header'=>'LCY', 'source'=>'tophat', 'type'=>'string', 'title'=>'City', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'region', 'header'=>'LRN', 'source'=>'tophat', 'type'=>'string', 'title'=>'Region', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'country', 'header'=>'LCN', 'source'=>'tophat', 'type'=>'string', 'title'=>'Country', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'continent', 'header'=>'LCT', 'source'=>'tophat', 'type'=>'string', 'title'=>'Continent', 'fetched'=>false);
+//$extra_columns[]=array('tagname'=>'hopcount', 'header'=>'HC', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Hop count from reference node', 'fetched'=>false);
+////$extra_columns[]=array('tagname'=>'rtt', 'header'=>'RTT', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Round trip time from reference node', 'fetched'=>false);
+////$extra_columns[]=array('tagname'=>'agents', 'header'=>'MA', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located measurement agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_sonoma', 'header'=>'MAS', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located SONoMA agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_etomic', 'header'=>'MAE', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located ETOMIC agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_tdmi', 'header'=>'MAT', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located TDMI agents', 'fetched'=>true);
+////$extra_columns[]=array('tagname'=>'agents_dimes', 'header'=>'MAD', 'source'=>'tophat', 'type'=>'sortAlphaNumericTop', 'title'=>'Co-located DIMES agents', 'fetched'=>true);
 
 
 $ConfigureColumns =new PlekitColumns($full_configuration, $fix_columns, $tag_columns, $extra_columns);
