@@ -57,7 +57,7 @@ if (empty($slices)) {
 
 $slice=$slices[0];
 
-if ($profiling) plc_debug_prof('2: slice',count($slices));
+if ($profiling) plc_debug_prof('1: slice',count($slices));
 // pull all node info to vars
 $name= $slice['name'];
 $expires = date( "d/m/Y", $slice['expires'] );
@@ -70,7 +70,7 @@ $peer_id= $slice['peer_id'];
 $peers=new Peers ($api);
 $local_peer = ! $peer_id;
 
-if ($profiling) plc_debug_prof('3: peers',count($peers));
+if ($profiling) plc_debug_prof('2: peers',count($peers));
 
 // gets site info
 $sites= $api->GetSites( array( $site_id ) );
@@ -78,7 +78,7 @@ $site=$sites[0];
 $site_name= $site['name'];
 $max_slices = $site['max_slices'];
 
-if ($profiling) plc_debug_prof('4: sites',count($sites));
+if ($profiling) plc_debug_prof('3: sites',count($sites));
 //////////////////////////////////////// building blocks for the renew area
 // Constants
 global $DAY;		$DAY = 24*60*60;
@@ -87,7 +87,7 @@ global $MAX_WEEKS;	$MAX_WEEKS= 8;		// weeks from today
 global $GRACE_DAYS;	$GRACE_DAYS=10;		// days for renewal promoted on top
 global $NOW;		$NOW=mktime();
 
-////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////// utility for the renew tab
 // make the renew area on top and open if the expiration time is less than 10 days from now
 function renew_needed ($slice) {
   global $DAY, $NOW, $GRACE_DAYS;
@@ -230,7 +230,7 @@ if ($local_peer ) {
  }
 
 
-//////////////////// details
+//////////////////////////////////////////////////////////// tab:details
 // default for opening the details section or not ?
 if ($local_peer) {
   $default_show_details = true;
@@ -274,7 +274,7 @@ $details->end();
 $details->form_end();
 $toggle->end();
 
-//////////////////// persons
+//////////////////////////////////////////////////////////// tab:persons
 $person_columns = array('email','person_id','first_name','last_name','roles');
 // get persons in slice
 if (!empty($person_ids))
@@ -390,7 +390,7 @@ if ($privileges) {
 }
 $toggle->end();
 
-//////////////////////////////////////////////////////////// Nodes
+//////////////////////////////////////////////////////////// tab:nodes
 // the nodes details to display here
 // (1) we search for the tag types for which 'category' matches 'node*/ui*'
 // all these tags will then be tentatively displayed in this area
@@ -926,7 +926,7 @@ $tag_value_threshold=24;
       $nodegroup_name="n/a";
       if ($tag['nodegroup_id']) { 
         $nodegroups=$api->GetNodeGroups(array('nodegroup_id'=>$tag['nodegroup_id']));
-	if ($profiling) plc_debug_prof('10 nodegroup for slice tag',$nodegroup);
+	if ($profiling) plc_debug_prof('8 nodegroup for slice tag',$nodegroup);
         if ($nodegroup) {
           $nodegroup = $nodegroups[0];
           $nodegroup_name = $nodegroup['groupname'];
@@ -954,7 +954,7 @@ $tag_value_threshold=24;
       return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']);
     }
     $all_tags= $api->GetTagTypes( array ("category"=>"slice*","-SORT"=>"+tagname"), array("tagname","tag_type_id"));
-    if ($profiling) plc_debug_prof('11 tagtypes',count($all_tags));
+    if ($profiling) plc_debug_prof('9 tagtypes',count($all_tags));
     $selector_tag=array_map("tag_selector",$all_tags);
     
     function node_selector($node) { 
@@ -966,7 +966,7 @@ $tag_value_threshold=24;
       return array("display"=>$ng["groupname"],"value"=>$ng['nodegroup_id']);
     }
     $all_nodegroups = $api->GetNodeGroups( array("groupname"=>"*"), array("groupname","nodegroup_id"));
-    if ($profiling) plc_debug_prof('13 nodegroups',count($all_nodegroups));
+    if ($profiling) plc_debug_prof('10 nodegroups',count($all_nodegroups));
     $selector_nodegroup=array_map("nodegroup_selector",$all_nodegroups);
     
     $table->cell($form->select_html("tag_type_id",$selector_tag,array('label'=>"Choose Tag")));
@@ -983,7 +983,7 @@ $tag_value_threshold=24;
 //}
 
 
-//////////////////////// renew slice
+//////////////////////////////////////////////////////////// tab:renew
 if ($local_peer ) {
   if ( ! $renew_visible) renew_area ($slice,$site,false);
  }
