@@ -38,6 +38,10 @@ input[type="text"], textarea {
     background-position: top;
 }
 
+textarea {
+    font-family: courier, monospace;
+}
+ 
 input[type="password"] {
     border: solid 1px #444;
     background-image: url( '/planetlab/icons/form_input_password.png' );
