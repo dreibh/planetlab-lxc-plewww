@@ -585,8 +585,8 @@ if (count($reservable_nodes) && $privileges) {
   $mark=reservable_mark();
   print <<<EOF
 <br>
-<div id='note_reservable_div' style="align:center; background-color:#CAE8EA; padding:4px; width:800px; $note_display">
-<table align=center><tr><td valign=top>
+<div class='note-div' id='note_reservable_div' style="$note_display">
+<table class='center'><tr><td class='top'>
 You have attached one or more reservable nodes to your slice. 
 Reservable nodes show up with the '$mark' mark. 
 Your slivers will be available only during timeslots
@@ -594,7 +594,7 @@ where you have obtained leases.
 You can manage your leases in the tab below.
 <br>
 This feature is still experimental; feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
-</td><td valign=top><span onClick=closeMessage('reservable')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message"></span>
+</td><td class='top'><span onClick=closeMessage('reservable')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
 </td></tr></table>
 </div>
 EOF;

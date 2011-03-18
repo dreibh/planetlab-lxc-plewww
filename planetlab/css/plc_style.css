@@ -26,6 +26,15 @@ body {
     font-weight: bold;
 }
 
+/* this class is used to store data that needs to get passed to javascript code */
+/* these elements are not meant to be rendered */
+.hidden {
+    display: none;
+}
+.center {
+    text-align: center;
+}
+
 /* -------------------- inputs in forms */
 /* note: this is used by the register wizard as well
    in case where importing all this file this would some day conflict
