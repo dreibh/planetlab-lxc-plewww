@@ -62,13 +62,14 @@ usort($reservable_nodes,"sort_hostname");
 foreach ($reservable_nodes as $node) {
   echo "<tr><th scope='row'>". $node['hostname'] . "</th>";
   $hostname=$node['hostname'];
-  $leases=$host_hash[$hostname];
+  $leases=NULL;
+  if (array_key_exists($hostname,$host_hash) ) $leases=$host_hash[$hostname];
   $counter=0;
   while ($counter<$steps) {
     if ($leases && ($leases[0]['nfrom']<=$counter)) {
       $lease=array_shift($leases);
       /* nicer display, merge two consecutive leases for the same slice 
-	 avoid doing that for now, as it might makes things confusing */
+	 avoid doing that for now, as it might make things confusing */
       /* while ($leases && ($leases[0]['name']==$lease['name']) && ($leases[0]['nfrom']==$lease['nuntil'])) {
 	 $lease['nuntil']=$leases[0]['nuntil'];
 	 array_shift($leases);
