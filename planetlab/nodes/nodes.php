@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 // Require login
 require_once 'plc_login.php';
 
@@ -84,7 +82,6 @@ else
 $column_configuration = "";
 $slice_column_configuration = "";
 $show_configuration = "";
-$show_columns_message = '1';
 
 
 $PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
@@ -271,10 +268,11 @@ $nodes=$api->GetNodes($node_filter,$node_columns);
 
 $ConfigureColumns->fetch_live_data($nodes);
 
+$show_columns_message = TRUE;
 $show_conf = explode(";",$show_configuration);
 foreach ($show_conf as $ss) {
-        if ($ss =="columns")
-                $show_columns_message = '0';
+  if ($ss =="columns")
+    $show_columns_message = FALSE;
 }
 
 
@@ -358,9 +356,21 @@ $column_conf_visible = '1';
 else
 $column_conf_visible = '0';
 
-$toggle_nodes=new PlekitToggle('nodes-column-configuration',
+$layout_help='
+This tab allows you to customize the columns in the node tables,
+below. Information on the nodes comes from a variety of monitoring
+sources. If you, as either a user or a provider of monitoring data,
+would like to see additional columns made available, please send us
+your request in mail to <a
+href="mailto:support@myslice.info">support@myslice.info</a>.  You can
+find more information about the MySlice project at <a
+href="http://trac.myslice.info">http://trac.myslice.info</a>.
+';
+$toggle_nodes=new PlekitToggle('nodes-layout',
                                "Node table layout",
-                               array('visible'=>$column_conf_visible, 'info_div'=>'note_columns_div'));
+                               array('visible'=>$column_conf_visible, 
+				     'info_text'=>$layout_help,
+				     'info_visible'=>$show_columns_message));
 $toggle_nodes->start();
 print("<div id='debug'></div>");
 print("<input type='hidden' id='slice_id' value='nodes' />");
@@ -372,20 +382,7 @@ print("<input type='hidden' id='column_configuration' value='".$slice_column_con
 print("<br><input type='hidden' size=80 id='full_column_configuration' value='".$column_configuration."' />");
 print("<input type='hidden' id='defaultConf' value='".$default_configuration."'></input>");
 
-if ($show_columns_message == '0')
-$note_display = "display:none;";
-else
-$note_display = "";
-
-
-print <<<EOF
-<div class="note-div" id='note_columns_div' style='$note_display'>
-<table class='center'><tr><td class='top'>
-This tab allows you to customize the columns in the node tables, below. Information on the nodes comes from a variety of monitoring sources. If you, as either a user or a provider of monitoring data, would like to see additional columns made available, please send us your request in mail to <a href="mailto:support@myslice.info">support@myslice.info</a>. You can find more information about the MySlice project at <a href="http://trac.myslice.info">http://trac.myslice.info</a>.
-</td><td class='top'><span onClick=closeMessage('columns')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
-</td></tr></table>
-</div>
-EOF;
+////////// end
 
 $ConfigureColumns->configuration_panel_html(true);
 $ConfigureColumns->javascript_init();

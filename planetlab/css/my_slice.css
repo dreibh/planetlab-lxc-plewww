@@ -56,12 +56,10 @@ div.in{background-color:#CAE8EA; color:#4f6b72}
 div.selected{background-color:gray; color:black}
 div.invisible{display:none}
 
-div.note-div {
- 	padding: 4px;
+div.toggle-info {
+ 	padding: 10px 20px;
  	background-color: #cae8ea;
- 	width: 800px;
-	margin-left:auto;
-	margin-right:auto;
+	margin: 10px 10px;
 
 }
 

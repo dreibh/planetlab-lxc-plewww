@@ -480,8 +480,6 @@ $column_configuration = "";
 $slice_column_configuration = "";
 
 $show_configuration = "";
-$show_reservable_message = '1';
-$show_columns_message = '1';
 
 $PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
 //plc_debug('ptags',$PersonTags);
@@ -534,12 +532,14 @@ $all_nodes=$api->GetNodes(NULL,$node_columns);
 
 $ConfigureColumns->fetch_live_data($all_nodes);
 
+$show_reservable_info = TRUE;
+$show_layout_info = '1';
 $show_conf = explode(";",$show_configuration);
 foreach ($show_conf as $ss) {
   if ($ss =="reservable")
-    $show_reservable_message = '0';
+    $show_reservable_info = FALSE;
   else if ($ss =="columns")
-    $show_columns_message = '0';
+    $show_layout_info = '0';
 }        
 
 $slice_nodes=array();
@@ -566,39 +566,24 @@ $toggle->start();
 
 
 //////////////////// reservable nodes area
-
-$count=count($reservable_nodes);
-if ($count && $privileges) {
-  // having reservable nodes in white lists looks a bit off scope for now...
-  $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
-				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
-				 array('visible'=>get_arg('show_nodes_resa',false), 'info_div'=>'note_reservable_div'));
-  $toggle_nodes->start();
-
-if ($show_reservable_message) 
-  $note_display = "";
-else
-  $note_display = "display:none;";
-
-////////// show a notice to people having attached a reservable node
-if (count($reservable_nodes) && $privileges) {
-  $mark=reservable_mark();
-  print <<<EOF
-<br>
-<div class='note-div' id='note_reservable_div' style="$note_display">
-<table class='center'><tr><td class='top'>
+$leases_info="
 You have attached one or more reservable nodes to your slice. 
 Reservable nodes show up with the '$mark' mark. 
 Your slivers will be available only during timeslots
 where you have obtained leases. 
 You can manage your leases in the tab below.
 <br>
-This feature is still experimental; feedback is appreciated at <a href="mailto:devel@planet-lab.org">devel@planet-lab.org</a>
-</td><td class='top'><span onClick=closeMessage('reservable')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
-</td></tr></table>
-</div>
-EOF;
-}  
+This feature is still experimental; feedback is appreciated at <a href='mailto:devel@planet-lab.org'>devel@planet-lab.org</a>
+";
+$count=count($reservable_nodes);
+if ($count && $privileges) {
+  // having reservable nodes in white lists looks a bit off scope for now...
+  $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
+				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
+				 array('visible'=>get_arg('show_nodes_resa',false), 
+				       'info_text'=>$leases_info,
+				       'info_visible'=>$show_reservable_info));
+  $toggle_nodes->start();
 
   // get settings from environment, otherwise set to defaults
   // when to start, in hours in the future from now
@@ -652,10 +637,21 @@ $column_conf_visible = '1';
 else
 $column_conf_visible = '0';
 
-
+$layout_info='
+This tab allows you to customize the columns in the node tables,
+below. Information on the nodes comes from a variety of monitoring
+sources. If you, as either a user or a provider of monitoring data,
+would like to see additional columns made available, please send us
+your request in mail to <a
+href="mailto:support@myslice.info">support@myslice.info</a>. You can
+find more information about the MySlice project at <a
+href="http://trac.myslice.info">http://trac.myslice.info</a>.
+';
 $toggle_nodes=new PlekitToggle('my-slice-nodes-configuration',
                                "Node table layout",
-                               array('visible'=>$column_conf_visible, 'info_div'=>'note_columns_div'));
+                               array('visible'=>$column_conf_visible, 
+				     'info_text'=>$layout_info,
+				     'info_visible'=>$show_layout_info));
 $toggle_nodes->start();
 
 //usort ($table_headers, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
@@ -672,21 +668,6 @@ print("<input type='hidden' id='column_configuration' value='".$slice_column_con
 print("<br><input type='hidden' size=80 id='full_column_configuration' value='".$column_configuration."' />");
 print("<input type='hidden' id='previousConf' value='".$slice_column_configuration."' />");
 print("<input type='hidden' id='defaultConf' value='".$default_configuration."' />");
-
-//print ("showing column message = ".$show_columns_message);
-if ($show_columns_message == '0') 
-  $note_display = "display:none;";
-else
-  $note_display = "";
-
-  print <<<EOF
-<div class='note-div' id='note_columns_div' style='$note_display'>
-<table class='center'><tr><td class='top'>
-This tab allows you to customize the columns in the node tables, below. Information on the nodes comes from a variety of monitoring sources. If you, as either a user or a provider of monitoring data, would like to see additional columns made available, please send us your request in mail to <a href="mailto:support@myslice.info">support@myslice.info</a>. You can find more information about the MySlice project at <a href="http://trac.myslice.info">http://trac.myslice.info</a>.
-</td><td class='top'><span onClick=closeMessage('columns')><img class='reset' src="/planetlab/icons/clear.png" alt="hide message permanently"></span>
-</td></tr></table>
-</div>
-EOF;
 
 $ConfigureColumns->configuration_panel_html(true);
 
@@ -889,6 +870,33 @@ $tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
 // * explain the interface : initscript start|stop|restart slicename
 // xxx fixme
 
+$initscript_info="
+There are two ways to attach an initscript to a slice:<ul>
+
+<li> <span class='bold'> Shared initscripts </span> are global to the
+MyPLC, and managed by the Operations Team. For that reason, regular
+users cannot change these scripts, but can reference one of the
+available names in the drop down below.  </li>
+
+<li> You also have the option to provide <span class='bold'> your own
+code </span>, with the following conventions: <ul>
+
+<li> Like regular initscripts, your script must except to receive as a
+first argument <span class='bold'> start </span>, <span class='bold'>
+stop </span> or <span class='bold'> restart </span>. It is important
+to honor this argument, as your slice may be stopped and restarted at
+any time; also this is used whenever the installed code gets changed.
+</li>
+
+<li> As a second argument, you will receive the slicename; in most
+cases this can be safely ignored.  </li>
+
+</ul>
+</li>
+ </ul>
+The slice-specific setting has precedence on a shared initscript.
+";
+
 $shared_initscripts=$api->GetInitScripts(array('-SORT'=>'name'),array('name'));
 //$shared_initscripts=$api->GetInitScripts();
 if ($profiling) plc_debug_prof('6 initscripts',count($initscripts));
@@ -914,7 +922,11 @@ if ($local_peer) {
 
   $toggle = new PlekitToggle('slice-initscripts',$label,
 			     array('bubble'=>'Manage initscript on that slice',
-				   'visible'=>get_arg('show_initscripts',false)));
+				   'visible'=>get_arg('show_initscripts',false),
+				   'info_text'=>$initscript_info
+				   // not messing with persontags to guess whether this should be displayed or not
+				   // hopefully some day toggle will know how to handle that using web storage
+				   ));
   $toggle->start();
 
   $details=new PlekitDetails(TRUE);
@@ -956,7 +968,6 @@ if ($local_peer) {
   }
   $details->th_td('slice initscript',$initscript_body,'initscript-body',
 		  array('input_type'=>'textarea', 'width'=>$script_width,'height'=>$script_height));
-  $details->th_td('Howto',"xxx yourscript start|stop|restart slicename");
   $details->tr_submit('unused','Update initscripts');
   $details->form_end();
   $details->end();  
