@@ -866,7 +866,7 @@ $tags=$api->GetSliceTags (array('slice_id'=>$slice_id));
 //////////////////////////////////////////////////////////// tab:initscripts
 // xxx fixme
 // * add a message on how to use this:
-// * explain the 2 mechanisms (initscript_body, initscript)
+// * explain the 2 mechanisms (initscript_code, initscript)
 // * explain the interface : initscript start|stop|restart slicename
 // xxx fixme
 
@@ -903,21 +903,21 @@ if ($profiling) plc_debug_prof('6 initscripts',count($initscripts));
 // xxx expose this even on foreign slices for now
 if ($local_peer) {
   $initscript='';
-  $initscript_body='';
+  $initscript_code='';
   if ($tags) foreach ($tags as $tag) {
       if ($tag['tagname']=='initscript') {
 	if ($initscript!='') drupal_set_error("multiple occurrences of 'initscript' tag");
 	$initscript=$tag['value'];
       }
-      if ($tag['tagname']=='initscript_body') {
-	if ($initscript_body!='') drupal_set_error("multiple occurrences of 'initscript_body' tag");
-	$initscript_body=$tag['value'];
-	// plc_debug_txt('retrieved body',$initscript_body);
+      if ($tag['tagname']=='initscript_code') {
+	if ($initscript_code!='') drupal_set_error("multiple occurrences of 'initscript_code' tag");
+	$initscript_code=$tag['value'];
+	// plc_debug_txt('retrieved body',$initscript_code);
       }
     }
   $label="No initscript";
-  $trimmed=trim($initscript_body);
-  if (!empty($trimmed)) $label="Initscript : slice-specific (" . substr($initscript_body,0,20) . " ...)";
+  $trimmed=trim($initscript_code);
+  if (!empty($trimmed)) $label="Initscript : slice-specific (" . substr($initscript_code,0,20) . " ...)";
   else if (!empty($initscript)) $label="Initscript: shared " . $initscript;
 
   $toggle = new PlekitToggle('slice-initscripts',$label,
@@ -934,7 +934,7 @@ if ($local_peer) {
 					 'slice_id'=>$slice_id,
 					 'name'=>$name,
 					 'previous-initscript'=>$initscript,
-					 'previous-initscript-body'=>$initscript_body));
+					 'previous-initscript-code'=>$initscript_code));
   $details->start();
   // comppute a pulldown with available names
   $selectors=array();
@@ -960,13 +960,13 @@ if ($local_peer) {
   ////////// by contents
   $script_height=8;
   $script_width=60;
-  if ($initscript_body) {
-    $text=explode("\n",$initscript_body);
+  if ($initscript_code) {
+    $text=explode("\n",$initscript_code);
     $script_height=count($text);
     $script_width=10;
     foreach ($text as $line) $script_width=max($script_width,strlen($line));
   }
-  $details->th_td('slice initscript',$initscript_body,'initscript-body',
+  $details->th_td('slice initscript',$initscript_code,'initscript-code',
 		  array('input_type'=>'textarea', 'width'=>$script_width,'height'=>$script_height));
   $details->tr_submit('unused','Update initscripts');
   $details->form_end();

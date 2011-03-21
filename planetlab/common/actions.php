@@ -88,8 +88,8 @@ $known_actions []= 'remove-nodes-from-slice';
 $known_actions []= 'add-nodes-in-slice';
 //	expects:	slice_id & node_ids
 $known_actions []= 'update-initscripts';
-//	expects:	slice_id & name & previous-initscript & previous-initscript-body 
-//			& initscript & initscript-body
+//	expects:	slice_id & name & previous-initscript & previous-initscript-code 
+//			& initscript & initscript-code
 $known_actions []= 'delete-slice-tags';
 //      expects:        slice_tag_id
 $known_actions []= 'add-slice-tag';
@@ -709,13 +709,13 @@ Our support team will be glad to answer any question that you might have.
  }
 
  case 'update-initscripts': {
-//	expects:	slice_id & name & previous-initscript & previous-initscript-body 
-//			& initscript & initscript-body
+//	expects:	slice_id & name & previous-initscript & previous-initscript-code 
+//			& initscript & initscript-code
    $slice_id = intval ($_POST['slice_id']); 	
    $previous_initscript=$_POST['previous-initscript'];
    $initscript=$_POST['initscript'];
-   $previous_initscript_body=$_POST['previous-initscript-body'];
-   $initscript_body=$_POST['initscript-body'];
+   $previous_initscript_code=$_POST['previous-initscript-code'];
+   $initscript_code=$_POST['initscript-code'];
 
    $changes=FALSE;
    if (strcmp($initscript,$previous_initscript) != 0) {
@@ -727,22 +727,22 @@ Our support team will be glad to answer any question that you might have.
    }
 
    // somehow some \r chars make it here; just ignore them
-   $previous_initscript_body=str_replace("\r","",$previous_initscript_body);
-   //   plc_debug_txt('previous initscript_body after cr',$previous_initscript_body);
+   $previous_initscript_code=str_replace("\r","",$previous_initscript_code);
+   //   plc_debug_txt('previous initscript_code after cr',$previous_initscript_code);
 
-   $initscript_body=str_replace("\r","",$initscript_body);
+   $initscript_code=str_replace("\r","",$initscript_code);
    // make sure the script ends with a single \n 
-   $initscript_body=trim($initscript_body);
-   if (!empty($initscript_body) && $initscript_body[strlen($initscript_body)-1] != "\n")
-     $initscript_body.="\n";
-   // plc_debug_txt('initscript_body after cr & nl/eof',$initscript_body);
+   $initscript_code=trim($initscript_code);
+   if (!empty($initscript_code) && $initscript_code[strlen($initscript_code)-1] != "\n")
+     $initscript_code.="\n";
+   // plc_debug_txt('initscript_code after cr & nl/eof',$initscript_code);
 
-   if (strcmp($initscript_body,$previous_initscript_body) != 0) {
-     $newvalue=$api->SetSliceInitscriptBody($slice_id,$initscript_body);
+   if (strcmp($initscript_code,$previous_initscript_code) != 0) {
+     $newvalue=$api->SetSliceInitscriptCode($slice_id,$initscript_code);
      // plc_debug_txt('newvalue',$newvalue);
-     $status=(strcmp($newvalue,$initscript_body)==0) ? "OK" : "failed";
-     if (! $initscript_body)	drupal_set_message("Removed initscript body " . $status);
-     else			drupal_set_message("Installed new initscript body " . $status);
+     $status=(strcmp($newvalue,$initscript_code)==0) ? "OK" : "failed";
+     if (! $initscript_code)	drupal_set_message("Removed initscript code " . $status);
+     else			drupal_set_message("Installed new initscript code " . $status);
      $changes=TRUE;
    }
    if (!$changes) drupal_set_message("No changes required in initscript");
