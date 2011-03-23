@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 62
+%define taglevel 63
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Mar 23 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-63
+- fix display glitch exposed with dimes initscript
+
 * Tue Mar 22 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-62
 - rename initscript_body into initscript_code
 
