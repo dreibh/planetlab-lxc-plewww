@@ -930,11 +930,17 @@ if ($local_peer) {
   $toggle->start();
 
   $details=new PlekitDetails(TRUE);
+  // we expose the previous values so that actions.php can know if changes are really needed
+  // the code needs to be encoded as it may contain any character
+  // as far as the code, this does not work too well b/c what actions.php receives
+  // seems to have spurrious \r chars, and the comparison between old and new values 
+  // is not reliable, which results in changes being made although the code hasn't changed
+  // hve spent too much time on this, good enough for now...
   $details->form_start(l_actions(),array('action'=>'update-initscripts',
 					 'slice_id'=>$slice_id,
 					 'name'=>$name,
 					 'previous-initscript'=>$initscript,
-					 'previous-initscript-code'=>$initscript_code));
+					 'previous-initscript-code'=>htmlentities($initscript_code)));
   $details->start();
   // comppute a pulldown with available names
   $selectors=array();

@@ -714,7 +714,7 @@ Our support team will be glad to answer any question that you might have.
    $slice_id = intval ($_POST['slice_id']); 	
    $previous_initscript=$_POST['previous-initscript'];
    $initscript=$_POST['initscript'];
-   $previous_initscript_code=$_POST['previous-initscript-code'];
+   $previous_initscript_code=html_entity_decode($_POST['previous-initscript-code']);
    $initscript_code=$_POST['initscript-code'];
 
    $changes=FALSE;
