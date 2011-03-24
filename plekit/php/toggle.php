@@ -20,10 +20,9 @@ drupal_set_html_head('
 // (*) options:	a hash that can define
 //	- trigger-tagname : to be used instead of <span> for wrapping the trigger
 //	- bubble : might not work if trigger-tagname is redefined
-//	- init-hidden : start hidden rather than visible
-//	- info_div : the id of a 'div' element that contains a help text
-//	- info_text : the text for help on the tab
-//	- info_visible : whether info needs to be visible at startup
+//	- visible : if set to false, start hidden rather than visible
+//	- info-text : the text for help on the tab
+//	- info-visible : whether info needs to be visible at startup
 // 
 // methods are as follows
 // (*) trigger_html ():	return the html code for the trigger
@@ -67,9 +66,23 @@ class PlekitToggle {
     $html = "";
     $html .= $this->area_end_html();
     $html .= $this->container_end();
+    // turn or or off from local storage
+    $html .= $this->visible_from_store_html();
     return $html;
   }
 
+  function visible_from_store_html() {
+    $id=$this->id;
+    $html = "";
+    $html .= "<script type='text/javascript'>";
+    // javascript code can't take -
+    //    $idj=str_replace('-','_',$id);
+    //    $html .= "function init_$idj () { plekit_toggle_from_store('$id');}";
+    //    $html .= "Event.observe(window,'load',init_$idj);";
+    $html .= "plekit_toggle_from_store('$id');";
+    $html .= "</script>";
+    return $html;
+  }
 
   // create two images that get shown/hidden - could not find a better way to do it
   function image_html () {
@@ -102,7 +115,7 @@ class PlekitToggle {
     $html .= $this->image_html();
     $html .= $this->trigger;
     $html .= "</$tagname>";
-    if (array_key_exists ('info_text',$this->options)) {
+    if (array_key_exists ('info-text',$this->options)) {
       $id=$this->id;
       $html .= "<span class='toggle-info-button' onClick='plekit_toggle_info(\"$id\");'><img height=20 src='/planetlab/icons/info.png' alt='close info'/></span>";
     }
@@ -111,14 +124,14 @@ class PlekitToggle {
 
   function info()		{ print $this->info_html();}
   function info_html () {
-    if (! array_key_exists ('info_text',$this->options)) return "";
+    if (! array_key_exists ('info-text',$this->options)) return "";
 
     // compute if info should be visible at startup
     // xxx in fact the default should be fetched in the browser storage xxx
     $info_visible=TRUE;
-    // if info_visible is set, use this value
-    if (array_key_exists ('info_visible',$this->options)) 
-      $info_visible=$this->options['info_visible'];
+    // if info-visible is set, use this value
+    if (array_key_exists ('info-visible',$this->options)) 
+      $info_visible=$this->options['info-visible'];
 
     $id=$this->id;
     $div_id=$this->id_name('info');
@@ -128,7 +141,7 @@ class PlekitToggle {
     if ($info_visible) $html .= " style='display:none'";
     // tmp
     $html .= "<table class='center'><tr><td class='top'>";
-    $html .= $this->options['info_text'];
+    $html .= $this->options['info-text'];
     $html .= "</td><td class='top'><span onClick='plekit_toggle_info(\"$id\");'><img height=20 class='reset' src='/planetlab/icons/close.png' alt='toggle info' /></span>";
     $html .= "</td></tr></table></div>";
     return $html;

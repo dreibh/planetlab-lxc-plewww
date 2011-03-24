@@ -1,3 +1,20 @@
+// use localStorage to remember open/closed toggles
+function plekit_toggle_store(id) {
+    var area=$('toggle-area-'+id);
+    key='toggle.'+id;
+    flag= (area.visible()) ? 'on' : 'off';
+    localStorage.setItem(key,flag);
+}
+function plekit_toggle_from_store (id) {
+    window.console.log('id='+id);
+    var area=$('toggle-area-'+id);
+    key='toggle.'+id;
+    flag=localStorage.getItem(key);
+    // on by default
+    if (flag=='off') area.hide();
+    else area.show();
+}
+
 function plekit_toggle(id){
 
     var area=$('toggle-area-'+id);
@@ -11,6 +28,7 @@ function plekit_toggle(id){
 	visible.hide();
 	hidden.show();
     }
+    plekit_toggle_store(id);
 }
 
 // make sure it's open

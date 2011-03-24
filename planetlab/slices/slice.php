@@ -581,8 +581,8 @@ if ($count && $privileges) {
   $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
 				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
 				 array('visible'=>get_arg('show_nodes_resa',false), 
-				       'info_text'=>$leases_info,
-				       'info_visible'=>$show_reservable_info));
+				       'info-text'=>$leases_info,
+				       'info-visible'=>$show_reservable_info));
   $toggle_nodes->start();
 
   // get settings from environment, otherwise set to defaults
@@ -650,8 +650,8 @@ href="http://trac.myslice.info">http://trac.myslice.info</a>.
 $toggle_nodes=new PlekitToggle('my-slice-nodes-configuration',
                                "Node table layout",
                                array('visible'=>$column_conf_visible, 
-				     'info_text'=>$layout_info,
-				     'info_visible'=>$show_layout_info));
+				     'info-text'=>$layout_info,
+				     'info-visible'=>$show_layout_info));
 $toggle_nodes->start();
 
 //usort ($table_headers, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
@@ -923,7 +923,7 @@ if ($local_peer) {
   $toggle = new PlekitToggle('slice-initscripts',$label,
 			     array('bubble'=>'Manage initscript on that slice',
 				   'visible'=>get_arg('show_initscripts',false),
-				   'info_text'=>$initscript_info
+				   'info-text'=>$initscript_info
 				   // not messing with persontags to guess whether this should be displayed or not
 				   // hopefully some day toggle will know how to handle that using web storage
 				   ));
