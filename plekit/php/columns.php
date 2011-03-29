@@ -374,9 +374,13 @@ function getPairwise($ref_node, $planetlab_nodes, $command, $data) {
 
 function comon_query_nodes($requested_data) {
 
-	$base_url = "http://comon.cs.princeton.edu/status/tabulator.cgi?table=table_nodeviewshort&format=formatcsv&dumpcols='name";
+	$comon_url = "http://comon.cs.princeton.edu";
+	$comon_api_url = "status/tabulator.cgi?table=table_nodeviewshort&format=formatcsv&dumpcols='name";
 
-	$url = $base_url.$requested_data."'";
+	if (MYSLICE_COMON_URL != "")
+		$comon_url = MYSLICE_COMON_URL;
+
+	$url = $comon_url."/".$comon_api_url.$requested_data."'";
 
 	//print ("Retrieving comon data for url ".$url);
 
