@@ -1,6 +1,7 @@
 <?php
 
 require_once 'prototype.php';
+require_once 'jstorage.php';
 require_once 'nifty.php';
 
 drupal_set_html_head('

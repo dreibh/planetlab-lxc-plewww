@@ -1,20 +1,23 @@
-// use localStorage to remember open/closed toggles
+////////// use jstorage to remember open/closed toggles
+// store current status
 function plekit_toggle_store(id) {
     var area=$('toggle-area-'+id);
     key='toggle.'+id;
-    flag= (area.visible()) ? 'on' : 'off';
-    localStorage.setItem(key,flag);
+//    window.console.log('storing toggle status for '+id);
+    $.jStorage.set(key,area.visible());
 }
+// restore last status
 function plekit_toggle_from_store (id) {
-    window.console.log('id='+id);
     var area=$('toggle-area-'+id);
     key='toggle.'+id;
-    flag=localStorage.getItem(key);
     // on by default
-    if (flag=='off') area.hide();
-    else area.show();
+//    window.console.log('retrieving toggle status for '+id+'=>got '+$.jStorage.get(key,undefined));
+    if ($.jStorage.get(key,true)) area.show();
+    else area.hide();
 }
 
+////////// manage a toggle
+// toggle it
 function plekit_toggle(id){
 
     var area=$('toggle-area-'+id);
@@ -37,18 +40,18 @@ function plekit_toggle_show(id) {
     if (!area.visible()) plekit_toggle (id);
 }
 
-// open or close the info box
+// toggle the attached info box
 function plekit_toggle_info(id){
 
     // need to take care of the area as well
     var area=$('toggle-area-'+id);
     var info=$('toggle-info-'+id);
     if (area.visible() && info.visible()) {
-	window.console.log('PTI hiding');
+//	window.console.log('PTI hiding');
 	info.hide();
     } else {
 	// make sure area is visible, take of the triggers
-	window.console.log('PTI showing');
+//	window.console.log('PTI showing');
 	plekit_toggle_show(id);
 	info.show();
     }
