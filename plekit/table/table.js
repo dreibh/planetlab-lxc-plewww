@@ -89,14 +89,15 @@ if ('undefined' == typeof Node)
 
 // Extract actual text from a DOM node (remove internal tags and so on)
 function getInnerText(node) {
-	var result = '';
-	if (Node.TEXT_NODE == node.nodeType)
-		return node.nodeValue;
-	if (Node.ELEMENT_NODE != node.nodeType)
-		return '';
-	for (var index = 0; index < node.childNodes.length; ++index)
-		result += getInnerText(node.childNodes.item(index));
-	return result;
+    if (node==undefined) return "";
+    var result = '';
+    if (Node.TEXT_NODE == node.nodeType)
+	return node.nodeValue;
+    if (Node.ELEMENT_NODE != node.nodeType)
+	return '';
+    for (var index = 0; index < node.childNodes.length; ++index)
+	result += getInnerText(node.childNodes.item(index));
+    return result;
 } // getInnerText
 
 // cache in the <tr> node the concatenation of the innerTexts of its cells
