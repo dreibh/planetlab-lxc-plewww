@@ -27,7 +27,6 @@ require_once 'columns.php';
 // keep css separate for now
 drupal_set_html_head('
 <link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
-<script src="/planetlab/slices/leases.js" type="text/javascript" charset="utf-8"></script>
 ');
 
 // -------------------- admins potentially need to get full list of users
@@ -581,6 +580,9 @@ This feature is still experimental; feedback is appreciated at <a href='mailto:d
 ";
 $count=count($reservable_nodes);
 if ($count && $privileges) {
+  // include leases.js only if needed
+  drupal_set_html_head('<script src="/planetlab/slices/leases.js" type="text/javascript" charset="utf-8"></script>');
+
   // having reservable nodes in white lists looks a bit off scope for now...
   $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
 				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
