@@ -41,9 +41,13 @@ class PlekitToggle {
     $this->id = $id;
     $this->trigger=$trigger;
     if ( ! $options ) $options = array();
+    // 'visible' may be set or not; if set to NULL it's considered as undefined
+    // so using NULL as the default means 'select from local storage i.e. last status'
+    if (array_key_exists ('visible',$options) && $options['visible']==NULL) 
+      unset ($options['visible']);
+    // start-hidden is internal and is always set
     if (array_key_exists ('visible',$options)) {
       $options['start-hidden'] = ! $options['visible'];
-      unset ($options['visible']);
     }
 
     if (!isset ($options['start-hidden'])) $options['start-hidden']=false;
@@ -67,8 +71,9 @@ class PlekitToggle {
     $html = "";
     $html .= $this->area_end_html();
     $html .= $this->container_end();
-    // turn or or off from local storage
-    $html .= $this->visible_from_store_html();
+    // if 'visible' is not set, set or or off from local storage
+    if ( ! array_key_exists('visible',$this->options) )
+      $html .= $this->visible_from_store_html();
     return $html;
   }
 
@@ -78,9 +83,9 @@ class PlekitToggle {
     $html .= "<script type='text/javascript'>";
     // javascript code can't take -
     //    $idj=str_replace('-','_',$id);
-    //    $html .= "function init_$idj () { plekit_toggle_from_store('$id');}";
+    //    $html .= "function init_$idj () { pletoggle_from_store('$id');}";
     //    $html .= "Event.observe(window,'load',init_$idj);";
-    $html .= "plekit_toggle_from_store('$id');";
+    $html .= "pletoggle_from_store('$id');";
     $html .= "</script>";
     return $html;
   }
@@ -111,14 +116,14 @@ class PlekitToggle {
     $html .= " id='$trigger_id'";
     $html .= " class='plc-toggle-trigger'";
     if ($bubble) $html .= " title='$bubble'";
-    $html .= " onclick=\"plekit_toggle('$this->id')\"";
+    $html .= " onclick=\"pletoggle_toggle('$this->id')\"";
     $html .= ">";
     $html .= $this->image_html();
     $html .= $this->trigger;
     $html .= "</$tagname>";
     if (array_key_exists ('info-text',$this->options)) {
       $id=$this->id;
-      $html .= "<span class='toggle-info-button' onClick='plekit_toggle_info(\"$id\");'><img height=20 src='/planetlab/icons/info.png' alt='close info'/></span>";
+      $html .= "<span class='toggle-info-button' onClick='pletoggle_toggle_info(\"$id\");'><img height=20 src='/planetlab/icons/info.png' alt='close info'/></span>";
     }
     return $html;
   }
@@ -144,7 +149,7 @@ class PlekitToggle {
     // tmp
     $html .= "<table class='center'><tr><td class='top'>";
     $html .= $this->options['info-text'];
-    $html .= "</td><td class='top'><span onClick='plekit_toggle_info(\"$id\");'><img height=20 class='reset' src='/planetlab/icons/close.png' alt='toggle info' /></span>";
+    $html .= "</td><td class='top'><span onClick='pletoggle_toggle_info(\"$id\");'><img height=20 class='reset' src='/planetlab/icons/close.png' alt='toggle info' /></span>";
     $html .= "</td></tr></table></div>";
     return $html;
   }
