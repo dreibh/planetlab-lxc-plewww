@@ -230,18 +230,11 @@ if ($local_peer ) {
 
 
 //////////////////////////////////////////////////////////// tab:details
-// default for opening the details section or not ?
-if ($local_peer) {
-  $default_show_details = true;
- } else {
-  $default_show_details = ! $renew_visible;
- }
-  
 $toggle = 
   new PlekitToggle ('my-slice-details',"Details",
 		    array('bubble'=>
 			  'Display and modify details for that slice',
-			  'visible'=>get_arg('show_details',$default_show_details)));
+			  'visible'=>get_arg('show_details',NULL)));
 $toggle->start();
 
 $details=new PlekitDetails($privileges);
@@ -293,7 +286,7 @@ $toggle=
   new PlekitToggle ('my-slice-persons',"$count users",
 		    array('bubble'=>
 			  'Manage accounts attached to this slice',
-			  'visible'=>get_arg('show_persons',false)));
+			  'visible'=>get_arg('show_persons',NULL)));
 $toggle->start();
 
 ////////// people currently in
@@ -345,7 +338,7 @@ if ($privileges) {
   $count=count($potential_persons);
   $toggle_persons = new PlekitToggle ('my-slice-persons-add',
 				      "$count people may be added to $name",
-				      array('visible'=>get_arg('show_persons_add',false)));
+				      array('visible'=>get_arg('show_persons_add',NULL)));
   $toggle_persons->start();
   if ( ! $potential_persons ) {
     // xxx improve style
@@ -564,7 +557,7 @@ if (count($reservable_nodes)) $nodes_message .= " (" . count($reservable_nodes) 
 $toggle=new PlekitToggle ('my-slice-nodes',$nodes_message,
 			  array('bubble'=>
 				'Manage nodes attached to this slice',
-				'visible'=>get_arg('show_nodes',false)));
+				'visible'=>get_arg('show_nodes',NULL)));
 $toggle->start();
 
 
@@ -586,7 +579,7 @@ if ($count && $privileges) {
   // having reservable nodes in white lists looks a bit off scope for now...
   $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
 				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
-				 array('visible'=>get_arg('show_nodes_resa',false), 
+				 array('visible'=>get_arg('show_nodes_resa',NULL), 
 				       'info-text'=>$leases_info,
 				       'info-visible'=>$show_reservable_info));
   $toggle_nodes->start();
@@ -655,7 +648,7 @@ href="http://trac.myslice.info">http://trac.myslice.info</a>.
 ';
 $toggle_nodes=new PlekitToggle('my-slice-nodes-configuration',
                                "Node table layout",
-                               array('visible'=>$column_conf_visible, 
+                               array('visible'=>NULL, 
 				     'info-text'=>$layout_info,
 				     'info-visible'=>$show_layout_info));
 $toggle_nodes->start();
@@ -796,7 +789,7 @@ if ($privileges) {
   $count=count($potential_nodes);
   $toggle_nodes=new PlekitToggle('my-slice-nodes-add',
 				 count_english($potential_nodes,"more node") . " available",
-				 array('visible'=>get_arg('show_nodes_add',false)));
+				 array('visible'=>get_arg('show_nodes_add',NULL)));
   $toggle_nodes->start();
 
   if ( $potential_nodes ) {
@@ -928,7 +921,7 @@ if ($local_peer) {
 
   $toggle = new PlekitToggle('slice-initscripts',$label,
 			     array('bubble'=>'Manage initscript on that slice',
-				   'visible'=>get_arg('show_initscripts',false),
+				   'visible'=>get_arg('show_initscripts',NULL),
 				   'info-text'=>$initscript_info
 				   // not messing with persontags to guess whether this should be displayed or not
 				   // hopefully some day toggle will know how to handle that using web storage
@@ -1003,7 +996,7 @@ $tag_value_threshold=24;
   
   $toggle = new PlekitToggle ('slice-tags',count_english_warning($tags,'tag'),
 			      array('bubble'=>'Inspect and set tags on that slice',
-				    'visible'=>get_arg('show_tags',false)));
+				    'visible'=>get_arg('show_tags',NULL)));
   $toggle->start();
   
   $headers=array(
@@ -1101,7 +1094,7 @@ $tag_value_threshold=24;
 
 //////////////////////////////////////////////////////////// tab:renew
 if ($local_peer ) {
-  if ( ! $renew_visible) renew_area ($slice,$site,false);
+  if ( ! $renew_visible) renew_area ($slice,$site,NULL);
  }
 
 $peers->block_end($peer_id);
