@@ -29,7 +29,7 @@ $myFile = "/var/log/myslice.log";
 if (file_exists($myFile))
 	$fh = fopen($myFile, 'a') or die("can't open file");
 
-$stringData = date('Y-m-d@H:i')."|p=".$person_id.":s=".$slice_id.":t=".$tag_name.":v=".$value."\n";
+$stringData = "\n".date('Y-m-d@H:i')."|p=".$person_id.":s=".$slice_id.":t=".$tag_name.":v=".$value;
 fwrite($fh, $stringData);
 fclose($fh);
 

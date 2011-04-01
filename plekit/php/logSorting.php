@@ -19,7 +19,7 @@ $slice_id=$_GET["slice_id"];
 
 $myFile = "/var/log/myslice.log";
 $fh = fopen($myFile, 'a') or die("can't open file");
-$stringData = "\n".date('Ymd-H:i')."|".$person_id.":".$slice_id.":".$value;
+$stringData = date('Ymd-H:i')."|".$person_id.":".$slice_id.":".$value."\n";
 fwrite($fh, $stringData);
 fclose($fh);
 
