@@ -1062,7 +1062,7 @@ $tag_value_threshold=24;
     function tag_selector ($tag) {
       return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']);
     }
-    $all_tags= $api->GetTagTypes( array ("category"=>"slice*","-SORT"=>"+tagname"), array("tagname","tag_type_id"));
+    $all_tags= $api->GetTagTypes( array ("category"=>"*slice*","-SORT"=>"+tagname"), array("tagname","tag_type_id"));
     if ($profiling) plc_debug_prof('9 tagtypes',count($all_tags));
     $selector_tag=array_map("tag_selector",$all_tags);
     
