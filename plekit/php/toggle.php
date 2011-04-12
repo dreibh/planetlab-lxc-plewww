@@ -144,7 +144,7 @@ class PlekitToggle {
     $html="";
     $html .= "<div class='toggle-info'";
     $html .= " id='$div_id'";
-    if ($info_visible) $html .= " style='display:none'";
+    if (!$info_visible) $html .= " style='display:none'";
     $html .= ">";
     // tmp
     $html .= "<table class='center'><tr><td class='top'>";

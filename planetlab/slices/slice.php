@@ -648,8 +648,7 @@ href="http://trac.myslice.info">http://trac.myslice.info</a>.
 ';
 $toggle_nodes=new PlekitToggle('my-slice-nodes-configuration',
                                "Node table layout",
-                               array('visible'=>NULL, 
-				     'info-text'=>$layout_info,
+                               array('info-text'=>$layout_info,
 				     'info-visible'=>$show_layout_info));
 $toggle_nodes->start();
 
