@@ -261,9 +261,19 @@ I've experienced a problem rebooting $hostname with the pcu_id $pcu_id;
     $url=rawurlencode($body);
     $email = "<font style='font-size: smaller'>><a href=\"mailto:".PLC_MAIL_SUPPORT_ADDRESS."?Subject=Reporting a problem rebooting $hostname&Body=$url\">Report a problem</a></font>";
 
-    $details->form_start(l_actions(),array("action"=>"reboot-node-with-pcu", "node_id"=>$node_id, "hostname"=>$hostname));
-    print $details->tr_html($email . $details->form->submit_html("submit","Reboot Node"), "right");
-    $details->form_end();
+    // NOTE: not sure how to make the buttons display side-by-side...
+    $reboot = $details->form_start_html(l_actions(),array("action"=>"reboot-node-with-pcu",
+                                "node_id"=>$node_id, "hostname"=>$hostname, "test"=>FALSE));
+    $reboot .= $email . $details->form->submit_html("submit","Reboot Node");
+    $reboot .= $details->form_end_html();
+
+    $reboot .= $details->form_start_html(l_actions(),array("action"=>"reboot-node-with-pcu",
+                                "node_id"=>$node_id, "hostname"=>$hostname, "test"=>TRUE));
+    $reboot .= $details->form->submit_html("submit","Test PCU");
+    $reboot .= $details->form_end_html();
+
+    $details->tr($reboot, "right");
+
 }
 $details->space();
 
