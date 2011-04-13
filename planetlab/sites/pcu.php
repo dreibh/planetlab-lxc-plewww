@@ -87,6 +87,12 @@ if( !$_GET['id'] ) {
 		
   }
 	
+  if( in_array( 10, $_roles) ) {
+      $is_admin= true;
+  } else {
+      $is_admin = false;
+  }
+
   if( in_array( 10, $_roles ) || ( in_array( 20, $_roles ) && in_array( $pcu_info[0]['site_id'], $_person['site_ids'] ) ) || ( in_array( 40, $_roles ) && in_array( $pcu_info[0]['site_id'], $_person['site_ids'] ) ) )
     $pcu_controller= true;
 
@@ -128,12 +134,13 @@ if( !$_GET['id'] ) {
     echo "</td></tr>\n
 	  <tr><th>Model: </th><td>";
   
-  if( $pcu_controller )
+  // NOTE: in general, this value should not be edited, so only allow admins.
+  if( $pcu_controller && $is_admin )
     echo "<input type=text name='model' value='";
 		
   echo $pcu_info[0]['model'];
   
-  if( $pcu_controller )
+  if( $pcu_controller && $is_admin )
     echo "'>";
   
   echo "</td></tr>\n
