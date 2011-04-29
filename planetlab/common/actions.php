@@ -393,8 +393,10 @@ switch ($action) {
  case 'reboot-node-with-pcu': {
    $node_id=intval($_POST['node_id']);
    $hostname= $_POST['hostname'];
+   $test = $_POST['test'];
+   settype($test, "boolean");
 
-   $ret = $api->RebootNodeWithPCU( $node_id );
+   $ret = $api->RebootNodeWithPCU( $node_id, $test );
    $error= $api->error();
 
    if( empty( $error ) ) {

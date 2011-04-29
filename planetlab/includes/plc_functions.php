@@ -75,6 +75,7 @@ function l_actions_download ()		{ return "/db/nodes/node_downloads.php"; }
 function l_register_node ()		{ return "/registerwizard/index.php"; }
 function l_pcu_add ()			{ return "/registerwizard/index.php/register/stage1_addpcu"; }
 function l_pcu ($pcu_id)		{ return "/db/sites/pcu.php?id=$pcu_id"; }
+function l_pcu_href ($pcu_id, $text)		{ return href(l_pcu($pcu_id), $text); }
 
 function l_nodes ()			{ return "/db/nodes/index.php"; }
 function l_nodes_peer ($peer_id)	{ return "/db/nodes/index.php?peerscope=$peer_id"; }

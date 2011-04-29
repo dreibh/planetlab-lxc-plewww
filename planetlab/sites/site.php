@@ -264,7 +264,7 @@ if ( $local_peer ) {
     if (empty($ports)) return plc_error_html('???');
     $port=$ports[0];
     $pcu=$pcu_hash[$pcu_id];
-    $display= $pcu['hostname'] . ' : ' . $port;
+    $display= l_pcu_href($pcu_id, $pcu['hostname'] . ' : ' . $port);
     $pcu_hash[$pcu_id]['displayed']=true;
     return $display;
   }
