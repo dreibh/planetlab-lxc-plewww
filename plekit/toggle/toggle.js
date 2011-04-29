@@ -35,6 +35,9 @@ function pletoggle_toggle(id){
     pletoggle_store(id);
 }
 
+// for compatibility (monitor)
+function plc_toggle (id) { return pletoggle_toggle (id); }
+
 // make sure it's open or closed
 function pletoggle_set_visible(id, status) {
     var area=$('toggle-area-'+id);
