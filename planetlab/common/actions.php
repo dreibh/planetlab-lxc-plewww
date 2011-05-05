@@ -5,7 +5,8 @@ require_once 'plc_login.php';
 
 // Get session and API handles
 require_once 'plc_session.php';
-global $plc, $api;
+require_once 'plc_api.php';
+global $plc, $api, $adm;
 
 //print header
 require_once 'plc_drupal.php';
@@ -636,7 +637,7 @@ Our support team will be glad to answer any question that you might have.
      }
    }
    if ($success) {
-     $api->NotifyPersons($notify_person_ids,$notify_subject,$notify_body);
+     $adm->NotifyPersons($notify_person_ids,$notify_subject,$notify_body);
      drupal_set_message ("Deleted $counter person(s)");
    }
    else
@@ -676,7 +677,7 @@ Our support team will be glad to answer any question that you might have.
      }
    }
    if ($success) {
-     $api->NotifyPersons($notify_person_ids,$notify_subject,$notify_body);
+     $adm->NotifyPersons($notify_person_ids,$notify_subject,$notify_body);
      drupal_set_message ("Added $counter person(s)");
    }
    else

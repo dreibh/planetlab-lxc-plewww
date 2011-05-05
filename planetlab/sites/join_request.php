@@ -9,7 +9,8 @@ require_once 'plc_login.php';
 
 // Get session and API handles
 require_once 'plc_session.php';
-global $plc, $api;
+require_once 'plc_api.php'; 
+global $plc, $api, $adm;
 
 // Print header
 require_once 'plc_drupal.php';
@@ -175,7 +176,7 @@ EOF;
 	       PLC_MAIL_SUPPORT_ADDRESS);
    
  $subject="Site registration for " . $site['name'] . " has been approved by " . PLC_NAME;
- $api->NotifyPersons(array($pi_id),$subject,$body);
+ $adm->NotifyPersons(array($pi_id),$subject,$body);
 }
 
 
