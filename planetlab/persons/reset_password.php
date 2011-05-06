@@ -14,40 +14,45 @@ global $plc, $api, $adm;
 
 // Print header
 require_once 'plc_drupal.php';
-drupal_set_title('Reset Password');
 include 'plc_header.php';
 
-if (!empty($_REQUEST['id']) && !empty($_REQUEST['key'])) {
-  $person_id = intval($_REQUEST['id']);
-  if ($adm->ResetPassword($person_id, $_REQUEST['key']) != 1) {
-    print '<div class="messages error">' . $adm->error() . '.</div>';
-  } else {
-    drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"5; URL=/db/common/login.php\"");
-    print '<div class="messages status">';
-    print "An e-mail has been sent to you with your new temporary password. ";
-    print "Please change this password as soon as possible. ";
-    print "You will be re-directed to the login page in 5 seconds.";
-    print '</div>';
-  }
-} elseif (!empty($_REQUEST['email'])) {
-  if ($adm->ResetPassword($_REQUEST['email']) != 1) {
-    print '<div class="messages error">' . $adm->error() . '.</div>';
-  } else {
-    drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"5; URL=/db/common/login.php\"");
-    print '<div class="messages status">';
-    print "An e-mail has been sent to " . $_REQUEST['email'] . " with further instructions. ";
-    print "You will be re-directed to the login page in 5 seconds.";
-    print '</div>';
-  }
-}
+// Only display dialogs if the user is not logged in.
+if ( !$plc->person) {
 
-$self = $_SERVER['PHP_SELF'];
-if (!empty($_SERVER['QUERY_STRING'])) {
-  $self .= "?" . $_SERVER['QUERY_STRING'];
-}
+    if (!empty($_REQUEST['id']) && !empty($_REQUEST['key'])) {
+      $person_id = intval($_REQUEST['id']);
+      drupal_set_title('Password Reset: Confirmed');
+      if ($adm->ResetPassword($person_id, $_REQUEST['key']) != 1) {
+        print '<div class="messages error">' . $adm->error() . '.</div>';
+      } else {
+        drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"60; URL=/\"");
 
-// XXX Use our own stylesheet instead of drupal.css
-print <<<EOF
+        print '<div class="messages status">';
+        print "Success!  We've sent you another e-mail with your new temporary password. <br/>"; 
+        print "You can login using this temporaray password.  <br/>"; 
+        print "Please change it once you login by visiting 'My Account' and updating your password. ";
+        print '</div>';
+      }
+    } elseif (!empty($_REQUEST['email'])) {
+      drupal_set_title('Password Reset: Request Sent');
+      if ($adm->ResetPassword($_REQUEST['email']) != 1) {
+        print '<div class="messages error">' . $adm->error() . '.</div>';
+      } else {
+        print '<div class="messages status">';
+        print "We've sent an e-mail to " . $_REQUEST['email'] . " that will allow you to confirm the password reset. <br/>";
+        print "Please check your email now and follow the link contained there to reset your password. ";
+        print '</div>';
+      }
+    } else {
+
+        drupal_set_title('Password Reset');
+        $self = $_SERVER['PHP_SELF'];
+        if (!empty($_SERVER['QUERY_STRING'])) {
+          $self .= "?" . $_SERVER['QUERY_STRING'];
+        }
+
+        // XXX Use our own stylesheet instead of drupal.css
+        print <<<EOF
 <div class="content">
 <form action="$self" method="post">
 
@@ -65,8 +70,10 @@ print <<<EOF
 
 </form>
 </div>
-
 EOF;
+
+    }
+}
 
 include 'plc_footer.php';
 
