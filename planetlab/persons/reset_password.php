@@ -24,8 +24,6 @@ if ( !$plc->person) {
       if ($adm->ResetPassword($person_id, $_REQUEST['key']) != 1) {
         print '<div class="messages error">' . $adm->error() . '.</div>';
       } else {
-        drupal_set_html_head("<meta http-equiv=\"refresh\" content=\"60; URL=/\"");
-
         print '<div class="messages status">';
         print "Success!  We've sent you another e-mail with your new temporary password. <br/>"; 
         print "You can login using this temporaray password.  <br/>"; 
@@ -75,6 +73,7 @@ EOF;
     include 'plc_footer.php';
 
 } else {
+  // Otherwise display the user's account page.
   Header("Location: /db/persons/index.php?id=" . $plc->person['person_id']);
   exit();
 }
