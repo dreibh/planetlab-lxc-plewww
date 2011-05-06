@@ -12,12 +12,11 @@
 require_once 'plc_session.php';
 global $plc, $api, $adm;
 
-// Print header
-require_once 'plc_drupal.php';
-include 'plc_header.php';
-
 // Only display dialogs if the user is not logged in.
 if ( !$plc->person) {
+    // Print header
+    require_once 'plc_drupal.php';
+    include 'plc_header.php';
 
     if (!empty($_REQUEST['id']) && !empty($_REQUEST['key'])) {
       $person_id = intval($_REQUEST['id']);
@@ -73,8 +72,12 @@ if ( !$plc->person) {
 EOF;
 
     }
+    include 'plc_footer.php';
+
+} else {
+  Header("Location: /db/persons/index.php?id=" . $plc->person['person_id']);
+  exit();
 }
 
-include 'plc_footer.php';
 
 ?>
