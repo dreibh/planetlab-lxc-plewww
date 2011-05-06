@@ -292,19 +292,22 @@ if ($local_peer) {
       $table->row_end();
     }
 
-    $table->row_start();
-
-    // get list of local sites that the person is not in
-    function get_site_id ($site) { return $site['site_id'];}
-    $person_site_ids=array_map("get_site_id",$sites);
-    $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids, '-SORT'=>'name'), $site_columns);
-    // xxx cannot use onchange=submit() - would need to somehow pass action name 
-    function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
-    $selectors = array_map ("site_selector",$relevant_sites);
-    $table->cell ($form->select_html("site_id",$selectors,array('label'=>"Choose a site to add")).
-		  $form->submit_html("add-person-to-site","Add in site"),
-		  array('hfill'=>true,'align'=>'right'));
-    $table->row_end();
+    if (plc_is_admin()) 
+    {
+        // NOTE: only admins can add users to different sites.
+        $table->row_start();
+        // get list of local sites that the person is not in
+        function get_site_id ($site) { return $site['site_id'];}
+        $person_site_ids=array_map("get_site_id",$sites);
+        $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids, '-SORT'=>'name'), $site_columns);
+        // xxx cannot use onchange=submit() - would need to somehow pass action name 
+        function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
+        $selectors = array_map ("site_selector",$relevant_sites);
+        $table->cell ($form->select_html("site_id",$selectors,array('label'=>"Choose a site to add")).
+              $form->submit_html("add-person-to-site","Add in site"),
+              array('hfill'=>true,'align'=>'right'));
+        $table->row_end();
+    }
   }
   $table->end();
   $toggle->end();
