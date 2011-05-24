@@ -246,7 +246,7 @@ function site_option($site) {
   $option .= htmlspecialchars($site['name']);
   # Safari/IE do not implement disabled correctly
   if ( ! $site['enabled'] )
-    $option .= " (pending registration)";
+    $option .= " (disabled, or pending registration)";
   $option .= "</option>";
   return $option;
 }
