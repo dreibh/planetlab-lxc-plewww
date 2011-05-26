@@ -285,7 +285,7 @@ function Scheduler () {
 	var ajax=new Ajax.Request('/planetlab/common/actions.php', 
 				  {method:'post',
 				   parameters:{'action':'manage-leases',
-					       'actions':actions.toJSON()},
+					       'actions':Object.toJSON(actions)},
 				   onSuccess: function(transport) {
 				       var response = transport.responseText || "no response text";
 				       document.body.style.cursor = "default";
