@@ -14,7 +14,8 @@ global $adm;
 
 // Get PlanetFlow stats
 global $planetflow, $active_bytes;
-include_once '_gen_planetflow.php';
+// Thierry : this is not found at PlanetLab Europe
+//include_once '_gen_planetflow.php';
 
 // Print header
 require_once 'plc_drupal.php';
