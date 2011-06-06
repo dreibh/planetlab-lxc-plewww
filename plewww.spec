@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 64
+%define taglevel 65
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Jun 06 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-65
+- minor/cosmetic fixes in the leases area
+
 * Mon Jun 06 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-64
 - new jstorage to store stuff in the browser, start to use that to "remember" the open/closed tabs
 - uses MYSLICE_TOPHAT_AVAILABLE and MYSLICE_COMON_AVAILABLE to decide whether to add extra data
