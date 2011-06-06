@@ -38,7 +38,7 @@ table#leases_data {
 #leases_modes { padding: 10px; text-align: center; color: #333; }
 
 #leases_buttons { padding: 0px 10px 10px 10px; }
-#leases_clear { position: relative; left: 30%;}
+#leases_refresh { position: relative; left: 30%;}
 #leases_submit { position: relative; left: 60%; }
         
 
