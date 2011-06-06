@@ -621,8 +621,8 @@ if ($count && $privileges) {
 <div id='leases_area'></div>
 
 <div id='leases_buttons'>
-  <button id='leases_refresh' type='submit'>Refresh</button>
-  <button id='leases_submit' type='submit'>Submit</button>
+    <button id='leases_refresh' type='submit'>Refresh (Pull)</button>
+    <button id='leases_submit' type='submit'>Submit (Push)</button>
 </div>
 EOF;
 
