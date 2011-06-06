@@ -590,10 +590,10 @@ if ($count && $privileges) {
   if ( ! $leases_offset ) $leases_offset=0;
   // how many timeslots to show
   $leases_slots=$_GET['leases_slots'];
-  if ( ! $leases_slots ) $leases_slots = 48;
+  if ( ! $leases_slots ) $leases_slots = 36;
   // offset in hours (in the future) from now 
   $leases_w = $_GET['leases_w'];
-  if ( ! $leases_w) $leases_w=14;
+  if ( ! $leases_w) $leases_w=18;
   // number of timeslots to display
 
   $granularity=$api->GetLeaseGranularity();

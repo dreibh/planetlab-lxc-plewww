@@ -23,7 +23,6 @@ $reservable_nodes=$api->GetNodes(array('|slice_ids'=>intval($slice_id), 'node_ty
 
 // where to start from, expressed as an offset in hours from now
 $rough_start=time()+$leases_offset*3600;
-// show the next 36 grains 
 $duration=$leases_slots*$leases_granularity;
 $steps=$duration/$leases_granularity;
 $start=intval($rough_start/$leases_granularity)*$leases_granularity;
