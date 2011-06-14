@@ -24,7 +24,7 @@ if( ! $has_privileges) {
     drupal_goto(l_register_node());
     return 0;
   }
-  drupal_set_error ("Insufficient provileges to add a node");
+  drupal_set_error ("Insufficient privileges to add a node");
   header( "index.php" );
   return 0;
 }
