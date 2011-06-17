@@ -58,13 +58,14 @@ class PLCSession
 			      'AuthString' => $pass));
 
       // Authenticate user and get session key
-      $session = $api->GetSession();
+      $seconds_to_expire = (24 * 60 * 60 * 14);
+      $session = $api->GetSession($seconds_to_expire);
       if (!$session) {
-	return NULL;
+          return NULL;
       }
 
       // Change GetSession() at some point to return expires as well
-      $expires = time() + (24 * 60 * 60);
+      $expires = time() + $seconds_to_expire;
 
       // Change to session authentication
       $api->auth = array('AuthMethod' => "session", 'session' => $session);
