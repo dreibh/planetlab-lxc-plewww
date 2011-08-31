@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 65
+%define taglevel 66
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Aug 31 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-66
+- uses a 2-week (!) session
+
 * Mon Jun 06 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-65
 - minor/cosmetic fixes in the leases area
 
