@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 // Require login
 require_once 'plc_login.php';
 
@@ -463,7 +461,7 @@ if ( $local_peer ) {
     echo '<p>';
     plc_warning_html("This node has no interface");
     echo "Please add an interface to make this a usable PLC node.</p>\n";
-  } else {
+  } // else { // show this unconditionnally as otherwise there's no mean to create one..
 
     // display a hostname column iff at least one interface has a hostname
     $need_hostname=false;
@@ -488,7 +486,7 @@ if ( $local_peer ) {
     $table=new PlekitTable("node_interfaces",$headers,$sort_column,$table_options);
     $table->start();
 	
-    foreach ( $interfaces as $interface ) {
+    if ($interfaces) foreach ( $interfaces as $interface ) {
       $interface_id= $interface['interface_id'];
       $interface_ip= $interface['ip'];
 
@@ -524,7 +522,7 @@ if ( $local_peer ) {
       $table->row_end();
     }
     $table->end();
-  }
+    //  }
   $toggle->end();
  }
 
