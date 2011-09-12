@@ -60,7 +60,7 @@ if( $_GET['slice_id'] && $_GET['node_id'] ) {
     $form->start();
     $table->start();
 
-    foreach ($tags as $tag) {
+    if ($tags) foreach ($tags as $tag) {
         $table->row_start();
         $table->cell($tag['tagname']);
         $table->cell($tag['value']);
