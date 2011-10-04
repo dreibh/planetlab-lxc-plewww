@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 66
+%define taglevel 67
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Sep 26 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-67
+- node page can edit interfaces even when no interface
+
 * Wed Aug 31 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-66
 - uses a 2-week (!) session
 
