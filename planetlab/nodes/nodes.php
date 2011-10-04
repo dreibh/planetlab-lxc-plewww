@@ -319,36 +319,9 @@ if ( ! $nodes ) {
   
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
-$headers = array (); $offset=0;
+$headers = array (); 
 $notes=array();
 $notes [] = "For information about the different columns please see the <b>node table layout</b> tab above or <b>mouse over</b> the column headers";
-
-
-/*
-// fixed columns
-if (plc_is_admin()) { 
-  $short="I"; $long="node_id"; $type='int'; 
-	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-  $offset=1; 
- }
-$short="P"; $long="Peer"; $type='string'; 
-	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-$short="D"; $long="toplevel domain name"; $type='string'; 
-	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-$headers["Site"]="string";
-$headers["Hostname"]="string";
-$short="IP"; $long="IP Address"; $type='sortIPAddress'; 
-	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-$short="ST"; $long=Node::status_footnote(); $type='string'; 
-	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-$short="SL"; $long="Number of slivers"; $type='int'; 
-	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-
-$headers=array_merge($headers,$visibletags->headers());
-$notes=array_merge($notes,$visibletags->notes());
-$short="?"; $long="extra status info"; $type='string'; 
-	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
-*/
 
 $info_header = array();
 $short="?"; $long="extra status info"; $type='string'; 
@@ -400,7 +373,7 @@ $table_options = array('notes'=>$notes,
                         'configurable'=>true);
 
 # initial sort on hostnames
-$table=new PlekitTable ("nodes",$headers,3+$offset, $table_options);
+$table=new PlekitTable ("nodes",$headers,3, $table_options);
 $table->start();
 
 $peers = new Peers ($api);
