@@ -1,7 +1,5 @@
 <?php
 
-// $Id$ 
-
 // Require login
 require_once 'plc_login.php';
 
@@ -41,8 +39,9 @@ if ( $_POST['add-node'] )  {
   $site_id = trim($_POST['site_id']);
   $hostname = trim($_POST['hostname']);
   $model= trim($_POST['model']);
-  $ip = trim($_POST['ip']);
+  $node_type = trim ($_POST['node_type']);
   $method = trim($_POST['method']);
+  $ip = trim($_POST['ip']);
   $netmask = trim($_POST['netmask']);
   $network = trim($_POST['network']);
   $broadcast = trim($_POST['broadcast']);
@@ -86,7 +85,7 @@ if ( $_POST['add-node'] )  {
     drupal_set_error(plc_itemize($errors));
   } else {
     // add new node and its interface
-    $node_fields= array( "hostname"=>$hostname, "model"=>$model );
+    $node_fields= array( "hostname"=>$hostname, "model"=>$model , "node_type" => $node_type);
     $node_id= $api->AddNode( intval( $site_id ), $node_fields );
 
     if ( empty($node_id) || ($node_id < 0) ) {
@@ -145,11 +144,14 @@ drupal_set_html_head ('
 drupal_set_title('Add a new node to site');
 
 // defaults
-$method = $_POST['method'];
-if( ! $method ) $method= "static";
-
 $model = $_POST['model'];
 if( ! $model ) $model= "Custom";
+
+$node_type = $_POST['node_type'];
+if ( ! $node_type ) $node_type= "regular";
+
+$method = $_POST['method'];
+if( ! $method ) $method= "static";
 
 print <<< EOF
 <p class='node_add'>
@@ -191,6 +193,11 @@ $details->th_td("Site",
 
 $details->th_td("Hostname",$hostname,"hostname");
 $details->th_td("Model",$model,"model");
+$node_type_select = $form->select_html ("node_type",
+				       node_type_selectors($api,$node_type),
+				       array('id'=>'node_type'));
+$details->th_td("Reservation",$node_type_select,"node_type",
+		array('input_type'=>'select','value'=>$node_type));
 $method_select = $form->select_html ("method",
 				     interface_method_selectors($api,$method,true),
 				     array('id'=>'method',

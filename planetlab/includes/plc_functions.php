@@ -510,6 +510,18 @@ function plc_redirect ($url) {
   exit ();
 }
 
+//////////////////// the options for an nodetype - suitable for plekit/form
+function node_type_selectors ($api,$nodetype) {
+  $builtin_types = array ( "regular" => "Regular/Shared",
+			   "reservable" => "Reservable (requires to get leases)");
+  foreach ($builtin_types as $value=>$display) {
+    $selector=array('display'=>$display, 'value'=>$value);
+    if ($value == $nodetype) $selector['selected']=true;
+    $selectors []= $selector;
+  }
+  return $selectors;
+}
+
 //////////////////// the options for an interface - suitable for plekit/form
 //>>> GetNetworkMethods()
 //[u'static', u'dhcp', u'proxy', u'tap', u'ipmi', u'unknown']
