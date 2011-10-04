@@ -71,8 +71,6 @@ function node_status ($node) {
 }
 
 
-$first_time_configuration = false;
-
 if (plc_is_admin()) 
 	$default_configuration = "ID:f|hostname:f|ST:f|AU:f|RES:f";
 else
@@ -104,7 +102,6 @@ foreach ($PersonTags as $ptag) {
 $nodesconf_exists = false;
 if ($column_configuration == "")
 {
-        $first_time_configuration = true;
         $column_configuration = "nodes;default";
         $nodesconf_exists = true;
 }
@@ -330,11 +327,6 @@ $info_header[$short]=array('type'=>$type,'title'=>$long, 'label'=>'?', 'header'=
 //$info_header["?"] = "none";
 $headers = array_merge($ConfigureColumns->get_headers(),$info_header);
 
-if ($first_time_configuration)
-$column_conf_visible = '1';
-else
-$column_conf_visible = '0';
-
 $layout_help='
 This tab allows you to customize the columns in the node tables,
 below. Information on the nodes comes from a variety of monitoring
@@ -347,7 +339,7 @@ href="http://trac.myslice.info">http://trac.myslice.info</a>.
 ';
 $toggle_nodes=new PlekitToggle('nodes-layout',
                                "Node table layout",
-                               array('visible'=>$column_conf_visible, 
+                               array('visible'=>NULL, 
 				     'info-text'=>$layout_help,
 				     'info-visible'=>$show_columns_message));
 $toggle_nodes->start();
