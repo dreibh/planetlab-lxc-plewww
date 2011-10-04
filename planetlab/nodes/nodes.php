@@ -365,7 +365,7 @@ $table_options = array('notes'=>$notes,
                         'configurable'=>true);
 
 # initial sort on hostnames
-$table=new PlekitTable ("nodes",$headers,3, $table_options);
+$table=new PlekitTable ("nodes",$headers,2, $table_options);
 $table->start();
 
 $peers = new Peers ($api);
