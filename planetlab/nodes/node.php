@@ -42,8 +42,8 @@ $boot_state= $node['boot_state'];
 $run_level = $node['run_level'];
 $site_id= $node['site_id'];
 $model= $node['model'];
+$node_type= $node['node_type'];
 $version= $node['version'];
-$node_type = $node['node_type'];
 
 // arrays of ids of node info
 $slice_ids= $node['slice_ids'];
@@ -99,7 +99,8 @@ $local_peer= ! $peer_id;
 
   
 // extra privileges to admins, and (pi||tech) on this site
-$privileges = (plc_is_admin () && $local_peer) || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
+$admin_privileges=(plc_is_admin () && $local_peer);
+$privileges =  $admin_privileges || ( plc_in_site($site_id) && ( plc_is_pi() || plc_is_tech()));
   
 $tabs=array();
 // available actions
@@ -146,6 +147,15 @@ $details->form_start(l_actions(),array("action"=>"update-node", "node_id"=>$node
 //$details->th_td("Hostname",$hostname,"hostname"); 
 $details->th_td("Hostname",$hostname); 
 $details->th_td("Model",$model,"model");
+// reservation ?
+if ( $admin_privileges) {
+  $reservation_value = $details->form->select_html("node_type",
+						   node_type_selectors ($api, $node_type));
+} else {
+  $reservation_value = node_type_display ($api,$node_type);
+}
+$details->th_td("Reservation",$reservation_value);
+
 $details->tr_submit("submit","Update Node");
 $details->form_end();
 if ($privileges) $details->space();
@@ -276,7 +286,6 @@ I've experienced a problem rebooting $hostname with the pcu_id $pcu_id;
 $details->space();
 
 //////////////////// type & version
-$details->th_td("Type",$node_type);
 $details->th_td("Version",$version);
 // let's use plc_objects
 $Node = new Node($node);

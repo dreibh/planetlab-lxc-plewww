@@ -511,12 +511,21 @@ function plc_redirect ($url) {
 }
 
 //////////////////// the options for an nodetype - suitable for plekit/form
-function node_type_selectors ($api,$nodetype) {
-  $builtin_types = array ( "regular" => "Regular/Shared",
-			   "reservable" => "Reservable (requires to get leases)");
-  foreach ($builtin_types as $value=>$display) {
+global $builtin_node_types;
+$builtin_node_types = array ( "regular" => "Regular/Shared",
+			      "reservable" => "Reservable (requires to get leases)");
+function node_type_display ($api, $node_type) {
+  global $builtin_node_types;
+  $val=$builtin_node_types[$node_type];
+  if ( ! $val) $val="??undefined??";
+  return $val;
+}
+
+function node_type_selectors ($api,$node_type) {
+  global $builtin_node_types;
+  foreach ($builtin_node_types as $value=>$display) {
     $selector=array('display'=>$display, 'value'=>$value);
-    if ($value == $nodetype) $selector['selected']=true;
+    if ($value == $node_type) $selector['selected']=true;
     $selectors []= $selector;
   }
   return $selectors;

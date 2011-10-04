@@ -49,7 +49,7 @@ $known_actions []= "node-boot-state";
 $known_actions []= "delete-node";	
 //	expects:	node_id
 $known_actions []= "update-node";	
-//	expects:	node_id, hostname, model
+//	expects:	node_id, hostname, model, node_type
 $known_actions []= "attach-pcu";
 //	expects:	node_id, pcu_id, port (pcu_id <0 means detach)
 $known_actions []= "reboot-node-with-pcu";
@@ -349,8 +349,9 @@ switch ($action) {
    $node_id=intval($_POST['node_id']);
    $hostname= $_POST['hostname'];
    $model= $_POST['model'];
+   $node_type= $_POST['node_type'];
 
-   $fields= array( "hostname"=>$hostname, "model"=>$model );
+   $fields= array( "hostname"=>$hostname, "model"=>$model, "node_type"=>$node_type );
    $api->UpdateNode( $node_id, $fields );
    $error= $api->error();
 
