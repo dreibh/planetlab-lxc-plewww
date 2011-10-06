@@ -28,7 +28,6 @@ drupal_set_html_head('
 ');
 
 
-ini_set("memory_limit","64M");
 //error_reporting(0);
 
 // -------------------- 

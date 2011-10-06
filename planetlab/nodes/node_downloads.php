@@ -1,7 +1,5 @@
 <?php
 
-  // $Id$
-
   // cleaned up, keep only the actions related to downloading stuff
   // REQUIRED : node_id=node_id
   // (*) action='download-node-floppy' : 
@@ -14,20 +12,7 @@
   // (*) action='download-generic-usb':
   //				: performs actual generic download
 
-// delivering node-dependant images requires larger memory limit
-// trial and error, based on the current sizes
-// generic-ISO 43980800 
-// generic-usb 44720128 
-// 256M OK
-// 128M OK
-// 96M OK
-// 88M KO
-// 80M KO
-// 64M KO
-// Bottom line is, looks like we need in the order of twice the file size
-// so let's play it safe
-// Thierry - for 4.2, we need a larger area, was 100 for 4.1
-ini_set("memory_limit","150M");
+ini_set("memory_limit","256M");
 
 // Require login
 require_once 'plc_login.php';
