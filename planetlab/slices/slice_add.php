@@ -215,7 +215,7 @@ New software releases and available services are announced here as well.
 EOF;
 
 $toggle = new PlekitToggle ('create-slice-details','Slice Details',
-			    array ('visible'=>get_arg('show_slice',true)));
+			    array ('visible'=>get_arg('show_slice')));
 $details = new PlekitDetails(TRUE);
 
 $form_variables = array('site_id'=>plc_my_site_id());
@@ -281,7 +281,7 @@ $toggle->end();
 if ($persons) {
   $title = count($persons) . " people can be added in slice";
   $toggle=new PlekitToggle ('create-slice-persons',$title,
-			  array('visible'=>get_arg('show_persons',true)));
+			  array('visible'=>get_arg('show_persons')));
   $toggle->start();
   
   $headers = array();

@@ -75,13 +75,13 @@ function l_actions_download ()		{ return "/db/nodes/node_downloads.php"; }
 function l_register_node ()		{ return "/registerwizard/index.php"; }
 function l_pcu_add ()			{ return "/registerwizard/index.php/register/stage1_addpcu"; }
 function l_pcu ($pcu_id)		{ return "/db/sites/pcu.php?id=$pcu_id"; }
-function l_pcu_href ($pcu_id, $text)		{ return href(l_pcu($pcu_id), $text); }
+function l_pcu_href ($pcu_id, $text)	{ return href(l_pcu($pcu_id), $text); }
 
 function l_nodes ()			{ return "/db/nodes/index.php"; }
 function l_nodes_peer ($peer_id)	{ return "/db/nodes/index.php?peerscope=$peer_id"; }
 function l_node ($node_id)		{ return "/db/nodes/node.php?id=$node_id"; }
-function l_node_interfaces ($node_id)	{ return "/db/nodes/node.php?id=$node_id%show_details=0&show_interfaces=1"; }
-function l_node_tags ($node_id)		{ return "/db/nodes/node.php?id=$node_id%show_details=0&show_tags=1"; }
+function l_node_interfaces ($node_id)	{ return "/db/nodes/node.php?id=$node_id&show_interfaces=1"; }
+function l_node_tags ($node_id)		{ return "/db/nodes/node.php?id=$node_id&show_tags=1"; }
 function l_node_t ($node_id,$text)	{ return href (l_node($node_id),$text); }
 function l_node_obj($node)		{ return href(l_node($node['node_id']),$node['hostname']); }
 function l_node_add ()			{ return "/db/nodes/node_add.php"; }
@@ -92,7 +92,7 @@ function l_nodes_person ($person_id)	{ return "/db/nodes/index.php?person_id=$pe
 function l_nodes_slice ($slice_id)	{ return "/db/nodes/index.php?slice_id=$slice_id"; }
 
 function l_interface ($interface_id)	{ return "/db/nodes/interface.php?id=$interface_id"; }
-function l_interface_tags($interface_id){ return "/db/nodes/interface.php?id=$interface_id&show_details=0&show_tags=1"; }
+function l_interface_tags($interface_id){ return "/db/nodes/interface.php?id=$interface_id&show_tags=1"; }
 function l_interface_t ($interface_id,$text) { 
 					  return href (l_interface($interface_id),$text); }
 function l_interface_add($node_id)	{ return "/db/nodes/interface.php?node_id=$node_id"; }
@@ -106,7 +106,7 @@ function l_site_obj($site)		{ return href (l_site($site['site_id']),$site['name'
 function l_slices ()			{ return "/db/slices/index.php"; }
 function l_slices_peer ($peer_id)	{ return "/db/slices/index.php?peerscope=$peer_id"; }
 function l_slice ($slice_id)		{ return "/db/slices/index.php?id=$slice_id"; }
-function l_slice_nodes ($slice_id)	{ return "/db/slices/index.php?id=$slice_id&show_details=0&show_nodes=1&show_nodes_current=1&show_nodes_add=1"; }
+function l_slice_nodes ($slice_id)	{ return "/db/slices/index.php?id=$slice_id&show_nodes=1&show_nodes_current=1&show_nodes_add=1"; }
 function l_slice_t ($slice_id,$text)	{ return href (l_slice($slice_id),$text); }
 function l_slice_add ()			{ return "/db/slices/slice_add.php"; }
 function l_slices_site($site_id)	{ return "/db/slices/index.php?site_id=$site_id"; }
@@ -123,7 +123,7 @@ function l_sliver_t ($node_id,$slice_id,$text) {
 function l_persons ()			{ return "/db/persons/index.php&active_line_tab=All Accounts"; }
 function l_persons_peer ($peer_id)	{ return "/db/persons/index.php?peerscope=$peer_id&active_line_tab=Local Accounts"; }
 function l_person ($person_id)		{ return "/db/persons/index.php?id=$person_id"; }
-function l_person_roles ($person_id)	{ return "/db/persons/index.php?id=$person_id&show_details=0&show_roles=1"; }
+function l_person_roles ($person_id)	{ return "/db/persons/index.php?id=$person_id&show_roles=1"; }
 function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text); }
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
 function l_persons_slice ($slice_id)	{ return "/db/persons/index.php?slice_id=$slice_id"; }
@@ -132,7 +132,7 @@ function l_person_obj ($person)		{ return l_person_t($person['person_id'],$perso
 function l_tags ()			{ return "/db/tags/index.php"; }
 function l_tag ($tag_type_id)		{ return "/db/tags/index.php?id=$tag_type_id"; }
 function l_tag_obj ($tag)		{ return href(l_tag($tag['tag_type_id']),$tag['tagname']); }
-function l_tag_roles ($tag_type_id)	{ return "/db/tags/index.php?id=$tag_type_id&show_details=0&show_roles=1"; }
+function l_tag_roles ($tag_type_id)	{ return "/db/tags/index.php?id=$tag_type_id&show_roles=1"; }
 
 function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
 function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroup.php?id=$nodegroup_id"; }
@@ -576,7 +576,7 @@ function instantiation_label ($slice) {
   
 //////////////////// toggle areas
 // get_arg ('show_persons',false) returns $_GET['show_persons'] if set and false otherwise
-function get_arg ($name,$default,$method='get') {
+function get_arg ($name,$default=NULL,$method='get') {
   if ($method == 'get') $var=$_GET; else $var=$_POST;
   if (isset ($var[$name])) return $var[$name];
   else return $default;

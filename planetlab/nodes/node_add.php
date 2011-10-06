@@ -168,7 +168,7 @@ EOF;
 
 $toggle = new PlekitToggle ('add-node',"Add Node",
 			    array('bubble'=>'Add a node - does not enforce PCU - for admins only !',
-				  'visible'=>get_arg('show_details',true)));
+				  'visible'=>get_arg('show_details')));
 $toggle->start();
 
 $details=new PlekitDetails($has_privileges);

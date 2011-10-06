@@ -111,7 +111,7 @@ $toggle->end();
 $form=new PlekitForm(l_actions(), array("tag_type_id"=>$tag_type_id));
 $form->start();
 
-$toggle=new PlekitToggle ('roles',count_english($roles,"role"),array('visible'=>get_arg('show_roles',false)));
+$toggle=new PlekitToggle ('roles',count_english($roles,"role"),array('visible'=>get_arg('show_roles')));
 $toggle->start();
 
 if (! $roles) plc_warning ("This tag type has no role !");

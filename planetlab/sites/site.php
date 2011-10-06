@@ -172,7 +172,7 @@ $can_update=(plc_is_admin ()  && $local_peer) || ( plc_in_site($site_id) && plc_
 
 
 $toggle = new PlekitToggle ('site',"Details",
-			    array('visible'=>get_arg('show_details',true),
+			    array('visible'=>get_arg('show_details'),
 				  'bubble'=>'Display and modify details for that site'));
 $toggle->start();
 
@@ -237,7 +237,7 @@ if ( $local_peer ) {
   $nodes_title .= href(l_nodes_site($site_id)," (See as nodes)");
 
   $toggle=new PlekitToggle ('nodes',$nodes_title,
-			    array('visible'=>get_arg('show_nodes',true)));
+			    array('visible'=>get_arg('show_nodes')));
   $toggle->start();
 
   $headers=array();
@@ -310,7 +310,7 @@ if ( $local_peer ) {
   $persons_title .= href(l_persons_site($site_id)," (See as users)");
 
   $toggle=new PlekitToggle ('persons',$persons_title,
-			    array('visible'=>get_arg('show_persons',false)));
+			    array('visible'=>get_arg('show_persons')));
   $toggle->start();
 
   $headers = array ();
@@ -348,7 +348,7 @@ if ( $local_peer ) {
   $slices_title .= href(l_slices_site($site_id)," (See as slices)");
   
   $toggle=new PlekitToggle ('slices',$slices_title,
-			    array('visible'=>get_arg('show_slices',false)));
+			    array('visible'=>get_arg('show_slices')));
   $toggle->start();
 
   $headers = array ();
@@ -384,7 +384,7 @@ if ( $local_peer ) {
 
   //////////////////// Addresses
   $toggle=new PlekitToggle ('addresses',"Addresses",
-			    array('visible'=>get_arg('show_addresses',false)));
+			    array('visible'=>get_arg('show_addresses')));
   $toggle->start();
   if ( ! $addresses) {
     print "<p class='addresses'>No known address for this site</p>";

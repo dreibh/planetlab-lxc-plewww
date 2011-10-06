@@ -132,7 +132,7 @@ $peers->block_start ($peer_id);
   
 $toggle = new PlekitToggle ('node',"Details",
 			    array('bubble'=>'Display and modify details for that node',
-				  'visible'=>get_arg('show_details',true)));
+				  'visible'=>get_arg('show_details')));
 $toggle->start();
 
 $details=new PlekitDetails($privileges);
@@ -362,7 +362,7 @@ $form->start();
 {
   $toggle=new PlekitToggle ('slices',count_english_warning($slices,'sliver'),
 			    array('bubble'=>'Review slices running on that node',
-				  'visible'=>get_arg('show_slices',false)));
+				  'visible'=>get_arg('show_slices')));
   $toggle->start();
   if ( ! $slices  ) {
     plc_warning ("This node is not associated to any slice");
@@ -405,7 +405,7 @@ if ( $local_peer ) {
   
   $toggle = new PlekitToggle ('tags',count_english($tags,'tag'),
 			      array('bubble'=>'Inspect and set tags on that node',
-				    'visible'=>get_arg('show_tags',false)));
+				    'visible'=>get_arg('show_tags')));
   $toggle->start();
 
   $headers=array("Name"=>"string",
@@ -463,7 +463,7 @@ if ( $local_peer ) {
 if ( $local_peer ) {
   $toggle=new PlekitToggle ('interfaces',count_english_warning($interfaces,'interface'),
 			    array('bubble'=>'Inspect and tune interfaces on that node',
-				  'visible'=>get_arg('show_interfaces',false)));
+				  'visible'=>get_arg('show_interfaces')));
   $toggle->start();
   // display interfaces
   if( ! $interfaces ) {

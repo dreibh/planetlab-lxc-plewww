@@ -50,7 +50,7 @@ if ( ! $node_id) {
 
 $tabs=array();
 $tabs[] = array('label'=>'Back to node', 'url'=>l_node($node_id), 
-		'values' => array('show_details'=>False,'show_interfaces'=>True),
+		'values' => array('show_interfaces'=>True),
 		'bubble'=>'Cancel pending changes');
 plekit_linetabs($tabs);
 
@@ -76,7 +76,7 @@ drupal_set_html_head ('
 $nifty_id = ($mode == 'add' ) ? 'add-interface' : 'interface';
 $toggle = new PlekitToggle ($nifty_id,"Details",
 			    array('bubble'=>'Display and modify details for that interface',
-				  'visible'=>get_arg('show_details',true)));
+				  'visible'=>get_arg('show_details')));
 $toggle->start();
 
 $details=new PlekitDetails($can_update);
@@ -156,7 +156,7 @@ if ($mode == 'add') return;
 //////////////////////////////////////// tags
 $tags=$api->GetInterfaceTags (array('interface_id'=>$interface_id));
 $toggle=new PlekitToggle ('tags',count_english($tags,'tag'),
-			  array('visible'=>get_arg('show_tags',true)));
+			  array('visible'=>get_arg('show_tags')));
 $toggle->start();
 
 $form = new PlekitForm (l_actions(),array('interface_id'=>$interface_id));
