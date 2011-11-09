@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 67
+%define taglevel 68
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,11 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon Nov 07 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-68
+- support for setting nodes as reservable
+- rely more on previous state when deciding to open or not toggles in a view
+- remove statements for setting maximum memory usage, that sometimes
+
 * Mon Sep 26 2011 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-67
 - node page can edit interfaces even when no interface
 
