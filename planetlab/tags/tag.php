@@ -153,11 +153,11 @@ if ($can_manage_roles) {
   // add
   // compute the roles that can be added
   if ($can_manage_roles) 
-    // all roles
+    // all roles - don't exclude 'node' as it's actually meaningful for some tags
     $exclude_role_ids=array();
   else
-    // all roles except admin and pi
-    $exclude_role_ids=array(10,20);
+    // all roles except admin and pi, and node to avoid confusing people
+    $exclude_role_ids=array(10,20,50);
   $possible_roles = roles_except($api->GetRoles(),$exclude_role_ids);
   $roles_to_add = roles_except ($possible_roles,$role_ids);
   if ( $roles_to_add ) {

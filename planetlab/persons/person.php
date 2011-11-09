@@ -357,11 +357,11 @@ if ($local_peer) {
     // add
     // compute the roles that can be added
     if (plc_is_admin()) 
-      // all roles
-      $exclude_role_ids=array();
+      // all roles, except 'node' that does not make sense for a person
+      $exclude_role_ids=array(50);
     else
-      // all roles except admin and pi
-      $exclude_role_ids=array(10,20);
+    // all roles except admin and pi, and node to avoid confusing people
+      $exclude_role_ids=array(10,20,50);
     $possible_roles = roles_except($api->GetRoles(),$exclude_role_ids);
     $roles_to_add = roles_except ($possible_roles,$role_ids);
     if ( $roles_to_add ) {
