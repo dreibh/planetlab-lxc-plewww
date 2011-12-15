@@ -6,7 +6,7 @@
 // TODO add tophat_api in the php default path in /etc/plc.d/httpd
 // TODO occurences to PLC
 
-define('TOPHAT_API_HOST', 'www.top-hat.info');
+define('TOPHAT_API_HOST', 'api.top-hat.info');
 define('TOPHAT_API_PATH', '/API/');
 define('TOPHAT_API_PORT', 443);
 
