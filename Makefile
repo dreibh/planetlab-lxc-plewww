@@ -35,6 +35,7 @@ RSYNC_COND_DRY_RUN	:= $(if $(findstring n,$(MAKEFLAGS)),--dry-run,)
 RSYNC			:= rsync -a -v $(RSYNC_COND_DRY_RUN) $(RSYNC_EXCLUDES)
 
 sync:
+ifeq (,$(SSHURL))
 	@echo "sync: I need more info from the command line, e.g."
 	@echo "  make sync PLC=boot.planetlab.eu"
 	@echo "  make sync PLCHOSTVS=.. GUESTNAME=.."
