@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 71
+%define taglevel 72
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Mon May 07 2012 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-72
+- ships with new default images for PLC/PLE from planet-lab.eu
+
 * Mon Apr 16 2012 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-71
 - no change, just make sync for lxc-hosted tests
 
