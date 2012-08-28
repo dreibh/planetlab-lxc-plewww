@@ -102,6 +102,7 @@ function l_sites_peer ($peer_id)	{ return "/db/sites/index.php?peerscope=$peer_i
 function l_site ($site_id)		{ return "/db/sites/index.php?id=$site_id"; }
 function l_site_t ($site_id,$text)	{ return href (l_site($site_id),$text); }
 function l_site_obj($site)		{ return href (l_site($site['site_id']),$site['name']); }
+function l_site_tags ($site_id)		{ return "/db/sites/site.php?id=$site_id&show_tags=1"; }
 
 function l_slices ()			{ return "/db/slices/index.php"; }
 function l_slices_peer ($peer_id)	{ return "/db/slices/index.php?peerscope=$peer_id"; }
@@ -128,6 +129,7 @@ function l_person_t ($person_id,$text)	{ return href (l_person($person_id),$text
 function l_persons_site ($site_id)	{ return "/db/persons/index.php?site_id=$site_id"; }
 function l_persons_slice ($slice_id)	{ return "/db/persons/index.php?slice_id=$slice_id"; }
 function l_person_obj ($person)		{ return l_person_t($person['person_id'],$person['email']); }
+function l_person_tags ($person_id)	{ return "/db/persons/person.php?id=$person_id&show_tags=1"; }
 
 function l_tags ()			{ return "/db/tags/index.php"; }
 function l_tag ($tag_type_id)		{ return "/db/tags/index.php?id=$tag_type_id"; }

@@ -379,6 +379,65 @@ if ($local_peer) {
   $toggle->end();
  }
 
+//////////////////////////////////////////////////////////// Tags
+// tags section
+if ($local_peer) {
+  $tags=$api->GetPersonTags (array('person_id'=>$person_id));
+  function get_tagname ($tag) { return $tag['tagname'];}
+  // xxx looks like tech-only see an error here, 
+  // might be that GetPersonTags is not accessible or something
+  $tagnames = array_map ("get_tagname",$tags);
+  
+  $toggle = new PlekitToggle ('tags',count_english($tags,'tag'),
+			      array('bubble'=>'Inspect and set tags on that person',
+				    'visible'=>get_arg('show_tags')));
+  $toggle->start();
+
+  $headers=array("Name"=>"string",
+		 "Value"=>"string",
+		 );
+  if (plc_is_admin()) $headers[plc_delete_icon()]="none";
+  
+  $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
+  $table=new PlekitTable("person_tags",$headers,0,$table_options);
+  $table->start();
+  if ($tags) foreach ($tags as $tag) {
+      $table->row_start();
+      $table->cell(l_tag_obj($tag));
+      $table->cell($tag['value']);
+      // the remove checkbox
+      if (plc_is_admin()) $table->cell ($form->checkbox_html('person_tag_ids[]',$tag['person_tag_id']));
+      $table->row_end();
+    }
+  
+  if ($privileges) {
+    $table->tfoot_start();
+
+    // remove tag 
+    $table->row_start();
+    $table->cell($form->submit_html("delete-person-tags","Remove Tags"),
+		 // use the whole columns and right adjust
+		 array('hfill'=>true,'align'=>'right'));
+    $table->row_end();
+
+    // set tag area
+    $table->row_start();
+    // get list of tag names in the person/* category    
+    $all_tags= $api->GetTagTypes( array ("category"=>"person*","-SORT"=>"tagname"), array("tagname","tag_type_id"));
+    // xxx cannot use onchange=submit() - would need to somehow pass action name 
+    function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
+    $selector=array_map("tag_selector",$all_tags);
+    $table->cell($form->select_html("tag_type_id",$selector,array('label'=>"Choose")));
+    $table->cell($form->text_html("value","",array('width'=>8)));
+    $table->cell($form->submit_html("set-tag-on-person","Set Tag"),array('columns'=>2,'align'=>'left'));
+    $table->row_end();
+  }
+  
+  $table->end();
+  $toggle->end();
+
+}
+
 //////////////////////////////
 $form->end();
 $peers->block_end($peer_id);

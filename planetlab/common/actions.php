@@ -111,10 +111,18 @@ $known_actions []= "add-role-to-tag-type";
 //////////////////////////////////////// tags
 $known_actions []= "set-tag-on-node";
 //	expects:	node_id tagname value
+$known_actions []= "set-tag-on-site";
+//	expects:	site_id tagname value
+$known_actions []= "set-tag-on-person";
+//	expects:	person_id tagname value
 $known_actions []= "set-tag-on-interface";
 //	expects:	interface_id tagname value
 $known_actions []= "delete-node-tags";
 //	expects:	node_id & node_tag_ids
+$known_actions []= "delete-site-tags";
+//	expects:	site_id & site_tag_ids
+$known_actions []= "delete-person-tags";
+//	expects:	person_id & person_tag_ids
 $known_actions []= "delete-interface-tags";
 //	expects:	interface_id & interface_tag_ids
 
@@ -895,15 +903,25 @@ Our support team will be glad to answer any question that you might have.
 
 //////////////////////////////////////// tags   
  case 'set-tag-on-node': 
- case 'set-tag-on-interface': {
+ case 'set-tag-on-site': 
+ case 'set-tag-on-person': 
+ case 'set-tag-on-interface': 
+   {
    
-   $node_mode = false;
-   if ($action == 'set-tag-on-node') $node_mode=true;
+   $mode = NULL;
+   if ($action == 'set-tag-on-node') $mode='node';
+   if ($action == 'set-tag-on-site') $mode='site';
+   if ($action == 'set-tag-on-person') $mode='person';
+   if ($action == 'set-tag-on-interface') $mode='interface';
 
-   if ($node_mode)
-     $node_id = intval($_POST['node_id']);
+   if ($mode=='node') 
+     $id = intval($_POST['node_id']);
+   else if ($mode=='site')
+     $id = intval($_POST['site_id']);
+   else if ($mode=='person')
+     $id = intval($_POST['person_id']);
    else 
-     $interface_id=intval($_POST['interface_id']);
+     $id = intval($_POST['interface_id']);
    $tag_type_id = intval($_POST['tag_type_id']);
    $value = $_POST['value'];
 
@@ -911,28 +929,42 @@ Our support team will be glad to answer any question that you might have.
    if (count ($tag_types) != 1) {
      drupal_set_error ("Could not locate tag_type_id $tag_type_id </br> Tag not set.");
    } else {
-     if ($node_mode) 
-       $tags = $api->GetNodeTags (array('node_id'=>$node_id, 'tag_type_id'=> $tag_type_id));
+     if ($mode=='node') 
+       $tags = $api->GetNodeTags (array('node_id'=>$id, 'tag_type_id'=> $tag_type_id));
+     else if ($mode=='site')
+       $tags = $api->GetSiteTags (array('site_id'=>$id, 'tag_type_id'=> $tag_type_id));
+     else if ($mode=='person')
+       $tags = $api->GetPersonTags (array('person_id'=>$id, 'tag_type_id'=> $tag_type_id));
      else
-       $tags = $api->GetInterfaceTags (array('interface_id'=>$interface_id, 'tag_type_id'=> $tag_type_id));
+       $tags = $api->GetInterfaceTags (array('interface_id'=>$id, 'tag_type_id'=> $tag_type_id));
+
+     // already has a tag set
      if ( count ($tags) == 1) {
        $tag=$tags[0];
-       if ($node_mode) {
-	 $tag_id=$tag['node_tag_id'];
-	 $result=$api->UpdateNodeTag($tag_id,$value);
-       } else {
-	 $tag_id=$tag['interface_tag_id'];
-	 $result=$api->UpdateInterfaceTag($tag_id,$value);
-       }
+       if ($mode=='node') 
+	 $result=$api->UpdateNodeTag($tag['node_tag_id'],$value);
+       else if ($mode=='site') 
+	 $result=$api->UpdateSiteTag($tag['site_tag_id'],$value);
+       else if ($mode=='person') 
+	 $result=$api->UpdatePersonTag($tag['person_tag_id'],$value);
+       else 
+	 $result=$api->UpdateInterfaceTag($tag['interface_tag_id'],$value);
+
        if ($result == 1) 
 	 drupal_set_message ("Updated tag, new value = $value");
        else
 	 drupal_set_error ("Could not update tag");
+
+     // no such tag set yet on that object
      } else {
-       if ($node_mode)
-	 $tag_id = $api->AddNodeTag($node_id,$tag_type_id,$value);
+       if ($mode=='node')
+	 $tag_id = $api->AddNodeTag($id,$tag_type_id,$value);
+       else if ($mode=='site')
+	 $tag_id = $api->AddSiteTag($id,$tag_type_id,$value);
+       else if ($mode=='person')
+	 $tag_id = $api->AddPersonTag($id,$tag_type_id,$value);
        else
-	 $tag_id = $api->AddInterfaceTag($interface_id,$tag_type_id,$value);
+	 $tag_id = $api->AddInterfaceTag($id,$tag_type_id,$value);
        if ($tag_id) 
 	 drupal_set_message ("Created tag, new value = $value");
        else
@@ -940,22 +972,40 @@ Our support team will be glad to answer any question that you might have.
      }
    }
    
-   if ($node_mode)
-     plc_redirect (l_node_tags($node_id));
+   if ($mode=='node')
+     plc_redirect (l_node_tags($id));
+   else if ($mode=='site')
+     plc_redirect (l_site_tags($id));
+   else if ($mode=='person')
+     plc_redirect (l_person_tags($id));
    else
-     plc_redirect (l_interface_tags($interface_id));
+     plc_redirect (l_interface_tags($id));
  }
 
- case 'delete-node-tags' : 
- case 'delete-interface-tags' : {
+ case 'delete-node-tags': 
+ case 'delete-site-tags':
+ case 'delete-person-tags':
+ case 'delete-interface-tags': {
 
-   $node_mode = false;
-   if ($action == 'delete-node-tags') $node_mode=true;
+   $mode = NULL;
+   if ($action == 'delete-node-tags') $mode='node';
+   if ($action == 'delete-site-tags') $mode='site';
+   if ($action == 'delete-person-tags') $mode='person';
+   if ($action == 'delete-interface-tags') $mode='interface';
 
-   if ($node_mode)
+   if ($mode=='node') {
+     $id=$_POST['node_id'];
      $tag_ids=$_POST['node_tag_ids'];
-   else
+   } else if ($mode=='site') {
+     $id=$_POST['site_id'];
+     $tag_ids=$_POST['site_tag_ids'];
+   } else if ($mode=='person') {
+     $id=$_POST['person_id'];
+     $tag_ids=$_POST['person_tag_ids'];
+   } else {
+     $id=$_POST['interface_id'];
      $tag_ids=$_POST['interface_tag_ids'];
+   }
 
    if ( ! $tag_ids) {
      drupal_set_message("action=$action - No tag selected");
@@ -964,8 +1014,12 @@ Our support team will be glad to answer any question that you might have.
    $success=true;
    $counter=0;
    foreach( $tag_ids as $tag_id ) {
-     if ($node_mode)
+     if ($mode=='node') 
        $retcod = $api->DeleteNodeTag( intval( $tag_id ));
+     else if ($mode=='site')
+       $retcod = $api->DeleteSiteTag( intval( $tag_id ));
+     else if ($mode=='person')
+       $retcod = $api->DeletePersonTag( intval( $tag_id ));
      else
        $retcod = $api->DeleteInterfaceTag( intval( $tag_id ));
      if ($retcod != 1) 
@@ -977,10 +1031,16 @@ Our support team will be glad to answer any question that you might have.
      drupal_set_message ("Deleted $counter tag(s)");
    else
      drupal_set_error ("Could not delete all selected tags, only $counter were removed");
-   if ($node_mode)
-     plc_redirect(l_node_tags($_POST['node_id']));
+
+   if ($mode=='node')
+     plc_redirect (l_node_tags($id));
+   else if ($mode=='site')
+     plc_redirect (l_site_tags($id));
+   else if ($mode=='person')
+     plc_redirect (l_person_tags($id));
    else
-     plc_redirect(l_interface_tags($_POST['interface_id']));
+     plc_redirect (l_interface_tags($id));
+
  }
 
 //////////////////////////////////////// nodegroups
