@@ -621,7 +621,12 @@ switch ($action) {
  case 'remove-persons-from-slice': {
    $slice_id = intval ($_POST['slice_id']); 	
    $person_ids = $_POST['person_ids'];
-   
+   $return_url = $_POST['return_url'];
+
+   if (!$return_url) {
+       $return_url = l_slice($slice_id) . "&show_persons=true" ;
+   }
+
    $slice_name = "";
    $tmp_slices = $api->GetSlices($slice_id, array("name"));
    if (count($tmp_slices) > 0) {
@@ -634,11 +639,11 @@ switch ($action) {
 Our support team will be glad to answer any question that you might have.
 ",$slice_name);
    $notify_person_ids = array();
-   
+
    $success=true;
    $counter=0;
    foreach( $person_ids as $person_id ) {
-     if ($api->DeletePersonFromSlice(intval($person_id),$slice_id) != 1) 
+     if ($api->DeletePersonFromSlice(intval($person_id),$slice_id) != 1)
        $success=false;
      else {
          array_push($notify_person_ids, intval($person_id));
@@ -651,13 +656,18 @@ Our support team will be glad to answer any question that you might have.
    }
    else
      drupal_set_error ("Could not delete all selected persons, only $counter were removed");
-   plc_redirect(l_slice($slice_id) . " &show_persons=true");
+   plc_redirect($return_url);
    break;
  }
 
  case 'add-persons-in-slice': {
    $slice_id = intval ($_POST['slice_id']); 	
    $person_ids = $_POST['person_ids'];
+   $return_url = $_POST['return_url'];
+
+   if (!$return_url) {
+       $return_url = l_slice($slice_id) . "&show_persons=true" ;
+   }
 
    $slice_name = "";
    $tmp_slices = $api->GetSlices($slice_id, array("name"));
@@ -674,11 +684,11 @@ https://%s:%d/db/slices/index.php?id=%d
 Our support team will be glad to answer any question that you might have.
 ",$slice_name,PLC_WWW_HOST,PLC_WWW_SSL_PORT,$slice_id);
    $notify_person_ids = array();
-   
+
    $success=true;
    $counter=0;
    foreach ($person_ids as $person_id) {
-     if ($api->AddPersonToSlice(intval($person_id),$slice_id) != 1) 
+     if ($api->AddPersonToSlice(intval($person_id),$slice_id) != 1)
        $success=false;
      else {
        array_push($notify_person_ids, intval($person_id));
@@ -691,7 +701,7 @@ Our support team will be glad to answer any question that you might have.
    }
    else
      drupal_set_error ("Could not add all selected persons, only $counter were added");
-   plc_redirect(l_slice($slice_id) . "&show_persons=true" );
+   plc_redirect($return_url);
    break;
  }
 
