@@ -601,5 +601,35 @@ function count_english_warning ($objs, $name) {
 function reservable_mark () { return "-R-";}
 function reservable_legend () { return "reservable nodes are marked with " . reservable_mark (); }
 
+//////////////////// Vicci simplified portal support
+function plc_advanced() {
+    global $plc, $api;
+
+    if ((!$plc) || (!$api)) {
+        return FALSE;
+    }
+
+    $person_id = $plc->person['person_id'];
+    $tags = $api->GetPersonTags(array("person_id" => $person_id, "tagname" => "advanced"));
+    if (!$tags) {
+        return FALSE;
+    }
+    return (bool) $tags[0]['value'];
+}
+
+function plc_set_advanced($value) {
+    global $plc, $api;
+
+    $person_id = $plc->person['person_id'];
+    $tags = $api->GetPersonTags(array("person_id" => $person_id, "tagname" => "advanced"));
+    if ($tags) {
+        $result = $api->UpdatePersonTag($tags[0]["person_tag_id"], $value);
+        //print "update " . $tags[0]["person_tag_id"] . " " . $value . " " . $result . "<br>";
+    } else {
+        $api->AddPersonTag($person_id, "advanced", $value);
+        //print "add";
+    }
+}
+
 
 ?>
