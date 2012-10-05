@@ -130,7 +130,9 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $block['content'] .= p( href (l_reset_password(),"Forgot your password?") );
       $block['content'] .= p( href(l_person_register(),"Create an account") );
       $block['content'] .= p( href(l_site_register(),"File a site registration") );
-    } else if (plc_advanced()) {
+    } else if ((PLC_SHORTNAME!="VICCI") || (plc_advanced())) {
+      // for now, only pay attention to plc_advanced() on vicci
+
       $block['subject'] = truncate($plc->person['email'],30);
 
       //////////////////// Logout 
