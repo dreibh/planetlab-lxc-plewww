@@ -104,7 +104,10 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
   } else if ($op == 'view') {
     $block = array();
 
-    if (!$plc->person) {
+    if ($plc->hide_planetlab_block) {
+      // do nothing
+      // this is a private hook from the Vicci module to hide the planetlab module
+    } else if (!$plc->person) {
       // Force login via HTTPS
       unset($_GET['time']);
       $form['#action'] = "https://" . $_SERVER['HTTP_HOST'] . url($_GET['q'], drupal_get_destination());
@@ -130,9 +133,7 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $block['content'] .= p( href (l_reset_password(),"Forgot your password?") );
       $block['content'] .= p( href(l_person_register(),"Create an account") );
       $block['content'] .= p( href(l_site_register(),"File a site registration") );
-    } else if ((PLC_SHORTNAME!="VICCI") || (plc_advanced())) {
-      // for now, only pay attention to plc_advanced() on vicci
-
+    } else {
       $block['subject'] = truncate($plc->person['email'],30);
 
       //////////////////// Logout 
