@@ -17,7 +17,7 @@ $value=$_GET["value"];
 $person_id=$_GET["person_id"];
 $slice_id=$_GET["slice_id"];
 
-$myFile = "/var/log/myslice.log";
+$myFile = "/var/log/myslice/myslice.log";
 $fh = fopen($myFile, 'a') or die("can't open file");
 $stringData = date('Ymd-H:i')."|".$person_id.":".$slice_id.":".$value."\n";
 fwrite($fh, $stringData);

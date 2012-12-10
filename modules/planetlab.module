@@ -7,6 +7,7 @@
   //
   // $Id$
   //
+error_reporting(0);
 
 require_once 'plc_config.php';
 require_once 'plc_session.php';
@@ -346,6 +347,14 @@ function planetlab_user($type, &$edit, &$user, $category = NULL) {
   }
 }
 
+function isValidFileName($file) {
+
+    /* don't allow .. and allow any "word" character \ / */
+
+    return preg_match('/^(((?:\.)(?!\.))|\w)+$/', $file);
+
+}
+
 function planetlab_page() {
   $path = $_SERVER['DOCUMENT_ROOT'] . preg_replace('/^db\//', '/planetlab/', $_GET['q']);
 
@@ -367,7 +376,12 @@ function planetlab_page() {
       $output = ob_get_contents();
       ob_end_clean();
     } else {
-      $output = file_get_contents($path);
+         if (isValidFileName($path)) {
+            $output = file_get_contents($path);
+         }
+         else {
+            $output = "";
+         }
     }
     return $output;
   }

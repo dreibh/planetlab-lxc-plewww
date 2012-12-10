@@ -25,7 +25,7 @@ $res = $api->SetPersonColumnconf( $person_id, $value );
 else if ($tag_name == "showconf")
 $res = $api->SetPersonShowconf( $person_id, $value );
 
-$myFile = "/var/log/myslice.log";
+$myFile = "/var/log/myslice/myslice.log";
 if (file_exists($myFile))
 	$fh = fopen($myFile, 'a') or die("can't open file");
 
