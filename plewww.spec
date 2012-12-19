@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 4.3
-%define taglevel 74
+%define taglevel 75
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,12 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed Dec 19 2012 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-75
+- add extra code to prevent confidentiality leaks
+- for vicci: $plc->hide_planetlab_block, that should not affect mainstream
+- return_url for add-person and remove-person
+- myslice.log now in /var/log/myslice/ (should have been cleaned up..)
+
 * Fri Aug 31 2012 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-4.3-74
 - add tags section on site and person pages
 
