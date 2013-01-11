@@ -133,7 +133,14 @@ function register_person ($person) {
 
   $errors = errors_init ();
 
-  // N.B.: site_ids and roles are ignored by AddPerson()
+  // jan-2013 with improvements in plcapi-5.1-6 about managing persons and tags,
+  // AddPerson has gone more picky and we need to remove some fields
+  // that no longer are silently ignored by AddPerson
+  $site_ids=$person['site_ids'];
+  unset ($person['site_ids']);
+  $roles=$person['roles'];
+  unset ($person['roles']);
+  
   $person_id = $adm->AddPerson($person);
   $errors = errors_record ($adm,$errors);
 
@@ -141,15 +148,15 @@ function register_person ($person) {
     $adm->begin();
 
     // Add person to requested sites
-    foreach ($person['site_ids'] as $site_id) {
+    foreach ($site_ids as $site_id) {
       $adm->AddPersonToSite($person_id, intval($site_id));
       $adm->SetPersonPrimarySite($person_id, intval($site_id));
     }
 
     // Add requested roles. Always add the user role. 
     $adm->AddRoleToPerson('user', $person_id);
-    if (!empty($person['roles'])) {
-      foreach ($person['roles'] as $role) {
+    if (!empty($roles)) {
+      foreach ($roles as $role) {
 	$adm->AddRoleToPerson($role, $person_id);
       }
     }

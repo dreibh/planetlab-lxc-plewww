@@ -1,5 +1,4 @@
 <?php
-// $Id$
 //
 // Site registration and verification form. 
 //
@@ -144,6 +143,11 @@ EOF;
       // creating TECH
       $known_tech = $adm->GetPersons(array("email"=>$tech['email'],
 					   "peer_id"=>NULL),array("person_id"));
+      // jan-2013 with improvements in plcapi-5.1-6 about managing persons and tags,
+      // AddPerson has gone more picky and we need to remove some fields
+      // that no longer are silently ignored by AddPerson
+      $user_role_required=$tech['user-role'];
+      unset($tech['user-role']);
       if ($known_tech) {
 	$messages [] = " Note: Tech was already known";
 	$tech_id=$known_tech[0]['person_id'];
@@ -163,7 +167,7 @@ EOF;
       if ($adm->AddRoleToPerson('tech',$tech_id)) {
 	$verboses [] = $tech['email'] . " granted Tech role";
       }
-      if ( ($tech['user-role']) && $adm->AddRoleToPerson('user',$tech_id) ) {
+      if ( $user_role_required && $adm->AddRoleToPerson('user',$tech_id) ) {
 	$verboses [] = $tech['email'] . " granted User role";
       }
     }
