@@ -27,7 +27,7 @@ URL: %{SCMURL}
 #Requires: httpd >= 2.0
 Requires: php >= 5.0
 Requires: postgresql >= 8.0
-Requires: PLCAPI >= 4.3
+Requires: plcapi >= 5.2
 Requires: drupal = 4.7
 Requires: plewww-plekit
 
