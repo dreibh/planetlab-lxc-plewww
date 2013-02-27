@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
-%define version 4.3
-%define taglevel 75
+%define version 5.2
+%define taglevel 0
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
