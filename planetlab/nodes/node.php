@@ -27,8 +27,11 @@ $node_id=intval($_GET['id']);
 if ( ! $node_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////
-// Get all columns as we focus on only one entry
-$nodes= $api->GetNodes( array($node_id));
+// Need to mention columns explicitly as we want hrn which is a tag
+$columns=array ('hostname','boot_state','run_level','site_id','model','node_type','version',
+		'slice_ids','conf_file_ids','interface_ids','nodegroup_ids','peer_id',
+		'pcu_ids','ports','hrn');
+$nodes= $api->GetNodes( array($node_id),$columns);
 
 if (empty($nodes)) {
   drupal_set_message ("Node " . $node_id . " not found");
@@ -38,6 +41,7 @@ if (empty($nodes)) {
 $node=$nodes[0];
 // node info
 $hostname= $node['hostname'];
+$hrn=$node['hrn'];
 $boot_state= $node['boot_state'];
 $run_level = $node['run_level'];
 $site_id= $node['site_id'];
@@ -146,6 +150,8 @@ $details->form_start(l_actions(),array("action"=>"update-node", "node_id"=>$node
 // xxx can hostname really be changed like this without breaking the rest, bootcd .. ?
 //$details->th_td("Hostname",$hostname,"hostname"); 
 $details->th_td("Hostname",$hostname); 
+if ($hrn) $details->th_td("SFA hrn",$hrn);
+else $details->tr("SFA hrn not set","center");
 $details->th_td("Model",$model,"model");
 // reservation ?
 if ( $admin_privileges) {
@@ -286,7 +292,7 @@ I've experienced a problem rebooting $hostname with the pcu_id $pcu_id;
 $details->space();
 
 //////////////////// type & version
-$details->th_td("Version",$version);
+$details->th_td("CD Version",$version);
 // let's use plc_objects
 $Node = new Node($node);
 $details->th_td("Date created",$Node->dateCreated());
