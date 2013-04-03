@@ -30,7 +30,10 @@ if ( ! $person_id ) {
 
 ////////////////////
 // Get all columns as we focus on only one entry
-$persons= $api->GetPersons( array($person_id));
+// we need to mention them explicitly because we want hrn that is a tag..
+$columns=array('enabled','first_name','last_name','email','url','phone','title','bio','peer_id',
+	       'role_ids','roles','site_ids','slice_ids','key_ids','hrn');
+$persons= $api->GetPersons( array($person_id), $columns);
 
 if (empty($persons)) {
   drupal_set_message ("Person " . $person_id . " not found");
@@ -55,6 +58,7 @@ $roles= $person['roles'];
 $site_ids= $person['site_ids'];
 $slice_ids= $person['slice_ids'];
 $key_ids= $person['key_ids'];
+$hrn=$person['hrn'];
 
 // gets more data from API calls
 $site_columns=array( "site_id", "name", "login_base" );
@@ -143,6 +147,8 @@ $details->th_td("Title",$title,"title",array('width'=>10));
 $details->th_td("First Name",$first_name,"first_name");
 $details->th_td("Last Name",$last_name,"last_name");
 $details->th_td(href("mailto:$email","Email"),$email,"email",array("width"=>30));
+if ($hrn) $details->th_td("SFA hrn",$hrn);
+else $details->tr("SFA hrn not set","center");
 $details->th_td("Phone",$phone,"phone");
 $details->th_td("URL",$url,"url",array('width'=>40));
 $details->th_td("Bio",$bio,"bio",array('input_type'=>'textarea','height'=>4));
