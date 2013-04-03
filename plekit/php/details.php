@@ -1,7 +1,5 @@
 <?php
 
-// $Id$
-
 require_once 'plc_functions.php';
 require_once 'form.php';
 
