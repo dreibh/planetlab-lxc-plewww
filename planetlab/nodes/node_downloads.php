@@ -228,9 +228,8 @@ for this node will generate <span class='bold'>a new node key</span>, and any
 formerly downloaded boot medium for that node will become <span class='bold'>outdated</span>.
 <br/>
 <br/>
-In order to create a configuration file for this node using this page,
-the interface settings must be up to date. Below is summary of these
-values. 
+Also please note that before you create a boot image for this node,
+the following data must be up to date, please review before downloading.
 </p>
 
 EOF;
