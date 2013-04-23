@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 5.2
-%define taglevel 1
+%define taglevel 2
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Tue Apr 23 2013 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-5.2-2
+- node page and person page show hrn in details
+
 * Thu Mar 07 2013 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-5.2-1
 - late fix of registration for plcapi-5.1-6
 
