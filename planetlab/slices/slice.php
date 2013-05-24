@@ -885,7 +885,7 @@ available names in the drop down below.  </li>
 <li> You also have the option to provide <span class='bold'> your own
 code </span>, with the following conventions: <ul>
 
-<li> Like regular initscripts, your script must except to receive as a
+<li> Like regular initscripts, your script must expect to receive as a
 first argument <span class='bold'> start </span>, <span class='bold'>
 stop </span> or <span class='bold'> restart </span>. It is important
 to honor this argument, as your slice may be stopped and restarted at
