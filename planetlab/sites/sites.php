@@ -149,7 +149,7 @@ if ($sites) foreach ($sites as $site) {
     $table->cell(l_site_t($site_id,$site_id));
   }
   $peers->cell($table,$peer_id);
-  $table->cell (l_site_t($site_id,htmlentities($site['name'])));
+  $table->cell (l_site_t($site_id,htmlentities(utf8_decode($site['name']))));
   $table->cell (l_site_t($site_id,$login_base));
   $table->cell (htmlentities($site['abbreviated_name']));
   if (plc_is_admin()) {
