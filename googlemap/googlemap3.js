@@ -51,6 +51,7 @@ function googlemap (htmlid,kmlurl,centerLat, centerLon, zoom) {
 	scaleControl: true,
 	streetViewControl: true,
 	overviewMapControl: true,
+	scrollwheel: false
     }
 
     var map = new google.maps.Map(document.getElementById(htmlid), options);
