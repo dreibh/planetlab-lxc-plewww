@@ -12,7 +12,13 @@
   // (*) action='download-generic-usb':
   //				: performs actual generic download
 
-ini_set("memory_limit","256M");
+ini_set("memory_limit","512M");
+
+// disables mod_deflate compression when downloading the images
+// because apache reports a different size for the file when compressed 
+// the transfer can be interrupted.
+apache_setenv('no-gzip', 1);
+ini_set('zlib.output_compression', 0);
 
 // Require login
 require_once 'plc_login.php';
