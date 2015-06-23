@@ -312,7 +312,8 @@ if ( ! ($local_peer && $privileges)) {
 					       "action"=>"node-boot-state"));
   $boot_value .= $boot_form->start_html();
   $states = array( 'boot'=>'Boot', 'safeboot'=>'SafeBoot', 
-		   'disabled' => 'Disabled', 'reinstall'=>'Reinstall');
+		   'disabled' => 'Disabled', 'reinstall'=>'Reinstall',
+		   'upgrade' => 'Upgrade');
   $selectors=array();
   foreach ($states as $dbname=>$displayname) { 
     $selector=array("display"=>$displayname, "value"=>$dbname);
