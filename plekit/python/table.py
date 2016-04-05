@@ -5,7 +5,7 @@ class plekit_table:
     def __init__ (self, table_id, headers, column_sort, 
                   caption=None,
                   search_area=True, pagesize_area=True, notes_area=True,
-                  search_width=40, pagesize=25, pagesize_def=999,
+                  search_width=40, pagesize=250, pagesize_def=999,
                   max_pages=10,
                   notes=None):
         self.table_id=table_id

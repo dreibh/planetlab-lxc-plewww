@@ -724,7 +724,7 @@ $headers = array_merge($ConfigureColumns->get_headers(),$edit_header);
 
 $table_options = array('notes'=>$notes,
                        'search_width'=>15,
-                       'pagesize'=>20,
+                       'pagesize'=>250,
 			'configurable'=>true);
 
 $table=new PlekitTable('nodes',$headers,NULL,$table_options);

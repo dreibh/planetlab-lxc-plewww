@@ -360,7 +360,7 @@ $toggle_nodes->end();
 
 $table_options = array('notes'=>$notes,
                        'search_width'=>15,
-                       'pagesize'=>20,
+                       'pagesize'=>1000,
                         'configurable'=>true);
 
 # initial sort on hostnames

@@ -72,7 +72,7 @@ class PlekitTable {
     $this->pagesize_area = true;
     $this->notes_area = true;
     $this->search_width = 40;
-    $this->pagesize = 25;
+    $this->pagesize = 250;
     $this->pagesize_def = 9999;
     $this->max_pages = 10;
     $this->notes = array();
