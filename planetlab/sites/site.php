@@ -38,7 +38,7 @@ if (empty($sites)) {
 
 $site=$sites[0];
 // var names to api return
-$sitename= htmlentities(utf8_decode($site['name']));
+$sitename= htmlentities($site['name']);
 $abbreviated_name= htmlentities($site['abbreviated_name']);
 $site_url= $site['url'];
 $login_base= $site['login_base'];
