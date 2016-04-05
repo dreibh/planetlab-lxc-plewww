@@ -149,7 +149,10 @@ if ($sites) foreach ($sites as $site) {
     $table->cell(l_site_t($site_id,$site_id));
   }
   $peers->cell($table,$peer_id);
+  // Thomas Dreibholz suggested that utf8_decode could be non-needed
+  // and maybe even harmful on modern systems like f23
   $table->cell (l_site_t($site_id,htmlentities(utf8_decode($site['name']))));
+  // $table->cell (l_site_t($site_id,htmlentities($site['name'])));
   $table->cell (l_site_t($site_id,$login_base));
   $table->cell (htmlentities($site['abbreviated_name']));
   if (plc_is_admin()) {
