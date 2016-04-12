@@ -38,6 +38,9 @@ if (empty($sites)) {
 
 $site=$sites[0];
 // var names to api return
+// Thomas Dreibholz suggested that utf8_decode could be non-needed
+// and maybe even harmful on modern systems like f23
+// $sitename= htmlentities(utf8_decode($site['name']));
 $sitename= htmlentities($site['name']);
 $abbreviated_name= htmlentities($site['abbreviated_name']);
 $site_url= $site['url'];
