@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 5.2
-%define taglevel 6
+%define taglevel 7
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Sun Jul 10 2016 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-5.2-7
+- remove utf8_deode as per Thomas's suggestion
+
 * Fri Jun 26 2015 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-5.2-6
 - Offer the option to set a node in 'upgrade' mode - like reinstall but leaving slices intact
 
