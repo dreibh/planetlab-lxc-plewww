@@ -31,9 +31,9 @@ class PlekitForm {
     $this->values=$values;
 
     // make strict xhtml happy
-    $this->method="post";	if ($options['method']) $this->method=strtolower($options['method']);
-    $this->onSubmit=NULL;	if ($options['onSubmit']) $this->onSubmit=$options['onSubmit'];
-    $this->onReset=NULL;	if ($options['onReset']) $this->onReset=$options['onReset'];
+    $this->method="post";	if (isset($options['method']) && (!empty($options['method']))) $this->method=strtolower($options['method']);
+    $this->onSubmit=NULL;	if (isset($options['onSubmit']) && (!empty($options['onSubmit']))) $this->onSubmit=$options['onSubmit'];
+    $this->onReset=NULL;	if (isset($options['onReset']) && (!empty($options['onReset']))) $this->onReset=$options['onReset'];
   }
 
   function start () { print $this->start_html(); }
