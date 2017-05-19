@@ -83,7 +83,7 @@ global $DAY;		$DAY = 24*60*60;
 global $WEEK;		$WEEK = 7 * $DAY; 
 global $MAX_WEEKS;	$MAX_WEEKS= 8;		// weeks from today
 global $GRACE_DAYS;	$GRACE_DAYS=10;		// days for renewal promoted on top
-global $NOW;		$NOW=mktime();
+global $NOW;		$NOW=time();
 
 //////////////////////////////////////////////////////////// utility for the renew tab
 // make the renew area on top and open if the expiration time is less than 10 days from now
@@ -686,8 +686,9 @@ $interface_filter=array('is_primary'=>TRUE);
 $interfaces=$api->GetInterfaces($interface_filter,$interface_columns);
 
 $interface_hash=array();
-foreach ($interfaces as $interface) $interface_hash[$interface['node_id']]=$interface;
-
+if ($interfaces) {
+	foreach ($interfaces as $interface) $interface_hash[$interface['node_id']]=$interface;
+}
 
 if ($profiling) plc_debug_prof('10: interfaces',count($interfaces));
 
@@ -1027,8 +1028,10 @@ $tag_value_threshold=24;
     }
     $_nodes = $api->GetNodes(array('node_id' => $_node_ids), array('node_id', 'hostname'));
     $_hostnames = array();
-    foreach ($_nodes as $_node) {
-      $_hostnames[$_node['node_id']] = $_node['hostname'];
+    if ($_nodes) {
+	foreach ($_nodes as $_node) {
+      		$_hostnames[$_node['node_id']] = $_node['hostname'];
+    	}
     }
 
     // Loop through tags again to display
