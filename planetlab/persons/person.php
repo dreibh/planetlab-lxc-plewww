@@ -62,7 +62,11 @@ $hrn=$person['hrn'];
 
 // gets more data from API calls
 $site_columns=array( "site_id", "name", "login_base" );
-$sites= $api->GetSites( $site_ids, $site_columns);
+if ($site_ids) {
+	$sites= $api->GetSites( $site_ids, $site_columns);
+} else {
+	$sites = array();
+}
 $slices= $api->GetSlices( $slice_ids, array( "slice_id", "name" ) );
 $keys= $api->GetKeys( $key_ids );
 
@@ -305,8 +309,12 @@ if ($local_peer) {
         // get list of local sites that the person is not in
         function get_site_id ($site) { return $site['site_id'];}
         $person_site_ids=array_map("get_site_id",$sites);
-        $relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids, '-SORT'=>'name'), $site_columns);
-        // xxx cannot use onchange=submit() - would need to somehow pass action name 
+	if ($person_site_ids) {
+		$relevant_sites= $api->GetSites( array("peer_id"=>NULL,"~site_id"=>$person_site_ids, '-SORT'=>'name'), $site_columns);
+	} else {
+		$relevant_sites= $api->GetSites( array("peer_id"=>NULL, '-SORT'=>'name'), $site_columns);
+	}
+	// xxx cannot use onchange=submit() - would need to somehow pass action name 
         function site_selector($site) { return array('display'=>$site['name'],"value"=>$site['site_id']); }
         $selectors = array_map ("site_selector",$relevant_sites);
         $table->cell ($form->select_html("site_id",$selectors,array('label'=>"Choose a site to add")).
