@@ -67,7 +67,11 @@ if ($site_ids) {
 } else {
 	$sites = array();
 }
-$slices= $api->GetSlices( $slice_ids, array( "slice_id", "name" ) );
+if ($slice_ids) {
+	$slices= $api->GetSlices( $slice_ids, array( "slice_id", "name" ) );
+} else {
+	$slices = array();
+}
 $keys= $api->GetKeys( $key_ids );
 
 drupal_set_title("Details for account " . $first_name . " " . $last_name);
