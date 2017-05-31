@@ -69,30 +69,44 @@ $node_ids= $site['node_ids'];
 $person_ids= $site['person_ids'];
 $slice_ids= $site['slice_ids'];
 
-$api->begin();
+//$api->begin();
 // gets address info
-$api->GetAddresses( $address_ids );
+$addresses = $api->GetAddresses( $address_ids );
 
 // gets node info
-$api->GetNodes( $node_ids, array( "node_id", "hostname", "boot_state", "pcu_ids", "ports" ) );
-
+if ($node_ids) {
+	$nodes = $api->GetNodes( $node_ids, array( "node_id", "hostname", "boot_state", "pcu_ids", "ports" ) );
+} else {
+	$nodes = array();
+}
 // gets person info
-$api->GetPersons( $person_ids, array( "role_ids", "person_id", "first_name", "last_name", "email", "enabled" , "slice_ids") );
+if ($person_ids) {
+	$persons = $api->GetPersons( $person_ids, array( "role_ids", "person_id", "first_name", "last_name", "email", "enabled" , "slice_ids") );
+} else {
+	$persons = array();
+}
 
-$api->GetSlices ( $slice_ids, array ("slice_id", "name", "instantiation", "node_ids", "person_ids" ) );
-
+if ($slice_ids) {
+	$slices = $api->GetSlices ( $slice_ids, array ("slice_id", "name", "instantiation", "node_ids", "person_ids" ) );
+} else {
+	$slices = array();
+}
 ////////////////////
 // PCU stuff - not too sure why, but GetPCUs is not exposed to the 'user' role
 $display_pcus = (plc_is_admin() || plc_is_pi() || plc_is_tech());
-if ($display_pcus) 
-  $api->GetPCUs ($pcu_ids, array ('hostname', 'pcu_id' ));
-
+if ($display_pcus) {
+	if ($pcu_ids) {
+  		$pcus = $api->GetPCUs ($pcu_ids, array ('hostname', 'pcu_id' ));
+	} else {
+		$pcus = array();
+	}
+}
 // get results
-if ($display_pcus)
-  list( $addresses, $nodes, $persons, $slices, $pcus )= $api->commit();
-else
-  list( $addresses, $nodes, $persons, $slices )= $api->commit();
-  
+//if ($display_pcus)
+//  list( $addresses, $nodes, $persons, $slices, $pcus )= $api->commit();
+//else
+//  list( $addresses, $nodes, $persons, $slices )= $api->commit();
+
 $techs = array();
 $pis = array();
 $disabled_persons = array();
