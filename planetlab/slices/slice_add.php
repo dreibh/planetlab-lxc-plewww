@@ -250,8 +250,9 @@ if (isset($_POST['omf-control'])) {
 } else {
   $omf_options=array();
 }
-$details->th_td("OMF friendly",
-		$form->checkbox_html('omf-control','yes',$omf_options));
+// 2018 feb 15 - turning off omf slices creation 
+// $details->th_td("OMF friendly",
+//		$form->checkbox_html('omf-control','yes',$omf_options));
 
 $instantiation_text = <<< EOF
 <div class='create-slice-instantiations'>
