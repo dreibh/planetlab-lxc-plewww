@@ -68,7 +68,7 @@ used as your $PLC_NAME username
 EOF;
 
 $person_form['site_ids']['comment'] = <<< EOF
-Select the site where you belong 
+Select the site where you belong
 EOF;
 
 if (0)
@@ -98,7 +98,7 @@ if (!empty($person['site_ids'])) {
 function check_form ($person) {
   global $person_form;
   global $adm;
-  
+
   // Look for missing/blank entries
   $missing = array();
   foreach ($person_form as $name => $item) {
@@ -113,7 +113,7 @@ function check_form ($person) {
     foreach ($missing as $field) $warnings []= "$field field is required.";
     print html_div(plc_itemize($warnings),"messages error");
     return FALSE;
-  } 
+  }
 
   // check that the email address is not already used on this peer
   $email=$person['email'];
@@ -140,7 +140,7 @@ function register_person ($person) {
   unset ($person['site_ids']);
   $roles=$person['roles'];
   unset ($person['roles']);
-  
+
   $person_id = $adm->AddPerson($person);
   $errors = errors_record ($adm,$errors);
 
@@ -153,7 +153,7 @@ function register_person ($person) {
       $adm->SetPersonPrimarySite($person_id, intval($site_id));
     }
 
-    // Add requested roles. Always add the user role. 
+    // Add requested roles. Always add the user role.
     $adm->AddRoleToPerson('user', $person_id);
     if (!empty($roles)) {
       foreach ($roles as $role) {
