@@ -67,9 +67,20 @@ Your <b>E-mail</b> address must be able to receive e-mail and will be
 used as your $PLC_NAME username
 EOF;
 
-$person_form['site_ids']['comment'] = <<< EOF
-Select the site where you belong
-EOF;
+
+// dirty hack feb 2018; if this file can be found,
+// its contents is used instead of the hard-wired message
+// it is searched along php's include path, so it should be
+// allright to save it as /etc/planetlab/php/person-registration.txt
+// of course html tags like <code> and <br /> are OK
+global $message_filename;
+$message_filename = "person-registration.txt";
+
+try {
+    $person_form['site_ids']['comment'] = file_get_contents($message_filename, TRUE);
+} catch (Exception $e) {
+     $person_form['site_ids']['comment'] = "Select the site where you belong";
+}
 
 if (0)
   $person_form['roles']['comment'] = <<< EOF
