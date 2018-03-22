@@ -224,8 +224,14 @@ $adm->begin();
 
 // All defined sites
 // cannot register with foreign site
-$adm->GetSites(array('is_public' => TRUE, 'peer_id' => NULL,'-SORT'=>'name'), 
-	       array('site_id', 'name','enabled','peer_id'));
+// we also hide sites that are created by sfa
+// as well as the ones that have a disabled_registration tag set
+$adm->GetSites(array('is_public' => TRUE, 'peer_id' => NULL,
+                     'sfa_created' => NULL,
+                     'disabled_registration' => NULL,
+                     '-SORT'=>'name'),
+	           array('site_id', 'name', 'enabled', 'peer_id',
+                     'sfa_created', 'disabled_registration'));
 // All defined roles
 $adm->GetRoles();
 
