@@ -67,9 +67,20 @@ Your <b>E-mail</b> address must be able to receive e-mail and will be
 used as your $PLC_NAME username
 EOF;
 
-$person_form['site_ids']['comment'] = <<< EOF
-Select the site where you belong 
-EOF;
+
+// dirty hack feb 2018; if this file can be found,
+// its contents is used instead of the hard-wired message
+// it is searched along php's include path, so it should be
+// allright to save it as /etc/planetlab/php/person-registration.txt
+// of course html tags like <code> and <br /> are OK
+global $message_filename;
+$message_filename = "person-registration.txt";
+
+try {
+    $person_form['site_ids']['comment'] = file_get_contents($message_filename, TRUE);
+} catch (Exception $e) {
+     $person_form['site_ids']['comment'] = "Select the site where you belong";
+}
 
 if (0)
   $person_form['roles']['comment'] = <<< EOF
@@ -98,7 +109,7 @@ if (!empty($person['site_ids'])) {
 function check_form ($person) {
   global $person_form;
   global $adm;
-  
+
   // Look for missing/blank entries
   $missing = array();
   foreach ($person_form as $name => $item) {
@@ -113,7 +124,7 @@ function check_form ($person) {
     foreach ($missing as $field) $warnings []= "$field field is required.";
     print html_div(plc_itemize($warnings),"messages error");
     return FALSE;
-  } 
+  }
 
   // check that the email address is not already used on this peer
   $email=$person['email'];
@@ -140,7 +151,7 @@ function register_person ($person) {
   unset ($person['site_ids']);
   $roles=$person['roles'];
   unset ($person['roles']);
-  
+
   $person_id = $adm->AddPerson($person);
   $errors = errors_record ($adm,$errors);
 
@@ -153,7 +164,7 @@ function register_person ($person) {
       $adm->SetPersonPrimarySite($person_id, intval($site_id));
     }
 
-    // Add requested roles. Always add the user role. 
+    // Add requested roles. Always add the user role.
     $adm->AddRoleToPerson('user', $person_id);
     if (!empty($roles)) {
       foreach ($roles as $role) {
@@ -224,8 +235,14 @@ $adm->begin();
 
 // All defined sites
 // cannot register with foreign site
-$adm->GetSites(array('is_public' => TRUE, 'peer_id' => NULL,'-SORT'=>'name'), 
-	       array('site_id', 'name','enabled','peer_id'));
+// we also hide sites that are created by sfa
+// as well as the ones that have a disabled_registration tag set
+$adm->GetSites(array('is_public' => TRUE, 'peer_id' => NULL,
+                     'sfa_created' => NULL,
+                     'disabled_registration' => NULL,
+                     '-SORT'=>'name'),
+	           array('site_id', 'name', 'enabled', 'peer_id',
+                     'sfa_created', 'disabled_registration'));
 // All defined roles
 $adm->GetRoles();
 
