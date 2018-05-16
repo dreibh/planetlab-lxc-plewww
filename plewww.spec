@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
 %define version 5.2
-%define taglevel 8
+%define taglevel 9
 
 # no need to mention pldistro as this module differs in both distros
 #%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
@@ -125,6 +125,15 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Wed May 16 2018 Thierry <Parmentelat> - plewww-5.2-9
+- not too clean patches for r2lab:
+- * search for a file named /etc/planetlab/php/person-registration.txt
+- that can override the text message for individuals registration
+- * do not list sites that have the disabled_registration tag set
+- when listing them for individuals registration
+- remove omf-friendly checkbox in slice-creation dialog
+- comment out {Min,Max}SpareServers settings in httpd config
+
 * Sun Jul 16 2017 Thierry Parmentelat <thierry.parmentelat@sophia.inria.fr> - plewww-5.2-8
 - a few niceties, thanks to Ciro
 
