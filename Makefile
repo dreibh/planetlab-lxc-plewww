@@ -46,7 +46,7 @@ endif
 compress:
 	$(foreach file,\
 		$(shell find . -type f -iname "*.js" | grep -v datepicker.js | grep -v raphael),\
-		$(shell python jsmin.py < $(file) > $(file).new && mv $(file).new $(file)))
+		$(shell python2 jsmin.py < $(file) > $(file).new && mv $(file).new $(file)))
 	@echo "Compressed .js files with jsmin.py"
 
 .PHONY: compress
