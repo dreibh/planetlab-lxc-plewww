@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # transforms a degree notation like
 # 43:36:56.32 (43 degrees 36 minutes 56.32 seconds) 
 # into a decimal notation
