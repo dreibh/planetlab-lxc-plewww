@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # transforms a degree notation like
 # 43:36:56.32 (43 degrees 36 minutes 56.32 seconds) 
 # into a decimal notation
@@ -14,14 +14,14 @@ second=1./3600
 def translate (coord):
     r=matcher.match(coord)
     if not r:
-        print 'failed to parse',coord,'pattern=',pattern
+        print('failed to parse',coord,'pattern=',pattern)
     else:
-        (deg,min,sec)=map(float,r.groups())
+        (deg,min,sec)=list(map(float,r.groups()))
 #        print 'deg',deg,'min',min,'sec',sec
         if (deg>0):
-            print coord,'->',deg+min*minute+sec*second
+            print(coord,'->',deg+min*minute+sec*second)
         else:
-            print coord,'->',deg-min*minute-sec*second
+            print(coord,'->',deg-min*minute-sec*second)
             
 
 def main():
