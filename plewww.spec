@@ -4,7 +4,6 @@
 %define taglevel 9
 
 # no need to mention pldistro as this module differs in both distros
-#%define release %{taglevel}%{?pldistro:.%{pldistro}}%{?date:.%{date}}
 %define release %{taglevel}%{?date:.%{date}}
 
 Summary: PlanetLab Europe (PLC) Web Pages
