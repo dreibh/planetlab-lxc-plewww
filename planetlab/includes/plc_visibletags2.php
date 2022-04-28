@@ -3,7 +3,7 @@
   // $Id: plc_functions.php 15734 2009-11-13 10:52:31Z thierry $
 
   // utility function for displaying extra columns based on tags and categories
-  // expected type is e.g. 'node' 
+  // expected type is e.g. 'node'
 
 class VisibleTags {
   var $api;
@@ -14,16 +14,16 @@ class VisibleTags {
     $this->type=$type;
     $this->columns=NULL;
   }
-  
+
   // returns an ordered set of columns - compute only once
   function columns () {
     # if cached
-    if ($this->columns != NULL) 
+    if ($this->columns != NULL)
       return $this->columns;
 
     // scan tag types to find relevant additional columns
     $tag_types = $this->api->GetTagTypes(array('category'=>"$type*/ui*"));
-    
+
     $columns = array();
     foreach ($tag_types as $tag_type) {
       $tagname=$tag_type['tagname'];
@@ -38,12 +38,12 @@ class VisibleTags {
       $category_tokens=explode('/',$tag_type['category']);
       foreach ($category_tokens as $token) {
 	$assign=explode('=',$token);
-	if (count($assign)==2) 
+	if (count($assign)==2)
 	  $column[$assign[0]]=$assign[1];
       }
       $columns []= $column;
     }
-    
+
     // sort upon 'rank'
     usort ($columns, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
 
@@ -58,7 +58,7 @@ class VisibleTags {
   function column_names () {
     return array_map(create_function('$tt','return $tt["tagname"];'),$this->columns());
   }
-  
+
   // to add with array_merge to the headers part of the Plekit Table
   function headers () {
     $headers=array();
@@ -76,7 +76,7 @@ class VisibleTags {
 	$headers[$headerId]=array('header'=>$column['header'],'headerId'=>$headerId, 'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['description']);
 	}
     /*
-      if ($column['header'] == $column['tagname']) 
+      if ($column['header'] == $column['tagname'])
 	$headers[$column['header']]=$column['type'];
       else
 	$headers[$column['header']]=array('type'=>$column['type'],'title'=>$column['description']);
@@ -89,7 +89,7 @@ class VisibleTags {
     $notes=array();
     $columns=$this->columns();
     foreach ($columns as $column)
-      if ($column['header'] != $column['tagname']) 
+      if ($column['header'] != $column['tagname'])
 	$notes []= strtoupper($column['header']) . ' = ' . $column['description'];
     return $notes;
   }

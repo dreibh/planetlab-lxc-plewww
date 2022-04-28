@@ -80,7 +80,7 @@ $tmp_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagna
 
 usort ($tmp_headers, create_function('$col1,$col2','return strcmp($col1["label"],$col2["label"]);'));
 
-foreach ($tmp_headers as $t) 
+foreach ($tmp_headers as $t)
 $this->all_headers[$t['header']] = $t;
 
 //$this->all_headers = array_merge($this->all_headers, $tmp_headers);
@@ -108,13 +108,13 @@ else if ($this->all_headers[$label."y"]['visible'])
 	return "y";
 else if ($this->all_headers[$label]['visible'])
 	return "";
-	
+
 return "";
 }
 
 function node_tags() {
 
-	$fetched_tags = array('node_id','hostname');	
+	$fetched_tags = array('node_id','hostname');
 
 	foreach ($this->all_headers as $h)
 	{
@@ -127,7 +127,7 @@ function node_tags() {
 
 function print_headers() {
 
-	$headers = "";	
+	$headers = "";
 
 	foreach ($this->all_headers as $l => $h)
 	{
@@ -138,7 +138,7 @@ function print_headers() {
 
 function get_visible() {
 
-	$visibleHeaders = array();	
+	$visibleHeaders = array();
 
 	foreach ($this->all_headers as $h)
 	{
@@ -197,7 +197,7 @@ function parse_configuration($column_configuration) {
 }
 
 
-		
+
 
 
 /*
@@ -216,15 +216,15 @@ function convert_data($value, $data_type) {
 	if ($data_type == "string")
 		return $value;
 
-	if ($data_type == "date") 
+	if ($data_type == "date")
 		return date("Y-m-d", $value);
 
-	if ($data_type == "uptime") 
+	if ($data_type == "uptime")
 		return (int)((int) $value / 86400);
 
 	if (is_numeric($value))
 		return ((int) ($value * 10))/10;
-	
+
 	return $value;
 
 }
@@ -286,7 +286,7 @@ function getTopHatData($data, $planetlab_nodes) {
 	$requested_data = explode(",", $data);
 
 	$r = array ('hostname');
-	
+
 	foreach ($requested_data as $rd)
 		if ($rd) $r[] = $rd;
 
@@ -362,7 +362,7 @@ function fetch_live_data($all_nodes) {
 
 //comon data
 	if ($this->comon_live_data != "") {
-	
+
 		//print ("live data to be fetched =".$this->comon_live_data);
 		$this->ComonData= $this->comon_query_nodes($this->comon_live_data);
 		//print_r($this->ComonData);
@@ -392,7 +392,7 @@ function cells($table, $node) {
 
 foreach ($this->all_headers as $h) {
 
-if (!$h['fixed']) { 
+if (!$h['fixed']) {
 
 if ($h['visible'] != "") {
 
@@ -425,7 +425,7 @@ else
 	//$node_string.= "\"".$value."\",";
 }
 }
-else 
+else
 	if ($node[$h['tagname']])
 	{
         	$value = $this->convert_data($node[$h['tagname']], $h['type']);
@@ -552,7 +552,7 @@ print ("<table>");
 <input type='hidden' id='source".$h['label']."' value='".$h['source']."'></input>
 		<div id='".$h['label']."' name='columnlist' class='".$optionclass."' onclick='highlightOption(this.id)'>
 <table class='columnlist' id='table".$h['label']."'><tr>
-<td class='header'><span class='header'>".$h['label']."</span></td> 
+<td class='header'><span class='header'>".$h['label']."</span></td>
 <td align=left>&nbsp;<span class='short' id ='htitle".$h['label']."'>".$h['title']."</span>&nbsp;</td>
 <td class='smallright'>&nbsp;<span class='short' id ='loading".$h['label']."'></span>&nbsp;</td>
 <td class='smallright'><input id='check".$h['label']."' name='".$h['tagname']."' type='checkbox' ".$selected." ".$disabled." autocomplete='off' value='".$h['label']."' onclick='changeCheckStatus(this.id)'></input></td>
@@ -596,9 +596,9 @@ EOF;
 
   function column_html ($colHeader, $colName, $colId, $fulldesc, $visible) {
 
-	if ($visible) 
+	if ($visible)
 		$display = 'display:table-cell';
-	else 
+	else
 		$display = 'color:red;display:none';
 
     return "

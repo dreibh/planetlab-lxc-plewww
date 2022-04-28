@@ -12,7 +12,7 @@ drupal_set_html_head('
 // fieldname=>value
 // and we add in-line editing capabilities
 
-// $editable : if not set, no edition will be allowed in the table 
+// $editable : if not set, no edition will be allowed in the table
 //   this is typically set to false when user does not have write access
 // then each individual th_td provides its form_varname if and only iff edition is desired
 
@@ -23,11 +23,11 @@ drupal_set_html_head('
 // xxx todo : accept optional arguments as an options hash, rather than using the set_ methods which are ugly
 
 class PlekitDetails {
-  
+
   var $editable;
   var $form;
   // various options for the editing area
-  // set manually 
+  // set manually
   var $width;
   var $height;
   var $input_type;
@@ -101,7 +101,7 @@ class PlekitDetails {
     return $old;
   }
 
-  // give a form_varname if the field can be edited 
+  // give a form_varname if the field can be edited
   function th_td ($title,$value,$form_varname="",$options=NULL) {
     print $this->th_td_html ($title,$value,$form_varname,$options);
   }
@@ -109,11 +109,11 @@ class PlekitDetails {
     if (!$options) $options = array();
     if ( ! ($this->editable && $form_varname) ) {
       // xxx hack: if input_type is select, look for the 'value' option to display current value
-      if ($options['input_type'] == "select") 
+      if ($options['input_type'] == "select")
 	$value=$options['value'];
       return "<tr><th>$title</th><td>$value</td></tr>";
     } else {
-      // use options if provided, otherwise the latest set_ function 
+      // use options if provided, otherwise the latest set_ function
       if (array_key_exists('input_type',$options)) $input_type=$options['input_type'];
       else $input_type=$this->input_type;
       if (array_key_exists('width',$options)) $width=$options['width'];
@@ -133,7 +133,7 @@ class PlekitDetails {
 	if ($height) $html .= " rows=$height";
 	$html .= ">$value</textarea>";
       } else {
-	// set id too 
+	// set id too
 	$html .= "<input type='$input_type' name='$form_varname' id='$form_varname' value='$value'";
 	if ($width) $html .= " size='$width'";
 	// handle event callbacks
@@ -151,7 +151,7 @@ class PlekitDetails {
     return $this->th_td_html($title,plc_vertical_table($list,"foo"));
   }
 
-  // only for special cases, not editable 
+  // only for special cases, not editable
   function th_th ($th1,$th2) {	print $this->th_th_html ($th1, $th2);}
   function th_th_html ($th1, $th2) {
     return "<tr><th>$th1</th><th>$th2</th></tr>";
@@ -165,7 +165,7 @@ class PlekitDetails {
     $result .=">$title</td></tr>";
     return $result;
   }
-  
+
   // a dummy line for getting some air
   function space () { print $this->space_html(); }
   function space_html () { return "<tr><td colspan='2'>&nbsp;</td></tr>\n"; }

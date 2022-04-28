@@ -16,7 +16,7 @@ drupal_set_html_head('
 ////////////////////////////////////////
 // table_id: <table>'s id tag - WARNING : do not use '-' in table ids as it's used for generating javascript code
 // headers: an associative array; the values can take several forms
-//      simple/legacy form is "label"=>"type" 
+//      simple/legacy form is "label"=>"type"
 //      more advanced form is "label"=>options, it self a dict with the following known keys
 //         (*) 'type': the type for sorting; this is passed to the javascript layer for custom sorting
 //		default is to use 'text', custom sort functions can be specified with e.g. 'type'=>'sortAlphaNumericBottom'
@@ -24,7 +24,7 @@ drupal_set_html_head('
 //		setting type to 'none' gives an non-sortable column
 //	   (*) 'title': if set, this is used in the "Sort on ``<title>''" bubble
 // sort_column: the column to sort on at load-time - set to negative number for no onload- sorting
-// options : an associative array to override options 
+// options : an associative array to override options
 //  - bullets1 : set to true if you want decorative bullets in column 1 (need white background)
 //  - stripes : use diferent colors for odd and even rows
 //  - caption : a caption for the table -- never used I'm afraid
@@ -120,7 +120,7 @@ class PlekitTable {
 
     // instantiate paginator callback
     print "<script type='text/javascript'> function $paginator (opts) { plekit_table_paginator (opts,'$this->table_id'); } </script>\n";
-    
+
     // instantiate debug hooks if needed
     if ($this->debug) {
       $cb_init = $this->table_id."_init";
@@ -135,10 +135,10 @@ class PlekitTable {
 
     if ($this->pagesize_area)
       print $this->pagesize_area_html ();
-    if ($this->search_area) 
+    if ($this->search_area)
       print $this->search_area_html ();
-    
-    if ($this->caption) 
+
+    if ($this->caption)
       print "<caption> $this->caption </caption>";
     print "<tr>";
 
@@ -168,7 +168,7 @@ if ($this->configurable)
 	}
       }
       switch ($type) {
-      case "none" : 
+      case "none" :
 	$class=""; break;
       case "string": case "int": case "float":
 	$class="sortable"; break;
@@ -193,15 +193,15 @@ if ($this->configurable)
 
   ////////////////////
   // for convenience, the options that apply to the bottom area can be passed here
-  // typically notes will add up to the ones provided so far, and to the default ones 
+  // typically notes will add up to the ones provided so far, and to the default ones
   // xxx default should be used only if applicable
   function end ($options=NULL) {
     $this->set_options($options);
     print $this->bottom_html();
-    if ($this->notes_area) 
+    if ($this->notes_area)
       print $this->notes_area_html();
   }
-		    
+
   ////////////////////
   function pagesize_area_html () {
     $width=count($this->headers);
@@ -210,9 +210,9 @@ if ($this->configurable)
 <tr class='pagesize_area'><td class='pagesize_area' colspan='$width'>
 <form class='pagesize' action='satisfy_xhtml_validator'><fieldset>
    <input class='pagesize_input' type='text' id="$pagesize_text_id" value='$this->pagesize'
-      onkeyup='plekit_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);' 
-      size='3' maxlength='4' /> 
-  <label class='pagesize_label'> items/page </label>   
+      onkeyup='plekit_pagesize_set("$this->table_id","$pagesize_text_id", $this->pagesize);'
+      size='3' maxlength='4' />
+  <label class='pagesize_label'> items/page </label>
   <img class='reset' src="/planetlab/icons/clear.png" alt="reset visible size"
       onmousedown='plekit_pagesize_reset("$this->table_id","$pagesize_text_id",$this->pagesize_def);' />
 </fieldset></form></td></tr>
@@ -229,13 +229,13 @@ EOF;
     $result = <<< EOF
 <tr class='search_area'><td class='search_area' colspan='$width'>
 <div class='search'><fieldset>
-   <label class='search_label'> Search </label> 
+   <label class='search_label'> Search </label>
    <input class='search_input' type='text' id='$search_text_id'
       onkeyup='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");'
       size='$this->search_width' maxlength='256' />
    <label>and</label>
-   <input id='$search_and_id' class='search_and' 
-      type='checkbox' checked='checked' 
+   <input id='$search_and_id' class='search_and'
+      type='checkbox' checked='checked'
       onchange='plekit_table_filter("$this->table_id","$search_text_id","$search_and_id");' />
    <img class='reset' src="/planetlab/icons/clear.png" alt="reset search"
       onmousedown='plekit_table_filter_reset("$this->table_id","$search_text_id","$search_and_id");' />
@@ -264,9 +264,9 @@ EOF;
 
   ////////////////////////////////////////
   function notes_area_html () {
-    $search_notes =  
+    $search_notes =
       array("Enter &amp; or | in the search area to switch between <span class='bold'>AND</span> and <span class='bold'>OR</span> search modes");
-    $sort_notes = 
+    $sort_notes =
       array ("Hold down the shift key to select multiple columns to sort");
 
     if ($this->notes)
@@ -280,7 +280,7 @@ EOF;
       return "";
     $result = "";
     $result .= "<p class='table_note'> <span class='table_note_title'>Notes</span>\n";
-    foreach ($notes as $note) 
+    foreach ($notes as $note)
       $result .= "<br/>$note\n";
     $result .= "</p>";
     return $result;

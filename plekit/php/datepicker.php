@@ -27,7 +27,7 @@ class PlekitDatepicker {
     $this->id=$id;
     $this->display=$display;
     $this->options=array_merge($datepicker_default_options,$options);
-    
+
   }
 
   function html () {

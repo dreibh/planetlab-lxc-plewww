@@ -165,12 +165,12 @@ class TopHatAPI
             $this->error_log('Fault Code ' . $result['faultCode'] . ': ' .
                              $result['faultString'], 1, true);
             $ret[] = NULL;
-	    // Thierry - march 30 2007 
-	    // using $adm->error() is broken with begin/commit style 
+	    // Thierry - march 30 2007
+	    // using $adm->error() is broken with begin/commit style
 	    // this is because error() uses last item in trace and checks for ['errors']
-	    // when using begin/commit we do run internal_call BUT internal_call checks for 
+	    // when using begin/commit we do run internal_call BUT internal_call checks for
 	    // multicall's result globally, not individual results, so ['errors'] comes empty
-	    // I considered hacking internal_call 
+	    // I considered hacking internal_call
 	    // to *NOT* maintain this->trace at all when invoked with multicall
 	    // but it is too complex to get all values right
 	    // so let's go for the hacky way, and just record individual errors at the right place
@@ -240,36 +240,36 @@ class TopHatAPI
 
   // Returns a new session key if a user or node authenticated
   // successfully, faults otherwise.
-  
+
   function GetSession ()
   {
     $args[] = $this->auth;
     return $this->call('GetSession', $args);
   }
-  
+
   // Returns an array of structs containing details about users sessions. If
   // session_filter is specified and is an array of user identifiers or
   // session_keys, or a struct of session attributes, only sessions matching the
   // filter will be returned. If return_fields is specified, only the
   // specified details will be returned.
-  
+
   function GetSessions ($session_filter = NULL)
   {
     $args[] = $this->auth;
     if (func_num_args() > 0) $args[] = $session_filter;
     return $this->call('GetSessions', $args);
   }
-  
+
   // Returns an array of structs containing details about users. If
   // person_filter is specified and is an array of user identifiers or
   // usernames, or a struct of user attributes, only users matching the
   // filter will be returned. If return_fields is specified, only the
   // specified details will be returned.
-  // 
+  //
   // Users and techs may only retrieve details about themselves. PIs
   // may retrieve details about themselves and others at their
   // sites. Admins and nodes may retrieve details about all accounts.
-  
+
   function GetPersons ($person_filter = NULL, $return_fields = NULL)
   {
     $args[] = $this->auth;
@@ -277,10 +277,10 @@ class TopHatAPI
     if (func_num_args() > 1) $args[] = $return_fields;
     return $this->call('GetPersons', $args);
   }
-  
+
   // Returns 1 if the user or node authenticated successfully, faults
   // otherwise.
-  
+
   function AuthCheck ()
   {
     $args[] = $this->auth;

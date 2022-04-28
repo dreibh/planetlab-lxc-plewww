@@ -18,13 +18,13 @@ class PlekitForm {
 
   function __construct ($full_url, $values, $options=NULL) {
     // so we can use the various l_* functions:
-    // we parse the url to extract var-values pairs, 
+    // we parse the url to extract var-values pairs,
     // and add them to the 'values' argument if any
 
     // extract var=value settings from url if any
     $split=plekit_split_url($full_url);
     $this->url=$split['url'];
-    
+
     $url_values=$split['values'];
     if ( ! $values ) $values = array();
     if ( $url_values ) $values=array_merge($values,$url_values);
@@ -42,8 +42,8 @@ class PlekitForm {
     if ($this->onSubmit) $html .= " onSubmit='$this->onSubmit'";
     if ($this->onReset) $html .= " onReset='$this->onReset'";
     $html .= ">";
-    if ($this->values) 
-      foreach ($this->values as $key=>$value) 
+    if ($this->values)
+      foreach ($this->values as $key=>$value)
 	$html .= $this->hidden_html($key,$value);
     return $html;
   }
@@ -54,12 +54,12 @@ class PlekitForm {
   static function attributes ($options) {
     $html="";
     $names=array('id','size','selected', 'checked',
-		 'onfocus','onselect', 'onchange', 
+		 'onfocus','onselect', 'onchange',
 		 'onkeyup', 'onmouseup', 'onclick', 'onsubmit');
     if ($options['selected']) $options['selected']='selected';
     if ($options['checked']) $options['checked']='checked';
     if ($options) foreach ($options as $key=>$value) {
-	if (in_array(strtolower($key),$names)) 
+	if (in_array(strtolower($key),$names))
 	  $html .= " $key='$value'";
       }
     return $html;
@@ -91,9 +91,9 @@ class PlekitForm {
   static function textarea_html ($name,$value,$cols,$rows) {
     return "<textarea name='$name' cols='$cols' rows='$rows'>$value</textarea>";
   }
- 
+
   // selectors is an array of hashes with the following keys
-  // (*) display 
+  // (*) display
   // (*) value : the value that the 'name' variable will be assigned
   // (*) optional 'selected': the entry selected initially
   // (*) optional 'disabled': the entry is displayed but not selectable
@@ -144,7 +144,7 @@ class PlekitForm {
     } else {
       foreach ($roles as $role) {
 	$selector=role_selector($role);
-	if ($role['role_id'] == $current_id) 
+	if ($role['role_id'] == $current_id)
 	    $selector['selected']=true;
 	$selectors []= $selector;
       }
@@ -156,7 +156,7 @@ class PlekitForm {
 
 // a form with a single button
 class PlekitFormButton extends PlekitForm {
-  
+
   var $button_id;
   var $button_text;
 
@@ -167,8 +167,8 @@ class PlekitFormButton extends PlekitForm {
   }
 
   function html () {
-    return 
-      $this->start_html() . 
+    return
+      $this->start_html() .
       $this->submit_html($this->button_id,$this->button_text).
       $this->end_html();
   }

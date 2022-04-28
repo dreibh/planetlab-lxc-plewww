@@ -1,5 +1,5 @@
 <?php
-  
+
   // $Id$
 
 require_once 'plc_functions.php';
@@ -32,7 +32,7 @@ class Peers {
   }
 
   function peer ($peer_id) {
-    // use the fake local entry 
+    // use the fake local entry
     if (!$peer_id)
       $peer_id='local';
     return $this->hash[$peer_id];
@@ -55,7 +55,7 @@ class Peers {
       $result = "[local] " . $result;
     return $result;
   }
-  
+
   public function link ($peer_id,$text) {
     if (! $peer_id)
       return href("/",$text);
@@ -74,7 +74,7 @@ class Peers {
     $shortname=strtolower($this->shortname($peer_id));
     return "peer-$shortname";
   }
-  
+
   function block_start ($peer_id) {
     // start a <div> element with 2 classes:
     // (1) generic:  is either peer-local or peer-foreign
@@ -82,7 +82,7 @@ class Peers {
     // e.g. at PLE we'd get <div class='peer-local peer-ple'>
     // or		    <div class='peer-local peer-plc'>
     // see plc_styles.css for how to have the more specific ones override the generic one
-    if ( ! $peer_id ) 
+    if ( ! $peer_id )
       $generic='peer-local';
     else
       $generic='peer-foreign';
@@ -95,14 +95,14 @@ class Peers {
     print "</div>\n";
   }
 
-  // writes a cell in the table with the peer's shortname, link to the peer page, 
+  // writes a cell in the table with the peer's shortname, link to the peer page,
   // and classname set for proper color
   function cell ($table, $peer_id) {
     $shortname=$this->shortname($peer_id);
     $table->cell ($this->link($peer_id,$shortname),
 		  array('class'=>$this->classname($peer_id)));
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////

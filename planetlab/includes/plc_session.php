@@ -79,7 +79,7 @@ class PLCSession
       $_SESSION['plc'] = array('auth' => $api->auth,
 			       'person' => $person,
 			       'expires' => $expires);
-     }	
+     }
     }
 
     function BecomePerson($person_id)
@@ -87,12 +87,12 @@ class PLCSession
 	list($person) = $this->api->GetPersons(array($person_id));
 	if ($person)
 	{
-	    //Get this users session if one exists, create 
+	    //Get this users session if one exists, create
 	    //one otherwise
 	    list($session) = $this->api->GetSessions(array('person_id' => $person['person_id']));
 	    if (!$session)
 	    {
-		$session = $this->api->AddSession($person['person_id']);	
+		$session = $this->api->AddSession($person['person_id']);
 	    }
     	    else
 	    {
@@ -112,12 +112,12 @@ class PLCSession
 	    $_SESSION['plc']['person'] = $this->person;
 	    $_SESSION['plc']['alt_person'] = $this->alt_person;
             $_SESSION['plc']['alt_auth'] = $this->alt_auth;
-	    
-	}    	
+
+	}
     }
 
     function BecomeSelf()
-    {	
+    {
 	if($this->alt_auth && $this->alt_person )
 	{
 	    $this->person = $this->alt_person;
@@ -129,9 +129,9 @@ class PLCSession
 	    $_SESSION['plc']['person'] = $_SESSION['plc']['alt_person'];
 	    unset($_SESSION['plc']['alt_auth']);
             unset($_SESSION['plc']['alt_person']);
-	} 
+	}
     }
-  
+
 
   function logout()
   {
