@@ -9,8 +9,8 @@ drupal_set_html_head('<link href="/planetlab/css/plc_peers.css" rel="stylesheet"
 // all known peers hashed on peer_id
 class Peers {
   var $hash;
-  
-  function Peers ($api) {
+
+  function __construct ($api) {
     $hash=array();
     // fake entry fot the local myplc
     $local_fake_peer = array ('peername' => PLC_NAME,
@@ -110,7 +110,7 @@ class PeerScope {
   var $filter;
   var $label;
 
-  function PeerScope ($api, $peerscope) {
+  function __construct ($api, $peerscope) {
     switch ($peerscope) {
     case '':
       $this->filter=array();

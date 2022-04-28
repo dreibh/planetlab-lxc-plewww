@@ -32,7 +32,7 @@ class PlekitDetails {
   var $height;
   var $input_type;
 
-  function PlekitDetails ($editable) {
+  function __construct ($editable) {
     $this->editable=$editable;
     $this->form=NULL;
     $this->width="";

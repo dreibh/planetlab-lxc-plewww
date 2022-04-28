@@ -60,7 +60,7 @@ class PlekitTable {
   // internal
   var $has_tfoot;
 
-  function PlekitTable ($table_id,$headers,$sort_column,$options=NULL) {
+  function __construct ($table_id,$headers,$sort_column,$options=NULL) {
     $this->table_id = $table_id;
     $this->headers = $headers;
     $this->sort_column = $sort_column;

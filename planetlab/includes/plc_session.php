@@ -48,7 +48,7 @@ class PLCSession
   var $alt_person;
   var $alt_auth;
 
-  function PLCSession($name = NULL, $pass = NULL)
+  function __construct($name = NULL, $pass = NULL)
   {
     $name= strtolower( $name );
     // User API access

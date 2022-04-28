@@ -37,7 +37,7 @@ class PlekitToggle {
   var $id;
   var $nifty;
 
-  function PlekitToggle ($id,$trigger,$options=NULL) {
+  function __construct ($id,$trigger,$options=NULL) {
     $this->id = $id;
     $this->trigger=$trigger;
     if ( ! $options ) $options = array();

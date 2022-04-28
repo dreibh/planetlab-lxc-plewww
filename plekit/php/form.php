@@ -16,7 +16,7 @@ class PlekitForm {
   var $onSubmit; // can be set with options
   var $onReset; // can be set with options
 
-  function PlekitForm ($full_url, $values, $options=NULL) {
+  function __construct ($full_url, $values, $options=NULL) {
     // so we can use the various l_* functions:
     // we parse the url to extract var-values pairs, 
     // and add them to the 'values' argument if any
@@ -160,7 +160,7 @@ class PlekitFormButton extends PlekitForm {
   var $button_id;
   var $button_text;
 
-  function PlekitFormButton ($full_url, $button_id, $button_text, $method="POST") {
+  function __construct ($full_url, $button_id, $button_text, $method="POST") {
     $this->PlekitForm($full_url,array(),$method);
     $this->button_id=$button_id;
     $this->button_text=$button_text;

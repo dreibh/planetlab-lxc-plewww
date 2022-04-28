@@ -69,7 +69,7 @@ class Person {
   var $email;
   var $enabled;
 
-  function Person($person) {
+  function __construct($person) {
     $this->roles = $person['role_ids'];
     $this->person_id = $person['person_id'];
     $this->first_name = $person['first_name'];
@@ -136,7 +136,7 @@ class Person {
 class PCU {
   var $data;
 
-  function PCU($pcu) {
+  function __construct($pcu) {
     $this->data = $pcu;
   }
 
@@ -169,7 +169,7 @@ class PCU {
 class Address {
   var $data;
 
-  function Address($address) {
+  function __construct($address) {
     $this->data = $address;
   }
 
@@ -204,7 +204,7 @@ class Node extends PlcObject {
   var $pcu_ids;
   var $data;
 
-  function Node($node) {
+  function __construct($node) {
     global $plc, $api, $adm;
     $this->data = $node;
     $this->node_type = $node['node_type'];
@@ -318,7 +318,7 @@ class Node extends PlcObject {
 class Slice {
   var $data;
 
-  function Slice($val) {
+  function __construct($val) {
     $this->data = $val;
   }
 
@@ -349,7 +349,7 @@ class Site extends PlcObject {
   var $site_id;
   var $data;
 
-  function Site($site_id) {
+  function __construct($site_id) {
     global $plc, $api, $adm;
     $site_info= $adm->GetSites( array( intval($site_id) ) );
     $this->data = $site_info[0];

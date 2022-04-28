@@ -18,8 +18,8 @@ class PlekitDatepicker {
 
   var $id;
 
-  function PlekitDatepicker ($id,$display,$options=NULL) {
-    $datepicker_default_options = 
+  function __construct ($id,$display,$options=NULL) {
+    $datepicker_default_options =
       array ('inline'=>true,
 	     'format'=>'Y-sl-M-sl-d',
 	     'value'=>'');

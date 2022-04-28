@@ -8,8 +8,8 @@
 class VisibleTags {
   var $api;
   var $type;
-  
-  function VisibleTags ($api,$type) {
+
+  function __construct ($api,$type) {
     $this->api=$api;
     $this->type=$type;
     $this->columns=NULL;

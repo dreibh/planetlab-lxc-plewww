@@ -21,7 +21,7 @@ class TopHatAPI
   var $calls;
   var $multicall;
 
-  function TopHatAPI($auth = NULL,
+  function __construct($auth = NULL,
 		  $server = TOPHAT_API_HOST,
 		  $port = TOPHAT_API_PORT,
 		  $path = TOPHAT_API_PATH,

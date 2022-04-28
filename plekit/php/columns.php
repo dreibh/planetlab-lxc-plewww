@@ -31,7 +31,7 @@ var $table_ids;
 var $HopCount = array();
 var $RTT = array();
 
-function PlekitColumns ($column_configuration, $fix_columns, $tag_columns, $extra_columns=NULL, $this_table_headers=NULL) {
+function __construct ($column_configuration, $fix_columns, $tag_columns, $extra_columns=NULL, $this_table_headers=NULL) {
 
 	if ($column_configuration != NULL) {
 	$this->fix_columns = $fix_columns;
