@@ -379,22 +379,4 @@ class Site extends PlcObject {
   }
 }
 
-/* class Blue extends PlcObject
- {
- var $val;
- function Blue($arg)
- {
- $this->val = $arg;
- }
- }
-
- $cl = PlcObject::constructList('Blue', array('this', 'is', 'a', 'test'));
- echo sizeof($cl) . "\n";
- foreach ($cl as $obj)
- {
- echo get_class( $obj) . "\n";
- echo $obj->val . "\n";
- }*/
-
-
 ?>
