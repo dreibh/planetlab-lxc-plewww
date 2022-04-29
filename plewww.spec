@@ -16,6 +16,8 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 BuildRequires: python
+# for patching drupal session code
+BuildRequires: ed
 
 Vendor: OneLab
 Packager: OneLab <support@one-lab.org>
