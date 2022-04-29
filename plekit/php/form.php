@@ -161,7 +161,7 @@ class PlekitFormButton extends PlekitForm {
   var $button_text;
 
   function __construct ($full_url, $button_id, $button_text, $method="POST") {
-    $this->__construct($full_url,array(),$method);
+    parent::__construct($full_url,array(),$method);
     $this->button_id=$button_id;
     $this->button_text=$button_text;
   }
