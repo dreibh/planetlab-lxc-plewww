@@ -1,26 +1,26 @@
 <?php
 
 function authorizeSlice($sn) {
-	
+
 	global $api;
-  
+
   $slice_list= array();
   $result= $api->GetSlices( Null, array( "name", "slice_id" ) );
-  
+
   foreach ( $result AS $slice )
   {
   	if ( $slice["name"] == $sn )
   		return 1;
-	
+
   }
-  
+
   return 0;
-  
+
 }
 
 //can a request be satisfied?  Currently, answer is yes unless
 //either this time is taken or you asked for more than one unit
-//probably will need to change this.  
+//probably will need to change this.
 function validateRequest ($units, $timesOccupied, $requestedTime, $currentTime) {
   if ($units != 1)
     return TOO_MANY_UNITS;
@@ -39,7 +39,7 @@ function validateRequest ($units, $timesOccupied, $requestedTime, $currentTime) 
 
 //can a request be satisfied?  Currently, answer is yes unless
 //either this time is taken or you asked for more than one unit
-//probably will need to change this.  
+//probably will need to change this.
 function validateAndMarkRequest ($units, &$timesOccupied, $requestedTime, $currentTime, $sn, $jobArray) {
   // buffer so we aren't too close to deadline, if your request is late
   // OR if it's within 1 minute of deadline, it's too late
@@ -71,7 +71,7 @@ function findNextFreeSlot($units, $timesOccupied) {
   $currMonth = gmdate("m");
   $currDate = gmdate("d");
   $currHour = gmdate("H") + 1;
-  $currentTime = gmmktime();
+  $currentTime = time();
   $reqTime = gmmktime($currHour, 0, 0, $currMonth, $currDate, $currYear);
   $retVal = 1;
   while ($retVal != SUCCESS) {
@@ -93,7 +93,7 @@ function dumpToFile($fileName, $buffer, $which, $timesOccupied) {
 
   //lock in case of concurrent accesses
   flock($fileHandle, LOCK_EX);
-  
+
   if ($which == "schedule") {  // need to write timestamp in this case
     $s = gettimeofday();
     fwrite($fileHandle, $s['sec']);
@@ -103,8 +103,8 @@ function dumpToFile($fileName, $buffer, $which, $timesOccupied) {
   //do the dump here
   foreach ($buffer as $value) {
     $t = "";
-    if ($which == "schedule") {  
-      if (strcmp($value["timestamp"], mktime()) > 0) {
+    if ($which == "schedule") {
+      if (strcmp($value["timestamp"], time()) > 0) {
 	$numReps = $value["reps"];
 	$ts = $value["timestamp"];
 	$t = $value["sliceName"]." ".$value["id"]." ".$value["timestamp"]." ".$value["units"]." ".$value["reps"]." \n";
@@ -138,13 +138,13 @@ function updateSliceFile($name, $units) {
 
   $sliceFile = fopen("slices.txt", "rw");
   if (!$sliceFile) {
-    echo "<p>Unable to open remote file.</p>"; 
-    
+    echo "<p>Unable to open remote file.</p>";
+
   }
 
   flock($sliceFile, LOCK_EX);
 
-  //we'll construct a new list here, will be current slice file except 
+  //we'll construct a new list here, will be current slice file except
   //the slice in question will have it's units decreased, if there are any...
   while (!feof($sliceFile)) {
     $num = fscanf($sliceFile, "%s %d\n", $sliceName, $unitsAvailable);
@@ -175,13 +175,13 @@ function updateSliceFile($name, $units) {
 
 
 //pretty obvious what this does; basically, does the slice exist in
-//the slice file yet?  (New user of calendar service user may not have 
+//the slice file yet?  (New user of calendar service user may not have
 //an entry)
 function isFirstSliceRequest($name) {
   $sliceFile = fopen("slices.txt", "r");
   if (!$sliceFile) {
-    echo "<p>Unable to open remote file.</p>"; 
-    
+    echo "<p>Unable to open remote file.</p>";
+
   }
 
   flock($sliceFile, LOCK_EX);
@@ -241,8 +241,8 @@ function getCurrentSchedule (&$jobArray, &$timesOccupied, &$maxId) {
 
   $schedFile = fopen("schedule.txt", "r");
   if (!$schedFile) {
-    echo "<p>Unable to open remote file.</p>"; 
-    
+    echo "<p>Unable to open remote file.</p>";
+
   }
 
   flock($schedFile, LOCK_EX);
@@ -293,15 +293,15 @@ function findNextQueue($units, $timesOccupied) {
   $currMonth = gmdate("m");
   $currDate = gmdate("d");
   $currHour = gmdate("H") + 1;
-  $currentTime = gmmktime();
+  $currentTime = time();
   $reqTime = gmmktime($currHour, 0, 0, $currMonth, $currDate, $currYear);
   $retVal = 1;
   $i = 0;
-	
+
 	// DAVE
 	// outputting table to display the queue
 	// green background will mean slot is open, and red will mean the slot is used
-	// 
+	//
   echo "<table cellspacing=\"2\" cellpadding=\"1\" border=\"0\" width=550>\n";
   echo "<tr><td colspan=\"3\"><span class='bold'>24 hour Queue:</span> Choose the GMT time slot you desire (<font color=\"#339933\">green</font> slots are open, <font color=\"#CC3333\">red</font> are taken) <p></td></tr>\n";
   echo "<tr><td width=\"47%\" align=\"right\"><table cellspacing=1 cellpadding=1 border=0 width=130>\n";
@@ -314,7 +314,7 @@ function findNextQueue($units, $timesOccupied) {
   while ($i < 12) {
     $retVal = validateRequest($units, $timesOccupied, $reqTime, $currentTime);
     if ($retVal == SUCCESS) { // advance timestamp one hour (3600 seconds)
-	  
+
 	echo "<tr bgcolor=\"#339933\"><td><input type=\"radio\" name=\"queue_time\" value=\"" . gmdate("H:i:s", $reqTime) . "\"> " . gmdate("H:i:s", $reqTime) . " &nbsp;  </td></tr>\n";
     }
     else {
@@ -350,7 +350,7 @@ function findNextQueue($units, $timesOccupied) {
 function sliceDropDown() {
 
 	global $api;
-  
+
   $slice_list= array();
   $result= $api->GetSlices( Null, array( "name", "slice_id" ) );
   // sort_slices( $result ); --> slice sort on name
@@ -362,9 +362,9 @@ function sliceDropDown() {
   foreach ( $result AS $slice )
   {
   	echo "<option value='" . $slice["name"] . "'>" . $slice["name"] . "\n";
-  	
+
   }
-  
+
 }
 
 
