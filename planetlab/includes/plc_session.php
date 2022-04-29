@@ -14,8 +14,6 @@
 // Mark Huang <mlhuang@cs.princeton.edu>
 // Copyright (C) 2006 The Trustees of Princeton University
 //
-// $Id$ $
-//
 
 // warning: Undefined array key "#validated" in /var/www/html/includes/form.inc on line 228.
 

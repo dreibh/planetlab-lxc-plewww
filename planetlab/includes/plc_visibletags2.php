@@ -1,8 +1,6 @@
 <?php
 
-  // $Id: plc_functions.php 15734 2009-11-13 10:52:31Z thierry $
-
-  // utility function for displaying extra columns based on tags and categories
+    // utility function for displaying extra columns based on tags and categories
   // expected type is e.g. 'node'
 
 class VisibleTags {
