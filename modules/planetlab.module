@@ -7,7 +7,8 @@
   //
   // $Id$
   //
-error_reporting(0);
+
+//error_reporting(0);
 
 require_once 'plc_config.php';
 require_once 'plc_session.php';
