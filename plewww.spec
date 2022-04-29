@@ -105,6 +105,10 @@ for module in user node; do
     cp -f /var/www/html/drupal-hacks/${module}.module /var/www/html/modules/${module}.module
 done
 popd
+# hack drupal's session handler for php8
+pushd /var/www/html/includes
+bash /var/www/html/drupal-hacks/patch-session-inc.sh
+popd
 # create myslice.log and change its ownership
 mkdir -p /var/log/myslice
 touch /var/log/myslice/myslice.log
