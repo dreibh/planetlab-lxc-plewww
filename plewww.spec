@@ -106,8 +106,9 @@ for module in user node; do
 done
 popd
 # create myslice.log and change its ownership
-touch /var/log/myslice.log
-chown apache:apache /var/log/myslice.log
+mkdir -p /var/log/myslice
+touch /var/log/myslice/myslice.log
+chown apache:apache /var/log/myslice/myslice.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
