@@ -138,23 +138,23 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
     } else {
       $block['subject'] = truncate($plc->person['email'],30);
 
-      //////////////////// Logout 
+      //////////////////// Logout
       $bullet_item = '';
       if ($user->uid) {
 	// Drupal logout (destroys the session and cleans up $user)
 	// Thierry unclear when this triggers, I suspect this is obsolete
-	$bullet_item .= l(t('Logout of %s', 
+	$bullet_item .= l(t('Logout of %s',
 			  array('%s' => variable_get('site_name', 'local'))), 'logout');
       } else {
 	// PlanetLab logout (just destroy the session)
 	$bullet_item .= href (l_logout(),'Logout');
       }
       $bullet_item .= ul_start();
-      // logout 
+      // logout
       if ( $plc->alt_person && $plc->alt_auth) {
-	$email = truncate($plc->person['email'],20); 
+	$email = truncate($plc->person['email'],20);
 	$bullet_item .= leaf( href( l_sulogout(),"Un-become $email"));
-      }	
+      }
       $bullet_item .= ul_end();
       $items []= expanded ($bullet_item);
 
@@ -162,13 +162,13 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $bullet_item = '';
       $bullet_item .=  l_person_t(plc_my_person_id(),"My Account");
       $bullet_item .= ul_start();
-      if (plc_is_admin() || plc_is_pi()) 
+      if (plc_is_admin() || plc_is_pi())
 	$bullet_item .= leaf( href( l_persons_site(plc_my_site_id()), "My Site Accounts"));
       if (plc_is_admin()) {
 	$bullet_item .= leaf(href(l_persons_peer('local'),'Local Accounts (slow)'));
 	$bullet_item .= leaf(href(l_persons(),'All Accounts (slow)'));
       }
-	
+
       $bullet_item .= ul_end();
       $items [] = expanded($bullet_item);
 
@@ -177,8 +177,8 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
       $bullet_item .= href(l_sites(),"Sites");
       $bullet_item .= ul_start();
       $bullet_item .= plc_my_site_links();
-      if ( plc_is_admin() ) 
-	$bullet_item .= leaf( href(l_sites_pending(),"Pending Requests"));
+      if ( plc_is_admin() )
+	      $bullet_item .= leaf( href(l_sites_pending(),"Pending Requests"));
       $bullet_item .= ul_end();
       $items[] = expanded($bullet_item);
 
@@ -195,19 +195,19 @@ function planetlab_block($op = 'list', $delta = 0, $edit = array()) {
 
       //////////////////// Slices
       $bullet_item = '';
-      //if( !( plc_is_tech() && ! plc_is_user() && ! plc_is_pi() && ! plc_is_admin() ) ) 
+      //if( !( plc_is_tech() && ! plc_is_user() && ! plc_is_pi() && ! plc_is_admin() ) )
       if (plc_is_admin()) {
         $bullet_item .= href(l_slices(),"Slices");
       } else {
         $bullet_item .= href(l_slices(),"My Slices");
       }
       $bullet_item .= ul_start();
-      if (plc_is_admin()) 
+      if (plc_is_admin())
 	$bullet_item .= leaf ( href(l_slices_my_site(), 'My Site Slices'));
       if( plc_is_admin() || plc_is_pi() ) {
 	$bullet_item .= leaf(href(l_slice_add(),"Create Slice"));
       }
-      if( !( plc_is_tech() && ! plc_is_user() && ! plc_is_pi() && ! plc_is_admin() ) ) 
+      if( !( plc_is_tech() && ! plc_is_user() && ! plc_is_pi() && ! plc_is_admin() ) )
 	$bullet_item .= leaf(href(l_sirius(),"Sirius"));
       $bullet_item .= ul_end();
       $items [] = expanded($bullet_item);
@@ -286,14 +286,16 @@ function planetlab_login_submit($form_id, $form_values) {
 
   // Our referring page is encased in a query string of the form
   // "destination=referrer".
-  parse_str(drupal_get_destination()); // => $destination
+  parse_str(drupal_get_destination(), $variables);
+  $destination = $variables['destination'];
 
   // The referrer itself is a URL path with the original query string,
   // e.g. "referer.php?query".
   extract(parse_url($destination)); // => $query
 
   // Which we then have to parse again as a query string.
-  parse_str($query); // => $url
+  parse_str($query, $variables);
+  $url = $variables['url'];
 
   if ($plc->person) {
     // To handle the edge case where this function is called during a
@@ -387,7 +389,7 @@ function planetlab_page() {
     }
     return $output;
   }
-	    
+
   drupal_not_found();
 }
 
