@@ -17,6 +17,18 @@
 // $Id$ $
 //
 
+// warning: Undefined array key "#validated" in /var/www/html/includes/form.inc on line 228.
+
+set_error_handler(function(int $errno, string $errstr) {
+    if ((strpos($errstr, 'Undefined array key') !== false) && (strpos($errstr, '/var/www/html/includes/') !== false))
+        return false;
+    // for filtering undefined variables
+//        if (strpos($errstr, 'Undefined variable') !== false)
+//        return false;
+    return true;
+    }, E_WARNING);
+
+
 // Usually in /etc/planetlab/php
 require_once 'plc_config.php';
 
