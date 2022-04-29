@@ -224,8 +224,8 @@ if ($type == 'Event') {
 
   $event_objs = $api->GetEventObjects(array('object_id'=>$object_ids,'object_type'=>$object_type),array('event_id'));
   // get set of event_ids
-  $event_ids = array_map ( create_function ('$eo','return $eo["event_id"];') , $event_objs);
-    
+  $event_ids = array_map (function ($eo) {return $eo["event_id"];} , $event_objs);
+
   $events = $api->GetEvents (array('event_id'=>$event_ids));
 
   // see actual display of $title and $events below

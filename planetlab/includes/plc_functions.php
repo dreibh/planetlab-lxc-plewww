@@ -317,15 +317,18 @@ function plc_role_global_hash ($api) {
 }
 
 // because GetRoles does not correctly support filters, it's really painful to do this
-function sort_roles ($r1, $r2) { return $r2['role_id'] - $r1['role_id']; }
 function roles_except ($roles, $exception_ids) {
   $result=array();
-  if ($roles) foreach ($roles as $role) {
+  if ($roles)
+    foreach ($roles as $role) {
       if ( ! in_array ($role['role_id'],$exception_ids) ) {
 	$result[]=$role;
       }
     }
-  usort($result,sort_roles);
+
+  usort($result,
+        function ($r1, $r2) { return $r2['role_id'] - $r1['role_id']; }
+      );
   return $result;
 }
 

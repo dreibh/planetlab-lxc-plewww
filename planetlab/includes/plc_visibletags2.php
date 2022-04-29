@@ -45,7 +45,7 @@ class VisibleTags {
     }
 
     // sort upon 'rank'
-    usort ($columns, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
+    usort ($columns, function($col1, $col2) { return strcmp($col1["header"],$col2["header"]); });
 
     # cache for next time
     $this->columns=$columns;
@@ -56,7 +56,8 @@ class VisibleTags {
 
   // extract tagname
   function column_names () {
-    return array_map(create_function('$tt','return $tt["tagname"];'),$this->columns());
+    return array_map(function($tt) {return $tt["tagname"];},
+                     $this->columns());
   }
 
   // to add with array_merge to the headers part of the Plekit Table

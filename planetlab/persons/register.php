@@ -101,8 +101,9 @@ foreach ($person_form as $name => $item) {
 
 // Filter out "Select a site"
 if (!empty($person['site_ids'])) {
-  $person['site_ids'] = array_filter($person['site_ids'],
-				     create_function('$site_id', 'return intval($site_id) > 0;'));
+  $person['site_ids'] = array_filter(
+    $person['site_ids'],
+		function($site_id, {return intval($site_id) > 0;}))
 }
 
 //////////////////// minimal checking

@@ -652,7 +652,7 @@ $toggle_nodes=new PlekitToggle('my-slice-nodes-configuration',
 				     'info-visible'=>$show_layout_info));
 $toggle_nodes->start();
 
-//usort ($table_headers, create_function('$col1,$col2','return strcmp($col1["header"],$col2["header"]);'));
+//usort ($table_headers, function($col1, $col2) {return strcmp($col1["header"],$col2["header"]);}));
 //print("<p>TABLE HEADERS<p>");
 //print_r($table_headers);
 

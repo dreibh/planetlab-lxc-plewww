@@ -78,7 +78,8 @@ else
 $tmp_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false, 'source'=>'myplc');
 }
 
-usort ($tmp_headers, create_function('$col1,$col2','return strcmp($col1["label"],$col2["label"]);'));
+usort ($tmp_headers,
+	   function($col1, $col2) {return strcmp($col1["label"], $col2["label"]);});
 
 foreach ($tmp_headers as $t)
 $this->all_headers[$t['header']] = $t;
