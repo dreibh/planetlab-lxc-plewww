@@ -285,15 +285,22 @@ EOF;
       $text = "n/a";
     $html = "";
     $html .= "<td";
-    $option = get_array($options, 'class');
-    if ($option)
-      $html .= " class='$option'";
-    $option = get_array($options, 'columns');
-      if ($option) $html .= " colspan='$option'";
-    $option = get_array($options, 'hfill');
-      if ($option) $html .= " colspan='" . $this->columns() . "'";
-    $option = get_array($options, 'align');
-    	if ($option) $html .= " style='text-align:$option'";
+    // xxx this should not happen, but we see it sometimes - ignoring for now
+    if ($options && ! is_array($options)) {
+      //print_r("<br>options=");
+      //var_dump($options);
+    }
+  if ($options && is_array($options)) {
+      $option = get_array($options, 'class');
+      if ($option)
+        $html .= " class='$option'";
+      $option = get_array($options, 'columns');
+        if ($option) $html .= " colspan='$option'";
+      $option = get_array($options, 'hfill');
+        if ($option) $html .= " colspan='" . $this->columns() . "'";
+      $option = get_array($options, 'align');
+        if ($option) $html .= " style='text-align:$option'";
+    }
     $html .= ">$text</td>";
     return $html;
   }

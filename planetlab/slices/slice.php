@@ -31,7 +31,7 @@ drupal_set_html_head('
 
 
 $profiling=false;
-if ($get_array($_GET, 'profiling')) $profiling=true;
+if (get_array($_GET, 'profiling')) $profiling=true;
 
 if ($profiling)  plc_debug_prof_start();
 
