@@ -22,7 +22,7 @@ require_once 'toggle.php';
 
 // -------------------- 
 // recognized URL arguments
-$person_id=intval($_GET['id']);
+$person_id=intval(get_array($_GET, 'id'));
 if ( ! $person_id ) { 
   plc_error('Malformed URL - id not set'); 
   return;

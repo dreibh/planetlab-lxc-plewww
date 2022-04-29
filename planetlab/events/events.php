@@ -25,9 +25,9 @@ ini_set("memory_limit","256M");
 drupal_set_title('Events');
 
 // as per index.php, we get here if _GET['type'] is set
-$type = $_GET['type'];
-$from_date = $_GET['from_date'];
-$until_date = $_GET['until_date'];
+$type = get_array($_GET, 'type');
+$from_date = get_array($_GET, 'from_date');
+$until_date = get_array($_GET, 'until_date');
 
 $messages=array();
 
@@ -147,7 +147,7 @@ $filter['[time']=$until_time;
 if ($type == 'Event') {
 
   // and the filter applied for fetching events using GetEvent
-  $user_desc=$_GET['event'];
+  $user_desc=get_array($_GET, 'event');
   if ( ! empty($user_desc)) {
     // should parse stuff like 45-90,230-3000 - some other day
     $filter['event_id']=intval($user_desc);

@@ -23,7 +23,7 @@ return;
 
 
   // get slice id from GET
-  $slice_id= intval( $_GET['add'] );
+  $slice_id= intval( get_array($_GET, 'add') );
   
   // get all tag types 
   $tag_types= $api->GetTagTypes( $tag_type_filter , array( "tag_type_id", "tagname" ) );
@@ -63,7 +63,7 @@ return;
   
 }
 else {
-  $tag_id= intval( $_GET['id'] );
+  $tag_id= intval( get_array($_GET, 'id') );
   
   // get tag
   $slice_tag= $api->GetSliceTags( array( $tag_id ), array( "slice_id", "slice_tag_id", "tag_type_id", "value", "description", "min_role_id" ) );

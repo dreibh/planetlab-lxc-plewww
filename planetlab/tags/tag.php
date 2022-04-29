@@ -21,7 +21,7 @@ require_once 'toggle.php';
 
 // -------------------- 
 // recognized URL arguments
-$tag_type_id=intval($_GET['id']);
+$tag_type_id=intval(get_array($_GET, 'id'));
 if ( ! $tag_type_id ) { 
   plc_error('Malformed URL - id not set'); 
   return;

@@ -18,7 +18,7 @@ $_roles= $_person['role_ids'];
 $is_submitted= isset($_POST['submitted']) ? $_POST['submitted'] : 0;
 
 // show details for the current user.
-if( isset($_GET['id']) && is_numeric($_GET['id']) ) {
+if( get_array($_GET, 'id') && is_numeric($_GET['id']) ) {
   $person_id= intval($_GET['id']);
  } else {
   plc_redirect (l_sites());

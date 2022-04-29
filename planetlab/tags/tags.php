@@ -19,7 +19,7 @@ require_once 'form.php';
 
 // -------------------- 
 // recognized URL arguments
-$pattern=$_GET['pattern'];
+$pattern=get_array($_GET, 'pattern');
 
 // --- decoration
 $title="Tag Types";

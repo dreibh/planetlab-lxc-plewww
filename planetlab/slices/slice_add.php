@@ -25,13 +25,13 @@ if ( ! $has_privileges ) {
 
 // find out which site the slice should be added to
 // without site_id set in GET, we use the first site that this user is in
-if (isset($_GET['site_id'])) {
+if (get_array($_GET['site_id'])) {
   $site_id=intval($_GET['site_id']);
- } else if (isset ($_POST['site_id'])) {
+} else if (get_array($_POST, 'site_id')) {
   $site_id=intval($_POST['site_id']);
- } else {
+} else {
   $site_id=plc_my_site_id();
- }
+}
 
 //////////////////// action
 if ( $_POST['add-slice'] ) {

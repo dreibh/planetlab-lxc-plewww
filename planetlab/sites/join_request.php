@@ -186,20 +186,12 @@ $_roles= $_person['role_ids'];
 
 // only admins are allowed to view this page
 if( !in_array( '10', $_roles ) ) {
-
     print("<p> not allowed to view this page </p>");
-}
-else if (get_array($_GET, 'review'))
-{
-
+} else if (get_array($_GET, 'review')) {
     //print review page
     drupal_set_title('Join Request - Review');
-    render_join_request_review($api, $_GET['site_id']);
-
-}
-else if (get_array($_POST, 'submitted'))
-{
-
+    render_join_request_review($api, get_array($_GET, 'site_id'));
+} else if (get_array($_POST, 'submitted')) {
   // parse the form
   $site_form = build_site_form(FALSE);
   $input = parse_form ($site_form, $_REQUEST, $input);

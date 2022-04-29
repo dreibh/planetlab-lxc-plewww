@@ -215,7 +215,7 @@ if ($pattern) {
  }
 
 // server-side selection on peerscope
-$peerscope=new PeerScope($api,$_GET['peerscope']);
+$peerscope=new PeerScope($api,get_array($_GET, 'peerscope'));
 $node_filter=array_merge($node_filter,$peerscope->filter());
 $title .= ' - ' . $peerscope->label();
 

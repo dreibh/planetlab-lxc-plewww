@@ -23,7 +23,7 @@ require_once 'plc_objects.php';
 
 // -------------------- 
 // recognized URL arguments
-$node_id=intval($_GET['id']);
+$node_id=intval(get_array($_GET, 'id'));
 if ( ! $node_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////

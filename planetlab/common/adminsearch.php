@@ -31,8 +31,8 @@ if ( ! plc_is_admin()) {
  }
 
 $pattern="";
-if (isset($_GET['pattern'])) { $pattern=$_GET['pattern']; }
-if (isset($_POST['pattern'])) { $pattern=$_POST['pattern']; }
+if (get_array($_GET,  'pattern')) { $pattern=$_GET['pattern']; }
+if (get_array($_POST, 'pattern')) { $pattern=$_POST['pattern']; }
 
 $tokens=explode(" ",$pattern);
 function token_filter ($t) { $t = trim($t); if (empty($t)) return false; return true; }

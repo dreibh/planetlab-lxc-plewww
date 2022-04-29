@@ -22,13 +22,13 @@ plekit_linetabs ($tabs);
 
 // -------------------- 
 // recognized URL arguments
-if ( $_GET['peername'] ) {
+if ( get_array($_GET, 'peername') ) {
   $peername= $_GET['peername'];
   $peers = $api->GetPeers( array( $peername ), array( "peer_id" ) );
   $peer_id=$peers[0]['peer_id'];
 
  } else {
-  $peer_id=intval($_GET['id']);
+  $peer_id=intval(get_array($_GET, 'id'));
  }
 
 if ( ! $peer_id ) { plc_error('Malformed URL - id not set'); return; }
