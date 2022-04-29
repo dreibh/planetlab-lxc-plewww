@@ -29,8 +29,6 @@ drupal_set_html_head('
 <link href="/planetlab/css/my_slice.css" rel="stylesheet" type="text/css" />
 ');
 
-// -------------------- admins potentially need to get full list of users
-//error_reporting(0);
 
 $profiling=false;
 if ($get_array($_GET, 'profiling')) $profiling=true;

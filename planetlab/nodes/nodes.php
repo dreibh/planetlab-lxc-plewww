@@ -28,8 +28,6 @@ drupal_set_html_head('
 ');
 
 
-//error_reporting(0);
-
 // -------------------- 
 // recognized URL arguments
 $peerscope = get_array($_GET, 'peerscope');
