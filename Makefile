@@ -41,6 +41,7 @@ ifeq (,$(SSHURL))
 	@exit 1
 else
 	+$(RSYNC) planetlab plekit modules $(SSHURL)/var/www/html/
+	+$(RSYNC) drupal-hacks/*.module $(SSHURL)/var/www/html/modules/
 endif
 
 compress:
