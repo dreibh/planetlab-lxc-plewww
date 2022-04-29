@@ -23,4 +23,4 @@ $stringData = date('Ymd-H:i')."|".$person_id.":".$slice_id.":".$value."\n";
 fwrite($fh, $stringData);
 fclose($fh);
 
-?> 
+?>

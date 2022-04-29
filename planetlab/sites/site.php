@@ -22,9 +22,9 @@ require_once 'details.php';
 require_once 'form.php';
 require_once 'toggle.php';
 
-// -------------------- 
+// --------------------
 // recognized URL arguments
-$site_id=intval($_GET['id']);
+$site_id = intval($_GET['id']);
 if ( ! $site_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////
@@ -53,7 +53,7 @@ $max_slices= $site['max_slices'];
 $enabled = $site['enabled'];
 $ext_consortium_id = $site ['ext_consortium_id'];
 
-// get peer 
+// get peer
 $peer_id= $site['peer_id'];
 $peers = new Peers ($api);
 $local_peer = ! $peer_id;
@@ -62,7 +62,7 @@ $local_peer = ! $peer_id;
 $is_site_pi = ( $local_peer && plc_is_pi() && plc_in_site($site_id) );
 $is_site_tech = ( $local_peer && plc_is_pi() && plc_in_site($site_id) );
 $is_site_admin = ($local_peer && plc_is_admin());
-  
+
 $address_ids= $site['address_ids'];
 $pcu_ids= $site['pcu_ids'];
 $node_ids= $site['node_ids'];
@@ -116,7 +116,7 @@ if ($persons) foreach( $persons as $person ) {
   if ( in_array( '20', $role_ids ))	$pis[] = $person;
   if ( in_array( '40', $role_ids ))	$techs[] = $person;
   if ( ! $person['enabled'] )		$disabled_persons[] = $person;
-  
+
 }
 
 $has_disabled_persons = count ($disabled_persons) !=0;
@@ -127,7 +127,7 @@ if ($slices) foreach ($slices as $slice) $slivers_count += count ($slice['node_i
 
 ////////////////////////////////////////
 drupal_set_title("Details for site " . $sitename);
-  
+
 $tabs=array();
 
 $tabs []= tab_mysite();
@@ -148,7 +148,7 @@ if ( $is_site_admin)
 			'bubble'=>"Delete site $sitename",
 			'confirm'=>"Are you sure you want to delete site $login_base");
 
-if ( $is_site_pi ) 
+if ( $is_site_pi )
   $tabs ['Add slice'] = array ('url'=>l_slice_add(),
 			      'method'=>'post',
 			      'bubble'=>'Create new slice in site');
@@ -173,14 +173,14 @@ if ( $local_peer ) {
   // pending site
   global $PENDING_CONSORTIUM_ID;
   if ( $ext_consortium_id === $PENDING_CONSORTIUM_ID) {
-    if ( ! $enabled ) 
-      plc_warning ("This site is under pending registration - Please visit " . 
-		   href (l_sites_pending(),"this page") . 
+    if ( ! $enabled )
+      plc_warning ("This site is under pending registration - Please visit " .
+		   href (l_sites_pending(),"this page") .
 		   " to review pending applications.");
-    else 
+    else
       plc_warning ("This site is pending but is also enabled - something is wrong. You should fix the issue with plcsh");
   } else {
-    if ( ! $enabled) 
+    if ( ! $enabled)
       plc_warning ("This site is disabled.");
   }
 }
@@ -199,7 +199,7 @@ $f = $details->form_start(l_actions(),array('action'=>'update-site','site_id'=>$
 
 $details->start();
 
-if ( ! $site['is_public']) 
+if ( ! $site['is_public'])
   $details->tr(plc_warning_html("This site is not public!"));
 
 $details->th_td("Full name",$sitename,'name',array('width'=>50));
@@ -209,7 +209,7 @@ $details->th_td("Latitude",$site_lat,'latitude');
 $details->th_td("Longitude",$site_long,'longitude');
 
 // modifiable by admins only
-if (plc_is_admin()) 
+if (plc_is_admin())
   $details->th_td("Login base",$login_base,'login_base',array('width'=>12));
 else
   $details->th_td("Login base",$login_base);
@@ -219,7 +219,7 @@ else
   $details->th_td("Max slices",$max_slices);
 if (plc_is_admin())
 {
-  $selectors=array(array('display'=>"False",'value'=>'0'), 
+  $selectors=array(array('display'=>"False",'value'=>'0'),
   				   array('display'=>"True",'value'=>'1'));
   $selectors[intval($enabled)]['selected'] = 'selected';
 
@@ -249,7 +249,7 @@ if ( $local_peer ) {
   $nodes_title = "Nodes : ";
   $nodes_title .= count($nodes) . " total";
   $nodes_title .= " / " . $nb_boot . " boot";
-  if ($nb_boot < 2 ) 
+  if ($nb_boot < 2 )
     $nodes_title = plc_warning_html ($nodes_title);
   $nodes_title .= href(l_nodes_site($site_id)," (See as nodes)");
 
@@ -260,7 +260,7 @@ if ( $local_peer ) {
   $headers=array();
   $sort_column = '0';
   if ($display_pcus) { $headers['PCU']='string'; $sort_column = '1' ; }
-  $headers['hostname']='string'; 
+  $headers['hostname']='string';
   $headers['state']='string';
 
   $table = new PlekitTable ('nodes',$headers,$sort_column,array('search_area'=>false,
@@ -298,7 +298,7 @@ if ( $local_peer ) {
     $table->row_end();
   }
   // show undisplayed PCU's if any
-  if ($display_pcus) 
+  if ($display_pcus)
     if ($pcu_hash) foreach ($pcu_hash as $id=>$pcu) {
 	if (!$pcu['displayed']) {
 	  $table->row_start();
@@ -306,7 +306,7 @@ if ( $local_peer ) {
 	  $table->row_end();
 	}
       }
-    
+
   $table->tfoot_start();
   $table->row_start();
   $button=new PlekitFormButton (l_node_add(),"node_add","Add node","POST");
@@ -314,15 +314,15 @@ if ( $local_peer ) {
   $table->row_end();
   $table->end();
   $toggle->end();
-    
+
   //////////////////// Users
   $persons_title = "Users : ";
   $persons_title .= count($person_ids) . " total";
   $persons_title .= " / " . count ($pis) . " PIs";
   $persons_title .= " / " . count ($techs) . " Techs";
-  if ($has_disabled_persons) 
+  if ($has_disabled_persons)
     $persons_title .= " / " . count($disabled_persons) . " Disabled";
-  if ( (count ($pis) == 0) || (count ($techs) == 0) || (count($person_ids) >= 30) || count($disabled_persons) != 0 ) 
+  if ( (count ($pis) == 0) || (count ($techs) == 0) || (count($person_ids) >= 30) || count($disabled_persons) != 0 )
     $persons_title = plc_warning_html ($persons_title);
   $persons_title .= href(l_persons_site($site_id)," (See as users)");
 
@@ -360,10 +360,10 @@ if ( $local_peer ) {
   $slices_title .= $max_slices . " max";
   $slices_title .= " / " . count($slice_ids) . " running";
   $slices_title .= " / $slivers_count slivers";
-  if (count($slice_ids) >= $max_slices) 
+  if (count($slice_ids) >= $max_slices)
     $slices_title = plc_warning_html($slices_title);
   $slices_title .= href(l_slices_site($site_id)," (See as slices)");
-  
+
   $toggle=new PlekitToggle ('slices',$slices_title,
 			    array('visible'=>get_arg('show_slices')));
   $toggle->start();
@@ -395,7 +395,7 @@ if ( $local_peer ) {
     $table->row_start();
     $table->cell($button->html(),array('hfill'=>true,'align'=>'right'));
   }
-    
+
   $table->end();
   $toggle->end();
 
@@ -404,13 +404,13 @@ if ( $local_peer ) {
   //////////////////////////////////////////////////////////// Tags
   // tags section
   // already inside a if ( $local_peer )...
-  
+
   $tags=$api->GetSiteTags (array('site_id'=>$site_id));
   function get_tagname ($tag) { return $tag['tagname'];}
-  // xxx looks like tech-only see an error here, 
+  // xxx looks like tech-only see an error here,
   // might be that GetSiteTags is not accessible or something
   $tagnames = array_map ("get_tagname",$tags);
-  
+
   $toggle = new PlekitToggle ('tags',count_english($tags,'tag'),
 			      array('bubble'=>'Inspect and set tags on that site',
 				    'visible'=>get_arg('show_tags')));
@@ -420,7 +420,7 @@ if ( $local_peer ) {
 		 "Value"=>"string",
 		 );
   if (plc_is_admin()) $headers[plc_delete_icon()]="none";
-  
+
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
   $table=new PlekitTable("site_tags",$headers,0,$table_options);
   $table->start();
@@ -432,11 +432,11 @@ if ( $local_peer ) {
       if (plc_is_admin()) $table->cell ($form->checkbox_html('site_tag_ids[]',$tag['site_tag_id']));
       $table->row_end();
     }
-  
+
   if ($is_site_pi || $is_site_admin) {
     $table->tfoot_start();
 
-    // remove tag 
+    // remove tag
     $table->row_start();
     $table->cell($form->submit_html("delete-site-tags","Remove Tags"),
 		 // use the whole columns and right adjust
@@ -445,9 +445,9 @@ if ( $local_peer ) {
 
     // set tag area
     $table->row_start();
-    // get list of tag names in the site/* category    
+    // get list of tag names in the site/* category
     $all_tags= $api->GetTagTypes( array ("category"=>"site*","-SORT"=>"tagname"), array("tagname","tag_type_id"));
-    // xxx cannot use onchange=submit() - would need to somehow pass action name 
+    // xxx cannot use onchange=submit() - would need to somehow pass action name
     function tag_selector ($tag) { return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']); }
     $selector=array_map("tag_selector",$all_tags);
     $table->cell($form->select_html("tag_type_id",$selector,array('label'=>"Choose")));
@@ -455,7 +455,7 @@ if ( $local_peer ) {
     $table->cell($form->submit_html("set-tag-on-site","Set Tag"),array('columns'=>2,'align'=>'left'));
     $table->row_end();
   }
-  
+
   $table->end();
   $toggle->end();
   $form->end();

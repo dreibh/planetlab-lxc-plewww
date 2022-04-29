@@ -11,9 +11,9 @@ global $plc, $api;
 
 // Print header
 require_once 'plc_drupal.php';
-// set default 
+// set default
 drupal_set_title('DB Search');
-include 'plc_header.php'; 
+include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
@@ -40,7 +40,7 @@ $tokens=array_filter($tokens, "token_filter");
 
 
 ////////////////////
-// from a single search form, extract all tokens entered 
+// from a single search form, extract all tokens entered
 // and then show all entities that match one of that tokens among
 // persons - sites - slices - nodes
 ////////////////////
@@ -56,11 +56,11 @@ function display_form ($pattern) {
   $toggle->start();
   print <<< EOF
 <p id='admin-search-message'>
-This form searches for <span class="bold">any entry</span> in the database 
-(among <span class="bold">persons</span>, <span class="bold">slices</span>, 
-<span class="bold">sites</span> and <span class="bold">nodes</span>) 
+This form searches for <span class="bold">any entry</span> in the database
+(among <span class="bold">persons</span>, <span class="bold">slices</span>,
+<span class="bold">sites</span> and <span class="bold">nodes</span>)
 matching a name fragment, or token. <br/>
-You can specify a space-separated list of tokens, all entries matching 
+You can specify a space-separated list of tokens, all entries matching
 <span class="bold">any token</span> would then get listed.
 </p>
 EOF;
@@ -108,7 +108,7 @@ function generic_search ($type,$field,$tokens) {
 // then, e.g. on slice,  $key='site_id'  & $plural=false
 // or,   e.g. on person, $key='site_ids'  & $plural=true
 function generic_gather_related ($objects, $key, $plural) {
-  if ( empty ($objects)) 
+  if ( empty ($objects))
     return array();
   // else, look for either 'site_id' or 'site_ids' in the first object
   $sample=$objects[0];
@@ -128,7 +128,7 @@ function generic_gather_related ($objects, $key, $plural) {
   }
 }
 
-////////// 
+//////////
 // create link from an id, using the various global hashes
 function plc_person_link ($person_id) {global $persons_hash; return l_person_obj($persons_hash[$person_id]);}
 function plc_slice_link ($slice_id) {global $slices_hash; return l_slice_obj($slices_hash[$slice_id]);}
@@ -143,7 +143,7 @@ $peers = new Peers ($api);
 
 function display_persons ($persons,$visible) {
   if ( ! $persons) return;
-  
+
   $toggle=new PlekitToggle('persons-area',"Persons",array('visible'=>$visible));
   $toggle->start();
 
@@ -158,7 +158,7 @@ function display_persons ($persons,$visible) {
   $table=new PlekitTable('persons',$headers,1,$table_options);
   $table->start();
   foreach ($persons as $person) {
-    $table->row_start();	
+    $table->row_start();
     $table->cell($person['person_id']);
     $peers->cell($table,$person['peer_id']);
     $table->cell(l_person_obj($person));
@@ -173,7 +173,7 @@ function display_persons ($persons,$visible) {
 
 function display_slices ($slices,$visible) {
   if ( ! $slices) return;
-  
+
   $toggle=new PlekitToggle('slices-area',"Slices",array('visible'=>$visible));
   $toggle->start();
 
@@ -188,7 +188,7 @@ function display_slices ($slices,$visible) {
   $table=new PlekitTable('slices',$headers,1,$table_options);
   $table->start();
   foreach ($slices as $slice) {
-    $table->row_start();	
+    $table->row_start();
     $table->cell($slice['slice_id']);
     $peers->cell($table,$slice['peer_id']);
     $table->cell(l_slice_obj($slice));
@@ -207,7 +207,7 @@ function display_slices ($slices,$visible) {
 
 function display_sites ($sites,$visible) {
   if ( ! $sites) return;
-  
+
   $toggle=new PlekitToggle('sites-area',"Sites",array('visible'=>$visible));
   $toggle->start();
 
@@ -223,7 +223,7 @@ function display_sites ($sites,$visible) {
   $table=new PlekitTable('sites',$headers,1,$table_options);
   $table->start();
   foreach ($sites as $site) {
-    $table->row_start();	
+    $table->row_start();
     $table->cell($site['site_id']);
     $peers->cell($table,$site['peer_id']);
     $table->cell(l_site_obj($site));
@@ -239,7 +239,7 @@ function display_sites ($sites,$visible) {
 
 function display_nodes ($nodes,$visible) {
   if ( ! $nodes) return;
-  
+
   $toggle=new PlekitToggle('nodes-area',"Nodes",array('visible'=>$visible));
   $toggle->start();
 
@@ -253,7 +253,7 @@ function display_nodes ($nodes,$visible) {
   $table=new PlekitTable('nodes',$headers,1,$table_options);
   $table->start();
   foreach ($nodes as $node) {
-    $table->row_start();	
+    $table->row_start();
     $table->cell($node['node_id']);
     $peers->cell($table,$node['peer_id']);
     $table->cell(l_node_obj($node));
@@ -313,9 +313,9 @@ if ($pattern) {
   } else {
     $visible=false;
   }
-  
 
-  ////////// collect all related objects 
+
+  ////////// collect all related objects
   $rel_person_ids = array();
   $rel_person_ids = array_merge($rel_person_ids, generic_gather_related ($sites,'person_ids',true));
   $rel_person_ids = array_merge($rel_person_ids, generic_gather_related ($slices,'person_ids',true));

@@ -60,7 +60,7 @@ function plc_my_person_id () {
   return $plc->person['person_id'];
 }
 
-//////////////////////////////////////////////////////////// links    
+//////////////////////////////////////////////////////////// links
 function href ($url,$text) { return "<a href='" . $url . "'>" . $text . "</a>"; }
 
 // naming scheme is
@@ -93,7 +93,7 @@ function l_nodes_slice ($slice_id)	{ return "/db/nodes/index.php?slice_id=$slice
 
 function l_interface ($interface_id)	{ return "/db/nodes/interface.php?id=$interface_id"; }
 function l_interface_tags($interface_id){ return "/db/nodes/interface.php?id=$interface_id&show_tags=1"; }
-function l_interface_t ($interface_id,$text) { 
+function l_interface_t ($interface_id,$text) {
 					  return href (l_interface($interface_id),$text); }
 function l_interface_add($node_id)	{ return "/db/nodes/interface.php?node_id=$node_id"; }
 
@@ -118,7 +118,7 @@ function l_slices_local()		{ return "/db/slices/index.php?peerscope=local"; }
 function l_slice_obj ($slice)		{ return l_slice_t ($slice['slice_id'],$slice['name']); }
 
 function l_sliver ($node_id,$slice_id)	{ return "/db/nodes/slivers.php?node_id=$node_id&slice_id=$slice_id"; }
-function l_sliver_t ($node_id,$slice_id,$text) { 
+function l_sliver_t ($node_id,$slice_id,$text) {
 					  return href (l_sliver($node_id,$slice_id),$text) ; }
 
 function l_persons ()			{ return "/db/persons/index.php&active_line_tab=All Accounts"; }
@@ -138,9 +138,9 @@ function l_tag_roles ($tag_type_id)	{ return "/db/tags/index.php?id=$tag_type_id
 
 function l_nodegroups ()		{ return "/db/tags/nodegroups.php"; }
 function l_nodegroup ($nodegroup_id)	{ return "/db/tags/nodegroup.php?id=$nodegroup_id"; }
-function l_nodegroup_t ($nodegroup_id,$text) { 
+function l_nodegroup_t ($nodegroup_id,$text) {
 					  return href(l_nodegroup($nodegroup_id),$text); }
-function l_nodegroup_obj ($nodegroup) { 
+function l_nodegroup_obj ($nodegroup) {
 					  return href(l_nodegroup($nodegroup['nodegroup_id']),$nodegroup['groupname']); }
 
 function l_events ()			{ return "/db/events/index.php"; }
@@ -168,15 +168,15 @@ function l_site_review_pending($site_id){ return "/db/sites/join_request.php?rev
 
 
 //////////////////////////////////////////////////////////// nav tabs
-function tab_nodes ()		{ return array ('label'=>'All nodes','url'=>l_nodes(), 
+function tab_nodes ()		{ return array ('label'=>'All nodes','url'=>l_nodes(),
 						'bubble'=>'Display nodes from all peers'); }
-function tab_nodes_local ()	{ return array ('label'=>'Local nodes', 'url'=>l_nodes_peer('local'), 
+function tab_nodes_local ()	{ return array ('label'=>'Local nodes', 'url'=>l_nodes_peer('local'),
 						'bubble'=>'Display all nodes local to this peer'); }
-function tab_nodes_site($site_id){ return array ('label'=>'Site nodes', 'url'=>l_nodes_site($site_id), 
+function tab_nodes_site($site_id){ return array ('label'=>'Site nodes', 'url'=>l_nodes_site($site_id),
 						 'bubble'=>'Display nodes on that site'); }
-function tab_nodes_slice($slice_id){ return array ('label'=>'Slice nodes', 'url'=>l_nodes_slice($slice_id), 
+function tab_nodes_slice($slice_id){ return array ('label'=>'Slice nodes', 'url'=>l_nodes_slice($slice_id),
 						 'bubble'=>'Display nodes for that slice'); }
-function tab_nodes_mysite ()	{ return array ('label'=>'My site nodes', 'url'=>l_nodes_my_site(), 
+function tab_nodes_mysite ()	{ return array ('label'=>'My site nodes', 'url'=>l_nodes_my_site(),
 						'bubble'=>'Display nodes on my site'); }
 function tab_nodes_all_mysite (){ return array ('label'=>'All My site nodes', 'url'=>l_nodes_all_my_site(),
 						'bubble'=>'Display nodes on all my sites'); }
@@ -188,16 +188,16 @@ function tab_site($site)	{ return array ('label'=>'Site '.$site['login_base'], '
 function tab_mysite()		{ return array ('label'=>'My site', 'url'=>l_site(plc_my_site_id()),
 						'bubble'=>'Details for site ' . plc_my_site_id()); }
 function tab_sites ()		{ return array ('label'=>'All sites' , 'url'=>l_sites(), 'bubble'=> 'Display all sites'); }
-function tab_sites_local ()	{ return array ('label'=>'Local sites' , 'url'=>l_sites_peer('local'), 
+function tab_sites_local ()	{ return array ('label'=>'Local sites' , 'url'=>l_sites_peer('local'),
 						'bubble'=> 'Display all siteslocal to this peer'); }
 //////////
 function tab_slices()		{ return array ('label'=>'All slices', 'url'=>l_slices(),
 						'bubble' => 'Display all slices'); }
 function tab_slices_person()	{ return array ('label'=>'My slices', 'url'=>l_slices_person(plc_my_person_id()),
 						'bubble' => 'Display my all slices'); }
-function tab_slices_mysite ()	{ return array ('label'=>'My site slices', 'url'=>l_slices_my_site(), 
+function tab_slices_mysite ()	{ return array ('label'=>'My site slices', 'url'=>l_slices_my_site(),
 						'bubble'=>'Display all slices on my site'); }
-function tab_slices_local ()	{ return array ('label'=>'Local slices', 'url'=>l_slices_local(), 
+function tab_slices_local ()	{ return array ('label'=>'Local slices', 'url'=>l_slices_local(),
 						'bubble'=>'Display all slices local to this peer'); }
 function tab_slice($slice)	{ return array ('label'=>'Slice '.$slice['name'], 'url'=>l_slice($slice['slice_id']),
 						'bubble' => 'Details for ' . $slice['name']); }
@@ -298,7 +298,7 @@ function is_reserved_network_addr($network_addr) {
   foreach ($reserved_ips as $r) {
     $min = ip2long($r[0]);
     $max = ip2long($r[1]);
-      
+
     if (($lNetwork >= $min) && ($lNetwork <= $max))
       return true;
   }
@@ -322,7 +322,7 @@ function roles_except ($roles, $exception_ids) {
   if ($roles)
     foreach ($roles as $role) {
       if ( ! in_array ($role['role_id'],$exception_ids) ) {
-	$result[]=$role;
+	      $result[]=$role;
       }
     }
 
@@ -347,7 +347,7 @@ function plc_nodegroup_global_hash ($api,$tagnames=NULL) {
     }
   return $hash;
 }
-  
+
 //////////////////////////////////////////////////////////// titles
 function t_site($site) { return " on site " . $site['name'] . " (" . $site['login_base'] .")"; }
 function t_slice ($slice) { return " running slice " . $slice['name'] . " (" . $slice['slice_id'] . ")"; }
@@ -390,7 +390,7 @@ function truncate_and_popup ($text,$numb,$etc = "...") {
   $display=substr($text, 0, $numb).$etc;
   return sprintf("<span title='%s'>%s</span>",$text,$display);
 }
-  
+
 // generates <(atom) class=(class)> (text) </(atom)>
 function html_atom ($atom,$text,$class="") {
   $html="<$atom";
@@ -419,7 +419,7 @@ function errors_display ($errors) {
     print( "<div class='plc-error'>" );
     print( "<p>The following errors occured:</p>" );
     print("<ul>");
-    foreach( $errors as $error ) 
+    foreach( $errors as $error )
       print( "<li>$error</li>\n" );
     print( "</ul></div>\n" );
   }
@@ -545,8 +545,8 @@ function interface_method_selectors ($api, $method, $primary) {
 			   "dhcp"=>"DHCP");
   } else {
     $builtin_methods=array("static"=>"Static",
-			   "dhcp"=>"DHCP", 
-			   "proxy"=>"Proxy",  
+			   "dhcp"=>"DHCP",
+			   "proxy"=>"Proxy",
 			   "tap"=>"TUN/TAP",
 			   "ipmi"=>"IPMI");
   }
@@ -567,7 +567,7 @@ function pretty_bandwidth ($bw) {
   else				return strval($bw/1000000000) . " Gbps";
 }
 
-//////////////////// 
+////////////////////
 function instantiation_label ($slice) {
   $instantiation_labels = array ('not-instantiated'=>'NOT',
 				 'plc-instantiated'=>'PLC',
@@ -578,7 +578,7 @@ function instantiation_label ($slice) {
   if (!$result) $result = '??';
   return $result;
 }
-  
+
 //////////////////// toggle areas
 // get_arg ('show_persons',false) returns $_GET['show_persons'] if set and false otherwise
 function get_arg ($name,$default=NULL,$method='get') {
