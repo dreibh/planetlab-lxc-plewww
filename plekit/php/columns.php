@@ -95,22 +95,19 @@ return $this->all_headers;
 
 function get_headers() {
 
-return $this->all_headers;
+	return $this->all_headers;
 
 }
 
 function get_selected_period($label) {
 
-if ($this->all_headers[$label."w"]['visible'])
+	if (get_array2($this->all_headers, $label."w", 'visible'))
 	return "w";
-else if ($this->all_headers[$label."m"]['visible'])
+	else if (get_array2($this->all_headers, $label."m", 'visible'))
 	return "m";
-else if ($this->all_headers[$label."y"]['visible'])
+	else if (get_array2($this->all_headers, $label."y", 'visible'))
 	return "y";
-else if ($this->all_headers[$label]['visible'])
-	return "";
-
-return "";
+	else return "";
 }
 
 function node_tags() {
@@ -119,7 +116,10 @@ function node_tags() {
 
 	foreach ($this->all_headers as $h)
 	{
-		if ($h['visible'] == true && $h['tagname'] != "" && !$h['fetched'] && $h['source']=="myplc")
+		if ($h['visible'] == true
+		 && $h['tagname'] != ""
+		 && !get_array($h, 'fetched')
+		 && $h['source']=="myplc")
 			$fetched_tags[] = $h['tagname'];
 	}
 
@@ -389,55 +389,44 @@ function fetch_live_data($all_nodes) {
 
 function cells($table, $node) {
 
-//$node_string = "";
 
-foreach ($this->all_headers as $h) {
+	foreach ($this->all_headers as $h) {
 
-if (!$h['fixed']) {
+		if (! get_array($h, 'fixed')) {
 
-if ($h['visible'] != "") {
+			if ($h['visible'] != "") {
 
-if ($h['source'] == "comon")
-{
-	//print("<br>Searching for ".$h['tagname']."at ".$node);
-	if ($this->ComonData != "")
-        	$value = $this->convert_data($this->ComonData[$node['hostname']][$h['tagname']], $h['tagname']);
-	else
-		$value = "n/a";
+				if ($h['source'] == "comon") {
+						//print("<br>Searching for ".$h['tagname']."at ".$node);
+						if ($this->ComonData != "")
+								$value = $this->convert_data($this->ComonData[$node['hostname']][$h['tagname']], $h['tagname']);
+						else
+							$value = "n/a";
 
-        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
-	//$node_string.= "\"".$value."\",";
-}
-else if ($h['source'] == "tophat")
-{
-	if ($this->TopHatData != "")
-        	$value = $this->convert_data($this->TopHatData[$node['hostname']][$h['tagname']], $h['type']);
-	else
-		$value = "n/a";
+							$table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+						//$node_string.= "\"".$value."\",";
+				} else if ($h['source'] == "tophat") {
+					if ($this->TopHatData != "")
+							$value = $this->convert_data($this->TopHatData[$node['hostname']][$h['tagname']], $h['type']);
+					else
+						$value = "n/a";
 
-        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
-	//$node_string.= "\"".$value."\",";
-}
-else
-{
-        //$value = $node[$h['tagname']];
-        $value = $this->convert_data($node[$h['tagname']], $h['type']);
-        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
-	//$node_string.= "\"".$value."\",";
-}
-}
-else
-	if ($node[$h['tagname']])
-	{
-        	$value = $this->convert_data($node[$h['tagname']], $h['type']);
-        	$table->cell($value, array('name'=>$h['header'], 'display'=>'none'));
+					$table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+					//$node_string.= "\"".$value."\",";
+				} else {
+					//$value = $node[$h['tagname']];
+					$value = $this->convert_data($node[$h['tagname']], $h['type']);
+					$table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+				//$node_string.= "\"".$value."\",";
+				}
+			} else if (get_array($node, $h['tagname'])) {
+				$value = $this->convert_data($node[$h['tagname']], $h['type']);
+				$table->cell($value, array('name'=>$h['header'], 'display'=>'none'));
+			} else {
+				$table->cell("n/a", array('name'=>$h['header'], 'display'=>'none'));
+			}
+		}
 	}
-	else
-        	$table->cell("n/a", array('name'=>$h['header'], 'display'=>'none'));
-}
-}
-
-//return $node_string;
 
 }
 
@@ -451,10 +440,10 @@ HTML
 
 function javascript_init() {
 
-print("<script type='text/javascript'>");
-print("highlightOption('AU');");
-print("overrideTitles();");
-print("</script>");
+	print("<script type='text/javascript'>");
+	print("highlightOption('AU');");
+	print("overrideTitles();");
+	print("</script>");
 
 }
 
@@ -507,18 +496,17 @@ print("<tr><th class='top'>Add/remove columns</th>");
 if ($showDescription)
 	print("<th class='top'>Column description and configuration</th>");
 
-print("</tr><tr><td class='top' width='300px'>");
+	print("</tr><tr><td class='top' width='300px'>");
 
 	print('<div id="scrolldiv">');
-print ("<table>");
+	print ("<table>");
 	$prev_label="";
 	$optionclass = "out";
-	foreach ($this->all_headers as $h)
-	{
+	foreach ($this->all_headers as $h) {
 		if ($h['header'] == "hostname" || $h['header'] == "ID")
 			continue;
 
-		if ($h['fixed'])
+		if (get_array($h, 'fixed'))
 			$disabled = "disabled=true";
 		else
 			$disabled = "";

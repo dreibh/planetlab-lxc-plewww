@@ -109,8 +109,8 @@ class PlekitDetails {
     if (!$options) $options = array();
     if ( ! ($this->editable && $form_varname) ) {
       // xxx hack: if input_type is select, look for the 'value' option to display current value
-      if ($options['input_type'] == "select")
-	$value=$options['value'];
+      if (get_array($options, 'input_type') == "select")
+	      $value=$options['value'];
       return "<tr><th>$title</th><td>$value</td></tr>";
     } else {
       // use options if provided, otherwise the latest set_ function

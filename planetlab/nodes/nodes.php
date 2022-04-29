@@ -32,11 +32,11 @@ drupal_set_html_head('
 
 // -------------------- 
 // recognized URL arguments
-$peerscope=$_GET['peerscope'];
-$pattern=$_GET['pattern'];
-$site_id=intval($_GET['site_id']);
-$slice_id=intval($_GET['slice_id']);
-$person_id=intval($_GET['person_id']);
+$peerscope = get_array($_GET, 'peerscope');
+$pattern = get_array($_GET, 'pattern');
+$site_id = intval(get_array($_GET, 'site_id'));
+$slice_id = intval(get_array($_GET, 'slice_id'));
+$person_id = intval(get_array($_GET, 'person_id'));
 
 // --- decoration
 $title="Nodes";

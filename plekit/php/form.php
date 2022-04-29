@@ -52,15 +52,18 @@ class PlekitForm {
   function end_html() { return "</form>"; }
 
   static function attributes ($options) {
-    $html="";
-    $names=array('id','size','selected', 'checked',
-		 'onfocus','onselect', 'onchange',
+    $html = "";
+    $names = array('id','size','selected', 'checked',
+		 'onfocus', 'onselect', 'onchange',
 		 'onkeyup', 'onmouseup', 'onclick', 'onsubmit');
-    if ($options['selected']) $options['selected']='selected';
-    if ($options['checked']) $options['checked']='checked';
-    if ($options) foreach ($options as $key=>$value) {
-	if (in_array(strtolower($key),$names))
-	  $html .= " $key='$value'";
+    if (get_array($options, 'selected'))
+      $options['selected'] = 'selected';
+    if (get_array($options, 'checked'))
+      $options['checked'] = 'checked';
+    if ($options)
+      foreach ($options as $key=>$value) {
+	      if (in_array(strtolower($key), $names))
+	        $html .= " $key='$value'";
       }
     return $html;
   }
@@ -105,17 +108,19 @@ class PlekitForm {
 
   static function select_html ($name,$selectors,$options=NULL) {
     if ( ! $options) $options=array();
-    if ( $options ['autosubmit'] ) $options['onChange']='submit()';
+    if (get_array($options, 'autosubmit'))
+      $options['onChange']='submit()';
     $html="";
     $html.="<select name='$name'";
-    if ($options['id']) $html .= " id='" . $options['id'] . "'";
-    $cbs=array('onFocus','onSelect','onChange');
+    if (get_array($options, 'id'))
+      $html .= " id='" . $options['id'] . "'";
+    $cbs = array('onFocus', 'onSelect', 'onChange');
     foreach ($cbs as $cb) {
-      if ($options[$cb])
-	$html .= " $cb='" . $options[$cb] . "'";
+      if (get_array($options, $cb))
+	      $html .= " $cb='" . $options[$cb] . "'";
     }
     $html .= ">";
-    if ($options['label']) {
+    if (get_array($options, 'label')) {
       $encoded=htmlentities($options['label'],ENT_QUOTES);
       $html.="<option selected=selected value=''>$encoded</option>";
     }
@@ -124,8 +129,10 @@ class PlekitForm {
         $display=htmlentities($selector['display'],ENT_QUOTES);
         $value=$selector['value'];
         $html .= "<option value='$value'";
-        if ($selector['selected']) $html .= " selected=selected";
-        if ($selector['disabled']) $html .= " disabled=disabled";
+        if (get_array($selector, 'selected'))
+          $html .= " selected=selected";
+        if (get_array($selector, 'disabled'))
+          $html .= " disabled=disabled";
         $html .= ">$display</option>\n";
       }
     }

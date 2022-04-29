@@ -53,7 +53,7 @@ if (!empty($_SERVER['QUERY_STRING'])) {
   $self .= "?" . $_SERVER['QUERY_STRING'];
 }
 
-$url = htmlspecialchars($_REQUEST['url']);
+$url = htmlspecialchars(get_array($_REQUEST, 'url'));
 
 // XXX Use our own stylesheet instead of drupal.css
 print <<<EOF

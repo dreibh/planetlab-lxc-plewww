@@ -11,7 +11,7 @@ global $plc, $api;
 
 // Print header
 require_once 'plc_drupal.php';
-include 'plc_header.php'; 
+include 'plc_header.php';
 
 // Common functions
 require_once 'plc_functions.php';
@@ -20,12 +20,12 @@ require_once 'linetabs.php';
 require_once 'table.php';
 require_once 'nifty.php';
 
-// -------------------- 
+// --------------------
 // recognized URL arguments
-$peerscope=$_GET['peerscope'];
-$pattern=$_GET['pattern'];
-$site_id=intval($_GET['site_id']);
-$slice_id=intval($_GET['slice_id']);
+$peerscope=get_array($_GET, 'peerscope');
+$pattern=get_array($_GET, 'pattern');
+$site_id=intval(get_array($_GET, 'site_id'));
+$slice_id=intval(get_array($_GET, 'slice_id'));
 
 // --- decoration
 $title="Accounts";
@@ -85,7 +85,7 @@ if ($pattern) {
  }
 
 // server-side selection on peerscope
-$peerscope=new PeerScope ($api,$_GET['peerscope']);
+$peerscope=new PeerScope ($api, get_array($_GET, 'peerscope'));
 $person_filter=array_merge($person_filter,$peerscope->filter());
 $title .= ' - ' . $peerscope->label();
 

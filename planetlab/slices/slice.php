@@ -33,13 +33,13 @@ drupal_set_html_head('
 //error_reporting(0);
 
 $profiling=false;
-if ($_GET['profiling']) $profiling=true;
+if ($get_array($_GET, 'profiling')) $profiling=true;
 
 if ($profiling)  plc_debug_prof_start();
 
-// -------------------- 
+// --------------------
 // recognized URL arguments
-$slice_id=intval($_GET['id']);
+$slice_id=intval($get_array($_GET, 'id'));
 if ( ! $slice_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////
@@ -80,7 +80,7 @@ if ($profiling) plc_debug_prof('03: sites',count($sites));
 //////////////////////////////////////// building blocks for the renew area
 // Constants
 global $DAY;		$DAY = 24*60*60;
-global $WEEK;		$WEEK = 7 * $DAY; 
+global $WEEK;		$WEEK = 7 * $DAY;
 global $MAX_WEEKS;	$MAX_WEEKS= 8;		// weeks from today
 global $GRACE_DAYS;	$GRACE_DAYS=10;		// days for renewal promoted on top
 global $NOW;		$NOW=time();
@@ -98,7 +98,7 @@ function renew_needed ($slice) {
 
 function renew_area ($slice,$site,$visible) {
   global $DAY, $WEEK, $MAX_WEEKS, $GRACE_DAYS, $NOW;
- 
+
   $current_exp=$slice['expires'];
   $current_text = gmstrftime("%A %b-%d-%y %T %Z", $current_exp);
   $max_exp= $NOW + ($MAX_WEEKS * $WEEK); // seconds since epoch
@@ -127,15 +127,15 @@ out more about your site's nodes, and how to contact your site's PI(s)
 and Technical Contact(s).</p>
 EOF;
      echo $message;
- 
+
   } else {
     // xxx this is a rough cut and paste from the former UI
     // showing a datepicker view could be considered as well with some extra work
     // calculate possible extension lengths
     $selectors = array();
-    foreach ( array ( 1 => "One more week", 
- 		      2 => "Two more weeks", 
- 		      3 => "Three more weeks", 
+    foreach ( array ( 1 => "One more week",
+ 		      2 => "Two more weeks",
+ 		      3 => "Three more weeks",
  		      4 => "One more month" ) as $weeks => $text ) {
       $candidate_exp = $current_exp + $weeks*$WEEK;
       if ( $candidate_exp < $max_exp) {
@@ -149,7 +149,7 @@ EOF;
     if ( empty( $selectors ) ) {
       print <<< EOF
 <div class='my-slice-renewal'>
-Slices cannot be renewed more than $MAX_WEEKS weeks from now, i.e. not beyond $max_text. 
+Slices cannot be renewed more than $MAX_WEEKS weeks from now, i.e. not beyond $max_text.
 For this reason, the current slice cannot be renewed any further into the future, try again closer to expiration date.
 </div>
 EOF;
@@ -160,7 +160,7 @@ EOF;
 <p>
 PlanetLab's security model requires that anyone who is concerned about a slice's activity be able to immediately learn about that slice. The details that you provide are your public explanation about why the slice behaves as it does. Be sure to describe the <span class='bold'>kind of traffic</span> that your slice generates, and how it handles material that is under <span class='bold'>copyright</span>, if relevant.
 </p><p>
-The PlanetLab Operations Centres regularly respond to concerns raised by third parties about site behaviour. Most incidents are resolved rapidly based upon the publicly posted slice details. However, when these details are not sufficiently clear or accurate, and we cannot immediately reach the slice owner, we must delete the slice. 
+The PlanetLab Operations Centres regularly respond to concerns raised by third parties about site behaviour. Most incidents are resolved rapidly based upon the publicly posted slice details. However, when these details are not sufficiently clear or accurate, and we cannot immediately reach the slice owner, we must delete the slice.
 </p>
 EOF;
 
@@ -177,7 +177,7 @@ print("<p><i>NOTE: Slices cannot be renewed beyond another $max_renewal_weeks we
 print ("</div>");
     }
   }
- 
+
   $toggle->end();
 }
 
@@ -219,7 +219,7 @@ plekit_linetabs($tabs);
 ////////////////////////////////////////
 $peers->block_start($peer_id);
 
-//////////////////////////////////////// renewal area 
+//////////////////////////////////////// renewal area
 // (1) close to expiration : show on top and open
 
 if ($local_peer ) {
@@ -229,7 +229,7 @@ if ($local_peer ) {
 
 
 //////////////////////////////////////////////////////////// tab:details
-$toggle = 
+$toggle =
   new PlekitToggle ('my-slice-details',"Details",
 		    array('bubble'=>
 			  'Display and modify details for that slice',
@@ -271,7 +271,7 @@ $person_columns = array('email','person_id','first_name','last_name','roles');
 if (!empty($person_ids))
   $persons=$api->GetPersons(array('person_id'=>$slice['person_ids']),$person_columns);
 // just propose to add everyone else
-// xxx this is maybe too much for admins as it slows stuff down 
+// xxx this is maybe too much for admins as it slows stuff down
 // as regular persons can see only a fraction of the db anyway
 $potential_persons=
   $api->GetPersons(array('~person_id'=>$slice['person_ids'],
@@ -354,7 +354,7 @@ if ($privileges) {
 		     'pagesize'=>8);
     // show search for admins only as other people won't get that many names to add
     if ( ! plc_is_admin() ) $options['search_area']=false;
-    
+
     $table=new PlekitTable('add_persons',$headers,'0',$options);
     $form=new PlekitForm(l_actions(),array('slice_id'=>$slice['slice_id']));
     $form->start();
@@ -505,7 +505,7 @@ if ($column_configuration == "") {
       $i++;
       $slice_column_configuration = $slice_conf[$i];
     }
-  }        
+  }
 }
 
 if ($sliceconf_exists == false)
@@ -535,7 +535,7 @@ foreach ($show_conf as $ss) {
     $show_reservable_info = FALSE;
   else if ($ss =="columns")
     $show_layout_info = '0';
-}        
+}
 
 $slice_nodes=array();
 $potential_nodes=array();
@@ -562,10 +562,10 @@ $toggle->start();
 
 //////////////////// reservable nodes area
 $leases_info="
-You have attached one or more reservable nodes to your slice. 
-Reservable nodes show up with the '$mark' mark. 
+You have attached one or more reservable nodes to your slice.
+Reservable nodes show up with the '$mark' mark.
 Your slivers will be available only during timeslots
-where you have obtained leases. 
+where you have obtained leases.
 You can manage your leases in the tab below.
 <br>
 This feature is still experimental; feedback is appreciated at <a href='mailto:devel@planet-lab.org'>devel@planet-lab.org</a>
@@ -578,20 +578,20 @@ if ($count && $privileges) {
   // having reservable nodes in white lists looks a bit off scope for now...
   $toggle_nodes=new PlekitToggle('my-slice-nodes-reserve',
 				 "Leases - " . count($reservable_nodes) . " reservable node(s)",
-				 array('visible'=>get_arg('show_nodes_resa'), 
+				 array('visible'=>get_arg('show_nodes_resa'),
 				       'info-text'=>$leases_info,
 				       'info-visible'=>$show_reservable_info));
   $toggle_nodes->start();
 
   // get settings from environment, otherwise set to defaults
   // when to start, in hours in the future from now
-  $leases_offset=$_GET['leases_offset'];
+  $leases_offset=$get_array($_GET, 'leases_offset');
   if ( ! $leases_offset ) $leases_offset=0;
   // how many timeslots to show
-  $leases_slots=$_GET['leases_slots'];
+  $leases_slots=$get_array($_GET, 'leases_slots');
   if ( ! $leases_slots ) $leases_slots = 36;
-  // offset in hours (in the future) from now 
-  $leases_w = $_GET['leases_w'];
+  // offset in hours (in the future) from now
+  $leases_w = $get_array($_GET, 'leases_w');
   if ( ! $leases_w) $leases_w=18;
   // number of timeslots to display
 
@@ -631,7 +631,7 @@ EOF;
 if ($profiling) plc_debug_prof('06: leases',0);
 
 //////////////////// node configuration panel
-if ($first_time_configuration) 
+if ($first_time_configuration)
 $column_conf_visible = '1';
 else
 $column_conf_visible = '0';
@@ -706,7 +706,7 @@ $notes [] = "For information about the different columns please see the <b>node 
 /*
 $headers['peer']='string';
 $headers['hostname']='string';
-$short="-S-"; $long=Node::status_footnote(); $type='string'; 
+$short="-S-"; $long=Node::status_footnote(); $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 $short=reservable_mark(); $long=reservable_legend(); $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
@@ -804,7 +804,7 @@ if ($privileges) {
 /*
     $headers['peer']='string';
     $headers['hostname']='string';
-    $short="-S-"; $long=Node::status_footnote(); $type='string'; 
+    $short="-S-"; $long=Node::status_footnote(); $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
 	$short=reservable_mark(); $long=reservable_legend(); $type='string';
 	$headers[$short]=array('type'=>$type,'title'=>$long); $notes []= "$short = $long";
@@ -819,7 +819,7 @@ if ($privileges) {
 
     //$notes=array_merge($notes,$visibletags->notes());
 $notes [] = "For information about the different columns please see the <b>node table layout</b> tab above or <b>mouse over</b> the column headers";
-    
+
     $table=new PlekitTable('add_nodes',$headers,NULL, $table_options);
     $form=new PlekitForm(l_actions(),
 			 array('slice_id'=>$slice['slice_id']));
@@ -938,7 +938,7 @@ if ($local_peer) {
   // we expose the previous values so that actions.php can know if changes are really needed
   // the code needs to be encoded as it may contain any character
   // as far as the code, this does not work too well b/c what actions.php receives
-  // seems to have spurrious \r chars, and the comparison between old and new values 
+  // seems to have spurrious \r chars, and the comparison between old and new values
   // is not reliable, which results in changes being made although the code hasn't changed
   // hve spent too much time on this, good enough for now...
   $details->form_start(l_actions(),array('action'=>'update-initscripts',
@@ -965,7 +965,7 @@ if ($local_peer) {
 		  $details->form()->select_html('initscript',$selectors,array('label'=>'none')),
 		  'initscript',
 		  array('input_type'=>'select'));
-  if ($initscript && ! $is_found) 
+  if ($initscript && ! $is_found)
     // xxx better rendering ?
     $details->th_td('WARNING',plc_warning_html("Current name '" . $initscript . "' is not a known shared initscript name"));
   ////////// by contents
@@ -981,7 +981,7 @@ if ($local_peer) {
 		  array('input_type'=>'textarea', 'width'=>$script_width,'height'=>$script_height));
   $details->tr_submit('unused','Update initscripts');
   $details->form_end();
-  $details->end();  
+  $details->end();
   $toggle->end();
 }
 
@@ -999,19 +999,19 @@ $tag_value_threshold=24;
   if ($profiling) plc_debug_prof('14: slice tags',count($tags));
   function get_tagname ($tag) { return $tag['tagname'];}
   $tagnames = array_map ("get_tagname",$tags);
-  
+
   $toggle = new PlekitToggle ('slice-tags',count_english_warning($tags,'tag'),
 			      array('bubble'=>'Inspect and set tags on that slice',
 				    'visible'=>get_arg('show_tags')));
   $toggle->start();
-  
+
   $headers=array(
     "Name"=>"string",
     "Value"=>"string",
     "Node"=>"string",
     "NodeGroup"=>"string");
   if ($tags_privileges) $headers[plc_delete_icon()]="none";
-  
+
   $table_options=array("notes_area"=>false,"pagesize_area"=>false,"search_width"=>10);
   $table=new PlekitTable("slice_tags",$headers,'0',$table_options);
   $form=new PlekitForm(l_actions(),
@@ -1041,7 +1041,7 @@ $tag_value_threshold=24;
         $node_name = $_hostnames[$tag['node_id']];
       }
       $nodegroup_name="n/a";
-      if ($tag['nodegroup_id']) { 
+      if ($tag['nodegroup_id']) {
         $nodegroups=$api->GetNodeGroups(array('nodegroup_id'=>$tag['nodegroup_id']));
 	if ($profiling) plc_debug_prof('15: nodegroup for slice tag',$nodegroup);
         if ($nodegroup) {
@@ -1065,7 +1065,7 @@ $tag_value_threshold=24;
     $table->cell($form->submit_html ("delete-slice-tags","Remove selected"),
                  array('hfill'=>true,'align'=>'right'));
     $table->row_end();
-    
+
     $table->row_start();
     function tag_selector ($tag) {
       return array("display"=>$tag['tagname'],"value"=>$tag['tag_type_id']);
@@ -1073,19 +1073,19 @@ $tag_value_threshold=24;
     $all_tags= $api->GetTagTypes( array ("category"=>"*slice*","-SORT"=>"+tagname"), array("tagname","tag_type_id"));
     if ($profiling) plc_debug_prof('16: tagtypes',count($all_tags));
     $selector_tag=array_map("tag_selector",$all_tags);
-    
-    function node_selector($node) { 
+
+    function node_selector($node) {
       return array("display"=>$node["hostname"],"value"=>$node['node_id']);
     }
     $selector_node=array_map("node_selector",$slice_nodes);
-    
+
     function nodegroup_selector($ng) {
       return array("display"=>$ng["groupname"],"value"=>$ng['nodegroup_id']);
     }
     $all_nodegroups = $api->GetNodeGroups( array("groupname"=>"*"), array("groupname","nodegroup_id"));
     if ($profiling) plc_debug_prof('17: nodegroups',count($all_nodegroups));
     $selector_nodegroup=array_map("nodegroup_selector",$all_nodegroups);
-    
+
     $table->cell($form->select_html("tag_type_id",$selector_tag,array('label'=>"Choose Tag")));
     $table->cell($form->text_html("value","",array('width'=>8)));
     $table->cell($form->select_html("node_id",$selector_node,array('label'=>"All Nodes")));
@@ -1093,7 +1093,7 @@ $tag_value_threshold=24;
     $table->cell($form->submit_html("add-slice-tag","Set Tag"),array('columns'=>2,'align'=>'left'));
     $table->row_end();
   }
-    
+
   $table->end();
   $form->end();
   $toggle->end();

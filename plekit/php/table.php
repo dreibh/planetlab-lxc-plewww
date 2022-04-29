@@ -280,15 +280,20 @@ EOF;
   // (*) hfill
   // (*) align
   public function cell ($text,$options=NULL) { print $this->cell_html ($text,$options); }
-  public function cell_html ($text,$options=NULL) {
+  public function cell_html ($text, $options=NULL) {
     if (isset ($options['only-if']) && ! $options['only-if'] )
-      $text="n/a";
-    $html="";
+      $text = "n/a";
+    $html = "";
     $html .= "<td";
-    $option=$options['class'];	if ($option) $html .= " class='$option'";
-    $option=$options['columns'];if ($option) $html .= " colspan='$option'";
-    $option=$options['hfill'];	if ($option) $html .= " colspan='" . $this->columns() . "'";
-    $option=$options['align'];	if ($option) $html .= " style='text-align:$option'";
+    $option = get_array($options, 'class');
+    if ($option)
+      $html .= " class='$option'";
+    $option = get_array($options, 'columns');
+      if ($option) $html .= " colspan='$option'";
+    $option = get_array($options, 'hfill');
+      if ($option) $html .= " colspan='" . $this->columns() . "'";
+    $option = get_array($options, 'align');
+    	if ($option) $html .= " style='text-align:$option'";
     $html .= ">$text</td>";
     return $html;
   }

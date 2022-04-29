@@ -41,14 +41,14 @@ drupal_set_html_head('
 // plekit_linetabs($tabs);
 
 ////////// Notes: limited support for images
-// (*) for some reason, confirmation does not work with image tabs 
+// (*) for some reason, confirmation does not work with image tabs
 //     (the form gets submitted whatever the confirmation....)
-// (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned 
+// (*) you need to tune the image size, which is wrong, as the image should rather be bottom-aligned
 
 function plekit_linetabs ($tabs, $id=NULL) {
   // do not output anything if $tabs has no entry (unpleasant rendering)
   if (empty ($tabs)) return;
-  $active_line_tab=$_GET['active_line_tab'];
+  $active_line_tab=get_array($_GET, 'active_line_tab');
   // need id to pass to the onclick function attached to the input buttons
   $id="linetabs";
   if (! $id) $id .= '-' + $id;
@@ -56,14 +56,18 @@ function plekit_linetabs ($tabs, $id=NULL) {
   print "<ul>";
   foreach ($tabs as $label=>$todo) {
     // in case we have a simple string, rewrite it as an array
-    if (is_string ($todo)) $todo=array('method'=>'GET','url'=>$todo);
+    if (is_string ($todo))
+      $todo = array('method'=>'GET', 'url'=>$todo);
     // the 'label' key, if set in the hash, supersedes key
-    if ($todo['label']) $label=$todo['label'];
+    if (get_array($todo, 'label'))
+      $label = $todo['label'];
     $tracer="";
-    if ($todo['id']) $tracer .= "id=".$todo['id'];
+    if (get_array($todo, 'id'))
+      $tracer .= "id=" . $todo['id'];
     print "<li $tracer>";
     // set default method
-    if ( ! $todo['method'] ) $todo['method']='GET';
+    if ( ! get_array($todo, 'method') )
+      $todo['method'] = 'GET';
     // extract var=value settings from url if any
     $full_url=$todo['url'];
     $split=plekit_split_url($full_url);
@@ -74,18 +78,20 @@ function plekit_linetabs ($tabs, $id=NULL) {
     $method=strtolower($todo['method']);
     print "<form action='$url' method='$method'><fieldset>";
     // set values
-    $values=$todo['values'];
+    $values = get_array($todo, 'values');
     if ( ! $values) $values = array();
-    if ($url_values) $values = array_merge($values,$url_values);
-    if ( $values ) foreach ($values as $key=>$value) {
-      if ($key != "active_line_tab")
-        print "<input type='hidden' name='$key' value='$value' />";
-    }
+    if ($url_values) 
+      $values = array_merge($values, $url_values);
+    if ( $values ) 
+      foreach ($values as $key=>$value) {
+        if ($key != "active_line_tab")
+          print "<input type='hidden' name='$key' value='$value' />";
+      }
     print "<input type='hidden' name='active_line_tab' value='$label' />";
     if ($label == $active_line_tab) $tracer = "class='linetabs-submit active'";
     else $tracer="class='linetabs-submit'";
-    // image and its companions 'height' 
-    if ($todo['image']) {
+    // image and its companions 'height'
+    if (get_array($todo, 'image')) {
       $what=$todo['image'];
       $type="type='image' src='$what'";
       if ($todo['height']) {
@@ -98,7 +104,8 @@ function plekit_linetabs ($tabs, $id=NULL) {
     $bubble=htmlspecialchars($todo['bubble'], ENT_QUOTES);
     print "<span title='$bubble'>";
     $message="";
-    if ($todo['confirm']) $message=htmlspecialchars($todo['confirm'], ENT_QUOTES) . " ?";
+    if (get_array($todo, 'confirm'))
+      $message=htmlspecialchars($todo['confirm'], ENT_QUOTES) . " ?";
     print "<input $tracer $type onclick='linetabs_namespace.submit(\"$id\",\"$message\")' />";
     print "</span>";
     print "</fieldset></form></li>\n";

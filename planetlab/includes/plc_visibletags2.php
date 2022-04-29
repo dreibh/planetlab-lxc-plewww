@@ -9,7 +9,7 @@ class VisibleTags {
   var $api;
   var $type;
 
-  function __construct ($api,$type) {
+  function __construct ($api, $type) {
     $this->api=$api;
     $this->type=$type;
     $this->columns=NULL;
@@ -22,7 +22,7 @@ class VisibleTags {
       return $this->columns;
 
     // scan tag types to find relevant additional columns
-    $tag_types = $this->api->GetTagTypes(array('category'=>"$type*/ui*"));
+    $tag_types = $this->api->GetTagTypes(array('category'=>"$this->type*/ui*"));
 
     $columns = array();
     foreach ($tag_types as $tag_type) {
@@ -37,9 +37,9 @@ class VisibleTags {
       // split category and parse any setting
       $category_tokens=explode('/',$tag_type['category']);
       foreach ($category_tokens as $token) {
-	$assign=explode('=',$token);
-	if (count($assign)==2)
-	  $column[$assign[0]]=$assign[1];
+	      $assign=explode('=',$token);
+	      if (count($assign)==2)
+	        $column[$assign[0]]=$assign[1];
       }
       $columns []= $column;
     }
