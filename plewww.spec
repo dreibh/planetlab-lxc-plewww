@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
-%define version 5.2
-%define taglevel 9
+%define version 5.3
+%define taglevel 0
 
 # no need to mention pldistro as this module differs in both distros
 %define release %{taglevel}%{?date:.%{date}}
@@ -131,6 +131,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Sat Apr 30 2022 Thierry Parmentelat <thierry.parmentelat@inria.fr> - plewww-5.3-0
+- for php8 on fedora35
+
 * Wed May 16 2018 Thierry <Parmentelat> - plewww-5.2-9
 - not too clean patches for r2lab:
 - * search for a file named /etc/planetlab/php/person-registration.txt
