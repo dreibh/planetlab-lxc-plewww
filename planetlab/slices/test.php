@@ -42,7 +42,7 @@ foreach( $arr as $slices ) {
 }
 
 
-$input = strtolower( $_GET['input'] );
+$input = strtolower( get_array($_GET, 'input') );
 $len = strlen($input);
 
 $aResults = array();

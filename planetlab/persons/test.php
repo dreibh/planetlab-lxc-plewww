@@ -7,7 +7,7 @@ require_once 'plc_session.php';
 global $plc, $api, $adm;
 
 // input 
-$input = strtolower( $_GET['input'] );
+$input = strtolower( get_array($_GET, 'input') );
 $len = strlen($input);
 
 // init result

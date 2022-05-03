@@ -12,7 +12,7 @@ require_once 'plc_functions.php';
 require_once 'details.php';
 require_once 'table.php';
 require_once 'toggle.php';
-  
+
 //plc_debug('POST',$_POST);
 
 // if not a PI or admin then redirect to slice index
@@ -25,13 +25,13 @@ if ( ! $has_privileges ) {
 
 // find out which site the slice should be added to
 // without site_id set in GET, we use the first site that this user is in
-if (isset($_GET['site_id'])) {
+if (get_array($_GET, 'site_id')) {
   $site_id=intval($_GET['site_id']);
- } else if (isset ($_POST['site_id'])) {
+} else if (get_array($_POST, 'site_id')) {
   $site_id=intval($_POST['site_id']);
- } else {
+} else {
   $site_id=plc_my_site_id();
- }
+}
 
 //////////////////// action
 if ( $_POST['add-slice'] ) {
@@ -67,22 +67,22 @@ if ( $_POST['add-slice'] ) {
       $check=false;
     }
   }
-  
+
   if ( ($url == "http://") || ( $url=="" ) ) {
     drupal_set_error("You must enter a URL for your slice's info");
     $check=false;
   }
-      
+
   if( $description == "" ) {
     drupal_set_error("Your must enter a description for you slice.");
     $check=false;
   }
-  
+
   // if no errors then add
   if ( $check ) {
-    $fields= array( "url" => $url, 
-		    "instantiation" => $instantiation, 
-		    "name" => $name, 
+    $fields= array( "url" => $url,
+		    "instantiation" => $instantiation,
+		    "name" => $name,
 		    "description" => $description );
     // add it!
     $slice_id= $api->AddSlice( $fields );
@@ -115,7 +115,7 @@ if ( $_POST['add-slice'] ) {
 	    $counter++;
 	  }
 	}
-	if ($success) 
+	if ($success)
 	  drupal_set_message ("Added $counter person(s)");
 	else
 	  drupal_set_error ("Could not add all selected persons, only $counter were added");
@@ -137,10 +137,10 @@ include 'plc_header.php';
 $sites=$api->GetSites(array($site_id));
 $site=$sites[0];
 $sitename=$site['name'];
-if ( ! $_POST['name']) 
+if ( ! $_POST['name'])
   $base= $site['login_base'] ."_";
 
-// propose to add all 'reachable' persons 
+// propose to add all 'reachable' persons
 $site_person_ids=$site['person_ids'];
 $persons_filter=array("person_id"=>$site_person_ids,
                       "enabled"=>true);
@@ -155,10 +155,10 @@ if( !$url ) $url= "http://";
 // check for errors and set error styles
 if( $error['name'] )
   $name_error= " class='plc-warning'";
-  
+
 if( $error['url'] )
   $url_error= " class='plc-warning'";
-  
+
 if( $error['description'] )
   $desc_error= " class='plc-warning'";
 
@@ -193,10 +193,10 @@ if ($multiple_sites) {
   $site_form->end();
   print "</div>";
  }
-		  
+
 print <<< EOF
 <div class='create-slice-instantiations'>
-<p><span class='bold'>Important:</span> Please provide a short description, as well as a 
+<p><span class='bold'>Important:</span> Please provide a short description, as well as a
 link to a project website, before creating your slice.</p>
 <p>
 PlanetLab's security model requires that anyone who is concerned about a slice's activity be able to immediately learn about that slice. The details that you provide are your public explanation about why the slice behaves as it does. Be sure to describe the <span class='bold'>kind of traffic</span> that your slice generates, and how it handles material that is under <span class='bold'>copyright</span>, if relevant.
@@ -204,11 +204,11 @@ PlanetLab's security model requires that anyone who is concerned about a slice's
 The PlanetLab Operations Centres regularly respond to concerns raised by third parties about site behaviour. Most incidents are resolved rapidly based upon the publicly posted slice details. However, when these details are not sufficiently clear or accurate, and we cannot immediately reach the slice owner, we must delete the slice.
 </p>
 <p><span class='bold'>NOTE</span>: All PlanetLab users are <span class='bold'>strongly</span>
- encouraged to join the PlanetLab 
-<a href='https://lists.planet-lab.org/mailman/listinfo/users'>Users</a> 
-mailing list. Most questions about running software on PlanetLab can be answered by 
-posting to this list. 
-<br/>Site administrators often use this list to post announcements about service outages. 
+ encouraged to join the PlanetLab
+<a href='https://lists.planet-lab.org/mailman/listinfo/users'>Users</a>
+mailing list. Most questions about running software on PlanetLab can be answered by
+posting to this list.
+<br/>Site administrators often use this list to post announcements about service outages.
 New software releases and available services are announced here as well.
 </p>
 </div>
@@ -250,7 +250,7 @@ if (isset($_POST['omf-control'])) {
 } else {
   $omf_options=array();
 }
-// 2018 feb 15 - turning off omf slices creation 
+// 2018 feb 15 - turning off omf slices creation
 // $details->th_td("OMF friendly",
 //		$form->checkbox_html('omf-control','yes',$omf_options));
 
@@ -263,12 +263,12 @@ $instantiation_text = <<< EOF
 <li><span class='bold'>Controller</span> creates a slice on all nodes to manipulate Delegated slices. </li>
 <li><span class='bold'>None</span> allows you to reserve a slice name; you may instantiate the slice later.</li>
 </ul>
-<p>PLC instantiated slices can be defined as <span class='bold'>OMF friendly</span>, 
-in which case slivers come with the OMF <span class='bold'>Resource Controller</span> pre-installed and pre-configured. 
+<p>PLC instantiated slices can be defined as <span class='bold'>OMF friendly</span>,
+in which case slivers come with the OMF <span class='bold'>Resource Controller</span> pre-installed and pre-configured.
 Such slivers can then be easily managed through a centralized tool, the OMF Experiment Controller.
-Using these <a href="http://omf.mytestbed.net">OMF tools</a>, a user can describe, instrument, 
+Using these <a href="http://omf.mytestbed.net">OMF tools</a>, a user can describe, instrument,
 and automatically execute their experiments across many slivers.
-Please refer to <a href="http://mytestbed.net/wiki/omf/OMF_User_Guide">the OMF User Guide</a> 
+Please refer to <a href="http://mytestbed.net/wiki/omf/OMF_User_Guide">the OMF User Guide</a>
 to learn more on how to use this feature.
 </p>
 </div>
@@ -284,7 +284,7 @@ if ($persons) {
   $toggle=new PlekitToggle ('create-slice-persons',$title,
 			  array('visible'=>get_arg('show_persons')));
   $toggle->start();
-  
+
   $headers = array();
   $headers['email']='string';
   $headers['first']='string';

@@ -46,18 +46,18 @@ function plc_comon_url_from_ips($comon_server_url, $ips) {
 
 $fields=array("hostname","node_id","peer_id", "interface_ids");
 
-if ($_GET['node_id']) {
+if (get_array($_GET, 'node_id')) {
   $node_id=intval($_GET['node_id']);
   $nodes=$api->GetNodes(array("node_id"=>array($node_id)),$fields);
- } else if ($_GET['site_id']) {
+ } else if (get_array($_GET, 'site_id')) {
   $site_id=intval($_GET['site_id']);
   $nodes=$api->GetNodes(array("node_type"=>"regular","site_id"=>array($site_id)),$fields);
- } else if ($_GET['slice_id']) {
+ } else if (get_array($_GET, 'slice_id')) {
   $slice_id=intval($_GET['slice_id']);
   $return=$api->GetSlices(array("slice_id"=>array($slice_id)),array("node_ids"));
   $node_ids=$return[0]['node_ids'];
   $nodes=$api->GetNodes(array("node_type"=>"regular","node_id"=>$node_ids),$fields);
- } else if (isset($_GET['peer_id'])) {
+ } else if (get_array($_GET, 'peer_id'))) {
   $peer_id=intval($_GET['peer_id']);
   if ( ($peer_id == 0) || ($peer_id == "") )
     $peer_id=NULL;

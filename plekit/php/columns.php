@@ -31,7 +31,7 @@ var $table_ids;
 var $HopCount = array();
 var $RTT = array();
 
-function PlekitColumns ($column_configuration, $fix_columns, $tag_columns, $extra_columns=NULL, $this_table_headers=NULL) {
+function __construct ($column_configuration, $fix_columns, $tag_columns, $extra_columns=NULL, $this_table_headers=NULL) {
 
 	if ($column_configuration != NULL) {
 	$this->fix_columns = $fix_columns;
@@ -78,9 +78,10 @@ else
 $tmp_headers[$headerId]=array('header'=>$headerId,'type'=>$column['type'],'tagname'=>$column['tagname'],'title'=>$column['title'], 'description'=>$column['title'], 'label'=>$column['header'],'visible'=>false, 'source'=>'myplc');
 }
 
-usort ($tmp_headers, create_function('$col1,$col2','return strcmp($col1["label"],$col2["label"]);'));
+usort ($tmp_headers,
+	   function($col1, $col2) {return strcmp($col1["label"], $col2["label"]);});
 
-foreach ($tmp_headers as $t) 
+foreach ($tmp_headers as $t)
 $this->all_headers[$t['header']] = $t;
 
 //$this->all_headers = array_merge($this->all_headers, $tmp_headers);
@@ -94,31 +95,31 @@ return $this->all_headers;
 
 function get_headers() {
 
-return $this->all_headers;
+	return $this->all_headers;
 
 }
 
 function get_selected_period($label) {
 
-if ($this->all_headers[$label."w"]['visible'])
+	if (get_array2($this->all_headers, $label."w", 'visible'))
 	return "w";
-else if ($this->all_headers[$label."m"]['visible'])
+	else if (get_array2($this->all_headers, $label."m", 'visible'))
 	return "m";
-else if ($this->all_headers[$label."y"]['visible'])
+	else if (get_array2($this->all_headers, $label."y", 'visible'))
 	return "y";
-else if ($this->all_headers[$label]['visible'])
-	return "";
-	
-return "";
+	else return "";
 }
 
 function node_tags() {
 
-	$fetched_tags = array('node_id','hostname');	
+	$fetched_tags = array('node_id','hostname');
 
 	foreach ($this->all_headers as $h)
 	{
-		if ($h['visible'] == true && $h['tagname'] != "" && !$h['fetched'] && $h['source']=="myplc")
+		if ($h['visible'] == true
+		 && $h['tagname'] != ""
+		 && !get_array($h, 'fetched')
+		 && $h['source']=="myplc")
 			$fetched_tags[] = $h['tagname'];
 	}
 
@@ -127,7 +128,7 @@ function node_tags() {
 
 function print_headers() {
 
-	$headers = "";	
+	$headers = "";
 
 	foreach ($this->all_headers as $l => $h)
 	{
@@ -138,7 +139,7 @@ function print_headers() {
 
 function get_visible() {
 
-	$visibleHeaders = array();	
+	$visibleHeaders = array();
 
 	foreach ($this->all_headers as $h)
 	{
@@ -197,7 +198,7 @@ function parse_configuration($column_configuration) {
 }
 
 
-		
+
 
 
 /*
@@ -216,15 +217,15 @@ function convert_data($value, $data_type) {
 	if ($data_type == "string")
 		return $value;
 
-	if ($data_type == "date") 
+	if ($data_type == "date")
 		return date("Y-m-d", $value);
 
-	if ($data_type == "uptime") 
+	if ($data_type == "uptime")
 		return (int)((int) $value / 86400);
 
 	if (is_numeric($value))
 		return ((int) ($value * 10))/10;
-	
+
 	return $value;
 
 }
@@ -286,7 +287,7 @@ function getTopHatData($data, $planetlab_nodes) {
 	$requested_data = explode(",", $data);
 
 	$r = array ('hostname');
-	
+
 	foreach ($requested_data as $rd)
 		if ($rd) $r[] = $rd;
 
@@ -362,7 +363,7 @@ function fetch_live_data($all_nodes) {
 
 //comon data
 	if ($this->comon_live_data != "") {
-	
+
 		//print ("live data to be fetched =".$this->comon_live_data);
 		$this->ComonData= $this->comon_query_nodes($this->comon_live_data);
 		//print_r($this->ComonData);
@@ -388,55 +389,44 @@ function fetch_live_data($all_nodes) {
 
 function cells($table, $node) {
 
-//$node_string = "";
 
-foreach ($this->all_headers as $h) {
+	foreach ($this->all_headers as $h) {
 
-if (!$h['fixed']) { 
+		if (! get_array($h, 'fixed')) {
 
-if ($h['visible'] != "") {
+			if ($h['visible'] != "") {
 
-if ($h['source'] == "comon")
-{
-	//print("<br>Searching for ".$h['tagname']."at ".$node);
-	if ($this->ComonData != "")
-        	$value = $this->convert_data($this->ComonData[$node['hostname']][$h['tagname']], $h['tagname']);
-	else
-		$value = "n/a";
+				if ($h['source'] == "comon") {
+						//print("<br>Searching for ".$h['tagname']."at ".$node);
+						if ($this->ComonData != "")
+								$value = $this->convert_data($this->ComonData[$node['hostname']][$h['tagname']], $h['tagname']);
+						else
+							$value = "n/a";
 
-        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
-	//$node_string.= "\"".$value."\",";
-}
-else if ($h['source'] == "tophat")
-{
-	if ($this->TopHatData != "")
-        	$value = $this->convert_data($this->TopHatData[$node['hostname']][$h['tagname']], $h['type']);
-	else
-		$value = "n/a";
+							$table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+						//$node_string.= "\"".$value."\",";
+				} else if ($h['source'] == "tophat") {
+					if ($this->TopHatData != "")
+							$value = $this->convert_data($this->TopHatData[$node['hostname']][$h['tagname']], $h['type']);
+					else
+						$value = "n/a";
 
-        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
-	//$node_string.= "\"".$value."\",";
-}
-else
-{
-        //$value = $node[$h['tagname']];
-        $value = $this->convert_data($node[$h['tagname']], $h['type']);
-        $table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
-	//$node_string.= "\"".$value."\",";
-}
-}
-else 
-	if ($node[$h['tagname']])
-	{
-        	$value = $this->convert_data($node[$h['tagname']], $h['type']);
-        	$table->cell($value, array('name'=>$h['header'], 'display'=>'none'));
+					$table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+					//$node_string.= "\"".$value."\",";
+				} else {
+					//$value = $node[$h['tagname']];
+					$value = $this->convert_data($node[$h['tagname']], $h['type']);
+					$table->cell($value,array('name'=>$h['header'], 'display'=>'table-cell'));
+				//$node_string.= "\"".$value."\",";
+				}
+			} else if (get_array($node, $h['tagname'])) {
+				$value = $this->convert_data($node[$h['tagname']], $h['type']);
+				$table->cell($value, array('name'=>$h['header'], 'display'=>'none'));
+			} else {
+				$table->cell("n/a", array('name'=>$h['header'], 'display'=>'none'));
+			}
+		}
 	}
-	else
-        	$table->cell("n/a", array('name'=>$h['header'], 'display'=>'none'));
-}
-}
-
-//return $node_string;
 
 }
 
@@ -450,10 +440,10 @@ HTML
 
 function javascript_init() {
 
-print("<script type='text/javascript'>");
-print("highlightOption('AU');");
-print("overrideTitles();");
-print("</script>");
+	print("<script type='text/javascript'>");
+	print("highlightOption('AU');");
+	print("overrideTitles();");
+	print("</script>");
 
 }
 
@@ -506,18 +496,17 @@ print("<tr><th class='top'>Add/remove columns</th>");
 if ($showDescription)
 	print("<th class='top'>Column description and configuration</th>");
 
-print("</tr><tr><td class='top' width='300px'>");
+	print("</tr><tr><td class='top' width='300px'>");
 
 	print('<div id="scrolldiv">');
-print ("<table>");
+	print ("<table>");
 	$prev_label="";
 	$optionclass = "out";
-	foreach ($this->all_headers as $h)
-	{
+	foreach ($this->all_headers as $h) {
 		if ($h['header'] == "hostname" || $h['header'] == "ID")
 			continue;
 
-		if ($h['fixed'])
+		if (get_array($h, 'fixed'))
 			$disabled = "disabled=true";
 		else
 			$disabled = "";
@@ -552,7 +541,7 @@ print ("<table>");
 <input type='hidden' id='source".$h['label']."' value='".$h['source']."'></input>
 		<div id='".$h['label']."' name='columnlist' class='".$optionclass."' onclick='highlightOption(this.id)'>
 <table class='columnlist' id='table".$h['label']."'><tr>
-<td class='header'><span class='header'>".$h['label']."</span></td> 
+<td class='header'><span class='header'>".$h['label']."</span></td>
 <td align=left>&nbsp;<span class='short' id ='htitle".$h['label']."'>".$h['title']."</span>&nbsp;</td>
 <td class='smallright'>&nbsp;<span class='short' id ='loading".$h['label']."'></span>&nbsp;</td>
 <td class='smallright'><input id='check".$h['label']."' name='".$h['tagname']."' type='checkbox' ".$selected." ".$disabled." autocomplete='off' value='".$h['label']."' onclick='changeCheckStatus(this.id)'></input></td>
@@ -596,9 +585,9 @@ EOF;
 
   function column_html ($colHeader, $colName, $colId, $fulldesc, $visible) {
 
-	if ($visible) 
+	if ($visible)
 		$display = 'display:table-cell';
-	else 
+	else
 		$display = 'color:red;display:none';
 
     return "

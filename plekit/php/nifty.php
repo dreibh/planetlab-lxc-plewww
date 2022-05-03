@@ -15,10 +15,10 @@ class PlekitNifty {
   var $class;
   var $size;
 
-  function PlekitNifty ($id,$class,$size='medium') {
+  function __construct ($id, $class, $size='medium') {
     $this->id = $id;
-    $this->class=$class;
-    $this->size=$size;
+    $this->class = $class;
+    $this->size = $size;
   }
 
   function start () { print $this->start_html(); }
@@ -34,7 +34,7 @@ class PlekitNifty {
     return $html;
   }
 
-  function end () { print $this->end_html();} 
+  function end () { print $this->end_html();}
   function end_html () {
     return "</div>";
   }

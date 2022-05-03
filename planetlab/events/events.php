@@ -17,7 +17,7 @@ require_once 'plc_functions.php';
 require_once 'table.php';
 require_once 'linetabs.php';
 require_once 'datepicker.php';
-  
+
 // needs much memory
 ini_set("memory_limit","256M");
 
@@ -25,9 +25,9 @@ ini_set("memory_limit","256M");
 drupal_set_title('Events');
 
 // as per index.php, we get here if _GET['type'] is set
-$type=$_GET['type'];
-$from_date=$_GET['from_date'];
-$until_date=$_GET['until_date'];
+$type = get_array($_GET, 'type');
+$from_date = get_array($_GET, 'from_date');
+$until_date = get_array($_GET, 'until_date');
 
 $messages=array();
 
@@ -50,7 +50,7 @@ function parse_date ($user_date,$until_if_true=false,$DAY,$EPOCH) {
     } else {
       $date="now"; $time=strtotime($date);
     }
-  
+
   } else {
     // user-provided string
     list ($year,$month,$day) = preg_split ('/[\/\.\-]/',$user_date);
@@ -110,7 +110,7 @@ function e_issuer ($param) {
 }
 
 function e_auth ($event) {
-  if (array_key_exists('auth_type',$event)) 
+  if (array_key_exists('auth_type',$event))
     return $event['auth_type'];
     else
       return "";
@@ -145,23 +145,23 @@ $filter['[time']=$until_time;
 
 //////////////////////////////////////// Events
 if ($type == 'Event') {
-  
+
   // and the filter applied for fetching events using GetEvent
-  $user_desc=$_GET['event'];
+  $user_desc=get_array($_GET, 'event');
   if ( ! empty($user_desc)) {
     // should parse stuff like 45-90,230-3000 - some other day
     $filter['event_id']=intval($user_desc);
   }
-  
-  $events = $api->GetEvents($filter); 
+
+  $events = $api->GetEvents($filter);
   $title="Events [ $from_string - $until_string] matching " . ($user_desc ? $user_desc : "everything");
-  
+
   // see actual display of $title and $events below
-  
+
  } else {
-  
+
   switch ($type) {
-  case 'Person': 
+  case 'Person':
     $primary_key='person_id';
     $string_key='email';
     $user_input=$_GET['person'];
@@ -169,15 +169,15 @@ if ($type == 'Event') {
     $object_type='Person';
     break;
 
-  case 'Node': 
+  case 'Node':
     $primary_key='node_id';
     $string_key='hostname';
     $user_input=$_GET['node'];
     $method="GetNodes";
     $object_type='Node';
     break;
-      
-  case 'Site': 
+
+  case 'Site':
     $primary_key='site_id';
     $string_key='login_base';
     $user_input=$_GET['site'];
@@ -185,7 +185,7 @@ if ($type == 'Event') {
     $object_type='Site';
     break;
 
-  case 'Slice': 
+  case 'Slice':
     $primary_key='slice_id';
     $string_key='name';
     $user_input=$_GET['slice'];
@@ -199,7 +199,7 @@ if ($type == 'Event') {
   $title .= " type=$object_type";
   $title .= " id(s)=";
   foreach ( explode(",",$user_input) as $user_desc) {
-# numeric 
+# numeric
     if (my_is_int($user_desc)) {
       $obj_check = call_user_func(array($api,$method),array(intval($user_desc)),array($primary_key));
       if (empty ($obj_check)) {
@@ -224,8 +224,8 @@ if ($type == 'Event') {
 
   $event_objs = $api->GetEventObjects(array('object_id'=>$object_ids,'object_type'=>$object_type),array('event_id'));
   // get set of event_ids
-  $event_ids = array_map ( create_function ('$eo','return $eo["event_id"];') , $event_objs);
-    
+  $event_ids = array_map (function ($eo) {return $eo["event_id"];} , $event_objs);
+
   $events = $api->GetEvents (array('event_id'=>$event_ids));
 
   // see actual display of $title and $events below
@@ -234,8 +234,8 @@ if ($type == 'Event') {
 
   drupal_set_title ($title);
 // Show messages
-if (!empty($messages)) 
-  foreach ($messages as $line) 
+if (!empty($messages))
+  foreach ($messages as $line)
     drupal_set_message($line);
 
 $headers=array("Id"=>"int",
@@ -253,20 +253,20 @@ $table = new PlekitTable ("events",$headers,"0r");
 $table->set_options (array ('max_pages'=>20));
 $table->start ();
 foreach ($events as $event) {
-  
+
   // the call button
   $message = htmlentities($event['message'], ENT_QUOTES);
   $call = htmlentities($event['call'], ENT_QUOTES);
   $text = sprintf("message=<<%s>>\\n\\ncall=<<%s>>\\n\\nruntime=<<%f>>\\n",$message,$call,$event['runtime']);
   $method = "<input type=button name='call' value='" . $event['call_name'] ."' onclick='alert(\"" . $text . "\")'";
   //    $method = sprintf('<span title="%s">%s</span>',$call,$method);
-  
+
   // the message button
   $trunc_mess=htmlentities(truncate($event['message'],40),ENT_QUOTES);
   $message="<input type=button name='message' value='" . $trunc_mess ."' onclick='alert(\"" . $text . "\")'";
   $details="<input type=button name='message' value='+' onclick='alert(\"" . $text . "\")'";
   //    $message=sprintf('<span title="%s">%s</span>',$message,$message);
-  
+
   $message=truncate($event['message'],40);
   $table->row_start();
   $table->cell(e_event($event['event_id']));
@@ -283,7 +283,7 @@ foreach ($events as $event) {
 $table->set_options(array('notes'=>array("The R column shows the call result value, a.k.a. fault_code",
 					 "Click the button in the D(etails) column to get more details")));
 $table->end();
-  
+
 //plekit_linetabs ($tabs,"bottom");
 
 // Print footer

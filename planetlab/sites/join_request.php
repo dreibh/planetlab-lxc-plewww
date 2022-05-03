@@ -9,7 +9,7 @@ require_once 'plc_login.php';
 
 // Get session and API handles
 require_once 'plc_session.php';
-require_once 'plc_api.php'; 
+require_once 'plc_api.php';
 global $plc, $api, $adm;
 
 // Print header
@@ -42,7 +42,7 @@ function render_all_join_requests($api) {
   # http://www.frequency-decoder.com/demo/table-sort-revisited/custom-sort-functions/
   $headers['submitted']='sortEnglishDateTime';
   $headers['enabled']='string';
-  
+
   $nifty=new PlekitNifty ('pending','sites-pending','medium');
   $nifty->start();
   $table=new PlekitTable ('pending',$headers,2,
@@ -115,16 +115,16 @@ EOF;
   // don't render the tech part if that was the same as the pi
   $site_form = build_site_form(FALSE);
   $input = array ('site' => $site, 'address'=> $address, 'pi' => $pi, 'tech' => $tech);
-  
+
   $nifty=new PlekitNifty ('pending','site-pending','medium');
 
   $nifty->start();
   $details = new PlekitDetails(TRUE);
   $details->start();
 
-  // display the buttons 
+  // display the buttons
   $buttons_row =<<<EOF
-    <table width="100%" border=0 cellspacing="0" cellpadding="5"> <tr> 
+    <table width="100%" border=0 cellspacing="0" cellpadding="5"> <tr>
     <td align=center><input type="submit" name="submitted" value="Delete"></td>
     <td align=center><input type="submit" name="submitted" value="Update"></td>
     <td align=center><input type="submit" name="submitted" value="Approve"></td>
@@ -149,12 +149,12 @@ function notify_enabled_pi ($api, $pi_id, $pi, $site_id, $site) {
 You have filed a site registration with the %s platform.
 
 This registration has been approved, and your account was enabled
-You were granted a PI role, meaning that you will be responsible 
+You were granted a PI role, meaning that you will be responsible
 for managing personal accounts and slices for your site
 
 You can now enter the system at
 https://%s:%d/
-with %s as a login, 
+with %s as a login,
 and the password that you provided at registration-time
 
 You can directly access your site information at
@@ -166,7 +166,7 @@ https://%s:%d/db/nodes/node_add.php
 Our support team will be glad to answer any question that you might have
 They are reachable at mailto:%s
 EOF;
- 
+
  $body=sprintf($template,
 	       PLC_NAME,
 	       PLC_WWW_HOST,PLC_WWW_SSL_PORT,
@@ -174,7 +174,7 @@ EOF;
 	       PLC_WWW_HOST,PLC_WWW_SSL_PORT,$site_id,
 	       PLC_WWW_HOST,PLC_WWW_SSL_PORT,
 	       PLC_MAIL_SUPPORT_ADDRESS);
-   
+
  $subject="Site registration for " . $site['name'] . " has been approved by " . PLC_NAME;
  $adm->NotifyPersons(array($pi_id),$subject,$body);
 }
@@ -186,20 +186,12 @@ $_roles= $_person['role_ids'];
 
 // only admins are allowed to view this page
 if( !in_array( '10', $_roles ) ) {
-
     print("<p> not allowed to view this page </p>");
-}
-else if ($_GET['review'])
-{
-
+} else if (get_array($_GET, 'review')) {
     //print review page
     drupal_set_title('Join Request - Review');
-    render_join_request_review($api, $_GET['site_id']);
-	
-}
-else if ($_POST['submitted'] )
-{
-
+    render_join_request_review($api, get_array($_GET, 'site_id'));
+} else if (get_array($_POST, 'submitted')) {
   // parse the form
   $site_form = build_site_form(FALSE);
   $input = parse_form ($site_form, $_REQUEST, $input);
@@ -252,12 +244,12 @@ else if ($_POST['submitted'] )
       } else {
 	$messages [] = "Join request updated for site " . $site['name'] ;
       }
-      
+
       break;
     }
     case 'Approve': {
       // Thierry - august 22 2007
-      // keep it simple - the admin who approves is now supposed to check 
+      // keep it simple - the admin who approves is now supposed to check
       // the PI's email address, which makes the whole thing *a lot* simpler
       // enable the site, enable the PI, and VerifyPerson the thec if different from the PI
       $site['enabled'] = True;
@@ -271,7 +263,7 @@ else if ($_POST['submitted'] )
       } else {
 	$messages[] = l_site_t ($site_id,"Site '" . $site['name'] . "' enabled");
       }
-      
+
       if (empty ($error) && $address_id) {
 	// Update Address
 	$api->UpdateAddress($address_id,$address);
@@ -280,7 +272,7 @@ else if ($_POST['submitted'] )
 	  $error .= $api->error();
 	  $messages [] = "Could not update address";
 	}
-	
+
 	foreach ( array("Billing","Shipping") as $address_type) {
 	  $api->AddAddressTypeToAddress($address_type,$address_id);
 	  $api_error=$api->error();
@@ -289,7 +281,7 @@ else if ($_POST['submitted'] )
 	    $messages [] = "Could not add address type " . $address_type;
 	  }
 	}
-	  
+
 	// Update pi, and enable him
 	$api->UpdatePerson ($pi_id,$pi);
 	if ( $pi ['enabled' ] ) {
@@ -343,12 +335,12 @@ else if ($_POST['submitted'] )
     }
     print "</ul></div>";
   }
-	
+
   // Show errors if any
   if (!empty($error)) {
     print '<div class="messages error">' . $error . '</div>';
     drupal_set_title('Join Request - Review');
-    render_join_request_review($api, $_POST['site_id']);    
+    render_join_request_review($api, $_POST['site_id']);
   } else {
     drupal_set_title('All currently pending join requests');
     render_all_join_requests($api);

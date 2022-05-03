@@ -27,21 +27,21 @@ function timeDiff ($timestamp,$detailed=false,$n = 0) {
   $time = "";						# The string we will hold our times in
   while($i > $n) {
 # if the difference is greater than the length we are checking... continue
-    if ($diff > $lengths[$i-1]) {				
+    if ($diff > $lengths[$i-1]) {
 # 65 / 60 = 1.	That means one minute.	130 / 60 = 2. Two minutes.. etc
-      $val = floor($diff / $lengths[$i-1]);		
+      $val = floor($diff / $lengths[$i-1]);
 # The value, then the name associated, then add 's' if plural
-      $time .= $val ." ". $periods[$i-1].($val > 1 ? 's ' : ' ');	
-# subtract the values we just used from the overall diff so we can 
+      $time .= $val ." ". $periods[$i-1].($val > 1 ? 's ' : ' ');
+# subtract the values we just used from the overall diff so we can
 # find the rest of the information
-      $diff -= ($val * $lengths[$i-1]);		
-# if detailed is turn off (default) only show the first set found, 
+      $diff -= ($val * $lengths[$i-1]);
+# if detailed is turn off (default) only show the first set found,
 # else show all information
-      if(!$detailed) { $i = 0; }		
+      if(!$detailed) { $i = 0; }
     }
     $i--;
   }
-	
+
 # Basic error checking.
   if ($time == "") {
     return "error: bad time";
@@ -64,12 +64,12 @@ class PlcObject {
 class Person {
   var $roles;
   var $person_id;
-  var $first_name; 
+  var $first_name;
   var $last_name;
   var $email;
   var $enabled;
 
-  function Person($person) {
+  function __construct($person) {
     $this->roles = $person['role_ids'];
     $this->person_id = $person['person_id'];
     $this->first_name = $person['first_name'];
@@ -136,19 +136,19 @@ class Person {
 class PCU {
   var $data;
 
-  function PCU($pcu) {
+  function __construct($pcu) {
     $this->data = $pcu;
   }
 
   function deletePCUlink($node) {
-    return "<a href='/db/sites/index.php?id=" . $node->site_id . 
-      "&delete_node_from_pcu=" . $node->node_id . 
+    return "<a href='/db/sites/index.php?id=" . $node->site_id .
+      "&delete_node_from_pcu=" . $node->node_id .
       "&pcu_id=" . $this->data['pcu_id'] . "'>&nbsp;Remove from PCU</a>";
   }
   function pcu_name() {
     if ( $this->data['hostname'] != NULL and $this->data['hostname'] != "" ):
       return $this->data['hostname'];
-    else: 
+    else:
       if ( $this->data['ip'] != NULL and $this->data['ip'] != "" ):
 	return $this->data['ip'];
       else:
@@ -169,14 +169,14 @@ class PCU {
 class Address {
   var $data;
 
-  function Address($address) {
+  function __construct($address) {
     $this->data = $address;
   }
 
   function link($str) {
     return "<a href='/db/addresses/index.php?id=" . $this->data['address_id'] . "'>" . $str . "</a>";
   }
-	
+
   function label() {
     $label = "";
     $comma= sizeof( $this->data['address_types'] );
@@ -204,7 +204,7 @@ class Node extends PlcObject {
   var $pcu_ids;
   var $data;
 
-  function Node($node) {
+  function __construct($node) {
     global $plc, $api, $adm;
     $this->data = $node;
     $this->node_type = $node['node_type'];
@@ -221,18 +221,18 @@ class Node extends PlcObject {
     $this->nn = $api->GetInterfaces($node['interface_ids']);
     foreach ($this->nn as $nnet)
       {
-	if ( $nnet['is_primary'] == true )
-	  {
-	    $this->ip = $nnet['ip'];
-	    $this->netmask = $nnet['netmask'];
-	    $this->network = $nnet['network'];
-	    $this->gateway= $nnet['gateway'];
-	    $this->broadcast = $nnet['broadcast'];
-	    $this->dns1 = $nnet['dns1'];
-	    $this->dns2 = $nnet['dns2'];
-	    $this->method = $nnet['method'];
-	    $this->interface_id = $nnet['interface_id'];
-	  }
+      if ( $nnet['is_primary'] == true )
+        {
+          $this->ip = $nnet['ip'];
+          $this->netmask = $nnet['netmask'];
+          $this->network = $nnet['network'];
+          $this->gateway= $nnet['gateway'];
+          $this->broadcast = $nnet['broadcast'];
+          $this->dns1 = $nnet['dns1'];
+          $this->dns2 = $nnet['dns2'];
+          $this->method = $nnet['method'];
+          $this->interface_id = $nnet['interface_id'];
+        }
       }
   }
 
@@ -284,7 +284,7 @@ class Node extends PlcObject {
     return $ret;
   }
 
-  // code needs to be accessible from outside an object too 
+  // code needs to be accessible from outside an object too
   // b/c of the performance overhead of creating as many objects as nodes
   static function status_label_class__ ($boot_state, $run_level, $last_contact, $peer_id) {
     $label= $run_level ? $run_level : ( $boot_state . '*' ) ;
@@ -301,7 +301,7 @@ class Node extends PlcObject {
   static function status_footnote () {
     return "state; * if node doesn't have an observed state; ... if status is stale (" . Node::stale_text() . ")";
   }
-  
+
   // ditto
   static function stale_ ($last_contact, $peer_id) {
     // remote nodes don't have a last_contact
@@ -318,7 +318,7 @@ class Node extends PlcObject {
 class Slice {
   var $data;
 
-  function Slice($val) {
+  function __construct($val) {
     $this->data = $val;
   }
 
@@ -349,7 +349,7 @@ class Site extends PlcObject {
   var $site_id;
   var $data;
 
-  function Site($site_id) {
+  function __construct($site_id) {
     global $plc, $api, $adm;
     $site_info= $adm->GetSites( array( intval($site_id) ) );
     $this->data = $site_info[0];
@@ -372,29 +372,11 @@ class Site extends PlcObject {
     $adm->GetPCUs( $this->pcu_ids );
     $adm->GetNodes( $this->node_ids, array( "node_id", "hostname", "boot_state",
 					    "date_created", "last_updated", "last_contact", "site_id", "pcu_ids" ) );
-    $adm->GetPersons( $this->person_ids, array( "role_ids", "person_id", "first_name", 
+    $adm->GetPersons( $this->person_ids, array( "role_ids", "person_id", "first_name",
 						"last_name", "email", "enabled" ) );
     $adm->GetSlices( $this->slice_ids, array( "name", "slice_id", "instantiation", "created", "expires" ) );
     return $adm->commit();
   }
 }
-
-/* class Blue extends PlcObject
- {
- var $val;
- function Blue($arg)
- {
- $this->val = $arg;
- }
- }
-
- $cl = PlcObject::constructList('Blue', array('this', 'is', 'a', 'test'));
- echo sizeof($cl) . "\n";
- foreach ($cl as $obj)
- {
- echo get_class( $obj) . "\n";
- echo $obj->val . "\n";
- }*/
-
 
 ?>

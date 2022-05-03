@@ -1,6 +1,4 @@
 
-/* $Id: column.js Panos $ */
-
 var filtered_color = "grey";
 var normal_color = "black";
 

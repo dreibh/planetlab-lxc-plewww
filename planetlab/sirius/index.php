@@ -28,12 +28,12 @@ include 'plc_header.php';
 You can choose to run your experiment at the earliest available
 time or give a specific time.  The number of repetitions has
 the following meaning: if you want your job re-inserted on the
-schedule list (in the earliest slot available) directly after it 
-gets a priority increase, you can do so (up to 4 times).  Currently, 
-our admission control policy is that we 
+schedule list (in the earliest slot available) directly after it
+gets a priority increase, you can do so (up to 4 times).  Currently,
+our admission control policy is that we
 allow only one slice per time slot.  <p>
 
-Currently, 
+Currently,
 time slots are only allocated on the granularity
 of an hour, and
 only CPU is increased.
@@ -62,7 +62,7 @@ function authorizeSlice($sn) {
 
   $username = $_SESSION['username'];
   $password = $_SESSION['password'];
-  
+
   $_api->setDebug(0);
 
   $_api_auth = new xmlrpcval(array(
@@ -70,7 +70,7 @@ function authorizeSlice($sn) {
 				   "Username" => new xmlrpcval($username),
 				   "AuthString" => new xmlrpcval($password),
 				   "Role" => new xmlrpcval("user")), "struct");
-  
+
   $func = new xmlrpcmsg("SliceInfo");
   $func->addParam($_api_auth);
 
@@ -106,9 +106,9 @@ function authorizeSlice($sn) {
     }
   }
   */
-	
+
 	global $api;
-  
+
   $slice_list= array();
   $result= $api->GetSlices( Null, array( "name" ) );
 
@@ -116,16 +116,16 @@ function authorizeSlice($sn) {
   {
   	if ( $slice["name"] == $sn )
   		return 1;
-	
+
   }
-  
+
   return 0;
-  
+
 }
 
 //can a request be satisfied?  Currently, answer is yes unless
 //either this time is taken or you asked for more than one unit
-//probably will need to change this.  
+//probably will need to change this.
 function validateRequest ($units, $timesOccupied, $requestedTime, $currentTime) {
   if ($units != 1)
     return TOO_MANY_UNITS;
@@ -144,7 +144,7 @@ function validateRequest ($units, $timesOccupied, $requestedTime, $currentTime) 
 
 //can a request be satisfied?  Currently, answer is yes unless
 //either this time is taken or you asked for more than one unit
-//probably will need to change this.  
+//probably will need to change this.
 function validateAndMarkRequest ($units, &$timesOccupied, $requestedTime, $currentTime, $sn, $jobArray) {
   // buffer so we aren't too close to deadline, if your request is late
   // OR if it's within 1 minute of deadline, it's too late
@@ -176,7 +176,7 @@ function findNextFreeSlot($units, $timesOccupied) {
   $currMonth = gmdate("m");
   $currDate = gmdate("d");
   $currHour = gmdate("H") + 1;
-  $currentTime = gmmktime();
+  $currentTime = time();
   $reqTime = gmmktime($currHour, 0, 0, $currMonth, $currDate, $currYear);
   $retVal = 1;
   while ($retVal != SUCCESS) {
@@ -198,7 +198,7 @@ function dumpToFile($fileName, $buffer, $which, $timesOccupied) {
 
   //lock in case of concurrent accesses
   flock($fileHandle, LOCK_EX);
-  
+
   if ($which == "schedule") {  // need to write timestamp in this case
     $s = gettimeofday();
     fwrite($fileHandle, $s[sec]);
@@ -208,8 +208,8 @@ function dumpToFile($fileName, $buffer, $which, $timesOccupied) {
   //do the dump here
   foreach ($buffer as $value) {
     $t = "";
-    if ($which == "schedule") {  
-      if (strcmp($value["timestamp"], mktime()) > 0) {
+    if ($which == "schedule") {
+      if (strcmp($value["timestamp"], time()) > 0) {
 	$numReps = $value["reps"];
 	$ts = $value["timestamp"];
 	$t = $value["sliceName"]." ".$value["id"]." ".$value["timestamp"]." ".$value["units"]." ".$value["reps"]." \n";
@@ -243,13 +243,13 @@ function updateSliceFile($name, $units) {
 
   $sliceFile = fopen("/var/www/html/planetlab/sirius/slices.txt", "rw");
   if (!$sliceFile) {
-    echo "<p>Unable to open remote file.</p>"; 
-    
+    echo "<p>Unable to open remote file.</p>";
+
   }
 
   flock($sliceFile, LOCK_EX);
 
-  //we'll construct a new list here, will be current slice file except 
+  //we'll construct a new list here, will be current slice file except
   //the slice in question will have it's units decreased, if there are any...
   while (!feof($sliceFile)) {
     $num = fscanf($sliceFile, "%s %d\n", $sliceName, $unitsAvailable);
@@ -280,13 +280,13 @@ function updateSliceFile($name, $units) {
 
 
 //pretty obvious what this does; basically, does the slice exist in
-//the slice file yet?  (New user of calendar service user may not have 
+//the slice file yet?  (New user of calendar service user may not have
 //an entry)
 function isFirstSliceRequest($name) {
   $sliceFile = fopen("/var/www/html/planetlab/sirius/slices.txt", "r");
   if (!$sliceFile) {
-    echo "<p>Unable to open remote file.</p>"; 
-    
+    echo "<p>Unable to open remote file.</p>";
+
   }
 
   flock($sliceFile, LOCK_EX);
@@ -347,8 +347,8 @@ function getCurrentSchedule (&$jobArray, &$timesOccupied, &$maxId) {
 
   $schedFile = fopen("/var/www/html/planetlab/sirius/schedule.txt", "r");
   if (!$schedFile) {
-    echo "<p>Unable to open remote file.</p>"; 
-    
+    echo "<p>Unable to open remote file.</p>";
+
   }
 
   flock($schedFile, LOCK_EX);
@@ -393,7 +393,7 @@ function getCurrentSchedule (&$jobArray, &$timesOccupied, &$maxId) {
 }
 
 // Reid: after below function call, you have the current schedule.
-// It is stored in $jobArray, which is an array of arrays.  
+// It is stored in $jobArray, which is an array of arrays.
 // Layout: each element of $jobArray is an array with
 //         the following fields.
 //   "sliceName": the name of the slice that occupies the slot
@@ -434,14 +434,14 @@ if (isset($_POST['action']) && $_POST['action'] == 'submitted') {
     if (array_key_exists($sname, $jobArray)) {
       $changeMade = 1;
       $ts = $jobArray[$sname]["timestamp"];
-      if ($ts - mktime() < DELETE_THRESHOLD)
+      if ($ts - time() < DELETE_THRESHOLD)
 	$requestStatus = TOO_CLOSE_TO_DEADLINE;
       else {
 	$timesOccupied[$ts]--;
 	unset($jobArray[$sname]);
       }
     }
-    else 
+    else
       $requestStatus = NO_SUCH_SLICE;
   }
 
@@ -453,8 +453,8 @@ if (isset($_POST['action']) && $_POST['action'] == 'submitted') {
     $reps = $_POST['reps'];
     //  $u = $_POST['units'];
     $u = 1;
-    
-    $currentTime = mktime();
+
+    $currentTime = time();
 
     if ($_POST['whenToRun'] == "asap") {
       $requestedTime = findNextFreeSlot($u, $timesOccupied);
@@ -481,20 +481,20 @@ if (isset($_POST['action']) && $_POST['action'] == 'submitted') {
 	  $requestedTime = gmmktime($hour, 0, 0, $currMonth, $currDate, $currYear);
       }
     }
-    
+
     $id = $maxId + 1;
-    
+
     $requestStatus = validateAndMarkRequest($u, $timesOccupied, $requestedTime, $currentTime, $sname, $jobArray);
     if ($requestStatus == SUCCESS) {
       // ignore below, it is for future work anyways.
       if (isFirstSliceRequest($sname)) {
 	$sliceFile = fopen("/var/www/html/planetlab/sirius/slices.txt", "a");
 	if ($sliceFile == 0) {
-	  echo "<p>Unable to open file.</p>"; 
-	  
+	  echo "<p>Unable to open file.</p>";
+
 	}
 	flock($sliceFile, LOCK_EX);
-	
+
 	// should be max number of units, not 5
 	// why is this 6?
 	fwrite($sliceFile, $sname." "."6");
@@ -504,9 +504,9 @@ if (isset($_POST['action']) && $_POST['action'] == 'submitted') {
       // if (updateSliceFile($sname, 1) < 0)
       // temporarily not looking at units...
       if (0)
-	$requestStatus = NO_UNITS_LEFT;  
+	$requestStatus = NO_UNITS_LEFT;
       else {
-	// here, pretty simple, just stick all data into 
+	// here, pretty simple, just stick all data into
 	// array element, then stick array into $jobArray.
 	$newArray["sliceName"] = $sname;
 	$newArray["id"] = $id;
@@ -521,7 +521,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'submitted') {
 }
 
 //sort job array by earliest time first ("cmp" function does this)
-usort($jobArray, "cmp");  
+usort($jobArray, "cmp");
 
 // Reid: after this above line, $jobArray holds a sorted list that
 //       you can output as the queue.
@@ -549,7 +549,7 @@ $deletedExpiredJob = 0;
 $arr= array();
 $n= 0;
 foreach ($jobArray as $value) {
-  if (strcmp($value["timestamp"], mktime()) > 0) {
+  if (strcmp($value["timestamp"], time()) > 0) {
     printf("<tr>\n");
     printf("<td> %s </td><td align=center> %d </td><td> %s </td>\n", $value["sliceName"], $value["reps"], gmdate("r", $value["timestamp"]));
     $arr[$n]= $value["sliceName"];
@@ -565,7 +565,7 @@ echo "<br>\n";
 // Reid: end of current printing of the schedule.
 
 // Reid: here is where we put the data back to the schedule file.
-//       It's already a function, 
+//       It's already a function,
 
 function findNextQueue($units, $timesOccupied, $arr) {
 
@@ -573,16 +573,16 @@ function findNextQueue($units, $timesOccupied, $arr) {
   $currMonth = gmdate("m");
   $currDate = gmdate("d");
   $currHour = gmdate("H") + 1;
-  $currentTime = gmmktime();
+  $currentTime = time();
   $reqTime = gmmktime($currHour, 0, 0, $currMonth, $currDate, $currYear);
   $retVal = 1;
   $i = 0;
-	
+
 
 	// DAVE
 	// outputting table to display the queue
 	// green background will mean slot is open, and red will mean the slot is used
-	// 
+	//
   echo "<table cellspacing=\"2\" cellpadding=\"1\" border=\"0\" width=550>\n";
   echo "<tr><td colspan=\"3\"><span class='bold'>24 hour Queue:</span> Choose the GMT time slot you desire (<font color=\"#339933\">green</font> slots are open, <font color=\"#CC3333\">red</font> are taken) <p></td></tr>\n";
   echo "<tr><td width=\"47%\" align=\"right\"><table cellspacing=1 cellpadding=1 border=0 width=130>\n";
@@ -595,7 +595,7 @@ function findNextQueue($units, $timesOccupied, $arr) {
   while ($i < 12) {
     $retVal = validateRequest($units, $timesOccupied, $reqTime, $currentTime);
     if ($retVal == SUCCESS) { // advance timestamp one hour (3600 seconds)
-	  
+
 	echo "<tr bgcolor=\"#339933\"><td><input type=\"radio\" name=\"queue_time\" value=\"" . gmdate("H:i:s", $reqTime) . "\"> " . gmdate("H:i:s", $reqTime) . " &nbsp;  </td></tr>\n";
     }
     else {
@@ -633,7 +633,7 @@ function sliceDropDown() {
 
   $username = $_SESSION['username'];
   $password = $_SESSION['password'];
-  
+
   $_api->setDebug(0);
 
   $_api_auth = new xmlrpcval(array(
@@ -641,12 +641,12 @@ function sliceDropDown() {
 				   "Username" => new xmlrpcval($username),
 				   "AuthString" => new xmlrpcval($password),
 				   "Role" => new xmlrpcval("user")), "struct");
-  
+
   $func = new xmlrpcmsg("SliceInfo");
   $func->addParam($_api_auth);
 
   $result = $_api->send($func, 15, 'https');
-  
+
   if( $result == 0 ) {
     //    printf("problem: %s\n", $_api->errstring);
     return 0;
@@ -670,7 +670,7 @@ function sliceDropDown() {
       $i = 0;
       while ($i < $numElements) {
 		echo "<option value='" . $arr[$i][name] . "'>" . $arr[$i][name] . "</option>\n";
-		
+
 		$i++;
       }
       return 0;
@@ -678,7 +678,7 @@ function sliceDropDown() {
   }
   */
 	global $api;
-  
+
   $slice_list= array();
   $result= $api->GetSlices( Null, array( "name" ) );
 
@@ -691,9 +691,9 @@ function sliceDropDown() {
   foreach ( $result AS $slice )
   {
   	echo "<option value='" . $slice["name"] . "'>" . $slice["name"] . "\n";
-  	
+
   }
-  
+
 }
 //reopen schedule file, and dump newly sorted job list into it
 //note that current timestamp is put in at beginning
@@ -704,14 +704,14 @@ if ($deletedExpiredJob || ($changeMade && $requestStatus == SUCCESS)) {
 
   // hack here...the problem is that the file might not be sorted
   // when it should, because of the stupid way it was designed.  this
-  // happens when reps is not 0, and the next entry should go after 
+  // happens when reps is not 0, and the next entry should go after
   // another entry.  what does happen is that it goes before, which is
   // fine for displaying, but the sirius service code expects it to
   // always be sorted, "it" being the schedule file
 
   $hackArray = array();
   getCurrentSchedule ($hackArray, $timesOccupied, $maxId);
-  usort($hackArray, "cmp");  
+  usort($hackArray, "cmp");
   dumpToFile("/var/www/html/planetlab/sirius/schedule.txt", $hackArray, "schedule", $timesOccupied);
 }
 
@@ -754,10 +754,10 @@ Choose a number of times you need CPU priority:
 
 <p>
 Only enter a time/date here if your request is for a time more than 24 hours from now.<br>
-Year (two digits) <input type=text maxlength=2 size=2 name="year"/> 
-Month (1-12) <input type=text maxlength=2 size=2 name="month"/> 
-Date (1-31) <input type=text maxlength=2 size=2 name="date"/> 
-Hour (0-23) <input type=text maxlength=2 size=2 name="hour"/> 
+Year (two digits) <input type=text maxlength=2 size=2 name="year"/>
+Month (1-12) <input type=text maxlength=2 size=2 name="month"/>
+Date (1-31) <input type=text maxlength=2 size=2 name="date"/>
+Hour (0-23) <input type=text maxlength=2 size=2 name="hour"/>
 <p>
 <!--Units <input type=text maxlength=2 size=2 name="units"/>-->
 <!--<p>-->

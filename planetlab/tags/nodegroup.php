@@ -22,7 +22,7 @@ require_once 'toggle.php';
 
 // -------------------- 
 // recognized URL arguments
-$nodegroup_id=intval($_GET['id']);
+$nodegroup_id=intval(get_array($_GET, 'id'));
 if ( ! $nodegroup_id ) { plc_error('Malformed URL - id not set'); return; }
 
 ////////////////////

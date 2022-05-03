@@ -14,8 +14,8 @@ drupal_set_html_head('
 // (*) area is what gets hidden and shown
 // (*) trigger is the area that can be clicked for toggling
 // (*) image contains a visual indication of the current status
-// 
-// constructor needs 
+//
+// constructor needs
 // (*) id:	an 'id', used for naming the three parts
 // (*) trigger:	the html text for the trigger
 // (*) options:	a hash that can define
@@ -24,11 +24,11 @@ drupal_set_html_head('
 //	- visible : if set to false, start hidden rather than visible
 //	- info-text : the text for help on the tab
 //	- info-visible : whether info needs to be visible at startup
-// 
+//
 // methods are as follows
 // (*) trigger_html ():	return the html code for the trigger
 // (*) image_html ():	returns the html code for the image
-// (*) area_start ():	because we have too many places where php 'prints' code: instead 
+// (*) area_start ():	because we have too many places where php 'prints' code: instead
 // (*) area_end():	  of returning it, we do not expect the code for the area to be passed
 //			  so these methods can be used to delimit the area in question
 
@@ -37,13 +37,13 @@ class PlekitToggle {
   var $id;
   var $nifty;
 
-  function PlekitToggle ($id,$trigger,$options=NULL) {
+  function __construct ($id,$trigger,$options=NULL) {
     $this->id = $id;
     $this->trigger=$trigger;
     if ( ! $options ) $options = array();
     // 'visible' may be set or not; if set to NULL it's considered as undefined
     // so using NULL as the default means 'select from local storage i.e. last status'
-    if (array_key_exists ('visible',$options) && $options['visible']==NULL) 
+    if (array_key_exists ('visible',$options) && $options['visible']==NULL)
       unset ($options['visible']);
     // start-hidden is internal and is always set
     if (array_key_exists ('visible',$options)) {
@@ -111,7 +111,7 @@ class PlekitToggle {
     if (empty($tagname)) $tagname="span";
     $bubble="";
     if (array_key_exists ('bubble',$this->options)) $bubble=$this->options['bubble'];
-    
+
     $html="<$tagname";
     $html .= " id='$trigger_id'";
     $html .= " class='plc-toggle-trigger'";
@@ -136,7 +136,7 @@ class PlekitToggle {
     // xxx in fact the default should be fetched in the browser storage xxx
     $info_visible=TRUE;
     // if info-visible is set, use this value
-    if (array_key_exists ('info-visible',$this->options)) 
+    if (array_key_exists ('info-visible',$this->options))
       $info_visible=$this->options['info-visible'];
 
     $id=$this->id;
@@ -153,7 +153,7 @@ class PlekitToggle {
     $html .= "</td></tr></table></div>";
     return $html;
   }
-    
+
 
   function area_start () { print $this->area_start_html(); }
   function area_start_html () {
@@ -174,7 +174,7 @@ class PlekitToggle {
 
   /* if desired, you can embed the whole (trigger+area) in another div for visual effects */
   function container_start ()		{ print $this->container_start_html(); }
-  function container_start_html ()	{ 
+  function container_start_html ()	{
     $id=$this->id_name('container');
     $this->nifty=new PlekitNifty ($id,'plc-toggle-container','medium');
     return $this->nifty->start_html();
@@ -188,4 +188,4 @@ class PlekitToggle {
 
 }
 
-?>    
+?>

@@ -20,7 +20,7 @@ require_once 'form.php';
 
 
 // if slice and node ids are passed display slivers and tags
-if( $_GET['slice_id'] && $_GET['node_id'] ) {
+if( get_array($_GET, 'slice_id') && get_array($_GET, 'node_id') ) {
     $slice_id = $_GET['slice_id'];
     $node_id = $_GET['node_id'];
 

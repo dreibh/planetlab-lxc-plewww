@@ -16,15 +16,15 @@ class PlekitForm {
   var $onSubmit; // can be set with options
   var $onReset; // can be set with options
 
-  function PlekitForm ($full_url, $values, $options=NULL) {
+  function __construct ($full_url, $values, $options=NULL) {
     // so we can use the various l_* functions:
-    // we parse the url to extract var-values pairs, 
+    // we parse the url to extract var-values pairs,
     // and add them to the 'values' argument if any
 
     // extract var=value settings from url if any
     $split=plekit_split_url($full_url);
     $this->url=$split['url'];
-    
+
     $url_values=$split['values'];
     if ( ! $values ) $values = array();
     if ( $url_values ) $values=array_merge($values,$url_values);
@@ -42,8 +42,8 @@ class PlekitForm {
     if ($this->onSubmit) $html .= " onSubmit='$this->onSubmit'";
     if ($this->onReset) $html .= " onReset='$this->onReset'";
     $html .= ">";
-    if ($this->values) 
-      foreach ($this->values as $key=>$value) 
+    if ($this->values)
+      foreach ($this->values as $key=>$value)
 	$html .= $this->hidden_html($key,$value);
     return $html;
   }
@@ -52,15 +52,18 @@ class PlekitForm {
   function end_html() { return "</form>"; }
 
   static function attributes ($options) {
-    $html="";
-    $names=array('id','size','selected', 'checked',
-		 'onfocus','onselect', 'onchange', 
+    $html = "";
+    $names = array('id','size','selected', 'checked',
+		 'onfocus', 'onselect', 'onchange',
 		 'onkeyup', 'onmouseup', 'onclick', 'onsubmit');
-    if ($options['selected']) $options['selected']='selected';
-    if ($options['checked']) $options['checked']='checked';
-    if ($options) foreach ($options as $key=>$value) {
-	if (in_array(strtolower($key),$names)) 
-	  $html .= " $key='$value'";
+    if (get_array($options, 'selected'))
+      $options['selected'] = 'selected';
+    if (get_array($options, 'checked'))
+      $options['checked'] = 'checked';
+    if ($options)
+      foreach ($options as $key=>$value) {
+	      if (in_array(strtolower($key), $names))
+	        $html .= " $key='$value'";
       }
     return $html;
   }
@@ -91,9 +94,9 @@ class PlekitForm {
   static function textarea_html ($name,$value,$cols,$rows) {
     return "<textarea name='$name' cols='$cols' rows='$rows'>$value</textarea>";
   }
- 
+
   // selectors is an array of hashes with the following keys
-  // (*) display 
+  // (*) display
   // (*) value : the value that the 'name' variable will be assigned
   // (*) optional 'selected': the entry selected initially
   // (*) optional 'disabled': the entry is displayed but not selectable
@@ -105,17 +108,19 @@ class PlekitForm {
 
   static function select_html ($name,$selectors,$options=NULL) {
     if ( ! $options) $options=array();
-    if ( $options ['autosubmit'] ) $options['onChange']='submit()';
+    if (get_array($options, 'autosubmit'))
+      $options['onChange']='submit()';
     $html="";
     $html.="<select name='$name'";
-    if ($options['id']) $html .= " id='" . $options['id'] . "'";
-    $cbs=array('onFocus','onSelect','onChange');
+    if (get_array($options, 'id'))
+      $html .= " id='" . $options['id'] . "'";
+    $cbs = array('onFocus', 'onSelect', 'onChange');
     foreach ($cbs as $cb) {
-      if ($options[$cb])
-	$html .= " $cb='" . $options[$cb] . "'";
+      if (get_array($options, $cb))
+	      $html .= " $cb='" . $options[$cb] . "'";
     }
     $html .= ">";
-    if ($options['label']) {
+    if (get_array($options, 'label')) {
       $encoded=htmlentities($options['label'],ENT_QUOTES);
       $html.="<option selected=selected value=''>$encoded</option>";
     }
@@ -124,8 +129,10 @@ class PlekitForm {
         $display=htmlentities($selector['display'],ENT_QUOTES);
         $value=$selector['value'];
         $html .= "<option value='$value'";
-        if ($selector['selected']) $html .= " selected=selected";
-        if ($selector['disabled']) $html .= " disabled=disabled";
+        if (get_array($selector, 'selected'))
+          $html .= " selected=selected";
+        if (get_array($selector, 'disabled'))
+          $html .= " disabled=disabled";
         $html .= ">$display</option>\n";
       }
     }
@@ -144,7 +151,7 @@ class PlekitForm {
     } else {
       foreach ($roles as $role) {
 	$selector=role_selector($role);
-	if ($role['role_id'] == $current_id) 
+	if ($role['role_id'] == $current_id)
 	    $selector['selected']=true;
 	$selectors []= $selector;
       }
@@ -156,19 +163,19 @@ class PlekitForm {
 
 // a form with a single button
 class PlekitFormButton extends PlekitForm {
-  
+
   var $button_id;
   var $button_text;
 
-  function PlekitFormButton ($full_url, $button_id, $button_text, $method="POST") {
-    $this->PlekitForm($full_url,array(),$method);
+  function __construct ($full_url, $button_id, $button_text, $method="POST") {
+    parent::__construct($full_url,array(),$method);
     $this->button_id=$button_id;
     $this->button_text=$button_text;
   }
 
   function html () {
-    return 
-      $this->start_html() . 
+    return
+      $this->start_html() .
       $this->submit_html($this->button_id,$this->button_text).
       $this->end_html();
   }

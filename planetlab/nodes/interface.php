@@ -28,14 +28,14 @@ include 'plc_header.php';
 // adding: _GET['node_id']: 
 //	otherwise, node_id is needed and the form only allows to add
 
-if ( isset ($_GET['id'])) {
+if ( get_array($_GET, 'id')) {
   $mode='update';
   $interface_id=intval($_GET['id']);
   $interfaces=$api->GetInterfaces(array('interface_id'=>$interface_id));
   $interface=$interfaces[0];
   $node_id=$interface['node_id'];
   $title=('Updating interface ' . $interface['ip']);
- } else if (isset ($_GET['node_id'])) {
+ } else if (get_array($_GET, 'node_id')) {
   $mode='add';
   $interface=array();
   $node_id=$_GET['node_id'];

@@ -23,7 +23,7 @@ $_roles= $_person['role_ids'];
 
 
 // if no id redirect
-if( !$_GET['id'] ) 
+if( !get_array($_GET, 'id') ) 
   plc_redirect (l_sites());
 
 // set the site_id

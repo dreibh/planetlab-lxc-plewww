@@ -23,12 +23,12 @@ require_once 'linetabs.php';
 require_once 'table.php';
 require_once 'nifty.php';
 
-// -------------------- 
+// --------------------
 // recognized URL arguments
-$peerscope=$_GET['peerscope'];
-$pattern=$_GET['pattern'];
-$site_id=intval($_GET['site_id']);
-$person_id=intval($_GET['person_id']);
+$peerscope=get_array($_GET, 'peerscope');
+$pattern=get_array($_GET, 'pattern');
+$site_id=intval(get_array($_GET, 'site_id'));
+$person_id=intval(get_array($_GET, 'person_id'));
 
 // --- decoration
 $title="Slices";
@@ -58,7 +58,7 @@ if ($pattern) {
  }
 
 // server-side selection on peerscope
-$peerscope=new PeerScope($api,$_GET['peerscope']);
+$peerscope=new PeerScope($api,get_array($_GET, 'peerscope'));
 $slice_filter=array_merge($slice_filter,$peerscope->filter());
 $title .= ' - ' . $peerscope->label();
 
@@ -95,8 +95,8 @@ global $person_hash;
 $person_hash=array();
 if ($persons) foreach ($persons as $person) $person_hash[$person['person_id']]=$person;
 
-function email_link_from_hash($person_id) { 
-  global $person_hash; 
+function email_link_from_hash($person_id) {
+  global $person_hash;
   return l_person_obj($person_hash[$person_id]);
 }
 
@@ -109,7 +109,7 @@ if ( ! $slices ) {
   drupal_set_message ('No slice found');
   return;
  }
-  
+
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
 if (plc_is_admin()) $headers["I"]="int";
@@ -123,7 +123,7 @@ $headers["Exp. d/m/y"]="date-dmy";
 # initial sort on hostnames
 if (plc_is_admin()) $slices_sort_column = 3;
 else $slices_sort_column = 2;
-    
+
 $table=new PlekitTable ("slices",$headers,$slices_sort_column,
 			array('search_width'=>20));
 $table->start();

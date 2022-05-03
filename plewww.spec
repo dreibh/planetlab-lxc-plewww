@@ -1,7 +1,7 @@
 # what the myplc rpm requires
 %define name plewww
-%define version 5.2
-%define taglevel 9
+%define version 5.3
+%define taglevel 0
 
 # no need to mention pldistro as this module differs in both distros
 %define release %{taglevel}%{?date:.%{date}}
@@ -16,6 +16,8 @@ Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch: noarch
 BuildRequires: python
+# for patching drupal session code
+BuildRequires: ed
 
 Vendor: OneLab
 Packager: OneLab <support@one-lab.org>
@@ -105,9 +107,14 @@ for module in user node; do
     cp -f /var/www/html/drupal-hacks/${module}.module /var/www/html/modules/${module}.module
 done
 popd
+# hack drupal's session handler for php8
+pushd /var/www/html/includes
+bash /var/www/html/drupal-hacks/patch-session-inc.sh
+popd
 # create myslice.log and change its ownership
-touch /var/log/myslice.log
-chown apache:apache /var/log/myslice.log
+mkdir -p /var/log/myslice
+touch /var/log/myslice/myslice.log
+chown apache:apache /var/log/myslice/myslice.log
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -124,6 +131,9 @@ rm -rf $RPM_BUILD_ROOT
 /var/www/html/plekit
 
 %changelog
+* Sat Apr 30 2022 Thierry Parmentelat <thierry.parmentelat@inria.fr> - plewww-5.3-0
+- for php8 on fedora35
+
 * Wed May 16 2018 Thierry <Parmentelat> - plewww-5.2-9
 - not too clean patches for r2lab:
 - * search for a file named /etc/planetlab/php/person-registration.txt

@@ -28,15 +28,13 @@ drupal_set_html_head('
 ');
 
 
-//error_reporting(0);
-
-// -------------------- 
+// --------------------
 // recognized URL arguments
-$peerscope=$_GET['peerscope'];
-$pattern=$_GET['pattern'];
-$site_id=intval($_GET['site_id']);
-$slice_id=intval($_GET['slice_id']);
-$person_id=intval($_GET['person_id']);
+$peerscope = get_array($_GET, 'peerscope');
+$pattern = get_array($_GET, 'pattern');
+$site_id = intval(get_array($_GET, 'site_id'));
+$slice_id = intval(get_array($_GET, 'slice_id'));
+$person_id = intval(get_array($_GET, 'person_id'));
 
 // --- decoration
 $title="Nodes";
@@ -49,77 +47,73 @@ if (count (plc_my_site_ids()) == 1) {
 }
 $tabs []= tab_nodes_local();
 
-// -------------------- 
+// --------------------
 $node_filter=array();
 
 //////////////////
 // performs sanity check and summarize the result in a single column
 function node_status ($node) {
 
-  $messages=array();
-  if ($node['node_type'] != 'regular' && $node['node_type'] != 'reservable' ) 
-    $messages []= $node['node_type'];
+    $messages=array();
+    if ($node['node_type'] != 'regular' && $node['node_type'] != 'reservable' )
+        $messages []= $node['node_type'];
 
-  // checks on local nodes only
-  if ( ( ! $node['peer_id']) ) {
-    // has it got interfaces 
-    if (count($node['interface_ids']) == 0) 
-      $messages []= "No interface";
-  }
-  return plc_vertical_table($messages,'plc-warning');
+    // checks on local nodes only
+    if ( ( ! $node['peer_id']) ) {
+        // has it got interfaces
+        if (count($node['interface_ids']) == 0)
+            $messages []= "No interface";
+    }
+    return plc_vertical_table($messages,'plc-warning');
 }
 
 
-if (plc_is_admin()) 
-	$default_configuration = "ID:f|hostname:f|ST:f|AU:f|RES:f";
-else
+if (plc_is_admin()) {
+    $default_configuration = "ID:f|hostname:f|ST:f|AU:f|RES:f";
+} else {
 	$default_configuration = "hostname:f|ST:f|AU:f|RES:f";
+}
 
 //$extra_default = "LCN|DN|R|L|OS|MS|SN";
 $column_configuration = "";
 $slice_column_configuration = "";
 $show_configuration = "";
 
+$conf_tag_id = "";
+$show_tag_id = "";
 
 $PersonTags=$api->GetPersonTags (array('person_id'=>$plc->person['person_id']));
 //print_r($PersonTags);
 foreach ($PersonTags as $ptag) {
-        if ($ptag['tagname'] == 'columnconf')
-        {
-                $column_configuration = $ptag['value'];
-                $conf_tag_id = $ptag['person_tag_id'];
-        }
-	if ($ptag['tagname'] == 'showconf')
-        {
-                $show_configuration = $ptag['value'];
-                $show_tag_id = $ptag['person_tag_id'];
-        }
+    if ($ptag['tagname'] == 'columnconf') {
+        $column_configuration = $ptag['value'];
+        $conf_tag_id = $ptag['person_tag_id'];
+    }
+	if ($ptag['tagname'] == 'showconf') {
+        $show_configuration = $ptag['value'];
+        $show_tag_id = $ptag['person_tag_id'];
+    }
 }
 
 //print("column configuration = ".$column_configuration);
 
 $nodesconf_exists = false;
-if ($column_configuration == "")
-{
-        $column_configuration = "nodes;default";
-        $nodesconf_exists = true;
-}
-else {
-        $slice_conf = explode(";",$column_configuration);
-        for ($i=0; $i<count($slice_conf); $i++ ) {
-                if ($slice_conf[$i] == "nodes")
-                {
-                        $i++;
-                        $slice_column_configuration = $slice_conf[$i];
-                        $nodesconf_exists = true;
-                        break;
-                }
-                else
-                {
-                        $i++;
-                        $slice_column_configuration = $slice_conf[$i];
-                }
+if ($column_configuration == "") {
+    $column_configuration = "nodes;default";
+    $nodesconf_exists = true;
+} else {
+    $slice_conf = explode(";",$column_configuration);
+    for ($i=0; $i<count($slice_conf); $i++ ) {
+        if ($slice_conf[$i] == "nodes") {
+            $i++;
+            $slice_column_configuration = $slice_conf[$i];
+            $nodesconf_exists = true;
+            break;
+        } else {
+            $i++;
+            $slice_column_configuration = $slice_conf[$i];
         }
+    }
 }
 
 if ($nodesconf_exists == false)
@@ -129,19 +123,19 @@ if ($nodesconf_exists == false)
 
 
 if ($slice_column_configuration == "" || $slice_column_configuration == "default")
-        $full_configuration = $default_configuration;
-	
+    $full_configuration = $default_configuration;
+
 else
-        $full_configuration = $default_configuration."|".$slice_column_configuration;
+    $full_configuration = $default_configuration."|".$slice_column_configuration;
 
 //print("full configuration = ".$full_configuration);
 
-// fetch nodes 
+// fetch nodes
 $node_fixed_columns=array('node_type','site_id','boot_state','last_contact','interface_ids','peer_id', 'slice_ids');
 
 $fix_columns = array();
-if (plc_is_admin()) 
-$fix_columns[]=array('tagname'=>'node_id', 'header'=>'ID', 'type'=>'string', 'title'=>'The ID the node');
+if (plc_is_admin())
+    $fix_columns[]=array('tagname'=>'node_id', 'header'=>'ID', 'type'=>'string', 'title'=>'The ID the node');
 $fix_columns[]=array('tagname'=>'hostname', 'header'=>'hostname', 'type'=>'string', 'title'=>'The name of the node');
 $fix_columns[]=array('tagname'=>'peer_id', 'header'=>'AU', 'type'=>'string', 'title'=>'Authority');
 $fix_columns[]=array('tagname'=>'run_level', 'header'=>'ST', 'type'=>'string', 'title'=>'Status');
@@ -161,7 +155,7 @@ $extra_columns[]=array('tagname'=>'ipaddress', 'header'=>'IP', 'type'=>'string',
 $extra_columns[]=array('tagname'=>'fcdistro', 'header'=>'OS', 'type'=>'string', 'title'=>'Operating system', 'fetched'=>false, 'source'=>'myplc');
 $extra_columns[]=array('tagname'=>'date_created', 'header'=>'DA', 'source'=>'myplc', 'type'=>'date', 'title'=>'Date added', 'fetched'=>false);
 $extra_columns[]=array('tagname'=>'arch', 'header'=>'A', 'source'=>'myplc', 'type'=>'string', 'title'=>'Architecture', 'fetched'=>false);
-if (plc_is_admin()) { 
+if (plc_is_admin()) {
 $extra_columns[]=array('tagname'=>'deployment', 'header'=>'DL', 'source'=>'myplc', 'type'=>'string', 'title'=>'Deployment', 'fetched'=>false);
 }
 
@@ -221,7 +215,7 @@ if ($pattern) {
  }
 
 // server-side selection on peerscope
-$peerscope=new PeerScope($api,$_GET['peerscope']);
+$peerscope=new PeerScope($api,get_array($_GET, 'peerscope'));
 $node_filter=array_merge($node_filter,$peerscope->filter());
 $title .= ' - ' . $peerscope->label();
 
@@ -247,7 +241,7 @@ if ($slice_id) {
 if ($person_id) {
   // avoid doing a useless call to GetPersons if the person_id is already known though $plc,
   // as this is mostly done for the 'all my sites nodes' link
-  if ($person_id == plc_my_person_id()) { 
+  if ($person_id == plc_my_person_id()) {
     $person=plc_my_person();
     $site_ids = plc_my_site_ids();
   } else {
@@ -312,16 +306,16 @@ if ( ! $nodes ) {
   drupal_set_message ('No node found');
   return;
  }
-  
+
 $nifty=new PlekitNifty ('','objects-list','big');
 $nifty->start();
-$headers = array (); 
+$headers = array ();
 $notes=array();
 $notes [] = "For information about the different columns please see the <b>node table layout</b> tab above or <b>mouse over</b> the column headers";
 
 $info_header = array();
-$short="?"; $long="extra status info"; $type='string'; 
-$info_header[$short]=array('type'=>$type,'title'=>$long, 'label'=>'?', 'header'=>'?', 'visible'=>true); 
+$short="?"; $long="extra status info"; $type='string';
+$info_header[$short]=array('type'=>$type,'title'=>$long, 'label'=>'?', 'header'=>'?', 'visible'=>true);
 //$notes []= "$short = $long";
 //$info_header["?"] = "none";
 $headers = array_merge($ConfigureColumns->get_headers(),$info_header);
@@ -338,7 +332,7 @@ href="http://trac.myslice.info">http://trac.myslice.info</a>.
 ';
 $toggle_nodes=new PlekitToggle('nodes-layout',
                                "Node table layout",
-                               array('visible'=>NULL, 
+                               array('visible'=>NULL,
 				     'info-text'=>$layout_help,
 				     'info-visible'=>$show_columns_message));
 $toggle_nodes->start();
@@ -380,7 +374,7 @@ foreach ($nodes as $node) {
   $ip=$interface_hash[$node['node_id']]['ip'];
   $interface_id=$interface_hash[$node['node_id']]['interface_id'];
   $peer_id=$node['peer_id'];
-  
+
   $table->row_start();
   $table->cell($node['node_id'], array('display'=>'none'));
   if (plc_is_admin()) $table->cell(l_node_t($node_id,$node_id));
@@ -403,7 +397,7 @@ foreach ($nodes as $node) {
   $ConfigureColumns->cells($table, $node);
   $table->cell (node_status($node));
   $table->row_end();
-  
+
 }
 
 $table->end();

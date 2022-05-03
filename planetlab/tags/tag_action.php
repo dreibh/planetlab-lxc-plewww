@@ -29,9 +29,9 @@ return;
 // TAGS -------------------------------------------------
 
 // tag deletion
-if( $_GET['rem_id'] ) {
+if( get_array($_GET, 'rem_id') ) {
   // get the id of the tag to remove from GET
-  $tag_id= intval( $_GET['rem_id'] );
+  $tag_id= intval( get_array($_GET, 'rem_id') );
 
   // get slice_id 
   $tag_info= $api->GetSliceTags( array( $tag_id ), array( "slice_id" ) );

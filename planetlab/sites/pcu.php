@@ -22,7 +22,7 @@ $_roles= $_person['role_ids'];
 
 
 // if no id: add, else: display(update)
-if( !$_GET['id'] ) {
+if( !get_array($_GET, 'id') ) {
   if( $_POST['submitted'] ) {
     // get person's site id
     $site_id= $_person['site_ids'][0];
@@ -58,11 +58,11 @@ if( !$_GET['id'] ) {
 <br /><p><input type=submit name='submitted' value='Add New PCU'>\n";
 } else {
   // get PCU info
-  $pcu_id= intval( $_GET['id'] );
+  $pcu_id= intval( get_array($_GET, 'id') );
   $pcu_info= $api->GetPCUs( array( intval( $pcu_id ) ) );
   
   // if remove is set remove the node from the pcu
-  if( $_GET['remove'] ) {
+  if( get_array($_GET, 'remove') ) {
     $rem_id= $_GET['remove'];
     
     $api->DeleteNodeFromPCU( intval( $rem_id ), $pcu_id );

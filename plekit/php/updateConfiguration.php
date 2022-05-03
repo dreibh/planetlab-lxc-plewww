@@ -13,11 +13,11 @@ require_once 'plc_drupal.php';
 // Common functions
 require_once 'plc_functions.php';
 
-$value=$_GET["value"];
-$person_id=intval($_GET["person_id"]);
-$slice_id=$_GET["slice_id"];
-$tag_id=intval($_GET["tag_id"]);
-$tag_name=$_GET["tag_name"];
+$value=get_array($_GET, "value");
+$person_id=intval(get_array($_GET, "person_id"));
+$slice_id=get_array($_GET, "slice_id");
+$tag_id=intval(get_array($_GET, "tag_id"));
+$tag_name=get_array($_GET, "tag_name");
 
 #$res = $api->UpdatePersonTag( $tag_id, $value );
 if ($tag_name == "columnconf")

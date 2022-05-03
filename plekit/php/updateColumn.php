@@ -17,10 +17,10 @@ require_once 'plc_functions.php';
 require_once 'columns.php';
 
 
-$slice_id=$_GET["slice_id"];
-$tagN=$_GET["tagName"];
-$data_source=$_GET["data_source"];
-$data_type=$_GET["data_type"];
+$slice_id=get_array($_GET, "slice_id");
+$tagN=get_array($_GET, "tagName");
+$data_source=get_array($_GET, "data_source");
+$data_type=get_array($_GET, "data_type");
 
 //print "getting column data for ".$slice_id." with ".$tagN." - ".$data_source." - ".$data_type;
 $nodetags = array('node_id');
